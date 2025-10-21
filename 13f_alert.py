@@ -6,6 +6,7 @@ import logging
 import os
 import subprocess
 import sys
+import tempfile
 from datetime import datetime
 from typing import Set, List, Dict
 from message_bridge import save_message_to_viewer  # Per visualizzatore locale
@@ -39,15 +40,32 @@ HEDGE_FUNDS_FILTER = [
 # Gestione logging con fallback se il file è bloccato
 log_handlers = [logging.StreamHandler()]
 
-try:
-    # Prova ad aprire il file log principale
-    log_handlers.append(logging.FileHandler('13f_alerts.log', encoding='utf-8'))
-except PermissionError:
-    # Se bloccato, usa un file con timestamp
+# Prova prima nella directory corrente, poi nel temp
+log_locations = [
+    '13f_alerts.log',  # Directory corrente
+    os.path.join(tempfile.gettempdir(), '13f_alerts.log'),  # Temp directory
+]
+
+log_file_created = False
+
+for log_path in log_locations:
+    try:
+        log_handlers.append(logging.FileHandler(log_path, encoding='utf-8'))
+        print(f"📁 Log file creato: {log_path}")
+        log_file_created = True
+        break
+    except PermissionError:
+        continue
+
+if not log_file_created:
+    # Ultima risorsa: file con timestamp nella temp
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    fallback_log = f'13f_alerts_{timestamp}.log'
-    log_handlers.append(logging.FileHandler(fallback_log, encoding='utf-8'))
-    print(f"⚠️ File log principale bloccato, uso: {fallback_log}")
+    fallback_log = os.path.join(tempfile.gettempdir(), f'13f_alerts_{timestamp}.log')
+    try:
+        log_handlers.append(logging.FileHandler(fallback_log, encoding='utf-8'))
+        print(f"⚠️ Usando file log di fallback: {fallback_log}")
+    except PermissionError:
+        print("⚠️ Impossibile creare file log, solo output console")
 
 logging.basicConfig(
     level=logging.INFO,
@@ -61,29 +79,51 @@ logger = logging.getLogger(__name__)
 def launch_telegram_viewer():
     """Avvia il visualizzatore Telegram in una finestra separata"""
     try:
-        viewer_path = os.path.join(os.path.dirname(__file__), 'telegram_viewer.py')
+        base_dir = os.path.dirname(__file__) if __file__ else os.getcwd()
+        viewer_path = os.path.join(base_dir, 'telegram_viewer.py')
+        batch_path = os.path.join(base_dir, 'launch_viewer.bat')
         
-        if os.path.exists(viewer_path):
-            # Avvia in processo separato e COMPLETAMENTE INDIPENDENTE
-            if sys.platform == 'win32':
-                # Usa pythonw per evitare console extra, o python normale
-                # CREATE_NEW_PROCESS_GROUP rende il processo indipendente
-                subprocess.Popen(
-                    [sys.executable, viewer_path],
-                    creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
-                    close_fds=True
-                )
-            else:
-                subprocess.Popen(
-                    [sys.executable, viewer_path],
-                    close_fds=True
-                )
-            
-            logger.info("📱 Telegram Viewer avviato con successo!")
-            return True
-        else:
+        if not os.path.exists(viewer_path):
             logger.warning(f"⚠️ File {viewer_path} non trovato")
             return False
+        
+        # Su Windows, prova prima con il batch file (più affidabile)
+        if sys.platform == 'win32' and os.path.exists(batch_path):
+            try:
+                subprocess.Popen(
+                    [batch_path],
+                    shell=True,
+                    cwd=base_dir
+                )
+                logger.info("📱 Telegram Viewer avviato con successo (via batch)!")
+                return True
+            except Exception as e:
+                logger.warning(f"⚠️ Fallback da batch, provo metodo diretto: {e}")
+        
+        # Fallback o altri sistemi operativi
+        if sys.platform == 'win32':
+            # Su Windows, usa pythonw.exe per evitare finestra console
+            python_exe = sys.executable.replace('python.exe', 'pythonw.exe')
+            if not os.path.exists(python_exe):
+                python_exe = sys.executable
+            
+            DETACHED_PROCESS = 0x00000008
+            subprocess.Popen(
+                [python_exe, viewer_path],
+                creationflags=DETACHED_PROCESS,
+                shell=False,
+                cwd=base_dir
+            )
+        else:
+            subprocess.Popen(
+                [sys.executable, viewer_path],
+                close_fds=True,
+                cwd=base_dir
+            )
+        
+        logger.info("📱 Telegram Viewer avviato con successo!")
+        return True
+        
     except Exception as e:
         logger.error(f"❌ Errore avvio Telegram Viewer: {e}")
         return False
