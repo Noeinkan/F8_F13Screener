@@ -7,8 +7,11 @@ import os
 import subprocess
 import sys
 import tempfile
+import csv
+import re
 from datetime import datetime
-from typing import Set, List, Dict
+from typing import Set, List, Dict, Optional
+from bs4 import BeautifulSoup
 from message_bridge import save_message_to_viewer  # Per visualizzatore locale
 
 # ==================== CONFIGURAZIONE ====================
@@ -24,6 +27,7 @@ TELEGRAM_URL = f'https://api.telegram.org/bot{BOT_TOKEN}/sendMessage'
 POLL_INTERVAL = 30  # 30 secondi per TEST (cambia in 900 per produzione = 15 minuti)
 MAX_RETRIES = 3
 RETRY_DELAY = 60  # secondi
+HOLDINGS_CSV = '13f_holdings_tracker.csv'  # CSV tracker per holdings
 
 # Auto-avvio viewer (True = avvia automaticamente, False = solo programma principale)
 AUTO_LAUNCH_VIEWER = True  # Cambia in False per disabilitare l'auto-avvio
@@ -214,6 +218,307 @@ def should_notify(filer_name: str) -> bool:
     filer_upper = filer_name.upper()
     return any(fund.upper() in filer_upper for fund in HEDGE_FUNDS_FILTER)
 
+def extract_filing_url_from_link(link: str) -> Optional[str]:
+    """
+    Estrae l'URL del filing detail dalla entry EDGAR.
+    Input: https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000754811&type=13F-HR&dateb=&owner=exclude&count=100
+    Output: URL del filing detail tipo https://www.sec.gov/Archives/edgar/data/754811/000143774925031428/0001437749-25-031428-index.htm
+    """
+    try:
+        # Il link nell'entry RSS è già il link al filing detail se è un link diretto
+        # Ma se è un link getcompany, dobbiamo estrarre il CIK e cercare il filing
+        if 'Archives/edgar/data' in link:
+            return link
+        
+        # Altrimenti il link nel messaggio dovrebbe essere già quello giusto
+        # Per ora ritorniamo il link così com'è
+        return link
+    except Exception as e:
+        logger.error(f"Errore estrazione URL filing: {e}")
+        return None
+
+def get_information_table_url(filing_index_url: str) -> Optional[str]:
+    """
+    Scarica la pagina index del filing e trova l'URL del file Information Table HTML
+    """
+    try:
+        headers = {'User-Agent': USER_AGENT}
+        response = requests.get(filing_index_url, headers=headers, timeout=30)
+        
+        if response.status_code != 200:
+            logger.error(f"Errore scaricamento index: HTTP {response.status_code}")
+            return None
+        
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Metodo 1: Cerca link che contiene "infotable" (forma renderizzata XSLT)
+        for link in soup.find_all('a', href=True):
+            href = link['href']
+            link_text = link.get_text(strip=True).lower()
+            
+            # Cerca "infotable" nel testo del link o nell'href
+            if 'infotable' in link_text or 'infotable' in href.lower():
+                # Costruisci URL completo
+                if href.startswith('http'):
+                    return href
+                else:
+                    # URL relativo
+                    if href.startswith('/'):
+                        return f"https://www.sec.gov{href}"
+                    else:
+                        base_url = '/'.join(filing_index_url.split('/')[:-1])
+                        return f"{base_url}/{href}"
+        
+        # Metodo 2: Cerca nella tabella dei documenti (vecchio formato)
+        for row in soup.find_all('tr'):
+            cells = row.find_all('td')
+            if len(cells) >= 3:
+                # Cerca "INFORMATION TABLE" nella descrizione
+                description = ' '.join([cell.get_text(strip=True).upper() for cell in cells])
+                if 'INFORMATION TABLE' in description or 'INFO TABLE' in description:
+                    # Trova il link al file HTML
+                    for cell in cells:
+                        link = cell.find('a', href=True)
+                        if link and (link['href'].lower().endswith('.html') or link['href'].lower().endswith('.htm')):
+                            href = link['href']
+                            if href.startswith('http'):
+                                return href
+                            else:
+                                base_url = '/'.join(filing_index_url.split('/')[:-1])
+                                return f"{base_url}/{href}"
+        
+        logger.warning("Information Table HTML non trovata nella pagina")
+        return None
+        
+    except Exception as e:
+        logger.error(f"Errore parsing index page: {e}")
+        return None
+
+def parse_information_table(html_url: str) -> List[Dict]:
+    """
+    Scarica e parsa il file HTML della Information Table
+    Ritorna una lista di dict con le holdings
+    """
+    try:
+        headers = {'User-Agent': USER_AGENT}
+        response = requests.get(html_url, headers=headers, timeout=30)
+        
+        if response.status_code != 200:
+            logger.error(f"Errore scaricamento Information Table: HTTP {response.status_code}")
+            return []
+        
+        soup = BeautifulSoup(response.content, 'html.parser')
+        holdings = []
+        
+        # Cerca tutte le tabelle
+        tables = soup.find_all('table')
+        
+        for table in tables:
+            # Cerca la tabella con gli header giusti
+            # Cerca header row che contiene CUSIP, NAME OF ISSUER, VALUE, etc
+            rows = table.find_all('tr')
+            
+            if len(rows) < 2:
+                continue
+            
+            # Analizza le prime righe per trovare gli header
+            header_found = False
+            header_row_index = -1
+            
+            for i, row in enumerate(rows[:5]):  # Controlla prime 5 righe
+                cells = row.find_all(['td', 'th'])
+                cell_texts = [cell.get_text(strip=True).upper() for cell in cells]
+                
+                # Cerca pattern tipici degli header 13F
+                if any('CUSIP' in text for text in cell_texts) and \
+                   any('ISSUER' in text or 'NAME' in text for text in cell_texts):
+                    header_found = True
+                    header_row_index = i
+                    logger.debug(f"Header trovato alla riga {i}")
+                    break
+            
+            if not header_found:
+                continue
+            
+            # Questa è la tabella giusta! Parsa i dati
+            logger.info(f"Tabella holdings trovata con {len(rows)} righe totali")
+            
+            # Processa le righe dopo gli header
+            for row in rows[header_row_index + 1:]:
+                cells = row.find_all(['td', 'th'])
+                
+                if len(cells) < 3:  # Minimo: Name, CUSIP, Value
+                    continue
+                
+                try:
+                    cell_texts = [cell.get_text(strip=True) for cell in cells]
+                    
+                    # Salta righe con header duplicati o vuote
+                    if not cell_texts or cell_texts[0].upper() in ['NAME OF ISSUER', 'COLUMN 1', '']:
+                        continue
+                    
+                    # Mappa i campi in base al numero di colonne
+                    # Layout tipico: NAME, TITLE, CUSIP, FIGI, VALUE, SHARES, SH/PRN, PUT/CALL, DISCRETION, OTHER, SOLE, SHARED, NONE
+                    holding = {}
+                    
+                    if len(cell_texts) >= 13:  # Layout completo
+                        holding = {
+                            'issuer_name': cell_texts[0],
+                            'share_class': cell_texts[1],
+                            'cusip': cell_texts[2],
+                            'figi': cell_texts[3] if len(cell_texts) > 3 else '',
+                            'value_x1000': cell_texts[4].replace(',', '') if len(cell_texts) > 4 else '',
+                            'shares': cell_texts[5].replace(',', '') if len(cell_texts) > 5 else '',
+                            'sh_prn': cell_texts[6] if len(cell_texts) > 6 else '',
+                            'put_call': cell_texts[7] if len(cell_texts) > 7 else '',
+                            'investment_discretion': cell_texts[8] if len(cell_texts) > 8 else '',
+                            'other_manager': cell_texts[9] if len(cell_texts) > 9 else '',
+                            'voting_authority_sole': cell_texts[10].replace(',', '') if len(cell_texts) > 10 else '',
+                            'voting_authority_shared': cell_texts[11].replace(',', '') if len(cell_texts) > 11 else '',
+                            'voting_authority_none': cell_texts[12].replace(',', '') if len(cell_texts) > 12 else ''
+                        }
+                    elif len(cell_texts) >= 8:  # Layout semplificato
+                        holding = {
+                            'issuer_name': cell_texts[0],
+                            'share_class': cell_texts[1] if len(cell_texts) > 1 else '',
+                            'cusip': cell_texts[2] if len(cell_texts) > 2 else '',
+                            'figi': '',
+                            'value_x1000': cell_texts[3].replace(',', '') if len(cell_texts) > 3 else '',
+                            'shares': cell_texts[4].replace(',', '') if len(cell_texts) > 4 else '',
+                            'sh_prn': cell_texts[5] if len(cell_texts) > 5 else '',
+                            'put_call': cell_texts[6] if len(cell_texts) > 6 else '',
+                            'investment_discretion': cell_texts[7] if len(cell_texts) > 7 else '',
+                            'other_manager': '',
+                            'voting_authority_sole': '',
+                            'voting_authority_shared': '',
+                            'voting_authority_none': ''
+                        }
+                    else:
+                        # Layout minimo
+                        holding = {
+                            'issuer_name': cell_texts[0] if len(cell_texts) > 0 else '',
+                            'share_class': cell_texts[1] if len(cell_texts) > 1 else '',
+                            'cusip': cell_texts[2] if len(cell_texts) > 2 else '',
+                            'figi': '',
+                            'value_x1000': '',
+                            'shares': '',
+                            'sh_prn': '',
+                            'put_call': '',
+                            'investment_discretion': '',
+                            'other_manager': '',
+                            'voting_authority_sole': '',
+                            'voting_authority_shared': '',
+                            'voting_authority_none': ''
+                        }
+                    
+                    # Valida che ci siano dati essenziali
+                    if holding['cusip'] and holding['issuer_name']:
+                        holdings.append(holding)
+                        
+                except Exception as e:
+                    logger.debug(f"Errore parsing riga: {e}")
+                    continue
+            
+            # Se abbiamo trovato holdings, usciamo dal loop
+            if holdings:
+                break
+        
+        logger.info(f"Parsate {len(holdings)} holdings dalla Information Table")
+        return holdings
+        
+    except Exception as e:
+        logger.error(f"Errore parsing Information Table: {e}")
+        return []
+
+def save_holdings_to_csv(holdings: List[Dict], filer_name: str, filing_date: str, cik: str):
+    """
+    Salva le holdings nel CSV tracker
+    """
+    try:
+        # Determina se il file esiste già
+        file_exists = os.path.exists(HOLDINGS_CSV)
+        
+        # Apri in modalità append
+        with open(HOLDINGS_CSV, 'a', newline='', encoding='utf-8') as f:
+            fieldnames = [
+                'filing_date', 'cik', 'fund_name', 'cusip', 'figi', 'issuer_name', 
+                'share_class', 'value_x1000', 'shares', 'sh_prn', 'put_call', 
+                'investment_discretion', 'other_manager', 'voting_authority_sole', 
+                'voting_authority_shared', 'voting_authority_none'
+            ]
+            
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            
+            # Scrivi header solo se file nuovo
+            if not file_exists:
+                writer.writeheader()
+            
+            # Scrivi ogni holding
+            for holding in holdings:
+                row = {
+                    'filing_date': filing_date,
+                    'cik': cik,
+                    'fund_name': filer_name,
+                    **holding
+                }
+                writer.writerow(row)
+        
+        logger.info(f"✓ Salvate {len(holdings)} holdings nel CSV tracker")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Errore salvataggio CSV: {e}")
+        return False
+
+def extract_cik_from_link(link: str) -> str:
+    """
+    Estrae il CIK dall'URL EDGAR
+    """
+    try:
+        # Pattern: /data/XXXXXX/ or CIK=XXXXXX
+        match = re.search(r'(?:CIK=|/data/)(\d+)', link)
+        if match:
+            return match.group(1)
+        return 'N/A'
+    except:
+        return 'N/A'
+
+def process_filing_holdings(filing_link: str, filer_name: str, filing_date: str) -> bool:
+    """
+    Processa un filing: scarica, parsa e salva le holdings
+    """
+    try:
+        logger.info(f"📊 Processamento holdings per: {filer_name}")
+        
+        # Estrai CIK
+        cik = extract_cik_from_link(filing_link)
+        
+        # Ottieni URL della Information Table
+        info_table_url = get_information_table_url(filing_link)
+        if not info_table_url:
+            logger.warning("⚠️ Information Table URL non trovata")
+            return False
+        
+        logger.info(f"📄 Trovata Information Table: {info_table_url}")
+        
+        # Parsa la Information Table
+        holdings = parse_information_table(info_table_url)
+        if not holdings:
+            logger.warning("⚠️ Nessuna holding trovata nel file")
+            return False
+        
+        # Salva nel CSV
+        success = save_holdings_to_csv(holdings, filer_name, filing_date, cik)
+        
+        if success:
+            logger.info(f"✅ Holdings processate con successo per {filer_name}")
+        
+        return success
+        
+    except Exception as e:
+        logger.error(f"❌ Errore processamento holdings: {e}")
+        return False
+
 def process_feed(feed: feedparser.FeedParserDict, last_seen_ids: Set[str]) -> List[str]:
     """Processa le entry del feed e invia notifiche"""
     new_filings = []
@@ -262,6 +567,17 @@ def process_feed(feed: feedparser.FeedParserDict, last_seen_ids: Set[str]) -> Li
             
             # Salva messaggio per visualizzatore locale
             save_message_to_viewer(message, filer)
+            
+            # Processa holdings e salva nel CSV
+            logger.info("📥 Inizio download holdings...")
+            holdings_success = process_filing_holdings(link, filer, filing_date)
+            
+            if holdings_success:
+                # Aggiungi info holdings al messaggio
+                message += f"\n\n✅ <b>Holdings salvate nel tracker CSV</b>"
+                logger.info("✅ Holdings processate e salvate")
+            else:
+                logger.warning("⚠️ Holdings non disponibili o errore nel processamento")
             
             # Invia notifica
             if send_telegram(message):
