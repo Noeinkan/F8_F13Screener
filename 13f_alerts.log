@@ -1,0 +1,101 @@
+2025-10-21 23:28:50,511 - INFO - === Avvio 13F Alert System v2.0 ===
+2025-10-21 23:28:50,512 - INFO - Intervallo polling: 900s (15.0 minuti)
+2025-10-21 23:28:50,512 - INFO - Filtro attivo: NO (tutti i filing)
+2025-10-21 23:28:50,512 - WARNING - File last_13f_check_v2.json non trovato, creazione nuovo
+2025-10-21 23:28:50,512 - INFO - 
+============================================================
+2025-10-21 23:28:50,531 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-21 23:28:51,160 - INFO - Feed scaricato: 100 entry trovate
+2025-10-21 23:28:53,279 - WARNING - Errore Telegram (tentativo 1/3): 401
+2025-10-21 23:29:53,657 - WARNING - Errore Telegram (tentativo 2/3): 401
+2025-10-21 23:30:46,994 - INFO - === Avvio 13F Alert System v2.0 ===
+2025-10-21 23:30:46,996 - INFO - Intervallo polling: 900s (15.0 minuti)
+2025-10-21 23:30:46,996 - INFO - Filtro attivo: NO (tutti i filing)
+2025-10-21 23:30:46,997 - WARNING - File last_13f_check_v2.json non trovato, creazione nuovo
+2025-10-21 23:30:46,997 - INFO - 
+============================================================
+2025-10-21 23:30:47,001 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-21 23:30:47,683 - INFO - Feed scaricato: 100 entry trovate
+2025-10-21 23:30:48,134 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:48,618 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:49,059 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:49,466 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:49,881 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:50,264 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:50,698 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:51,066 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:51,465 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:51,863 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:52,232 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:52,627 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:53,021 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:53,404 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:53,788 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:54,057 - WARNING - Errore Telegram (tentativo 3/3): 401
+2025-10-21 23:30:54,057 - ERROR - Fallito invio notifica Telegram dopo tutti i tentativi
+2025-10-21 23:30:54,262 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:54,460 - WARNING - Errore Telegram (tentativo 1/3): 401
+2025-10-21 23:30:54,679 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:55,081 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:55,482 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:55,930 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:56,310 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:56,675 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:57,042 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:57,431 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:57,805 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:58,223 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:58,627 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:59,061 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:59,445 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:30:59,805 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:31:00,190 - INFO - === Fine programma ===
+2025-10-21 23:31:54,813 - WARNING - Errore Telegram (tentativo 2/3): 401
+2025-10-21 23:32:55,131 - WARNING - Errore Telegram (tentativo 3/3): 401
+2025-10-21 23:32:55,131 - ERROR - Fallito invio notifica Telegram dopo tutti i tentativi
+2025-10-21 23:32:55,447 - WARNING - Errore Telegram (tentativo 1/3): 401
+2025-10-21 23:33:55,793 - WARNING - Errore Telegram (tentativo 2/3): 401
+2025-10-21 23:34:17,408 - INFO - === Avvio 13F Alert System v2.0 ===
+2025-10-21 23:34:17,409 - INFO - Intervallo polling: 900s (15.0 minuti)
+2025-10-21 23:34:17,409 - INFO - Filtro attivo: NO (tutti i filing)
+2025-10-21 23:34:17,409 - WARNING - File last_13f_check_v2.json non trovato, creazione nuovo
+2025-10-21 23:34:17,409 - INFO - 
+============================================================
+2025-10-21 23:34:17,413 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-21 23:34:17,964 - INFO - Feed scaricato: 100 entry trovate
+2025-10-21 23:34:18,361 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:18,760 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:19,180 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:19,559 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:19,937 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:20,373 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:20,802 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:21,240 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:21,654 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:22,058 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:22,451 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:22,837 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:23,248 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:23,619 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:24,029 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:24,454 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:24,826 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:25,240 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:25,607 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:25,999 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:26,760 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:27,152 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:27,569 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:28,001 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:28,395 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:28,801 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:29,203 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:29,594 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:29,977 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:30,363 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:30,771 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:31,153 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:31,549 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:32,002 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:32,366 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:34:32,716 - INFO - === Fine programma ===
