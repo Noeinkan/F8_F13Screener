@@ -17,12 +17,15 @@ CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '1434044631')  # ← INSERISCI IL TUO CH
 USER_AGENT = os.getenv('SEC_USER_AGENT', 'andrea.aita@libero.it')  # ← INSERISCI IL TUO EMAIL QUI
 
 # Configurazioni avanzate
-RSS_URL = 'https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=13F-HR&count=100&output=atom'
+RSS_URL = 'https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=13F-HR&count=100&output=atom'  # 10 per TEST, 100 per PRODUZIONE
 LAST_CHECK_FILE = 'last_13f_check_v2.json'
 TELEGRAM_URL = f'https://api.telegram.org/bot{BOT_TOKEN}/sendMessage'
-POLL_INTERVAL = 900  # 15 minuti
+POLL_INTERVAL = 30  # 30 secondi per TEST (cambia in 900 per produzione = 15 minuti)
 MAX_RETRIES = 3
 RETRY_DELAY = 60  # secondi
+
+# Auto-avvio viewer (True = avvia automaticamente, False = solo programma principale)
+AUTO_LAUNCH_VIEWER = True  # Cambia in False per disabilitare l'auto-avvio
 
 # Filtro opzionale: aggiungi hedge fund da monitorare (vuoto = tutti)
 HEDGE_FUNDS_FILTER = [
@@ -61,12 +64,20 @@ def launch_telegram_viewer():
         viewer_path = os.path.join(os.path.dirname(__file__), 'telegram_viewer.py')
         
         if os.path.exists(viewer_path):
-            # Avvia in processo separato (non bloccante)
+            # Avvia in processo separato e COMPLETAMENTE INDIPENDENTE
             if sys.platform == 'win32':
-                subprocess.Popen([sys.executable, viewer_path], 
-                               creationflags=subprocess.CREATE_NEW_CONSOLE)
+                # Usa pythonw per evitare console extra, o python normale
+                # CREATE_NEW_PROCESS_GROUP rende il processo indipendente
+                subprocess.Popen(
+                    [sys.executable, viewer_path],
+                    creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
+                    close_fds=True
+                )
             else:
-                subprocess.Popen([sys.executable, viewer_path])
+                subprocess.Popen(
+                    [sys.executable, viewer_path],
+                    close_fds=True
+                )
             
             logger.info("📱 Telegram Viewer avviato con successo!")
             return True
@@ -233,10 +244,13 @@ def main():
     logger.info(f"Intervallo polling: {POLL_INTERVAL}s ({POLL_INTERVAL/60} minuti)")
     logger.info(f"Filtro attivo: {'SI' if HEDGE_FUNDS_FILTER else 'NO (tutti i filing)'}")
     
-    # Avvia Telegram Viewer
-    logger.info("🚀 Avvio Telegram Message Viewer...")
-    launch_telegram_viewer()
-    time.sleep(2)  # Attendi che il viewer si apra
+    # Avvia Telegram Viewer (se abilitato)
+    if AUTO_LAUNCH_VIEWER:
+        logger.info("🚀 Avvio Telegram Message Viewer...")
+        launch_telegram_viewer()
+        time.sleep(2)  # Attendi che il viewer si apra
+    else:
+        logger.info("ℹ️ Auto-avvio viewer disabilitato (avvia manualmente se necessario)")
     
     # Verifica configurazione
     if BOT_TOKEN == 'YOUR_BOT_TOKEN' or CHAT_ID == 'YOUR_CHAT_ID':

@@ -1371,3 +1371,41 @@
 2025-10-21 23:49:03,875 - WARNING - Errore Telegram (tentativo 3/3): 401
 2025-10-21 23:49:03,876 - ERROR - Fallito invio notifica Telegram dopo tutti i tentativi
 2025-10-21 23:49:04,283 - WARNING - Errore Telegram (tentativo 1/3): 401
+2025-10-21 23:50:04,641 - WARNING - Errore Telegram (tentativo 2/3): 401
+2025-10-21 23:50:05,219 - INFO - === Avvio 13F Alert System v2.0 ===
+2025-10-21 23:50:05,220 - INFO - Intervallo polling: 900s (15.0 minuti)
+2025-10-21 23:50:05,220 - INFO - Filtro attivo: NO (tutti i filing)
+2025-10-21 23:50:05,220 - INFO - 🚀 Avvio Telegram Message Viewer...
+2025-10-21 23:50:05,221 - ERROR - ❌ Errore avvio Telegram Viewer: [WinError 87] The parameter is incorrect
+2025-10-21 23:50:07,222 - INFO - Caricati 100 ID dalla cache
+2025-10-21 23:50:07,222 - INFO - 
+============================================================
+2025-10-21 23:50:07,222 - INFO - 🔍 Controllo alle 2025-10-21 23:50:07
+2025-10-21 23:50:07,223 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-21 23:50:07,800 - INFO - Feed scaricato: 100 entry trovate
+2025-10-21 23:50:07,802 - INFO - ✓ Nessun nuovo filing da notificare
+2025-10-21 23:50:07,802 - INFO - 💤 Prossimo controllo tra 15.0 minuti
+2025-10-21 23:51:04,997 - WARNING - Errore Telegram (tentativo 3/3): 401
+2025-10-21 23:51:04,998 - ERROR - Fallito invio notifica Telegram dopo tutti i tentativi
+2025-10-21 23:51:05,371 - WARNING - Errore Telegram (tentativo 1/3): 401
+2025-10-21 23:51:17,851 - INFO - 
+👋 Arresto programma richiesto dall'utente
+2025-10-21 23:51:17,851 - INFO - === Fine programma ===
+2025-10-21 23:51:18,351 - INFO - === Avvio 13F Alert System v2.0 ===
+2025-10-21 23:51:18,351 - INFO - Intervallo polling: 900s (15.0 minuti)
+2025-10-21 23:51:18,351 - INFO - Filtro attivo: NO (tutti i filing)
+2025-10-21 23:51:18,351 - INFO - 🚀 Avvio Telegram Message Viewer...
+2025-10-21 23:51:18,361 - INFO - 📱 Telegram Viewer avviato con successo!
+2025-10-21 23:51:20,362 - INFO - Caricati 100 ID dalla cache
+2025-10-21 23:51:20,362 - INFO - 
+============================================================
+2025-10-21 23:51:20,362 - INFO - 🔍 Controllo alle 2025-10-21 23:51:20
+2025-10-21 23:51:20,363 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-21 23:51:21,009 - INFO - Feed scaricato: 100 entry trovate
+2025-10-21 23:51:21,010 - INFO - ✓ Nessun nuovo filing da notificare
+2025-10-21 23:51:21,011 - INFO - 💤 Prossimo controllo tra 15.0 minuti
+2025-10-21 23:52:05,692 - WARNING - Errore Telegram (tentativo 2/3): 401
+2025-10-21 23:53:06,035 - WARNING - Errore Telegram (tentativo 3/3): 401
+2025-10-21 23:53:06,036 - ERROR - Fallito invio notifica Telegram dopo tutti i tentativi
+2025-10-21 23:53:06,375 - WARNING - Errore Telegram (tentativo 1/3): 401
+2025-10-21 23:54:06,727 - WARNING - Errore Telegram (tentativo 2/3): 401
