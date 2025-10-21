@@ -99,3 +99,1275 @@
 2025-10-21 23:34:32,002 - INFO - Notifica Telegram inviata con successo
 2025-10-21 23:34:32,366 - INFO - Notifica Telegram inviata con successo
 2025-10-21 23:34:32,716 - INFO - === Fine programma ===
+2025-10-21 23:34:56,155 - WARNING - Errore Telegram (tentativo 3/3): 401
+2025-10-21 23:34:56,155 - ERROR - Fallito invio notifica Telegram dopo tutti i tentativi
+2025-10-21 23:34:56,496 - WARNING - Errore Telegram (tentativo 1/3): 401
+2025-10-21 23:35:56,816 - WARNING - Errore Telegram (tentativo 2/3): 401
+2025-10-21 23:36:57,158 - WARNING - Errore Telegram (tentativo 3/3): 401
+2025-10-21 23:36:57,159 - ERROR - Fallito invio notifica Telegram dopo tutti i tentativi
+2025-10-21 23:36:57,513 - WARNING - Errore Telegram (tentativo 1/3): 401
+2025-10-21 23:37:18,968 - INFO - === Avvio 13F Alert System v2.0 ===
+2025-10-21 23:37:18,969 - INFO - Intervallo polling: 900s (15.0 minuti)
+2025-10-21 23:37:18,969 - INFO - Filtro attivo: NO (tutti i filing)
+2025-10-21 23:37:18,970 - WARNING - File last_13f_check_v2.json non trovato, creazione nuovo
+2025-10-21 23:37:18,970 - INFO - 
+============================================================
+2025-10-21 23:37:18,974 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-21 23:37:19,532 - INFO - Feed scaricato: 100 entry trovate
+2025-10-21 23:37:19,946 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:37:20,332 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:37:20,743 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:37:21,145 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:37:21,536 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:37:21,893 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:37:22,299 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:37:22,686 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:37:23,084 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:37:23,491 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:37:23,961 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:37:24,446 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:37:24,863 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:37:25,266 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:37:25,634 - INFO - === Fine programma ===
+2025-10-21 23:37:57,826 - WARNING - Errore Telegram (tentativo 2/3): 401
+2025-10-21 23:38:53,419 - INFO - === Avvio 13F Alert System v2.0 ===
+2025-10-21 23:38:53,420 - INFO - Intervallo polling: 900s (15.0 minuti)
+2025-10-21 23:38:53,420 - INFO - Filtro attivo: NO (tutti i filing)
+2025-10-21 23:38:55,469 - WARNING - File last_13f_check_v2.json non trovato, creazione nuovo
+2025-10-21 23:38:55,469 - INFO - 
+============================================================
+2025-10-21 23:38:55,471 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-21 23:38:56,042 - INFO - Feed scaricato: 100 entry trovate
+2025-10-21 23:38:56,434 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:38:57,320 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:38:57,720 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:38:58,167 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:38:58,231 - WARNING - Errore Telegram (tentativo 3/3): 401
+2025-10-21 23:38:58,232 - ERROR - Fallito invio notifica Telegram dopo tutti i tentativi
+2025-10-21 23:38:58,657 - WARNING - Errore Telegram (tentativo 1/3): 401
+2025-10-21 23:38:58,659 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:38:59,049 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:38:59,449 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:38:59,930 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:00,531 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:01,170 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:01,745 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:02,281 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:02,804 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:03,244 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:03,673 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:04,094 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:04,529 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:05,056 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:05,502 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:05,908 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:06,293 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:06,693 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:07,113 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:07,479 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:07,895 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:08,286 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:08,683 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:09,156 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:09,531 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:10,041 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:10,428 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:10,808 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:11,169 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:11,538 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:12,066 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:12,454 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:12,836 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:13,197 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:13,604 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:14,019 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:14,453 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:14,842 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:15,235 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:15,650 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:16,099 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:16,555 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:16,974 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:17,366 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:17,742 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:18,151 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:18,561 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:18,971 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:19,368 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:19,866 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:20,365 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:20,894 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:21,294 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:21,711 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:22,126 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:22,549 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:39:22,902 - INFO - === Fine programma ===
+2025-10-21 23:39:58,997 - WARNING - Errore Telegram (tentativo 2/3): 401
+2025-10-21 23:40:59,445 - WARNING - Errore Telegram (tentativo 3/3): 401
+2025-10-21 23:40:59,445 - ERROR - Fallito invio notifica Telegram dopo tutti i tentativi
+2025-10-21 23:40:59,783 - WARNING - Errore Telegram (tentativo 1/3): 401
+2025-10-21 23:42:00,123 - WARNING - Errore Telegram (tentativo 2/3): 401
+2025-10-21 23:43:00,518 - WARNING - Errore Telegram (tentativo 3/3): 401
+2025-10-21 23:43:00,519 - ERROR - Fallito invio notifica Telegram dopo tutti i tentativi
+2025-10-21 23:43:01,008 - WARNING - Errore Telegram (tentativo 1/3): 401
+2025-10-21 23:44:01,425 - WARNING - Errore Telegram (tentativo 2/3): 401
+2025-10-21 23:44:13,152 - INFO - === Avvio 13F Alert System v2.0 ===
+2025-10-21 23:44:13,153 - INFO - Intervallo polling: 900s (15.0 minuti)
+2025-10-21 23:44:13,153 - INFO - Filtro attivo: NO (tutti i filing)
+2025-10-21 23:44:13,153 - INFO - 🚀 Avvio Telegram Message Viewer...
+2025-10-21 23:44:13,162 - INFO - 📱 Telegram Viewer avviato con successo!
+2025-10-21 23:44:15,163 - WARNING - File last_13f_check_v2.json non trovato, creazione nuovo
+2025-10-21 23:44:15,164 - INFO - 
+============================================================
+2025-10-21 23:44:15,164 - INFO - 🔍 Controllo alle 2025-10-21 23:44:15
+2025-10-21 23:44:15,164 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-21 23:44:15,692 - INFO - Feed scaricato: 100 entry trovate
+2025-10-21 23:44:15,694 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:23:40-04:00
+📄 Titolo: 13F-HR - Charles Schwab Trust Bank (0001776551) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1776551/000177655125000003/0001776551-25-000003-index.htm
+============================================================
+2025-10-21 23:44:16,072 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:16,074 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:16,074 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:23:09-04:00
+📄 Titolo: 13F-HR - McGuire Investment Group, LLC (0001756959) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1756959/000175695925000004/0001756959-25-000004-index.htm
+============================================================
+2025-10-21 23:44:16,445 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:16,447 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:16,447 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:22:22-04:00
+📄 Titolo: 13F-HR - Penobscot Investment Management Company, Inc. (0001394866) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1394866/000139486625000005/0001394866-25-000005-index.htm
+============================================================
+2025-10-21 23:44:16,807 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:16,809 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:16,809 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:21:55-04:00
+📄 Titolo: 13F-HR - Fountainhead AM, LLC (0001843581) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1843581/000184358125000007/0001843581-25-000007-index.htm
+============================================================
+2025-10-21 23:44:17,202 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:17,203 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:17,204 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:21:21-04:00
+📄 Titolo: 13F-HR - Radnor Capital Management, LLC (0001696867) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1696867/000169686725000006/0001696867-25-000006-index.htm
+============================================================
+2025-10-21 23:44:17,671 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:17,674 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:17,674 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:19:17-04:00
+📄 Titolo: 13F-HR - PEAVINE CAPITAL, LLC (0001594540) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1594540/000159454025000003/0001594540-25-000003-index.htm
+============================================================
+2025-10-21 23:44:18,225 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:18,226 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:18,226 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:18:37-04:00
+📄 Titolo: 13F-HR - Onyx Financial Advisors, LLC (0001957840) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1957840/000195784025000002/0001957840-25-000002-index.htm
+============================================================
+2025-10-21 23:44:18,584 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:18,585 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:18,585 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:17:55-04:00
+📄 Titolo: 13F-HR - WOODWARD DIVERSIFIED CAPITAL, LLC (0001846177) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1846177/000184617725000004/0001846177-25-000004-index.htm
+============================================================
+2025-10-21 23:44:18,960 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:18,961 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:18,961 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:17:04-04:00
+📄 Titolo: 13F-HR - Pettinga Financial Advisors LLC (0001694592) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1694592/000169459225000003/0001694592-25-000003-index.htm
+============================================================
+2025-10-21 23:44:19,336 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:19,337 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:19,338 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:16:38-04:00
+📄 Titolo: 13F-HR - Kellett Wealth Advisors, LLC (0001910381) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1910381/000191038125000003/0001910381-25-000003-index.htm
+============================================================
+2025-10-21 23:44:19,687 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:19,689 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:19,689 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:16:19-04:00
+📄 Titolo: 13F-HR - Wealth Management Partners, LLC (0001843294) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1843294/000184329425000004/0001843294-25-000004-index.htm
+============================================================
+2025-10-21 23:44:20,049 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:20,051 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:20,051 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:15:59-04:00
+📄 Titolo: 13F-HR - BetterWealth, LLC (0001911702) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1911702/000191170225000002/0001911702-25-000002-index.htm
+============================================================
+2025-10-21 23:44:20,457 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:20,459 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:20,459 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:15:30-04:00
+📄 Titolo: 13F-HR - DMKC Advisory Services, LLC (0001901337) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1901337/000190133725000002/0001901337-25-000002-index.htm
+============================================================
+2025-10-21 23:44:20,812 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:20,813 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:20,814 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:14:35-04:00
+📄 Titolo: 13F-HR - Western Financial Corp/CA (0001954480) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1954480/000195448025000003/0001954480-25-000003-index.htm
+============================================================
+2025-10-21 23:44:21,203 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:21,205 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:21,205 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:13:30-04:00
+📄 Titolo: 13F-HR - SC&H Financial Advisors, Inc. (0001907898) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1907898/000190789825000003/0001907898-25-000003-index.htm
+============================================================
+2025-10-21 23:44:21,576 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:21,577 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:21,578 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:12:21-04:00
+📄 Titolo: 13F-HR - Moss Adams Wealth Advisors LLC (0001661245) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1661245/000166124525000006/0001661245-25-000006-index.htm
+============================================================
+2025-10-21 23:44:21,929 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:21,931 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:21,931 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:11:57-04:00
+📄 Titolo: 13F-HR - Clay Northam Wealth Management, LLC (0001915687) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1915687/000191568725000002/0001915687-25-000002-index.htm
+============================================================
+2025-10-21 23:44:22,286 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:22,287 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:22,288 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:11:51-04:00
+📄 Titolo: 13F-HR - FIRST NATIONAL BANK SIOUX FALLS (0001085041) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1085041/000108504125000006/0001085041-25-000006-index.htm
+============================================================
+2025-10-21 23:44:22,648 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:22,650 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:22,650 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:10:59-04:00
+📄 Titolo: 13F-HR - Eagle Strategies LLC (0001907666) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1907666/000190766625000003/0001907666-25-000003-index.htm
+============================================================
+2025-10-21 23:44:23,040 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:23,042 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:23,042 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:09:48-04:00
+📄 Titolo: 13F-HR - GATEWAY INVESTMENT ADVISERS LLC (0001114618) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1114618/000111461825000004/0001114618-25-000004-index.htm
+============================================================
+2025-10-21 23:44:23,402 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:23,403 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:23,404 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:09:21-04:00
+📄 Titolo: 13F-HR - Ariose Capital Management Ltd (0001665925) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1665925/000166592525000005/0001665925-25-000005-index.htm
+============================================================
+2025-10-21 23:44:23,744 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:23,830 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:23,830 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:06:25-04:00
+📄 Titolo: 13F-HR - ARROW FINANCIAL CORP (0000717538) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/717538/000071753825000086/0000717538-25-000086-index.htm
+============================================================
+2025-10-21 23:44:24,175 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:24,176 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:24,176 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:05:42-04:00
+📄 Titolo: 13F-HR - Emeth Value Capital, LLC (0002053013) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/2053013/000205301325000007/0002053013-25-000007-index.htm
+============================================================
+2025-10-21 23:44:24,537 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:24,538 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:24,539 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:02:03-04:00
+📄 Titolo: 13F-HR - Fifth Third Wealth Advisors LLC (0001899030) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1899030/000119312525245278/0001193125-25-245278-index.htm
+============================================================
+2025-10-21 23:44:24,935 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:24,937 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:24,937 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T17:01:14-04:00
+📄 Titolo: 13F-HR - Elm3 Financial Group, LLC (0002011201) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/2011201/000201120125000005/0002011201-25-000005-index.htm
+============================================================
+2025-10-21 23:44:25,304 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:25,306 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:25,306 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T16:57:21-04:00
+📄 Titolo: 13F-HR - U S GLOBAL INVESTORS INC (0000754811) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/754811/000143774925031428/0001437749-25-031428-index.htm
+============================================================
+2025-10-21 23:44:25,667 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:25,668 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:25,669 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T16:46:31-04:00
+📄 Titolo: 13F-HR - Citadel Investment Advisory, Inc. (0001811907) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1811907/000181190725000005/0001811907-25-000005-index.htm
+============================================================
+2025-10-21 23:44:26,053 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:26,055 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:26,055 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T16:45:34-04:00
+📄 Titolo: 13F-HR - PROFFITT & GOODSON INC (0001123812) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1123812/000112381225000016/0001123812-25-000016-index.htm
+============================================================
+2025-10-21 23:44:26,454 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:26,455 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:26,456 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T16:43:02-04:00
+📄 Titolo: 13F-HR - Rector, Church-Wardens & Vestrymen of Trinity Church in the city of New-York (0001729522) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1729522/000119312525245226/0001193125-25-245226-index.htm
+============================================================
+2025-10-21 23:44:26,848 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:26,850 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:26,850 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T16:41:05-04:00
+📄 Titolo: 13F-HR - Community Financial Services Group, LLC (0001537319) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1537319/000153731925000005/0001537319-25-000005-index.htm
+============================================================
+2025-10-21 23:44:27,215 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:27,216 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:27,217 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T16:40:53-04:00
+📄 Titolo: 13F-HR - Christensen, King & Associates Investment Services, Inc. (0002032544) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/2032544/000203254425000006/0002032544-25-000006-index.htm
+============================================================
+2025-10-21 23:44:27,593 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:27,595 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:27,595 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T16:37:37-04:00
+📄 Titolo: 13F-HR - Global Retirement Partners, LLC (0001749744) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1749744/000158064225006659/0001580642-25-006659-index.htm
+============================================================
+2025-10-21 23:44:27,946 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:27,948 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:27,948 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T16:27:45-04:00
+📄 Titolo: 13F-HR - JARISLOWSKY, FRASER Ltd (0001123778) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1123778/000112377825000007/0001123778-25-000007-index.htm
+============================================================
+2025-10-21 23:44:28,314 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:28,316 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:28,316 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T16:26:52-04:00
+📄 Titolo: 13F-HR - DAVIDSON INVESTMENT ADVISORS (0001140771) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1140771/000114077125000008/0001140771-25-000008-index.htm
+============================================================
+2025-10-21 23:44:28,707 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:28,709 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:28,709 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T16:21:44-04:00
+📄 Titolo: 13F-HR - Armor Investment Advisors, LLC (0001694079) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1694079/000139834425019464/0001398344-25-019464-index.htm
+============================================================
+2025-10-21 23:44:29,077 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:29,078 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:29,078 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T16:16:49-04:00
+📄 Titolo: 13F-HR - Saxony Capital Management, LLC (0001561330) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1561330/000156133025000005/0001561330-25-000005-index.htm
+============================================================
+2025-10-21 23:44:29,459 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:29,460 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:29,461 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T16:05:31-04:00
+📄 Titolo: 13F-HR - Trustees of Dartmouth College (0001599404) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1599404/000159940425000007/0001599404-25-000007-index.htm
+============================================================
+2025-10-21 23:44:29,830 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:29,831 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:29,832 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T16:03:31-04:00
+📄 Titolo: 13F-HR - Ascent Wealth Partners, LLC (0001546865) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1546865/000154686525000007/0001546865-25-000007-index.htm
+============================================================
+2025-10-21 23:44:30,199 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:30,201 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:30,201 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T15:54:41-04:00
+📄 Titolo: 13F-HR - Adventist Health System/ West (0001802516) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1802516/000117266125004348/0001172661-25-004348-index.htm
+============================================================
+2025-10-21 23:44:30,579 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:30,580 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:30,580 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T15:51:12-04:00
+📄 Titolo: 13F-HR - CAPITAL ADVISORS INC/OK (0000860828) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/860828/000086082825000007/0000860828-25-000007-index.htm
+============================================================
+2025-10-21 23:44:30,960 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:30,961 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:30,962 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T15:47:47-04:00
+📄 Titolo: 13F-HR - Asset Management Advisors, LLC (0001596355) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1596355/000159635525000006/0001596355-25-000006-index.htm
+============================================================
+2025-10-21 23:44:31,346 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:31,347 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:31,347 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T15:42:19-04:00
+📄 Titolo: 13F-HR - Davis Capital Management (0001811806) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1811806/000181180625000007/0001811806-25-000007-index.htm
+============================================================
+2025-10-21 23:44:31,711 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:31,713 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:31,713 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T15:41:54-04:00
+📄 Titolo: 13F-HR - PENN DAVIS MCFARLAND INC (0001108893) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1108893/000110889325000007/0001108893-25-000007-index.htm
+============================================================
+2025-10-21 23:44:32,072 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:32,074 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:32,074 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T15:38:34-04:00
+📄 Titolo: 13F-HR - GraniteShares Advisors LLC (0001839545) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1839545/000183954525000007/0001839545-25-000007-index.htm
+============================================================
+2025-10-21 23:44:32,485 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:32,486 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:32,487 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T15:38:10-04:00
+📄 Titolo: 13F-HR - REXFORD CAPITAL INC (0002081847) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/2081847/000208184725000002/0002081847-25-000002-index.htm
+============================================================
+2025-10-21 23:44:32,833 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:32,835 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:32,835 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T15:32:28-04:00
+📄 Titolo: 13F-HR - Verity & Verity, LLC (0001542108) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1542108/000154210825000006/0001542108-25-000006-index.htm
+============================================================
+2025-10-21 23:44:33,211 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:33,213 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:33,213 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T15:26:38-04:00
+📄 Titolo: 13F-HR - FULTON BANK, N.A. (0000883782) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/883782/000119312525244959/0001193125-25-244959-index.htm
+============================================================
+2025-10-21 23:44:33,587 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:33,589 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:33,589 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T15:23:38-04:00
+📄 Titolo: 13F-HR - Fogel Capital Management, Inc. (0002011427) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/2011427/000201142725000004/0002011427-25-000004-index.htm
+============================================================
+2025-10-21 23:44:33,939 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:33,941 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:33,941 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T15:22:42-04:00
+📄 Titolo: 13F-HR - AMERICAN NATIONAL BANK & TRUST (0001272164) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1272164/000127216425000006/0001272164-25-000006-index.htm
+============================================================
+2025-10-21 23:44:34,281 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:34,283 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:34,283 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T15:22:19-04:00
+📄 Titolo: 13F-HR - Measured Risk Portfolios, Inc. (0001576704) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1576704/000157670425000016/0001576704-25-000016-index.htm
+============================================================
+2025-10-21 23:44:34,675 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:34,676 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:34,677 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T15:14:14-04:00
+📄 Titolo: 13F-HR - SigFig Wealth Management, LLC (0001696957) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1696957/000169695725000008/0001696957-25-000008-index.htm
+============================================================
+2025-10-21 23:44:35,044 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:35,046 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:35,046 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T15:13:30-04:00
+📄 Titolo: 13F-HR - M Wealth Management, LLC (0002026150) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/2026150/000117266125004346/0001172661-25-004346-index.htm
+============================================================
+2025-10-21 23:44:35,398 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:35,399 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:35,399 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T15:11:23-04:00
+📄 Titolo: 13F-HR - CPA Asset Management Group, LLC (0001963967) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1963967/000196396725000009/0001963967-25-000009-index.htm
+============================================================
+2025-10-21 23:44:35,782 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:35,784 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:35,784 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T15:04:19-04:00
+📄 Titolo: 13F-HR - ACCREDITED INVESTOR SERVICES, LLC (0002028621) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/2028621/000202862125000002/0002028621-25-000002-index.htm
+============================================================
+2025-10-21 23:44:36,133 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:36,135 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:36,135 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T15:00:30-04:00
+📄 Titolo: 13F-HR - LIFELONG WEALTH ADVISORS, INC. (0002051717) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/2051717/000172554725004186/0001725547-25-004186-index.htm
+============================================================
+2025-10-21 23:44:36,518 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:36,519 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:36,519 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T14:59:30-04:00
+📄 Titolo: 13F-HR - apricus wealth, LLC (0001913842) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1913842/000191384225000008/0001913842-25-000008-index.htm
+============================================================
+2025-10-21 23:44:36,883 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:36,884 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:36,884 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T14:48:03-04:00
+📄 Titolo: 13F-HR - Pacific Wealth Management (0001852338) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1852338/000185233825000007/0001852338-25-000007-index.htm
+============================================================
+2025-10-21 23:44:37,240 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:37,242 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:37,242 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T14:45:50-04:00
+📄 Titolo: 13F-HR - Tradewinds Capital Management, LLC (0001616026) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1616026/000161602625000007/0001616026-25-000007-index.htm
+============================================================
+2025-10-21 23:44:37,599 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:37,601 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:37,601 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T14:41:06-04:00
+📄 Titolo: 13F-HR - MN Wealth Advisors, LLC (0001992972) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1992972/000199297225000007/0001992972-25-000007-index.htm
+============================================================
+2025-10-21 23:44:37,949 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:37,950 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:37,950 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T14:33:26-04:00
+📄 Titolo: 13F-HR - TruNorth Capital Management, LLC (0001639695) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1639695/000163969525000010/0001639695-25-000010-index.htm
+============================================================
+2025-10-21 23:44:38,417 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:38,418 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:38,419 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T14:33:05-04:00
+📄 Titolo: 13F-HR - SIMON QUICK ADVISORS, LLC (0001692038) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1692038/000169203825000013/0001692038-25-000013-index.htm
+============================================================
+2025-10-21 23:44:38,771 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:38,773 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:38,773 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T14:32:03-04:00
+📄 Titolo: 13F-HR - Olstein Capital Management, L.P. (0000947996) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/947996/000089418925011572/0000894189-25-011572-index.htm
+============================================================
+2025-10-21 23:44:39,116 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:39,118 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:39,118 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T14:24:06-04:00
+📄 Titolo: 13F-HR - 400 Capital Management LLC (0001909739) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1909739/000142050625002885/0001420506-25-002885-index.htm
+============================================================
+2025-10-21 23:44:39,478 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:39,480 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:39,480 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T14:21:09-04:00
+📄 Titolo: 13F-HR - Barton Investment Management (0001387818) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1387818/000138781825000005/0001387818-25-000005-index.htm
+============================================================
+2025-10-21 23:44:39,836 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:39,837 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:39,838 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T14:15:34-04:00
+📄 Titolo: 13F-HR - Commonwealth Financial Services, LLC (0001536755) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1536755/000153675525000015/0001536755-25-000015-index.htm
+============================================================
+2025-10-21 23:44:40,321 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:40,323 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:40,323 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T14:10:53-04:00
+📄 Titolo: 13F-HR - UNICOM Systems, Inc. (0001996154) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1996154/000199615425000014/0001996154-25-000014-index.htm
+============================================================
+2025-10-21 23:44:40,670 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:40,672 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:40,672 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T14:07:44-04:00
+📄 Titolo: 13F-HR - Noble Family Wealth, LLC (0001976065) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1976065/000142050625002883/0001420506-25-002883-index.htm
+============================================================
+2025-10-21 23:44:41,024 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:41,025 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:41,025 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T14:06:37-04:00
+📄 Titolo: 13F-HR - First City Capital Management, Inc. (0001427350) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1427350/000142735025000005/0001427350-25-000005-index.htm
+============================================================
+2025-10-21 23:44:41,399 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:41,401 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:41,401 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T14:04:43-04:00
+📄 Titolo: 13F-HR - Wellesley Asset Management (0001533551) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1533551/000153355125000006/0001533551-25-000006-index.htm
+============================================================
+2025-10-21 23:44:41,760 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:41,761 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:41,762 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T14:03:32-04:00
+📄 Titolo: 13F-HR - Chronos Wealth Management, LLC (0001801792) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1801792/000180179225000005/0001801792-25-000005-index.htm
+============================================================
+2025-10-21 23:44:42,124 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:42,125 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:42,126 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:54:37-04:00
+📄 Titolo: 13F-HR - BOS Asset Management, LLC (0001965814) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1965814/000196581425000009/0001965814-25-000009-index.htm
+============================================================
+2025-10-21 23:44:42,528 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:42,529 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:42,530 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:42:54-04:00
+📄 Titolo: 13F-HR - Pflug Koory, LLC (0001740063) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1740063/000174006325000006/0001740063-25-000006-index.htm
+============================================================
+2025-10-21 23:44:42,923 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:42,924 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:42,924 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:42:38-04:00
+📄 Titolo: 13F-HR - Galibier Capital Management Ltd. (0001765768) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1765768/000094562125000978/0000945621-25-000978-index.htm
+============================================================
+2025-10-21 23:44:43,275 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:43,276 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:43,277 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:40:39-04:00
+📄 Titolo: 13F-HR - Buttonwood Financial Advisors Inc. (0001904033) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1904033/000190403325000006/0001904033-25-000006-index.htm
+============================================================
+2025-10-21 23:44:43,649 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:43,652 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:43,652 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:35:43-04:00
+📄 Titolo: 13F-HR - Altus Wealth Group LLC (0001842572) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1842572/000184257225000013/0001842572-25-000013-index.htm
+============================================================
+2025-10-21 23:44:44,006 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:44,007 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:44,008 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:32:52-04:00
+📄 Titolo: 13F-HR - Bell Bank (0001002672) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1002672/000106299325016244/0001062993-25-016244-index.htm
+============================================================
+2025-10-21 23:44:44,410 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:44,412 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:44,412 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:32:34-04:00
+📄 Titolo: 13F-HR - Intelligent Financial Strategies (0001911000) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1911000/000191100025000008/0001911000-25-000008-index.htm
+============================================================
+2025-10-21 23:44:44,780 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:44,781 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:44,782 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:31:40-04:00
+📄 Titolo: 13F-HR - Western Pacific Wealth Management, LP (0001907320) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1907320/000110465925101147/0001104659-25-101147-index.htm
+============================================================
+2025-10-21 23:44:45,175 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:45,176 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:45,176 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:28:56-04:00
+📄 Titolo: 13F-HR - Financiere des Professionnels - Fonds d'investissement inc. (0001996846) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1996846/000199684625000017/0001996846-25-000017-index.htm
+============================================================
+2025-10-21 23:44:45,560 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:45,561 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:45,561 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:25:38-04:00
+📄 Titolo: 13F-HR - Hedeker Wealth, LLC (0001633910) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1633910/000117266125004345/0001172661-25-004345-index.htm
+============================================================
+2025-10-21 23:44:45,958 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:45,960 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:45,960 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:25:31-04:00
+📄 Titolo: 13F-HR - ETF Portfolio Partners, Inc. (0001635342) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1635342/000163534225000007/0001635342-25-000007-index.htm
+============================================================
+2025-10-21 23:44:46,351 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:46,353 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:46,353 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:24:08-04:00
+📄 Titolo: 13F-HR - PDS Planning, Inc (0000838618) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/838618/000083861825000008/0000838618-25-000008-index.htm
+============================================================
+2025-10-21 23:44:46,723 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:46,725 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:46,725 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:22:36-04:00
+📄 Titolo: 13F-HR - Meredith Wealth Planning (0001956471) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1956471/000195647125000007/0001956471-25-000007-index.htm
+============================================================
+2025-10-21 23:44:47,087 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:47,088 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:47,088 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:20:30-04:00
+📄 Titolo: 13F-HR - Three Bridge Wealth Advisors, LLC (0001950962) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1950962/000195096225000011/0001950962-25-000011-index.htm
+============================================================
+2025-10-21 23:44:47,493 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:47,494 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:47,494 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:20:29-04:00
+📄 Titolo: 13F-HR - NTV ASSET MANAGEMENT LLC (0001284208) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1284208/000119312525244741/0001193125-25-244741-index.htm
+============================================================
+2025-10-21 23:44:47,863 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:47,864 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:47,864 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:18:08-04:00
+📄 Titolo: 13F-HR - Brown Miller Wealth Management, LLC (0001840084) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1840084/000184008425000015/0001840084-25-000015-index.htm
+============================================================
+2025-10-21 23:44:48,217 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:48,219 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:48,219 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:15:07-04:00
+📄 Titolo: 13F-HR - Synergy Asset Management, LLC (0001699080) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1699080/000169908025000007/0001699080-25-000007-index.htm
+============================================================
+2025-10-21 23:44:48,581 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:48,583 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:48,583 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:14:32-04:00
+📄 Titolo: 13F-HR - SIGNATUREFD, LLC (0001456048) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1456048/000145604825000009/0001456048-25-000009-index.htm
+============================================================
+2025-10-21 23:44:48,926 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:48,927 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:48,927 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:11:43-04:00
+📄 Titolo: 13F-HR - DEERE & CO (0000315189) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/315189/000031518925000004/0000315189-25-000004-index.htm
+============================================================
+2025-10-21 23:44:49,301 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:49,303 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:49,303 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:08:27-04:00
+📄 Titolo: 13F-HR - BRAVE ASSET MANAGEMENT INC (0001085867) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1085867/000117266125004342/0001172661-25-004342-index.htm
+============================================================
+2025-10-21 23:44:49,707 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:49,709 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:49,709 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:07:24-04:00
+📄 Titolo: 13F-HR - Taylor Frigon Capital Management LLC (0001632665) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1632665/000163266525000008/0001632665-25-000008-index.htm
+============================================================
+2025-10-21 23:44:50,076 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:50,077 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:50,077 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T13:03:12-04:00
+📄 Titolo: 13F-HR - Townsend & Associates, Inc (0001729359) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1729359/000172935925000007/0001729359-25-000007-index.htm
+============================================================
+2025-10-21 23:44:50,535 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:50,536 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:50,536 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T12:56:30-04:00
+📄 Titolo: 13F-HR - QUATTRO FINANCIAL ADVISORS LLC (0001705929) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1705929/000121465925015139/0001214659-25-015139-index.htm
+============================================================
+2025-10-21 23:44:50,928 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:50,930 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:50,930 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T12:56:16-04:00
+📄 Titolo: 13F-HR - ALTFEST L J & CO INC (0000712050) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/712050/000206336425000252/0002063364-25-000252-index.htm
+============================================================
+2025-10-21 23:44:51,335 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:51,336 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:51,337 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T12:54:18-04:00
+📄 Titolo: 13F-HR - Thoma Capital Management LLC (0002060298) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/2060298/000117266125004341/0001172661-25-004341-index.htm
+============================================================
+2025-10-21 23:44:51,709 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:51,710 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:51,710 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T12:53:13-04:00
+📄 Titolo: 13F-HR - Arbor Investment Advisors, LLC (0001590073) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1590073/000159007325000008/0001590073-25-000008-index.htm
+============================================================
+2025-10-21 23:44:52,072 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:52,073 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:52,073 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T12:48:25-04:00
+📄 Titolo: 13F-HR - Kooman & Associates (0001961850) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/1961850/000196185025000007/0001961850-25-000007-index.htm
+============================================================
+2025-10-21 23:44:52,451 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:52,453 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:52,453 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T12:45:49-04:00
+📄 Titolo: 13F-HR - Kagan Cocozza Asset Management (0002064489) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/2064489/000206336425000250/0002063364-25-000250-index.htm
+============================================================
+2025-10-21 23:44:52,831 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:52,832 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:52,832 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T12:45:41-04:00
+📄 Titolo: 13F-HR - CROWLEY WEALTH MANAGEMENT, INC. (0002055836) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/2055836/000205583625000005/0002055836-25-000005-index.htm
+============================================================
+2025-10-21 23:44:53,181 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:53,182 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:53,183 - INFO - 
+============================================================
+🔔 NUOVO FORM 13F-HR RILEVATO!
+============================================================
+📊 Filer: Filer Sconosciuto
+📅 Data: 2025-10-21T12:44:55-04:00
+📄 Titolo: 13F-HR - Prepared Retirement Institute LLC (0002056037) (Filer)
+🔗 Link: https://www.sec.gov/Archives/edgar/data/2056037/000205603725000011/0002056037-25-000011-index.htm
+============================================================
+2025-10-21 23:44:53,585 - INFO - Notifica Telegram inviata con successo
+2025-10-21 23:44:53,586 - INFO - ✓ Notifica Telegram inviata con successo
+2025-10-21 23:44:53,587 - INFO - Cache salvata con 100 ID
+2025-10-21 23:44:53,587 - INFO - 📥 Processati 100 nuovi filing
+2025-10-21 23:44:53,588 - INFO - 💤 Prossimo controllo tra 15.0 minuti
+2025-10-21 23:44:54,721 - INFO - 
+👋 Arresto programma richiesto dall'utente
+2025-10-21 23:44:54,721 - INFO - === Fine programma ===
+2025-10-21 23:45:01,767 - WARNING - Errore Telegram (tentativo 3/3): 401
+2025-10-21 23:45:01,768 - ERROR - Fallito invio notifica Telegram dopo tutti i tentativi
+2025-10-21 23:45:02,139 - WARNING - Errore Telegram (tentativo 1/3): 401
+2025-10-21 23:46:02,469 - WARNING - Errore Telegram (tentativo 2/3): 401
+2025-10-21 23:47:02,803 - WARNING - Errore Telegram (tentativo 3/3): 401
+2025-10-21 23:47:02,803 - ERROR - Fallito invio notifica Telegram dopo tutti i tentativi
+2025-10-21 23:47:03,162 - WARNING - Errore Telegram (tentativo 1/3): 401
+2025-10-21 23:47:55,959 - INFO - === Avvio 13F Alert System v2.0 ===
+2025-10-21 23:47:55,959 - INFO - Intervallo polling: 900s (15.0 minuti)
+2025-10-21 23:47:55,959 - INFO - Filtro attivo: NO (tutti i filing)
+2025-10-21 23:47:55,959 - INFO - 🚀 Avvio Telegram Message Viewer...
+2025-10-21 23:47:55,970 - INFO - 📱 Telegram Viewer avviato con successo!
+2025-10-21 23:47:57,971 - INFO - Caricati 100 ID dalla cache
+2025-10-21 23:47:57,971 - INFO - 
+============================================================
+2025-10-21 23:47:57,971 - INFO - 🔍 Controllo alle 2025-10-21 23:47:57
+2025-10-21 23:47:57,972 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-21 23:47:58,529 - INFO - Feed scaricato: 100 entry trovate
+2025-10-21 23:47:58,531 - INFO - ✓ Nessun nuovo filing da notificare
+2025-10-21 23:47:58,532 - INFO - 💤 Prossimo controllo tra 15.0 minuti
+2025-10-21 23:48:03,507 - WARNING - Errore Telegram (tentativo 2/3): 401
+2025-10-21 23:48:28,304 - INFO - 
+👋 Arresto programma richiesto dall'utente
+2025-10-21 23:48:28,305 - INFO - === Fine programma ===
+2025-10-21 23:48:30,263 - INFO - === Avvio 13F Alert System v2.0 ===
+2025-10-21 23:48:30,263 - INFO - Intervallo polling: 900s (15.0 minuti)
+2025-10-21 23:48:30,264 - INFO - Filtro attivo: NO (tutti i filing)
+2025-10-21 23:48:30,264 - INFO - 🚀 Avvio Telegram Message Viewer...
+2025-10-21 23:48:30,273 - INFO - 📱 Telegram Viewer avviato con successo!
+2025-10-21 23:48:32,274 - INFO - Caricati 100 ID dalla cache
+2025-10-21 23:48:32,274 - INFO - 
+============================================================
+2025-10-21 23:48:32,274 - INFO - 🔍 Controllo alle 2025-10-21 23:48:32
+2025-10-21 23:48:32,275 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-21 23:48:32,799 - INFO - Feed scaricato: 100 entry trovate
+2025-10-21 23:48:32,801 - INFO - ✓ Nessun nuovo filing da notificare
+2025-10-21 23:48:32,801 - INFO - 💤 Prossimo controllo tra 15.0 minuti
+2025-10-21 23:48:35,560 - INFO - 
+👋 Arresto programma richiesto dall'utente
+2025-10-21 23:48:35,561 - INFO - === Fine programma ===
+2025-10-21 23:49:03,875 - WARNING - Errore Telegram (tentativo 3/3): 401
+2025-10-21 23:49:03,876 - ERROR - Fallito invio notifica Telegram dopo tutti i tentativi
+2025-10-21 23:49:04,283 - WARNING - Errore Telegram (tentativo 1/3): 401

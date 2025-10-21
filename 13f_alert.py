@@ -4,8 +4,11 @@ import json
 import time
 import logging
 import os
+import subprocess
+import sys
 from datetime import datetime
 from typing import Set, List, Dict
+from message_bridge import save_message_to_viewer  # Per visualizzatore locale
 
 # ==================== CONFIGURAZIONE ====================
 # IMPORTANTE: Sostituisci questi valori o usa variabili d'ambiente
@@ -30,17 +33,49 @@ HEDGE_FUNDS_FILTER = [
 ]
 
 # ==================== SETUP LOGGING ====================
+# Gestione logging con fallback se il file è bloccato
+log_handlers = [logging.StreamHandler()]
+
+try:
+    # Prova ad aprire il file log principale
+    log_handlers.append(logging.FileHandler('13f_alerts.log', encoding='utf-8'))
+except PermissionError:
+    # Se bloccato, usa un file con timestamp
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    fallback_log = f'13f_alerts_{timestamp}.log'
+    log_handlers.append(logging.FileHandler(fallback_log, encoding='utf-8'))
+    print(f"⚠️ File log principale bloccato, uso: {fallback_log}")
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('13f_alerts.log'),
-        logging.StreamHandler()
-    ]
+    handlers=log_handlers
 )
 logger = logging.getLogger(__name__)
 
 # ==================== FUNZIONI CORE ====================
+
+def launch_telegram_viewer():
+    """Avvia il visualizzatore Telegram in una finestra separata"""
+    try:
+        viewer_path = os.path.join(os.path.dirname(__file__), 'telegram_viewer.py')
+        
+        if os.path.exists(viewer_path):
+            # Avvia in processo separato (non bloccante)
+            if sys.platform == 'win32':
+                subprocess.Popen([sys.executable, viewer_path], 
+                               creationflags=subprocess.CREATE_NEW_CONSOLE)
+            else:
+                subprocess.Popen([sys.executable, viewer_path])
+            
+            logger.info("📱 Telegram Viewer avviato con successo!")
+            return True
+        else:
+            logger.warning(f"⚠️ File {viewer_path} non trovato")
+            return False
+    except Exception as e:
+        logger.error(f"❌ Errore avvio Telegram Viewer: {e}")
+        return False
 
 def load_last_seen() -> Set[str]:
     """Carica gli ID dei filing già processati"""
@@ -174,6 +209,9 @@ def process_feed(feed: feedparser.FeedParserDict, last_seen_ids: Set[str]) -> Li
             )
             logger.info(console_message)
             
+            # Salva messaggio per visualizzatore locale
+            save_message_to_viewer(message, filer)
+            
             # Invia notifica
             if send_telegram(message):
                 logger.info(f"✓ Notifica Telegram inviata con successo")
@@ -194,6 +232,11 @@ def main():
     logger.info("=== Avvio 13F Alert System v2.0 ===")
     logger.info(f"Intervallo polling: {POLL_INTERVAL}s ({POLL_INTERVAL/60} minuti)")
     logger.info(f"Filtro attivo: {'SI' if HEDGE_FUNDS_FILTER else 'NO (tutti i filing)'}")
+    
+    # Avvia Telegram Viewer
+    logger.info("🚀 Avvio Telegram Message Viewer...")
+    launch_telegram_viewer()
+    time.sleep(2)  # Attendi che il viewer si apra
     
     # Verifica configurazione
     if BOT_TOKEN == 'YOUR_BOT_TOKEN' or CHAT_ID == 'YOUR_CHAT_ID':

@@ -67,9 +67,26 @@ $env:SEC_USER_AGENT="TuoNome tuo@email.com"
 
 ## 🎯 Utilizzo
 
-### Esecuzione Standard
+### Esecuzione Standard (con Visualizzatore Telegram)
+Il programma **avvia automaticamente** il visualizzatore Telegram in una finestra separata:
+
 ```powershell
-python 13f_alert_v2.py
+# Metodo 1: File batch (doppio click)
+start_13f_monitor.bat
+
+# Metodo 2: Python diretto
+python 13f_alert.py
+```
+
+**Cosa succede:**
+1. ✅ Si apre una finestra con il **Telegram Message Viewer** (simula Telegram)
+2. ✅ Il programma principale inizia a monitorare nel terminal
+3. ✅ Ogni nuovo Form 13F viene mostrato **sia su Telegram che nel viewer locale**
+
+### Solo Visualizzatore (senza monitoraggio)
+Se vuoi solo vedere i messaggi salvati in precedenza:
+```powershell
+python telegram_viewer.py
 ```
 
 ### Esecuzione in Background (Windows)
