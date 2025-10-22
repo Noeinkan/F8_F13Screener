@@ -1,3 +1,5 @@
+
+
 #!/usr/bin/env python3
 """
 Script per processare retroattivamente i filing già rilevati
