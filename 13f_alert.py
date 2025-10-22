@@ -32,13 +32,35 @@ HOLDINGS_CSV = '13f_holdings_tracker.csv'  # CSV tracker per holdings
 # Auto-avvio viewer (True = avvia automaticamente, False = solo programma principale)
 AUTO_LAUNCH_VIEWER = True  # Cambia in False per disabilitare l'auto-avvio
 
-# Filtro opzionale: aggiungi hedge fund da monitorare (vuoto = tutti)
-HEDGE_FUNDS_FILTER = [
-    # 'BERKSHIRE HATHAWAY',
-    # 'CITADEL',
-    # 'RENAISSANCE TECHNOLOGIES',
-    # 'BRIDGEWATER'
-]
+# Filtro per CIK: SOLO questi 25 hedge funds value investing saranno monitorati
+# Usare CIK è più affidabile del nome perché è univoco e immutabile
+HEDGE_FUNDS_CIK_FILTER = {
+    '0001061768': 'Baupost Group (Seth Klarman)',
+    '0001649339': 'Scion Asset Management (Michael Burry)',
+    '0001656456': 'Appaloosa Management (David Tepper)',
+    '0000905567': 'Yacktman Asset Management',
+    '0001336528': 'Pershing Square Capital (Bill Ackman)',
+    '0001079114': 'Greenlight Capital (David Einhorn)',
+    '0001056831': 'Fairholme Capital (Bruce Berkowitz)',
+    '0000732905': 'Tweedy Browne Company',
+    '0001099281': 'Third Avenue Management',
+    '0000949509': 'Oaktree Capital Management (Howard Marks)',
+    '0001549575': 'Pabrai Investment Funds (Mohnish Pabrai)',
+    '0001404599': 'Aquamarine Capital (Guy Spier)',
+    '0000860643': 'Gardner Russo & Gardner (Tom Russo)',
+    '0000906304': 'Royce Investment Partners (Chuck Royce)',
+    '0000807985': 'Southeastern Asset Management',
+    '0001351069': 'ValueAct Capital',
+    '0001040273': 'Third Point LLC (Dan Loeb)',
+    '0001709323': 'Himalaya Capital (Li Lu)',
+    '0001568820': 'Arlington Value Capital (Allan Mecham)',
+    '0001112520': 'Akre Capital Management (Chuck Akre)',
+    '0001641864': 'Giverny Capital',
+    '0001360079': 'Wintergreen Advisers',
+    '0001218254': 'Boyar Asset Management',
+    '0001056823': 'Horizon Kinetics',
+    '0001039565': 'Kahn Brothers'
+}
 
 # ==================== SETUP LOGGING ====================
 # Gestione logging con fallback se il file è bloccato
@@ -210,13 +232,38 @@ def fetch_13f_feed(retries: int = MAX_RETRIES) -> feedparser.FeedParserDict:
     logger.error("Fallito scaricamento feed dopo tutti i tentativi")
     return feedparser.FeedParserDict()
 
-def should_notify(filer_name: str) -> bool:
-    """Verifica se il filer corrisponde ai filtri (se presenti)"""
-    if not HEDGE_FUNDS_FILTER:
-        return True  # Nessun filtro, notifica tutto
+def should_notify(filer_name: str, filing_link: str) -> tuple[bool, str]:
+    """
+    Verifica se il filer corrisponde ai filtri tramite CIK.
+    Questo è molto più affidabile del matching per nome.
     
-    filer_upper = filer_name.upper()
-    return any(fund.upper() in filer_upper for fund in HEDGE_FUNDS_FILTER)
+    Args:
+        filer_name: Nome del filer (per logging)
+        filing_link: URL del filing EDGAR (contiene il CIK)
+    
+    Returns:
+        (match_found, fund_name): True se il CIK corrisponde, e il nome del fund
+    """
+    if not HEDGE_FUNDS_CIK_FILTER:
+        return True, "ALL"  # Nessun filtro, notifica tutto
+    
+    # Estrai CIK dall'URL
+    cik = extract_cik_from_link(filing_link)
+    
+    # Normalizza il CIK (rimuovi zeri leading per matching flessibile)
+    cik_normalized = cik.lstrip('0') if cik else ''
+    
+    # Cerca il CIK nel filtro (con e senza zeri leading)
+    for filter_cik, fund_name in HEDGE_FUNDS_CIK_FILTER.items():
+        filter_cik_normalized = filter_cik.lstrip('0')
+        
+        if cik == filter_cik or cik_normalized == filter_cik_normalized:
+            logger.info(f"✓ MATCH trovato: CIK {cik} → {fund_name}")
+            return True, fund_name
+    
+    # Nessun match trovato
+    logger.debug(f"✗ Nessun match per: {filer_name} (CIK: {cik})")
+    return False, ""
 
 def extract_filing_url_from_link(link: str) -> Optional[str]:
     """
@@ -430,7 +477,7 @@ def parse_information_table(html_url: str) -> List[Dict]:
         logger.error(f"Errore parsing Information Table: {e}")
         return []
 
-ef save_holdings_to_csv(holdings: List[Dict], filer_name: str, filing_date: str, cik: str, accession_number: str = 'N/A', filing_url: str = ''):
+def save_holdings_to_csv(holdings: List[Dict], filer_name: str, filing_date: str, cik: str, accession_number: str = 'N/A', filing_url: str = ''):
     """
     Salva le holdings nel CSV tracker con nomi colonne migliorati per leggibilità
     """
@@ -676,18 +723,22 @@ def process_feed(feed: feedparser.FeedParserDict, last_seen_ids: Set[str]) -> Li
             filing_date = entry.get('updated', 'Data N/A')
             link = entry.get('link', '')
             
-            # Applica filtro
-            if not should_notify(filer):
-                logger.debug(f"Skippato (filtro): {filer}")
+            # Log ogni filing per debug
+            logger.debug(f"Controllo filing: {filer}")
+            
+            # Applica filtro per CIK
+            is_match, matched_fund = should_notify(filer, link)
+            if not is_match:
+                logger.debug(f"Skippato (filtro CIK): {filer}")
                 new_filings.append(entry_id)
                 continue
             
-            # Formatta messaggio
+            # Match trovato! Formatta messaggio
             message = (
                 f"🔔 <b>Nuovo Form 13F-HR Rilevato!</b>\n\n"
-                f"📊 <b>Filer:</b> {filer}\n"
-                f"📅 <b>Data:</b> {filing_date}\n"
-                f"📄 <b>Titolo:</b> {title}\n"
+                f"📊 <b>Fund:</b> {matched_fund}\n"
+                f"🏢 <b>Filer:</b> {filer}\n"
+                f"� <b>Data:</b> {filing_date}\n"
                 f"🔗 <b>Link:</b> <a href='{link}'>Visualizza su EDGAR</a>"
             )
             
@@ -721,7 +772,8 @@ def main():
     """Loop principale del programma"""
     logger.info("=== Avvio 13F Alert System v2.0 ===")
     logger.info(f"Intervallo polling: {POLL_INTERVAL}s ({POLL_INTERVAL/60} minuti)")
-    logger.info(f"Filtro attivo: {'SI' if HEDGE_FUNDS_FILTER else 'NO (tutti i filing)'}")
+    logger.info(f"Filtro attivo: SI - {len(HEDGE_FUNDS_CIK_FILTER)} hedge funds monitorati (filtro per CIK)")
+    logger.info(f"Hedge funds: {', '.join([name.split('(')[0].strip() for name in list(HEDGE_FUNDS_CIK_FILTER.values())[:5]])}...")
     
     # Avvia Telegram Viewer (se abilitato)
     if AUTO_LAUNCH_VIEWER:

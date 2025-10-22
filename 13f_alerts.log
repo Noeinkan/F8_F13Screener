@@ -3454,3 +3454,152 @@ Arresto programma richiesto dall'utente
 2025-10-22 01:34:43,523 - INFO - Feed scaricato: 100 entry trovate
 2025-10-22 01:34:43,525 - INFO - Nessun nuovo filing da notificare
 2025-10-22 01:34:43,526 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:35:13,526 - INFO - 
+============================================================
+2025-10-22 01:35:13,527 - INFO - Controllo alle 2025-10-22 01:35:13
+2025-10-22 01:35:13,527 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:35:14,243 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:35:14,246 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:35:14,246 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:35:44,246 - INFO - 
+============================================================
+2025-10-22 01:35:44,247 - INFO - Controllo alle 2025-10-22 01:35:44
+2025-10-22 01:35:44,247 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:35:44,971 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:35:44,973 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:35:44,974 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:36:14,975 - INFO - 
+============================================================
+2025-10-22 01:36:14,975 - INFO - Controllo alle 2025-10-22 01:36:14
+2025-10-22 01:36:14,975 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:36:16,704 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:36:16,706 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:36:16,707 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:36:46,708 - INFO - 
+============================================================
+2025-10-22 01:36:46,708 - INFO - Controllo alle 2025-10-22 01:36:46
+2025-10-22 01:36:46,709 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:36:47,393 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:36:47,395 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:36:47,395 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:37:17,398 - INFO - 
+============================================================
+2025-10-22 01:37:17,398 - INFO - Controllo alle 2025-10-22 01:37:17
+2025-10-22 01:37:17,398 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:37:18,198 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:37:18,200 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:37:18,201 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:37:48,201 - INFO - 
+============================================================
+2025-10-22 01:37:48,202 - INFO - Controllo alle 2025-10-22 01:37:48
+2025-10-22 01:37:48,202 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:37:49,058 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:37:49,060 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:37:49,060 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:38:19,061 - INFO - 
+============================================================
+2025-10-22 01:38:19,061 - INFO - Controllo alle 2025-10-22 01:38:19
+2025-10-22 01:38:19,061 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:38:19,839 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:38:19,843 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:38:19,843 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:38:49,844 - INFO - 
+============================================================
+2025-10-22 01:38:49,845 - INFO - Controllo alle 2025-10-22 01:38:49
+2025-10-22 01:38:49,845 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:38:50,605 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:38:50,608 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:38:50,608 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:39:20,608 - INFO - 
+============================================================
+2025-10-22 01:39:20,609 - INFO - Controllo alle 2025-10-22 01:39:20
+2025-10-22 01:39:20,609 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:39:21,702 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:39:21,706 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:39:21,707 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:39:23,115 - INFO - === Avvio 13F Alert System v2.0 ===
+2025-10-22 01:39:23,115 - INFO - Intervallo polling: 30s (0.5 minuti)
+2025-10-22 01:39:23,115 - INFO - Filtro attivo: SI
+2025-10-22 01:39:23,115 - INFO - Avvio Telegram Message Viewer...
+2025-10-22 01:39:23,129 - INFO - Telegram Viewer avviato con successo (via batch)!
+2025-10-22 01:39:25,130 - INFO - Inizializzazione CSV tracker...
+2025-10-22 01:39:25,136 - INFO - CSV tracker trovato: 3552 holdings esistenti
+2025-10-22 01:39:25,137 - INFO - Caricati 100 ID dalla cache
+2025-10-22 01:39:25,137 - INFO - 
+============================================================
+2025-10-22 01:39:25,138 - INFO - Controllo alle 2025-10-22 01:39:25
+2025-10-22 01:39:25,138 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:39:26,512 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:39:26,516 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:39:26,516 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:39:33,698 - INFO - 
+Arresto programma richiesto dall'utente
+2025-10-22 01:39:33,698 - INFO - === Fine programma ===
+2025-10-22 01:39:51,708 - INFO - 
+============================================================
+2025-10-22 01:39:51,708 - INFO - Controllo alle 2025-10-22 01:39:51
+2025-10-22 01:39:51,708 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:39:52,391 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:39:52,393 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:39:52,393 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:40:22,394 - INFO - 
+============================================================
+2025-10-22 01:40:22,395 - INFO - Controllo alle 2025-10-22 01:40:22
+2025-10-22 01:40:22,395 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:40:23,152 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:40:23,154 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:40:23,155 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:40:53,155 - INFO - 
+============================================================
+2025-10-22 01:40:53,156 - INFO - Controllo alle 2025-10-22 01:40:53
+2025-10-22 01:40:53,156 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:40:53,829 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:40:53,831 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:40:53,831 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:41:23,832 - INFO - 
+============================================================
+2025-10-22 01:41:23,832 - INFO - Controllo alle 2025-10-22 01:41:23
+2025-10-22 01:41:23,832 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:41:24,490 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:41:24,492 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:41:24,492 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:41:54,492 - INFO - 
+============================================================
+2025-10-22 01:41:54,493 - INFO - Controllo alle 2025-10-22 01:41:54
+2025-10-22 01:41:54,493 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:41:55,197 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:41:55,199 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:41:55,199 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:42:17,640 - INFO - === Avvio 13F Alert System v2.0 ===
+2025-10-22 01:42:17,640 - INFO - Intervallo polling: 30s (0.5 minuti)
+2025-10-22 01:42:17,641 - INFO - Filtro attivo: SI
+2025-10-22 01:42:17,641 - INFO - Avvio Telegram Message Viewer...
+2025-10-22 01:42:17,654 - INFO - Telegram Viewer avviato con successo (via batch)!
+2025-10-22 01:42:19,655 - INFO - Inizializzazione CSV tracker...
+2025-10-22 01:42:19,658 - INFO - CSV tracker trovato: 3552 holdings esistenti
+2025-10-22 01:42:19,658 - WARNING - File last_13f_check_v2.json non trovato, creazione nuovo
+2025-10-22 01:42:19,659 - INFO - 
+============================================================
+2025-10-22 01:42:19,659 - INFO - Controllo alle 2025-10-22 01:42:19
+2025-10-22 01:42:19,659 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:42:20,453 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:42:20,460 - INFO - Cache salvata con 100 ID
+2025-10-22 01:42:20,460 - INFO - Processati 100 nuovi filing
+2025-10-22 01:42:20,460 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:42:25,199 - INFO - 
+============================================================
+2025-10-22 01:42:25,200 - INFO - Controllo alle 2025-10-22 01:42:25
+2025-10-22 01:42:25,200 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:42:25,947 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:42:25,949 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:42:25,950 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:42:39,368 - INFO - 
+Arresto programma richiesto dall'utente
+2025-10-22 01:42:39,368 - INFO - === Fine programma ===
+2025-10-22 01:42:55,950 - INFO - 
+============================================================
+2025-10-22 01:42:55,951 - INFO - Controllo alle 2025-10-22 01:42:55
+2025-10-22 01:42:55,951 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:42:56,705 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:42:56,709 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:42:56,709 - INFO - Prossimo controllo tra 0.5 minuti
