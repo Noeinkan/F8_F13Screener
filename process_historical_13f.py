@@ -22,30 +22,50 @@ import concurrent.futures
 import threading
 import statistics
 from collections import deque
+import os
+import csv
+import re
+import argparse
+import importlib.util
+from datetime import datetime
+from typing import List, Dict, Optional
+import sys
+import logging
+import shutil
+import multiprocessing
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+class TokenBucketRateLimiter:
+    """Token bucket rate limiter per gestire burst di richieste rispettando un limite massimo per secondo."""
+    
+    def __init__(self, rate: float, capacity: float):
+        self.rate = rate  # Richieste per secondo
+        self.capacity = capacity  # Capacità massima del bucket
+        self.tokens = capacity
+        self.last_refill = time.time()
+        self.lock = threading.Lock()
 
-
-class RateLimiter:
-    """Semplice rate limiter basato su delay tra chiamate (seconds per request).
-
-    Usare RateLimiter(delay_seconds) e chiamare wait() prima di ogni richiesta.
-    """
-    def __init__(self, delay_seconds: float = 0.11):
-        self.delay = delay_seconds
-        self._lock = threading.Lock()
-        self._last = 0.0
+    def _refill(self):
+        now = time.time()
+        tokens_to_add = (now - self.last_refill) * self.rate
+        self.tokens = min(self.capacity, self.tokens + tokens_to_add)
+        self.last_refill = now
 
     def wait(self):
-        with self._lock:
-            now = time.time()
-            elapsed = now - self._last
-            to_wait = max(0.0, self.delay - elapsed)
-            if to_wait > 0:
-                time.sleep(to_wait)
-            self._last = time.time()
+        with self.lock:
+            self._refill()
+            if self.tokens < 1:
+                sleep_time = (1 - self.tokens) / self.rate
+                time.sleep(sleep_time)
+                self._refill()
+            self.tokens -= 1
 
 
-# Global rate limiter (popolato da main se --throttle fornito)
-rate_limiter = None
+# Alias per compatibilità
+RateLimiter = TokenBucketRateLimiter
+
+
+# Global rate limiter (inizializzato con valori di default SEC)
+rate_limiter = TokenBucketRateLimiter(rate=10, capacity=10)
 import os
 import csv
 import re
@@ -86,6 +106,21 @@ try:
 except Exception:
     # If reconfigure isn't available or fails, ignore and continue
     pass
+
+def validate_hedge_funds_config():
+    if not HEDGE_FUNDS_CIK:
+        raise ValueError("hedge_funds_config.py è vuoto o non caricato correttamente")
+    for cik, name in HEDGE_FUNDS_CIK.items():
+        if not re.match(r'^\d+$', cik):
+            raise ValueError(f"CIK non valido: {cik}")
+        if not name or not isinstance(name, str):
+            raise ValueError(f"Nome fondo non valido per CIK {cik}: {name}")
+
+def check_disk_space(path: str, min_space_mb: int = 100):
+    total, used, free = shutil.disk_usage(os.path.dirname(path))
+    free_mb = free / (1024 * 1024)
+    if free_mb < min_space_mb:
+        raise RuntimeError(f"Spazio su disco insufficiente: {free_mb:.1f} MB disponibili, richiesto almeno {min_space_mb} MB")
 
 # ==================== CONFIGURAZIONE ====================
 USER_AGENT = os.getenv('SEC_USER_AGENT', 'andrea.aita@libero.it')
@@ -130,6 +165,7 @@ def save_processed_filings(processed_set: set) -> None:
     """
     Salva il tracking dei filing processati.
     """
+    check_disk_space(PROCESSED_TRACKING_FILE)
     try:
         with open(PROCESSED_TRACKING_FILE, 'w', encoding='utf-8') as f:
             json.dump({
@@ -173,9 +209,14 @@ def save_processing_metrics(metrics: Dict) -> None:
     except Exception as e:
         print(f"⚠️  Errore salvataggio metrics: {e}")
 
-def get_13f_filings_for_cik(cik: str, fund_name: str) -> List[Dict]:
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=2, max=10),
+    retry=retry_if_exception_type((requests.exceptions.RequestException,))
+)
+def _fetch_13f_filings_from_api(cik: str, fund_name: str, start_date: str = CUTOFF_DATE, end_date: str = None) -> List[Dict]:
     """
-    Recupera tutti i filing 13F-HR per un CIK dalla SEC API.
+    Recupera tutti i filing 13F-HR per un CIK dalla SEC API (senza cache).
     """
     cik_padded = cik.zfill(10)
     api_url = f"https://data.sec.gov/submissions/CIK{cik_padded}.json"
@@ -189,10 +230,7 @@ def get_13f_filings_for_cik(cik: str, fund_name: str) -> List[Dict]:
             rate_limiter.wait()
 
         response = requests.get(api_url, headers=HEADERS, timeout=30)
-        
-        if response.status_code != 200:
-            print(f"    ❌ Errore HTTP {response.status_code}")
-            return []
+        response.raise_for_status()
         
         data = response.json()
         recent_filings = data.get('filings', {}).get('recent', {})
@@ -214,7 +252,9 @@ def get_13f_filings_for_cik(cik: str, fund_name: str) -> List[Dict]:
             
             filing_date = filing_dates[i]
             
-            if filing_date < CUTOFF_DATE:
+            if filing_date < start_date:
+                continue
+            if end_date and filing_date > end_date:
                 continue
             
             accession = accession_numbers[i]
@@ -248,7 +288,39 @@ def get_13f_filings_for_cik(cik: str, fund_name: str) -> List[Dict]:
         print(f"    ❌ Errore: {e}")
         return []
 
-def download_catalog(output_file: str = CATALOG_FILE, incremental: bool = True) -> List[Dict]:
+def get_13f_filings_for_cik(cik: str, fund_name: str, cache_dir: str = "cache", start_date: str = CUTOFF_DATE) -> List[Dict]:
+    """
+    Recupera tutti i filing 13F-HR per un CIK, con caching locale.
+    """
+    os.makedirs(cache_dir, exist_ok=True)
+    cache_file = os.path.join(cache_dir, f"{cik}.json")
+    
+    # Prova a caricare dal cache
+    if os.path.exists(cache_file):
+        try:
+            with open(cache_file, 'r', encoding='utf-8') as f:
+                cached_data = json.load(f)
+                if cached_data.get('last_updated', 0) > (time.time() - 24*3600):  # Cache valida per 24 ore
+                    print(f"    ✅ Caricato da cache: {cache_file}")
+                    return cached_data.get('filings', [])
+        except Exception as e:
+            print(f"    ⚠️ Errore caricamento cache: {e}")
+    
+    # Scarica da API
+    filings = _fetch_13f_filings_from_api(cik, fund_name)
+    if filings is not None:  # Anche se vuoto, salva per evitare retry
+        try:
+            with open(cache_file, 'w', encoding='utf-8') as f:
+                json.dump({
+                    'last_updated': time.time(),
+                    'filings': filings
+                }, f, indent=2, ensure_ascii=False)
+            print(f"    💾 Salvato in cache: {cache_file}")
+        except Exception as e:
+            print(f"    ⚠️ Errore salvataggio cache: {e}")
+    return filings
+
+def download_catalog(output_file: str = CATALOG_FILE, incremental: bool = True, quiet: bool = False, start_date: str = CUTOFF_DATE, end_date: str = None) -> List[Dict]:
     """
     MODALITÀ 1: Scarica catalogo completo di filing da API SEC
     Usa la lista hedge funds da hedge_funds_config.py
@@ -279,15 +351,15 @@ def download_catalog(output_file: str = CATALOG_FILE, incremental: bool = True) 
         print(f"\n🔄 Modalità COMPLETA: scarica tutti i filing")
     
     print(f"\n⏳ Inizio scansione automatica...")
-    print(f"   Rate limit: 10 req/sec → pausa 0.11s tra richieste")
-    print(f"   Tempo stimato: ~{get_total_funds() * 0.11 / 60:.1f} minuti\n")
+    print(f"   Rate limit: {rate_limiter.rate} req/sec (token bucket, capacity: {rate_limiter.capacity})")
+    print(f"   Tempo stimato: ~{get_total_funds() * (1/rate_limiter.rate) / 60:.1f} minuti\n")
     
     all_filings = existing_catalog.copy()  # Parte dai filing esistenti
     new_filings_count = 0
     skipped_filings_count = 0
     successful_funds = 0
     
-    for i, (cik, fund_name) in enumerate(HEDGE_FUNDS_CIK.items(), 1):
+    for i, (cik, fund_name) in tqdm(enumerate(HEDGE_FUNDS_CIK.items(), 1), total=get_total_funds(), desc="Downloading catalog", disable=quiet):
         print(f"[{i}/{get_total_funds()}]", end=" ")
         
         filings = get_13f_filings_for_cik(cik, fund_name)
@@ -311,9 +383,6 @@ def download_catalog(output_file: str = CATALOG_FILE, incremental: bool = True) 
                 new_filings_count += len(filings)
             
             successful_funds += 1
-        
-        if i < get_total_funds():
-            time.sleep(0.11)  # Rate limiting SEC
     
     # Salva catalogo aggiornato
     if all_filings:
@@ -365,7 +434,7 @@ def download_catalog(output_file: str = CATALOG_FILE, incremental: bool = True) 
 
 # ==================== MODALITÀ 2: HOLDINGS ====================
 
-def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE, workers: Optional[int] = None, auto_confirm: bool = False) -> None:
+def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE, workers: Optional[int] = None, auto_confirm: bool = False, use_processes: bool = False, save_interval: int = 5) -> None:
     """
     MODALITÀ 2: Estrae holdings dettagliate da un catalogo esistente
     Processa SOLO i filing non ancora processati (tracking automatico)
@@ -430,12 +499,14 @@ def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE, workers: Opt
     print(f"🏦 Funds da processare: {len(filings_by_fund)}")
     print(f"📄 Filing totali da processare: {len(filings_to_process)}\n")
 
-    # Use workers passed by CLI if provided; default to 1 (sequential) if not
+    # Use workers passed by CLI if provided; default based on CPU and type
     if workers is None:
-        workers = 1
+        workers = min(multiprocessing.cpu_count(), 4) if use_processes else min(multiprocessing.cpu_count() * 2, 8)
+
+    Executor = concurrent.futures.ProcessPoolExecutor if use_processes else concurrent.futures.ThreadPoolExecutor
 
     print("\n" + "="*80)
-    print(f"🔄 INIZIO PROCESSAMENTO (workers={workers})")
+    print(f"🔄 INIZIO PROCESSAMENTO (workers={workers}, executor={'processes' if use_processes else 'threads'})")
     print("="*80 + "\n")
 
     successi = 0
@@ -514,24 +585,20 @@ def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE, workers: Opt
         print(f"\n🏦 [{fund_index}/{len(filings_by_fund)}] Processamento fund: {fund_name}")
         print(f"   📄 Filing da processare: {len(fund_filings)}")
         
-        if workers <= 1:
-            # Sequential processing per fund
-            for filing in fund_filings:
-                worker_process(filing)
-        else:
-            # Parallel execution with ThreadPoolExecutor per fund
-            with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
-                futures = [executor.submit(worker_process, filing) for filing in fund_filings]
-                
-                # Wait for all filings of this fund to complete
-                for fut in concurrent.futures.as_completed(futures):
-                    pass  # Just wait for completion
+        # Parallel execution per fund
+        with Executor(max_workers=workers) as executor:
+            futures = [executor.submit(worker_process, filing) for filing in fund_filings]
+            
+            # Wait for all filings of this fund to complete
+            for fut in concurrent.futures.as_completed(futures):
+                pass  # Just wait for completion
         
-        # Salva tracking dopo ogni fund completato
-        print(f"   💾 Salvataggio tracking per {fund_name}...")
-        with lock:
-            save_processed_filings(processed_filings)
-        print(f"   ✅ Tracking aggiornato (totale processati: {len(processed_filings)})")
+        # Salva tracking a intervalli o alla fine
+        if fund_index % save_interval == 0 or fund_index == len(filings_by_fund):
+            print(f"   💾 Salvataggio tracking intermedio (fund {fund_index}/{len(filings_by_fund)})...")
+            with lock:
+                save_processed_filings(processed_filings)
+            print(f"   ✅ Tracking aggiornato (totale processati: {len(processed_filings)})")
     
     # Salva tracking finale (ridondante ma sicuro)
     save_processed_filings(processed_filings)
@@ -562,7 +629,7 @@ def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE, workers: Opt
 
 # ==================== MODALITÀ 3: FULL ====================
 
-def process_full_pipeline(workers: Optional[int] = None):
+def process_full_pipeline(workers: Optional[int] = None, use_processes: bool = False, save_interval: int = 5, start_date: str = CUTOFF_DATE, end_date: str = None, quiet: bool = False):
     """
     MODALITÀ 3: Esegue tutto il pipeline (catalog + holdings)
     Completamente automatico: usa solo hedge_funds_config.py
@@ -685,11 +752,50 @@ NOTES:
     )
     
     parser.add_argument(
-        '--throttle',
-        dest='throttle',
+        '--rate',
+        dest='rate',
         type=float,
-        default=None,
-        help='Delay (secondi) minimo tra richieste HTTP globali (es. 0.11). Se non settato usa valori interni.'
+        default=10,
+        help='Rate limite richieste per secondo (default: 10 per SEC guidelines)'
+    )
+    
+    parser.add_argument(
+        '--capacity',
+        dest='capacity',
+        type=float,
+        default=10,
+        help='Capacità burst del rate limiter (default: 10)'
+    )
+    
+    parser.add_argument(
+        '--use-processes',
+        action='store_true',
+        help='Usa ProcessPoolExecutor invece di ThreadPoolExecutor per operazioni CPU-intensive'
+    )
+    
+    parser.add_argument(
+        '--save-interval',
+        type=int,
+        default=5,
+        help='Salva tracking ogni N fondi processati (default: 5)'
+    )
+    
+    parser.add_argument(
+        '--quiet',
+        action='store_true',
+        help='Output minimo (solo errori e riepilogo)'
+    )
+    
+    parser.add_argument(
+        '--start-date',
+        default=CUTOFF_DATE,
+        help='Data di inizio (YYYY-MM-DD, default: 2020-01-01)'
+    )
+    
+    parser.add_argument(
+        '--end-date',
+        default=datetime.now().strftime('%Y-%m-%d'),
+        help='Data di fine (YYYY-MM-DD, default: oggi)'
     )
     
     args = parser.parse_args()
@@ -711,10 +817,9 @@ NOTES:
     print("="*80 + "\n")
     
     # Esegui modalità richiesta
-    # Setup global rate limiter se richiesto
+    # Setup global rate limiter
     global rate_limiter
-    if args.throttle is not None:
-        rate_limiter = RateLimiter(delay_seconds=args.throttle)
+    rate_limiter = TokenBucketRateLimiter(rate=args.rate, capacity=args.capacity)
     if args.mode == 'catalog':
         download_catalog(args.catalog_file, incremental=not args.full_refresh)
     
