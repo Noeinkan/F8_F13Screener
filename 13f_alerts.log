@@ -8308,3 +8308,5 @@ Arresto programma richiesto dall'utente
 2025-10-22 22:38:15,667 - INFO - Parsate 24 holdings dalla Information Table
 2025-10-22 22:38:15,669 - INFO - Salvate 24 holdings nel CSV tracker
 2025-10-22 22:38:15,670 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
+2025-10-22 22:57:03,325 - INFO - Parsate 585 holdings dalla Information Table (HTML/XML)
+2025-10-22 22:57:03,340 - INFO - Salvate 585 holdings nel CSV tracker

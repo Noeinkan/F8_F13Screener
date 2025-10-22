@@ -322,133 +322,237 @@ def parse_information_table(html_url: str) -> List[Dict]:
     Scarica e parsa il file HTML della Information Table
     Ritorna una lista di dict con le holdings
     """
+    def _to_int(s: str) -> Optional[int]:
+        if s is None:
+            return None
+        s = str(s).strip()
+        if s in ['', '-', 'N/A', 'NA']:
+            return None
+        # Remove commas and common non-digit chars
+        s_clean = re.sub(r'[(),]', '', s)
+        # Remove trailing non-numeric suffixes like 'SH' or 'PRN'
+        s_clean = re.sub(r'[A-Za-z%]+$', '', s_clean).strip()
+        try:
+            if s_clean == '':
+                return None
+            # allow floats (e.g., '12.0') -> int
+            return int(float(s_clean))
+        except Exception:
+            return None
+
     try:
         headers = {'User-Agent': USER_AGENT}
         response = requests.get(html_url, headers=headers, timeout=30)
-        
+
         if response.status_code != 200:
             logger.error(f"Errore scaricamento Information Table: HTTP {response.status_code}")
             return []
-        
-        soup = BeautifulSoup(response.content, 'html.parser')
+
+        # Proviamo parse XML/HTML con BeautifulSoup
+        # se è XML (url termina con .xml o contiene tag infoTable) gestiamo come XML
+        content = response.content
+        soup_xml = BeautifulSoup(content, 'xml')
+        soup_html = BeautifulSoup(content, 'html.parser')
+
         holdings = []
-        
-        # Cerca tutte le tabelle
+
+        # First: XML style (infoTable / informationTable)
+        info_entries = soup_xml.find_all(['infoTable', 'informationTable', 'infotable'])
+        if info_entries:
+            logger.info(f"Information Table XML trovata: {len(info_entries)} entries")
+            for entry in info_entries:
+                def gt(tag):
+                    t = entry.find(tag)
+                    return t.get_text(strip=True) if t else ''
+
+                issuer = gt('nameOfIssuer') or gt('nameofissuer') or gt('NAMEOFISSUER')
+                share_class = gt('titleOfClass') or gt('titleofclass')
+                cusip = gt('cusip')
+                figi = gt('figi')
+                value_raw = gt('value')
+                # shrsOrPrn can be nested
+                sh_qty = ''
+                sh_tag = entry.find('shrsOrPrn')
+                if sh_tag:
+                    # try common nested tag
+                    amt = sh_tag.find(['sshPrnamt', 'sshPrnAmt', 'sshpnamt'])
+                    if amt:
+                        sh_qty = amt.get_text(strip=True)
+                    else:
+                        sh_qty = sh_tag.get_text(strip=True)
+                else:
+                    sh_qty = gt('shrsOrPrn') or gt('amount')
+
+                put_call = gt('putCall')
+                investment_discretion = gt('investmentDiscretion')
+                other_manager = gt('otherManager')
+
+                # VotingAuthority may be structured
+                voting_sole = ''
+                voting_shared = ''
+                voting_none = ''
+                va = entry.find('votingAuthority') or entry.find('votingauthority')
+                if va:
+                    s = va.find(['sole', 'Sole'])
+                    if s:
+                        voting_sole = s.get_text(strip=True)
+                    sh = va.find(['shared', 'Shared'])
+                    if sh:
+                        voting_shared = sh.get_text(strip=True)
+                    n = va.find(['none', 'None'])
+                    if n:
+                        voting_none = n.get_text(strip=True)
+
+                holding = {
+                    'issuer_name': issuer,
+                    'share_class': share_class,
+                    'cusip': cusip,
+                    'figi': figi,
+                    'value_x1000': value_raw,
+                    'value': _to_int(value_raw),
+                    'shares_raw': sh_qty,
+                    'shares': _to_int(sh_qty),
+                    'sh_prn': '',
+                    'put_call': put_call,
+                    'investment_discretion': investment_discretion,
+                    'other_manager': other_manager,
+                    'other_managers_raw': other_manager,
+                    'voting_authority_sole': _to_int(voting_sole),
+                    'voting_authority_shared': _to_int(voting_shared),
+                    'voting_authority_none': _to_int(voting_none),
+                    'voting_authority_raw': '',
+                    'all_columns_raw': ''
+                }
+
+                holding['all_columns_raw'] = ' | '.join([str(x) for x in [issuer, share_class, cusip, value_raw, sh_qty] if x])
+                if holding['cusip'] or holding['issuer_name']:
+                    holdings.append(holding)
+
+            logger.info(f"Parsate {len(holdings)} holdings da XML Information Table")
+            return holdings
+
+        # Fallback HTML parsing: cerca tabelle e mappa header dinamicamente
+        soup = soup_html
         tables = soup.find_all('table')
-        
         for table in tables:
-            # Cerca la tabella con gli header giusti
-            # Cerca header row che contiene CUSIP, NAME OF ISSUER, VALUE, etc
             rows = table.find_all('tr')
-            
             if len(rows) < 2:
                 continue
-            
-            # Analizza le prime righe per trovare gli header
+
             header_found = False
             header_row_index = -1
-            
-            for i, row in enumerate(rows[:5]):  # Controlla prime 5 righe
+            header_labels = []
+            for i, row in enumerate(rows[:8]):
                 cells = row.find_all(['td', 'th'])
-                cell_texts = [cell.get_text(strip=True).upper() for cell in cells]
-                
-                # Cerca pattern tipici degli header 13F
-                if any('CUSIP' in text for text in cell_texts) and \
-                   any('ISSUER' in text or 'NAME' in text for text in cell_texts):
+                cell_texts = [cell.get_text(strip=True) for cell in cells]
+                norm_texts = [t.upper() for t in cell_texts]
+                if any('CUSIP' in text for text in norm_texts) and any('ISSUER' in text or 'NAME' in text for text in norm_texts):
                     header_found = True
                     header_row_index = i
-                    logger.debug(f"Header trovato alla riga {i}")
+                    header_labels = cell_texts
                     break
-            
+
             if not header_found:
                 continue
-            
-            # Questa è la tabella giusta! Parsa i dati
-            logger.info(f"Tabella holdings trovata con {len(rows)} righe totali")
-            
-            # Processa le righe dopo gli header
+
+            # map headers
+            canonical_keys = {
+                'issuer_name': ['NAME OF ISSUER', 'ISSUER', 'NAME'],
+                'share_class': ['TITLE OF CLASS', 'TITLE', 'CLASS'],
+                'cusip': ['CUSIP'],
+                'figi': ['FIGI'],
+                'value_x1000': ['VALUE', 'MARKET VALUE'],
+                'shares': ['SHRS OR PRN AMT', 'AMOUNT', 'SHARE', 'SHRS'],
+                'sh_prn': ['SH/PRN'],
+                'put_call': ['PUT/CALL'],
+                'investment_discretion': ['INVESTMENT DISCRETION', 'DISCRETION'],
+                'other_manager': ['OTHER', 'OTHER MANAGER', 'OTHER MANAGERS'],
+                'voting_authority_sole': ['VOTING AUTH. - SOLE', 'SOLE VOTING', 'VOTING SOLE'],
+                'voting_authority_shared': ['VOTING AUTH. - SHARED', 'SHARED VOTING', 'VOTING SHARED'],
+                'voting_authority_none': ['VOTING AUTH. - NONE', 'NONE VOTING', 'VOTING NONE'],
+                'voting_authority_raw': ['VOTING AUTHORITY', 'VOTING AUTH']
+            }
+
+            header_map = {}
+            extras_headers = []
+            for idx, raw_label in enumerate(header_labels):
+                label = raw_label.strip()
+                upper = label.upper()
+                mapped = None
+                for key, variants in canonical_keys.items():
+                    for v in variants:
+                        if v in upper:
+                            mapped = key
+                            break
+                    if mapped:
+                        break
+                if mapped:
+                    header_map[idx] = mapped
+                else:
+                    extra_key = f"extra_col_{idx}"
+                    header_map[idx] = extra_key
+                    extras_headers.append((extra_key, label))
+
             for row in rows[header_row_index + 1:]:
                 cells = row.find_all(['td', 'th'])
-                
-                if len(cells) < 3:  # Minimo: Name, CUSIP, Value
+                if not cells:
                     continue
-                
                 try:
                     cell_texts = [cell.get_text(strip=True) for cell in cells]
-                    
-                    # Salta righe con header duplicati o vuote
                     if not cell_texts or cell_texts[0].upper() in ['NAME OF ISSUER', 'COLUMN 1', '']:
                         continue
-                    
-                    # Mappa i campi in base al numero di colonne
-                    # Layout tipico: NAME, TITLE, CUSIP, FIGI, VALUE, SHARES, SH/PRN, PUT/CALL, DISCRETION, OTHER, SOLE, SHARED, NONE
-                    holding = {}
-                    
-                    if len(cell_texts) >= 13:  # Layout completo
-                        holding = {
-                            'issuer_name': cell_texts[0],
-                            'share_class': cell_texts[1],
-                            'cusip': cell_texts[2],
-                            'figi': cell_texts[3] if len(cell_texts) > 3 else '',
-                            'value_x1000': cell_texts[4].replace(',', '') if len(cell_texts) > 4 else '',
-                            'shares': cell_texts[5].replace(',', '') if len(cell_texts) > 5 else '',
-                            'sh_prn': cell_texts[6] if len(cell_texts) > 6 else '',
-                            'put_call': cell_texts[7] if len(cell_texts) > 7 else '',
-                            'investment_discretion': cell_texts[8] if len(cell_texts) > 8 else '',
-                            'other_manager': cell_texts[9] if len(cell_texts) > 9 else '',
-                            'voting_authority_sole': cell_texts[10].replace(',', '') if len(cell_texts) > 10 else '',
-                            'voting_authority_shared': cell_texts[11].replace(',', '') if len(cell_texts) > 11 else '',
-                            'voting_authority_none': cell_texts[12].replace(',', '') if len(cell_texts) > 12 else ''
-                        }
-                    elif len(cell_texts) >= 8:  # Layout semplificato
-                        holding = {
-                            'issuer_name': cell_texts[0],
-                            'share_class': cell_texts[1] if len(cell_texts) > 1 else '',
-                            'cusip': cell_texts[2] if len(cell_texts) > 2 else '',
-                            'figi': '',
-                            'value_x1000': cell_texts[3].replace(',', '') if len(cell_texts) > 3 else '',
-                            'shares': cell_texts[4].replace(',', '') if len(cell_texts) > 4 else '',
-                            'sh_prn': cell_texts[5] if len(cell_texts) > 5 else '',
-                            'put_call': cell_texts[6] if len(cell_texts) > 6 else '',
-                            'investment_discretion': cell_texts[7] if len(cell_texts) > 7 else '',
-                            'other_manager': '',
-                            'voting_authority_sole': '',
-                            'voting_authority_shared': '',
-                            'voting_authority_none': ''
-                        }
-                    else:
-                        # Layout minimo
-                        holding = {
-                            'issuer_name': cell_texts[0] if len(cell_texts) > 0 else '',
-                            'share_class': cell_texts[1] if len(cell_texts) > 1 else '',
-                            'cusip': cell_texts[2] if len(cell_texts) > 2 else '',
-                            'figi': '',
-                            'value_x1000': '',
-                            'shares': '',
-                            'sh_prn': '',
-                            'put_call': '',
-                            'investment_discretion': '',
-                            'other_manager': '',
-                            'voting_authority_sole': '',
-                            'voting_authority_shared': '',
-                            'voting_authority_none': ''
-                        }
-                    
-                    # Valida che ci siano dati essenziali
-                    if holding['cusip'] and holding['issuer_name']:
+                    holding = {
+                        'issuer_name': '', 'share_class': '', 'cusip': '', 'figi': '',
+                        'value_x1000': '', 'value': None, 'shares': None, 'shares_raw': '', 'sh_prn': '', 'put_call': '',
+                        'investment_discretion': '', 'other_manager': '', 'other_managers_raw': '',
+                        'voting_authority_sole': '', 'voting_authority_shared': '', 'voting_authority_none': '',
+                        'voting_authority_raw': '', 'all_columns_raw': ''
+                    }
+                    for idx, val in enumerate(cell_texts):
+                        key = header_map.get(idx)
+                        clean_val = val.replace('\xa0', ' ').strip()
+                        if not key:
+                            continue
+                        if key.startswith('extra_col_'):
+                            extra_label = next((lbl for k, lbl in extras_headers if k == key), None)
+                            extra_label = extra_label or key
+                            holding['all_columns_raw'] += f"{extra_label}: {clean_val}; "
+                        elif key == 'voting_authority_raw':
+                            holding['voting_authority_raw'] = clean_val
+                        elif key == 'other_manager':
+                            holding['other_manager'] = clean_val
+                            holding['other_managers_raw'] = clean_val
+                        else:
+                            if key in holding:
+                                if key in ('value_x1000', 'shares', 'voting_authority_sole', 'voting_authority_shared', 'voting_authority_none'):
+                                    holding[key] = clean_val.replace(',', '')
+                                else:
+                                    holding[key] = clean_val
+
+                    # numeric conversions
+                    holding['value'] = _to_int(holding.get('value_x1000'))
+                    holding['shares'] = _to_int(holding.get('shares'))
+                    if holding.get('voting_authority_raw') and not (holding.get('voting_authority_sole') or holding.get('voting_authority_shared') or holding.get('voting_authority_none')):
+                        parts = re.split(r'[\s/|-]+', holding['voting_authority_raw'])
+                        nums = [p for p in parts if p.isdigit()]
+                        if len(nums) == 3:
+                            holding['voting_authority_sole'] = nums[0]
+                            holding['voting_authority_shared'] = nums[1]
+                            holding['voting_authority_none'] = nums[2]
+
+                    holding['all_columns_raw'] = holding['all_columns_raw'] or (' | '.join(cell_texts)).strip()
+                    if holding['cusip'] or holding['issuer_name']:
                         holdings.append(holding)
-                        
                 except Exception as e:
-                    logger.debug(f"Errore parsing riga: {e}")
+                    logger.debug(f"Errore parsing riga HTML: {e}")
                     continue
-            
-            # Se abbiamo trovato holdings, usciamo dal loop
+
             if holdings:
                 break
-        
-        logger.info(f"Parsate {len(holdings)} holdings dalla Information Table")
+
+        logger.info(f"Parsate {len(holdings)} holdings dalla Information Table (HTML/XML)")
         return holdings
-        
+
     except Exception as e:
         logger.error(f"Errore parsing Information Table: {e}")
         return []
@@ -481,6 +585,9 @@ def save_holdings_to_csv(holdings: List[Dict], filer_name: str, filing_date: str
             'Put/Call',
             'Investment Discretion',
             'Other Manager',
+            # Raw fallback columns to avoid data loss when forms have different layouts
+            'Other Managers (raw)',
+            'All Columns (raw)',
             'Voting Authority - Sole',
             'Voting Authority - Shared',
             'Voting Authority - None'
@@ -513,6 +620,8 @@ def save_holdings_to_csv(holdings: List[Dict], filer_name: str, filing_date: str
                     'Put/Call': holding.get('put_call', ''),
                     'Investment Discretion': holding.get('investment_discretion', ''),
                     'Other Manager': holding.get('other_manager', ''),
+                    'Other Managers (raw)': holding.get('other_managers_raw', ''),
+                    'All Columns (raw)': holding.get('all_columns_raw', ''),
                     'Voting Authority - Sole': holding.get('voting_authority_sole', ''),
                     'Voting Authority - Shared': holding.get('voting_authority_shared', ''),
                     'Voting Authority - None': holding.get('voting_authority_none', '')
@@ -533,6 +642,7 @@ def save_holdings_to_csv(holdings: List[Dict], filer_name: str, filing_date: str
                     'Name of Issuer', 'Title of Class', 'CUSIP', 'FIGI',
                     'Value ($)', 'Shares/Principal Amount', 'SH/PRN', 'Put/Call',
                     'Investment Discretion', 'Other Manager',
+                    'Other Managers (raw)', 'All Columns (raw)',
                     'Voting Authority - Sole', 'Voting Authority - Shared', 'Voting Authority - None'
                 ]
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -645,6 +755,7 @@ def initialize_csv_tracker():
                 'Name of Issuer', 'Title of Class', 'CUSIP', 'FIGI',
                 'Value ($)', 'Shares/Principal Amount', 'SH/PRN', 'Put/Call',
                 'Investment Discretion', 'Other Manager',
+                'Other Managers (raw)', 'All Columns (raw)',
                 'Voting Authority - Sole', 'Voting Authority - Shared', 'Voting Authority - None'
             ]
             with open(HOLDINGS_CSV, 'w', newline='', encoding='utf-8') as f:
@@ -662,6 +773,7 @@ def initialize_csv_tracker():
                 'Name of Issuer', 'Title of Class', 'CUSIP', 'FIGI',
                 'Value ($)', 'Shares/Principal Amount', 'SH/PRN', 'Put/Call',
                 'Investment Discretion', 'Other Manager',
+                'Other Managers (raw)', 'All Columns (raw)',
                 'Voting Authority - Sole', 'Voting Authority - Shared', 'Voting Authority - None'
             ]
             with open(HOLDINGS_CSV, 'w', newline='', encoding='utf-8') as f:
