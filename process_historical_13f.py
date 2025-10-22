@@ -26,6 +26,16 @@ import importlib.util
 from datetime import datetime
 from typing import List, Dict, Optional
 from hedge_funds_config import HEDGE_FUNDS_CIK, get_total_funds, get_fund_name_by_cik
+import sys
+
+# Ensure stdout/stderr are UTF-8 to avoid UnicodeEncodeError on Windows consoles
+try:
+    # Available on Python 3.7+; will raise on unsupported streams/environments
+    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stderr.reconfigure(encoding='utf-8')
+except Exception:
+    # If reconfigure isn't available or fails, ignore and continue
+    pass
 
 # ==================== CONFIGURAZIONE ====================
 USER_AGENT = os.getenv('SEC_USER_AGENT', 'andrea.aita@libero.it')
