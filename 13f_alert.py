@@ -55,7 +55,7 @@ log_file_created = False
 for log_path in log_locations:
     try:
         log_handlers.append(logging.FileHandler(log_path, encoding='utf-8'))
-        print(f"📁 Log file creato: {log_path}")
+        print(f"Log file creato: {log_path}")
         log_file_created = True
         break
     except PermissionError:
@@ -67,9 +67,9 @@ if not log_file_created:
     fallback_log = os.path.join(tempfile.gettempdir(), f'13f_alerts_{timestamp}.log')
     try:
         log_handlers.append(logging.FileHandler(fallback_log, encoding='utf-8'))
-        print(f"⚠️ Usando file log di fallback: {fallback_log}")
+        print(f"Usando file log di fallback: {fallback_log}")
     except PermissionError:
-        print("⚠️ Impossibile creare file log, solo output console")
+        print("Impossibile creare file log, solo output console")
 
 logging.basicConfig(
     level=logging.INFO,
@@ -88,7 +88,7 @@ def launch_telegram_viewer():
         batch_path = os.path.join(base_dir, 'launch_viewer.bat')
         
         if not os.path.exists(viewer_path):
-            logger.warning(f"⚠️ File {viewer_path} non trovato")
+            logger.warning(f"File {viewer_path} non trovato")
             return False
         
         # Su Windows, prova prima con il batch file (più affidabile)
@@ -99,10 +99,10 @@ def launch_telegram_viewer():
                     shell=True,
                     cwd=base_dir
                 )
-                logger.info("📱 Telegram Viewer avviato con successo (via batch)!")
+                logger.info("Telegram Viewer avviato con successo (via batch)!")
                 return True
             except Exception as e:
-                logger.warning(f"⚠️ Fallback da batch, provo metodo diretto: {e}")
+                logger.warning(f"Fallback da batch, provo metodo diretto: {e}")
         
         # Fallback o altri sistemi operativi
         if sys.platform == 'win32':
@@ -125,11 +125,11 @@ def launch_telegram_viewer():
                 cwd=base_dir
             )
         
-        logger.info("📱 Telegram Viewer avviato con successo!")
+        logger.info("Telegram Viewer avviato con successo!")
         return True
         
     except Exception as e:
-        logger.error(f"❌ Errore avvio Telegram Viewer: {e}")
+        logger.error(f"Errore avvio Telegram Viewer: {e}")
         return False
 
 def load_last_seen() -> Set[str]:
@@ -430,45 +430,87 @@ def parse_information_table(html_url: str) -> List[Dict]:
         logger.error(f"Errore parsing Information Table: {e}")
         return []
 
-def save_holdings_to_csv(holdings: List[Dict], filer_name: str, filing_date: str, cik: str):
+def save_holdings_to_csv(holdings: List[Dict], filer_name: str, filing_date: str, cik: str, accession_number: str = 'N/A'):
     """
-    Salva le holdings nel CSV tracker
+    Salva le holdings nel CSV tracker con nomi colonne migliorati per leggibilità
     """
     try:
         # Determina se il file esiste già
         file_exists = os.path.exists(HOLDINGS_CSV)
         
-        # Apri in modalità append
+        # Estrai solo la data (rimuovi timestamp)
+        filing_date_clean = filing_date.split('T')[0] if 'T' in filing_date else filing_date
+        
+        # Nomi colonne più descrittivi e leggibili - ordine ottimizzato per analisi
+        fieldnames = [
+            'Filing Date',
+            'Fund Name',
+            'Fund CIK',
+            'Accession Number',
+            'Name of Issuer',
+            'Title of Class',
+            'CUSIP',
+            'FIGI',
+            'Value ($)',
+            'Shares/Principal Amount',
+            'SH/PRN',
+            'Put/Call',
+            'Investment Discretion',
+            'Other Manager',
+            'Voting Authority - Sole',
+            'Voting Authority - Shared',
+            'Voting Authority - None'
+        ]
+        
+        # Apri in modalità append (crea se non esiste)
         with open(HOLDINGS_CSV, 'a', newline='', encoding='utf-8') as f:
-            fieldnames = [
-                'filing_date', 'cik', 'fund_name', 'cusip', 'figi', 'issuer_name', 
-                'share_class', 'value_x1000', 'shares', 'sh_prn', 'put_call', 
-                'investment_discretion', 'other_manager', 'voting_authority_sole', 
-                'voting_authority_shared', 'voting_authority_none'
-            ]
-            
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             
-            # Scrivi header solo se file nuovo
-            if not file_exists:
+            # Scrivi header solo se file nuovo o vuoto
+            if not file_exists or os.path.getsize(HOLDINGS_CSV) == 0:
                 writer.writeheader()
+                logger.info(f"Creato nuovo CSV tracker: {HOLDINGS_CSV}")
             
-            # Scrivi ogni holding
+            # Scrivi ogni holding con mapping dei nomi
             for holding in holdings:
                 row = {
-                    'filing_date': filing_date,
-                    'cik': cik,
-                    'fund_name': filer_name,
-                    **holding
+                    'Filing Date': filing_date_clean,
+                    'Fund Name': filer_name,
+                    'Fund CIK': cik,
+                    'Accession Number': accession_number,
+                    'Name of Issuer': holding.get('issuer_name', ''),
+                    'Title of Class': holding.get('share_class', ''),
+                    'CUSIP': holding.get('cusip', ''),
+                    'FIGI': holding.get('figi', ''),
+                    'Value ($)': holding.get('value_x1000', ''),
+                    'Shares/Principal Amount': holding.get('shares', ''),
+                    'SH/PRN': holding.get('sh_prn', ''),
+                    'Put/Call': holding.get('put_call', ''),
+                    'Investment Discretion': holding.get('investment_discretion', ''),
+                    'Other Manager': holding.get('other_manager', ''),
+                    'Voting Authority - Sole': holding.get('voting_authority_sole', ''),
+                    'Voting Authority - Shared': holding.get('voting_authority_shared', ''),
+                    'Voting Authority - None': holding.get('voting_authority_none', '')
                 }
                 writer.writerow(row)
         
-        logger.info(f"✓ Salvate {len(holdings)} holdings nel CSV tracker")
+        logger.info(f"Salvate {len(holdings)} holdings nel CSV tracker")
         return True
         
     except Exception as e:
         logger.error(f"Errore salvataggio CSV: {e}")
-        return False
+        # Tenta di creare il file anche in caso di errore
+        try:
+            logger.warning(f"Tentativo di ricreare il CSV tracker...")
+            with open(HOLDINGS_CSV, 'w', newline='', encoding='utf-8') as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+            logger.info(f"CSV tracker ricreato con successo")
+            # Riprova a salvare
+            return save_holdings_to_csv(holdings, filer_name, filing_date, cik, accession_number)
+        except Exception as retry_error:
+            logger.error(f"Impossibile ricreare CSV: {retry_error}")
+            return False
 
 def extract_cik_from_link(link: str) -> str:
     """
@@ -488,35 +530,107 @@ def process_filing_holdings(filing_link: str, filer_name: str, filing_date: str)
     Processa un filing: scarica, parsa e salva le holdings
     """
     try:
-        logger.info(f"📊 Processamento holdings per: {filer_name}")
+        logger.info(f"Processamento holdings per: {filer_name}")
         
-        # Estrai CIK
+        # Estrai CIK e Accession Number dall'URL
+        # Format: https://www.sec.gov/Archives/edgar/data/1085041/000108504125000006/0001085041-25-000006-index.htm
         cik = extract_cik_from_link(filing_link)
+        
+        # Estrai Accession Number (pattern: XXXXXXXXXX-XX-XXXXXX)
+        accession_match = re.search(r'(\d{10}-\d{2}-\d{6})', filing_link)
+        accession_number = accession_match.group(1) if accession_match else 'N/A'
         
         # Ottieni URL della Information Table
         info_table_url = get_information_table_url(filing_link)
         if not info_table_url:
-            logger.warning("⚠️ Information Table URL non trovata")
+            logger.warning("Information Table URL non trovata")
             return False
         
-        logger.info(f"📄 Trovata Information Table: {info_table_url}")
+        logger.info(f"Trovata Information Table: {info_table_url}")
         
         # Parsa la Information Table
         holdings = parse_information_table(info_table_url)
         if not holdings:
-            logger.warning("⚠️ Nessuna holding trovata nel file")
+            logger.warning("Nessuna holding trovata nel file")
             return False
         
-        # Salva nel CSV
-        success = save_holdings_to_csv(holdings, filer_name, filing_date, cik)
+        # Salva nel CSV (passa anche accession_number)
+        success = save_holdings_to_csv(holdings, filer_name, filing_date, cik, accession_number)
         
         if success:
-            logger.info(f"✅ Holdings processate con successo per {filer_name}")
+            logger.info(f"Holdings processate con successo per {filer_name}")
         
         return success
         
     except Exception as e:
-        logger.error(f"❌ Errore processamento holdings: {e}")
+        logger.error(f"Errore processamento holdings: {e}")
+        return False
+
+def extract_filer_name_from_title(title: str) -> str:
+    """
+    Estrae il nome del filer dal titolo dell'entry RSS
+    Formato: "13F-HR - FUND NAME (CIK) (Filer)"
+    """
+    try:
+        # Rimuovi "13F-HR - " all'inizio
+        if '13F-HR - ' in title:
+            name_part = title.split('13F-HR - ', 1)[1]
+            # Rimuovi la parte " (CIK...)" alla fine
+            if '(' in name_part:
+                filer_name = name_part.split('(')[0].strip()
+                return filer_name
+        return title  # Fallback: ritorna il titolo completo
+    except:
+        return 'Filer Sconosciuto'
+
+def initialize_csv_tracker():
+    """
+    Inizializza il CSV tracker se non esiste o è corrotto
+    """
+    try:
+        # Verifica se il file esiste
+        if not os.path.exists(HOLDINGS_CSV):
+            logger.info(f"Creazione nuovo CSV tracker: {HOLDINGS_CSV}")
+            # Crea il file con header
+            fieldnames = [
+                'Filing Date', 'Fund Name', 'Fund CIK', 'Accession Number',
+                'Name of Issuer', 'Title of Class', 'CUSIP', 'FIGI',
+                'Value ($)', 'Shares/Principal Amount', 'SH/PRN', 'Put/Call',
+                'Investment Discretion', 'Other Manager',
+                'Voting Authority - Sole', 'Voting Authority - Shared', 'Voting Authority - None'
+            ]
+            with open(HOLDINGS_CSV, 'w', newline='', encoding='utf-8') as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+            logger.info(f"CSV tracker creato con successo")
+            return True
+        
+        # Verifica se il file è valido (ha almeno l'header)
+        if os.path.getsize(HOLDINGS_CSV) == 0:
+            logger.warning(f"CSV tracker vuoto, reinizializzazione...")
+            # Ricrea l'header
+            fieldnames = [
+                'Filing Date', 'Fund Name', 'Fund CIK', 'Accession Number',
+                'Name of Issuer', 'Title of Class', 'CUSIP', 'FIGI',
+                'Value ($)', 'Shares/Principal Amount', 'SH/PRN', 'Put/Call',
+                'Investment Discretion', 'Other Manager',
+                'Voting Authority - Sole', 'Voting Authority - Shared', 'Voting Authority - None'
+            ]
+            with open(HOLDINGS_CSV, 'w', newline='', encoding='utf-8') as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+            logger.info(f"CSV tracker reinizializzato")
+            return True
+        
+        # File esiste ed è valido
+        # Conta le righe
+        with open(HOLDINGS_CSV, 'r', encoding='utf-8') as f:
+            row_count = sum(1 for _ in f) - 1  # -1 per l'header
+        logger.info(f"CSV tracker trovato: {row_count} holdings esistenti")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Errore inizializzazione CSV tracker: {e}")
         return False
 
 def process_feed(feed: feedparser.FeedParserDict, last_seen_ids: Set[str]) -> List[str]:
@@ -532,10 +646,10 @@ def process_feed(feed: feedparser.FeedParserDict, last_seen_ids: Set[str]) -> Li
                 continue
             
             # Estrai informazioni
-            filer = entry.get('author', 'Filer Sconosciuto')
+            title = entry.get('title', '')
+            filer = extract_filer_name_from_title(title)
             filing_date = entry.get('updated', 'Data N/A')
             link = entry.get('link', '')
-            title = entry.get('title', '')
             
             # Applica filtro
             if not should_notify(filer):
@@ -552,36 +666,20 @@ def process_feed(feed: feedparser.FeedParserDict, last_seen_ids: Set[str]) -> Li
                 f"🔗 <b>Link:</b> <a href='{link}'>Visualizza su EDGAR</a>"
             )
             
-            # Stampa nel terminal (senza tag HTML per leggibilità)
-            console_message = (
-                f"\n{'='*60}\n"
-                f"🔔 NUOVO FORM 13F-HR RILEVATO!\n"
-                f"{'='*60}\n"
-                f"📊 Filer: {filer}\n"
-                f"📅 Data: {filing_date}\n"
-                f"📄 Titolo: {title}\n"
-                f"🔗 Link: {link}\n"
-                f"{'='*60}"
-            )
-            logger.info(console_message)
-            
-            # Salva messaggio per visualizzatore locale
-            save_message_to_viewer(message, filer)
-            
             # Processa holdings e salva nel CSV
-            logger.info("📥 Inizio download holdings...")
+            logger.info("Inizio download holdings...")
             holdings_success = process_filing_holdings(link, filer, filing_date)
             
             if holdings_success:
                 # Aggiungi info holdings al messaggio
-                message += f"\n\n✅ <b>Holdings salvate nel tracker CSV</b>"
-                logger.info("✅ Holdings processate e salvate")
+                message += f"\n\n<b>Holdings salvate nel tracker CSV</b>"
+                logger.info("Holdings processate e salvate")
             else:
-                logger.warning("⚠️ Holdings non disponibili o errore nel processamento")
+                logger.warning("Holdings non disponibili o errore nel processamento")
             
             # Invia notifica
             if send_telegram(message):
-                logger.info(f"✓ Notifica Telegram inviata con successo")
+                logger.info(f"Notifica Telegram inviata con successo")
                 new_filings.append(entry_id)
             else:
                 logger.error(f"✗ Fallita notifica Telegram")
@@ -602,19 +700,25 @@ def main():
     
     # Avvia Telegram Viewer (se abilitato)
     if AUTO_LAUNCH_VIEWER:
-        logger.info("🚀 Avvio Telegram Message Viewer...")
+        logger.info("Avvio Telegram Message Viewer...")
         launch_telegram_viewer()
         time.sleep(2)  # Attendi che il viewer si apra
     else:
-        logger.info("ℹ️ Auto-avvio viewer disabilitato (avvia manualmente se necessario)")
+        logger.info("Auto-avvio viewer disabilitato (avvia manualmente se necessario)")
     
     # Verifica configurazione
     if BOT_TOKEN == 'YOUR_BOT_TOKEN' or CHAT_ID == 'YOUR_CHAT_ID':
-        logger.error("❌ ERRORE: Configura BOT_TOKEN e CHAT_ID!")
+        logger.error("ERRORE: Configura BOT_TOKEN e CHAT_ID!")
         return
     
     if USER_AGENT == 'YourName yourname@email.com':
-        logger.warning("⚠️ WARNING: Configura USER_AGENT con il tuo email!")
+        logger.warning("WARNING: Configura USER_AGENT con il tuo email!")
+    
+    # Inizializza CSV tracker
+    logger.info("Inizializzazione CSV tracker...")
+    if not initialize_csv_tracker():
+        logger.error("ERRORE: Impossibile inizializzare CSV tracker!")
+        logger.warning("Il programma continuerà, ma potrebbero esserci problemi nel salvataggio")
     
     # Carica cache
     last_seen_ids = load_last_seen()
@@ -624,7 +728,7 @@ def main():
         while True:
             cycle_start = datetime.now()
             logger.info(f"\n{'='*60}")
-            logger.info(f"🔍 Controllo alle {cycle_start.strftime('%Y-%m-%d %H:%M:%S')}")
+            logger.info(f"Controllo alle {cycle_start.strftime('%Y-%m-%d %H:%M:%S')}")
             
             # Scarica feed
             feed = fetch_13f_feed()
@@ -637,20 +741,20 @@ def main():
                 if new_filings:
                     last_seen_ids.update(new_filings)
                     save_last_seen(last_seen_ids)
-                    logger.info(f"📥 Processati {len(new_filings)} nuovi filing")
+                    logger.info(f"Processati {len(new_filings)} nuovi filing")
                 else:
-                    logger.info("✓ Nessun nuovo filing da notificare")
+                    logger.info("Nessun nuovo filing da notificare")
             else:
                 logger.warning("Feed vuoto o non disponibile")
             
             # Attesa prossimo ciclo
-            logger.info(f"💤 Prossimo controllo tra {POLL_INTERVAL/60} minuti")
+            logger.info(f"Prossimo controllo tra {POLL_INTERVAL/60} minuti")
             time.sleep(POLL_INTERVAL)
             
     except KeyboardInterrupt:
-        logger.info("\n👋 Arresto programma richiesto dall'utente")
+        logger.info("\nArresto programma richiesto dall'utente")
     except Exception as e:
-        logger.critical(f"💥 Errore critico: {e}", exc_info=True)
+        logger.critical(f"Errore critico: {e}", exc_info=True)
     finally:
         logger.info("=== Fine programma ===")
 
