@@ -12,6 +12,41 @@ Script unificato per **scaricare automaticamente** tutti i filing 13F-HR degli u
 ✅ **3 modalità** - Catalog, Holdings, o Full pipeline  
 ✅ **Rate limiting integrato** - Rispetta limiti SEC (10 req/sec)  
 ✅ **Progress tracking** - Statistiche dettagliate in tempo reale  
+✅ **♻️ INCREMENTALE** - Scarica solo filing nuovi, non duplicati!  
+✅ **🆕 Smart tracking** - Rileva automaticamente hedge funds aggiunti  
+
+---
+
+## 🌟 NOVITÀ: Modalità Incrementale
+
+### 🎯 Come funziona
+
+Lo script tiene traccia dei filing già scaricati/processati in `processed_filings_tracking.json`.
+
+**Esempio A - Nuovo hedge fund:**
+```bash
+# 1. Aggiungi nuovo fund in hedge_funds_config.py
+# 2. Lancia il programma normalmente
+python process_historical_13f.py catalog
+
+# ✅ Scarica SOLO i filing del nuovo fund
+# ⏭️ Skips tutti i filing già esistenti degli altri funds
+```
+
+**Esempio B - Aggiornamento periodico:**
+```bash
+# Sono passati 4 mesi, ci sono nuovi filing trimestrali
+python process_historical_13f.py catalog
+
+# ✅ Scarica SOLO i filing nuovi pubblicati dopo l'ultima run
+# ⏭️ Skips tutti i filing già scaricati
+```
+
+**Modalità Full Refresh (opzionale):**
+```bash
+# Vuoi ri-scaricare tutto da zero? Usa --full-refresh
+python process_historical_13f.py catalog --full-refresh
+```  
 
 ---
 
@@ -32,12 +67,17 @@ Attualmente: **43 hedge funds** (25 value + 18 growth/tech)
 Scarica solo la lista dei filing disponibili (metadati).
 
 ```bash
+# Modalità incrementale (default) - solo filing nuovi
 python process_historical_13f.py catalog
+
+# Full refresh - ri-scarica tutto
+python process_historical_13f.py catalog --full-refresh
 ```
 
 **Output:** `historical_13f_catalog_5years.json`  
-**Tempo:** ~5 minuti per 43 funds  
+**Tempo:** ~5 minuti per 52 funds (se incrementale: secondi/minuti)  
 **Contenuto:** Lista filing con CIK, date, URL, accession number  
+**Tracking:** Aggiorna automaticamente il tracking dei filing catalogati
 
 ### 2️⃣ Modalità HOLDINGS (lento)
 Estrae holdings dettagliate da un catalogo esistente.
@@ -48,8 +88,9 @@ python process_historical_13f.py holdings
 
 **Prerequisiti:** Deve esistere `historical_13f_catalog_5years.json`  
 **Output:** `13f_holdings_5years.csv`  
-**Tempo:** ~1-2 ore (dipende da quanti filing ci sono)  
+**Tempo:** ~1-2 ore (se incrementale: solo filing nuovi!)  
 **Contenuto:** CSV con ticker, shares, value, filing date, fund name  
+**Tracking:** Salva automaticamente i filing processati ogni 10 file  
 
 ### 3️⃣ Modalità FULL (automatico)
 Esegue catalog + holdings in sequenza senza interruzioni.
@@ -71,18 +112,12 @@ python process_historical_13f.py full
 {
   "generated_at": "2025-10-22T21:27:27.404731",
   "total_filings": 1200,
-  "total_funds": 43,
+  "new_filings": 50,
+  "skipped_filings": 1150,
+  "total_funds": 52,
   "cutoff_date": "2020-01-01",
-  "filings": [
-    {
-      "cik": "0001061768",
-      "fund_name": "Baupost Group (Seth Klarman)",
-      "form": "13F-HR",
-      "filing_date": "2025-02-14",
-      "accession_number": "0001061768-25-000005",
-      "filing_url": "https://www.sec.gov/Archives/edgar/data/..."
-    }
-  ]
+  "incremental_mode": true,
+  "filings": [...]
 }
 ```
 
@@ -94,6 +129,20 @@ filing_date,fund_name,cik,ticker,cusip,shares,value,percentage
 ...
 ```
 
+### 💾 `processed_filings_tracking.json` (NUOVO)
+```json
+{
+  "last_updated": "2025-10-22T22:30:15.123456",
+  "total_processed": 1200,
+  "processed_accession_numbers": [
+    "0001061768-25-000005",
+    "0001649339-25-000038",
+    ...
+  ]
+}
+```
+**Questo file traccia quali filing sono già stati processati per evitare duplicati.**
+
 ---
 
 ## 🔄 Workflow Tipico
@@ -104,12 +153,29 @@ filing_date,fund_name,cik,ticker,cusip,shares,value,percentage
 python process_historical_13f.py full
 ```
 
-### Aggiornamento Periodico
+### Aggiornamento Periodico (CONSIGLIATO) ♻️
 ```bash
-# Solo catalog (veloce) per vedere nuovi filing
-python process_historical_13f.py catalog
+# Ogni 3-4 mesi, lancia semplicemente:
+python process_historical_13f.py catalog  # Scarica solo filing nuovi
+python process_historical_13f.py holdings # Estrae solo holdings nuove
 
-# Poi holdings se ci sono nuovi filing interessanti
+# ✅ Velocissimo! Processa solo ciò che manca
+```
+
+### Nuovo Hedge Fund Aggiunto 🆕
+```bash
+# 1. Aggiungi CIK in hedge_funds_config.py
+# 2. Lancia normalmente
+python process_historical_13f.py catalog  # Scarica solo filing del nuovo fund
+python process_historical_13f.py holdings # Estrae holdings del nuovo fund
+
+# ✅ Tutti gli altri funds vengono skippati automaticamente!
+```
+
+### Full Refresh (Raro) 🔄
+```bash
+# Solo se vuoi ri-scaricare tutto da zero
+python process_historical_13f.py catalog --full-refresh
 python process_historical_13f.py holdings
 ```
 

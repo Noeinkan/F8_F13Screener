@@ -33,6 +33,7 @@ HEADERS = {'User-Agent': USER_AGENT}
 CUTOFF_DATE = '2020-01-01'  # Solo ultimi 5 anni
 CATALOG_FILE = 'historical_13f_catalog_5years.json'
 HOLDINGS_CSV = '13f_holdings_5years.csv'
+PROCESSED_TRACKING_FILE = 'processed_filings_tracking.json'  # Traccia filing già processati
 
 # Importa funzioni da 13f_alert.py se disponibile
 try:
@@ -47,6 +48,51 @@ except Exception as e:
     HAS_ALERT_MODULE = False
 
 # ==================== MODALITÀ 1: CATALOG ====================
+
+def load_processed_filings() -> Dict[str, set]:
+    """
+    Carica il tracking dei filing già processati.
+    Ritorna un dict: {accession_number: True}
+    """
+    if not os.path.exists(PROCESSED_TRACKING_FILE):
+        return {}
+    
+    try:
+        with open(PROCESSED_TRACKING_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return set(data.get('processed_accession_numbers', []))
+    except Exception as e:
+        print(f"⚠️  Errore caricamento tracking: {e}")
+        return set()
+
+def save_processed_filings(processed_set: set) -> None:
+    """
+    Salva il tracking dei filing processati.
+    """
+    try:
+        with open(PROCESSED_TRACKING_FILE, 'w', encoding='utf-8') as f:
+            json.dump({
+                'last_updated': datetime.now().isoformat(),
+                'total_processed': len(processed_set),
+                'processed_accession_numbers': sorted(list(processed_set))
+            }, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"⚠️  Errore salvataggio tracking: {e}")
+
+def load_existing_catalog() -> List[Dict]:
+    """
+    Carica il catalogo esistente se presente.
+    """
+    if not os.path.exists(CATALOG_FILE):
+        return []
+    
+    try:
+        with open(CATALOG_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return data.get('filings', [])
+    except Exception as e:
+        print(f"⚠️  Errore caricamento catalogo esistente: {e}")
+        return []
 
 def get_13f_filings_for_cik(cik: str, fund_name: str) -> List[Dict]:
     """
@@ -119,11 +165,15 @@ def get_13f_filings_for_cik(cik: str, fund_name: str) -> List[Dict]:
         print(f"    ❌ Errore: {e}")
         return []
 
-def download_catalog(output_file: str = CATALOG_FILE) -> List[Dict]:
+def download_catalog(output_file: str = CATALOG_FILE, incremental: bool = True) -> List[Dict]:
     """
     MODALITÀ 1: Scarica catalogo completo di filing da API SEC
     Usa la lista hedge funds da hedge_funds_config.py
     Cerca tutti i filing 13F-HR degli ultimi 5 anni
+    
+    Args:
+        output_file: Nome file output
+        incremental: Se True, scarica solo filing nuovi non già processati
     """
     print("="*80)
     print("MODALITÀ 1: DOWNLOAD CATALOGO FILING 13F-HR")
@@ -131,11 +181,27 @@ def download_catalog(output_file: str = CATALOG_FILE) -> List[Dict]:
     print(f"\n📊 Obiettivo: Trovare filing 13F-HR dal {CUTOFF_DATE} ad oggi")
     print(f"🏦 Hedge funds monitorati: {get_total_funds()} (da hedge_funds_config.py)")
     print(f"🌐 Source: SEC EDGAR API (data.sec.gov)")
+    
+    # Carica tracking filing già processati
+    if incremental:
+        processed_filings = load_processed_filings()
+        existing_catalog = load_existing_catalog()
+        print(f"\n♻️  Modalità INCREMENTALE attiva:")
+        print(f"   - Filing già catalogati: {len(existing_catalog)}")
+        print(f"   - Filing già processati: {len(processed_filings)}")
+        print(f"   - Verranno scaricati SOLO i filing nuovi")
+    else:
+        processed_filings = set()
+        existing_catalog = []
+        print(f"\n🔄 Modalità COMPLETA: scarica tutti i filing")
+    
     print(f"\n⏳ Inizio scansione automatica...")
     print(f"   Rate limit: 10 req/sec → pausa 0.11s tra richieste")
     print(f"   Tempo stimato: ~{get_total_funds() * 0.11 / 60:.1f} minuti\n")
     
-    all_filings = []
+    all_filings = existing_catalog.copy()  # Parte dai filing esistenti
+    new_filings_count = 0
+    skipped_filings_count = 0
     successful_funds = 0
     
     for i, (cik, fund_name) in enumerate(HEDGE_FUNDS_CIK.items(), 1):
@@ -144,20 +210,39 @@ def download_catalog(output_file: str = CATALOG_FILE) -> List[Dict]:
         filings = get_13f_filings_for_cik(cik, fund_name)
         
         if filings:
-            all_filings.extend(filings)
+            # Filtra solo filing nuovi se in modalità incrementale
+            if incremental:
+                new_filings = [f for f in filings if f['accession_number'] not in processed_filings]
+                skipped = len(filings) - len(new_filings)
+                
+                if new_filings:
+                    all_filings.extend(new_filings)
+                    new_filings_count += len(new_filings)
+                    print(f"    ✅ {len(new_filings)} NUOVI filing (skipped: {skipped})")
+                else:
+                    print(f"    ⏭️  Nessun filing nuovo (tutti già processati)")
+                
+                skipped_filings_count += skipped
+            else:
+                all_filings.extend(filings)
+                new_filings_count += len(filings)
+            
             successful_funds += 1
         
         if i < get_total_funds():
             time.sleep(0.11)  # Rate limiting SEC
     
-    # Salva catalogo
+    # Salva catalogo aggiornato
     if all_filings:
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump({
                 'generated_at': datetime.now().isoformat(),
                 'total_filings': len(all_filings),
+                'new_filings': new_filings_count,
+                'skipped_filings': skipped_filings_count,
                 'total_funds': len(set([f['cik'] for f in all_filings])),
                 'cutoff_date': CUTOFF_DATE,
+                'incremental_mode': incremental,
                 'filings': all_filings
             }, f, indent=2, ensure_ascii=False)
     
@@ -166,7 +251,11 @@ def download_catalog(output_file: str = CATALOG_FILE) -> List[Dict]:
     print("📊 RIEPILOGO CATALOGO")
     print("="*80)
     print(f"✅ Fondi processati con successo: {successful_funds}/{get_total_funds()}")
-    print(f"📄 Totale filing 13F-HR trovati: {len(all_filings)}")
+    print(f"📄 Totale filing nel catalogo: {len(all_filings)}")
+    
+    if incremental:
+        print(f"🆕 Nuovi filing trovati: {new_filings_count}")
+        print(f"⏭️  Filing già esistenti (skipped): {skipped_filings_count}")
     
     if all_filings:
         filings_by_fund = {}
@@ -196,6 +285,7 @@ def download_catalog(output_file: str = CATALOG_FILE) -> List[Dict]:
 def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE) -> None:
     """
     MODALITÀ 2: Estrae holdings dettagliate da un catalogo esistente
+    Processa SOLO i filing non ancora processati (tracking automatico)
     """
     if not HAS_ALERT_MODULE:
         print("❌ Modulo 13f_alert.py non disponibile. Impossibile estrarre holdings.")
@@ -214,14 +304,28 @@ def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE) -> None:
     with open(catalog_file, 'r', encoding='utf-8') as f:
         catalog_data = json.load(f)
     
-    filings = catalog_data.get('filings', [])
+    all_filings = catalog_data.get('filings', [])
     
-    print(f"\n📊 Trovati {len(filings)} filing nel catalogo")
+    # Carica tracking filing già processati per holdings
+    processed_filings = load_processed_filings()
+    
+    # Filtra solo filing non ancora processati
+    filings_to_process = [f for f in all_filings if f['accession_number'] not in processed_filings]
+    already_processed = len(all_filings) - len(filings_to_process)
+    
+    print(f"\n📊 Filing nel catalogo: {len(all_filings)}")
+    print(f"✅ Già processati: {already_processed}")
+    print(f"🆕 Da processare: {len(filings_to_process)}")
     print(f"🏦 Da {catalog_data.get('total_funds', 0)} hedge funds")
     print(f"📅 Periodo: dal {catalog_data.get('cutoff_date', 'N/A')}\n")
     
-    print("⚠️  ATTENZIONE: Questo scaricherà holdings dettagliate da SEC per ogni filing.")
-    print(f"   Potrebbero volerci {len(filings) * 0.15 / 60:.1f} minuti con rate limiting.\n")
+    if len(filings_to_process) == 0:
+        print("✅ Tutti i filing sono già stati processati!")
+        print("   Nessuna azione necessaria.\n")
+        return
+    
+    print("⚠️  ATTENZIONE: Questo scaricherà holdings dettagliate da SEC.")
+    print(f"   Tempo stimato: ~{len(filings_to_process) * 0.15 / 60:.1f} minuti con rate limiting.\n")
     
     risposta = input("Vuoi procedere? (s/n): ").lower()
     if risposta != 's':
@@ -236,12 +340,13 @@ def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE) -> None:
     falliti = 0
     skipped = 0
     
-    for i, filing in enumerate(filings, 1):
-        print(f"\n[{i}/{len(filings)}] Processamento...")
+    for i, filing in enumerate(filings_to_process, 1):
+        print(f"\n[{i}/{len(filings_to_process)}] Processamento...")
         
         fund_name = filing.get('fund_name', 'Sconosciuto')
         filing_url = filing.get('filing_url', '')
         filing_date = filing.get('filing_date', 'N/A')
+        accession_number = filing.get('accession_number', '')
         
         if not filing_url:
             print(f"  ⚠️  Skipped: {fund_name} (URL non trovato)")
@@ -257,16 +362,28 @@ def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE) -> None:
             if success:
                 print(f"  ✅ Holdings salvate")
                 successi += 1
+                # Marca come processato
+                processed_filings.add(accession_number)
+                
+                # Salva tracking ogni 10 filing per sicurezza
+                if successi % 10 == 0:
+                    save_processed_filings(processed_filings)
             else:
                 print(f"  ⚠️  Nessuna holding trovata")
                 falliti += 1
+                # Marca comunque come processato per non riprovarci
+                processed_filings.add(accession_number)
         except Exception as e:
             print(f"  ❌ Errore: {e}")
             falliti += 1
+            # Non marca come processato in caso di errore per riprovarci
         
         # Rate limiting SEC (max 10 req/sec)
-        if i < len(filings):
+        if i < len(filings_to_process):
             time.sleep(0.15)  # ~6-7 req/sec per sicurezza
+    
+    # Salva tracking finale
+    save_processed_filings(processed_filings)
     
     # Riepilogo finale
     print("\n" + "="*80)
@@ -275,13 +392,14 @@ def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE) -> None:
     print(f"✅ Successi:      {successi}")
     print(f"❌ Falliti:       {falliti}")
     print(f"⚠️  Skipped:       {skipped}")
-    print(f"📊 Totale:        {len(filings)}")
+    print(f"📊 Totale:        {len(filings_to_process)}")
+    print(f"💾 Tracking salvato in: {PROCESSED_TRACKING_FILE}")
     print("="*80)
     
     if successi > 0:
         csv_path = alert_module.HOLDINGS_CSV if HAS_ALERT_MODULE else HOLDINGS_CSV
         if os.path.exists(csv_path):
-            print(f"\n✅ CSV tracker creato: {csv_path}")
+            print(f"\n✅ CSV tracker aggiornato: {csv_path}")
             print(f"   📊 Puoi aprirlo con Excel o Python/Pandas per analizzarlo")
         else:
             print(f"\n⚠️  CSV non trovato (probabilmente nessuna holding valida)")
@@ -384,6 +502,12 @@ NOTES:
         help=f'File catalogo (default: {CATALOG_FILE})'
     )
     
+    parser.add_argument(
+        '--full-refresh',
+        action='store_true',
+        help='Disabilita modalità incrementale e scarica tutto da zero'
+    )
+    
     args = parser.parse_args()
     
     # Banner iniziale
@@ -394,11 +518,17 @@ NOTES:
     print(f"🏢 Hedge funds: {get_total_funds()} (da hedge_funds_config.py)")
     print(f"⚙️  Modalità: {args.mode.upper()}")
     print(f"🌐 Fonte: SEC EDGAR API + HTML parsing")
+    
+    if args.full_refresh:
+        print(f"🔄 FULL REFRESH: Scarica tutto da zero (ignora tracking)")
+    else:
+        print(f"♻️  INCREMENTALE: Scarica solo filing nuovi (tracking attivo)")
+    
     print("="*80 + "\n")
     
     # Esegui modalità richiesta
     if args.mode == 'catalog':
-        download_catalog(args.catalog_file)
+        download_catalog(args.catalog_file, incremental=not args.full_refresh)
     
     elif args.mode == 'holdings':
         extract_holdings_from_catalog(args.catalog_file)
