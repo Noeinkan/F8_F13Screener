@@ -13,6 +13,7 @@ from datetime import datetime
 from typing import Set, List, Dict, Optional
 from bs4 import BeautifulSoup
 from message_bridge import save_message_to_viewer  # Per visualizzatore locale
+from hedge_funds_config import HEDGE_FUNDS_CIK  # Configurazione centralizzata
 
 # ==================== CONFIGURAZIONE ====================
 # IMPORTANTE: Sostituisci questi valori o usa variabili d'ambiente
@@ -34,33 +35,8 @@ AUTO_LAUNCH_VIEWER = True  # Cambia in False per disabilitare l'auto-avvio
 
 # Filtro per CIK: SOLO questi 25 hedge funds value investing saranno monitorati
 # Usare CIK è più affidabile del nome perché è univoco e immutabile
-HEDGE_FUNDS_CIK_FILTER = {
-    '0001061768': 'Baupost Group (Seth Klarman)',
-    '0001649339': 'Scion Asset Management (Michael Burry)',
-    '0001656456': 'Appaloosa Management (David Tepper)',
-    '0000905567': 'Yacktman Asset Management',
-    '0001336528': 'Pershing Square Capital (Bill Ackman)',
-    '0001079114': 'Greenlight Capital (David Einhorn)',
-    '0001056831': 'Fairholme Capital (Bruce Berkowitz)',
-    '0000732905': 'Tweedy Browne Company',
-    '0001099281': 'Third Avenue Management',
-    '0000949509': 'Oaktree Capital Management (Howard Marks)',
-    '0001549575': 'Pabrai Investment Funds (Mohnish Pabrai)',
-    '0001404599': 'Aquamarine Capital (Guy Spier)',
-    '0000860643': 'Gardner Russo & Gardner (Tom Russo)',
-    '0000906304': 'Royce Investment Partners (Chuck Royce)',
-    '0000807985': 'Southeastern Asset Management',
-    '0001351069': 'ValueAct Capital',
-    '0001040273': 'Third Point LLC (Dan Loeb)',
-    '0001709323': 'Himalaya Capital (Li Lu)',
-    '0001568820': 'Arlington Value Capital (Allan Mecham)',
-    '0001112520': 'Akre Capital Management (Chuck Akre)',
-    '0001641864': 'Giverny Capital',
-    '0001360079': 'Wintergreen Advisers',
-    '0001218254': 'Boyar Asset Management',
-    '0001056823': 'Horizon Kinetics',
-    '0001039565': 'Kahn Brothers'
-}
+# Lista importata da hedge_funds_config.py
+HEDGE_FUNDS_CIK_FILTER = HEDGE_FUNDS_CIK
 
 # ==================== SETUP LOGGING ====================
 # Gestione logging con fallback se il file è bloccato
