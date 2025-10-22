@@ -2345,3 +2345,1112 @@ Arresto programma richiesto dall'utente
 2025-10-22 01:16:45,670 - INFO - Feed scaricato: 100 entry trovate
 2025-10-22 01:16:45,672 - INFO - Nessun nuovo filing da notificare
 2025-10-22 01:16:45,673 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:17:15,674 - INFO - 
+============================================================
+2025-10-22 01:17:15,675 - INFO - Controllo alle 2025-10-22 01:17:15
+2025-10-22 01:17:15,675 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:17:16,390 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:17:16,393 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:17:16,393 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:17:46,394 - INFO - 
+============================================================
+2025-10-22 01:17:46,394 - INFO - Controllo alle 2025-10-22 01:17:46
+2025-10-22 01:17:46,395 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:17:47,056 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:17:47,058 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:17:47,058 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:18:17,059 - INFO - 
+============================================================
+2025-10-22 01:18:17,059 - INFO - Controllo alle 2025-10-22 01:18:17
+2025-10-22 01:18:17,059 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:18:17,696 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:18:17,699 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:18:17,699 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:18:47,699 - INFO - 
+============================================================
+2025-10-22 01:18:47,700 - INFO - Controllo alle 2025-10-22 01:18:47
+2025-10-22 01:18:47,700 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:18:48,465 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:18:48,468 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:18:48,469 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:19:18,470 - INFO - 
+============================================================
+2025-10-22 01:19:18,470 - INFO - Controllo alle 2025-10-22 01:19:18
+2025-10-22 01:19:18,471 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:19:19,170 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:19:19,172 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:19:19,173 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:19:38,878 - INFO - === Avvio 13F Alert System v2.0 ===
+2025-10-22 01:19:38,879 - INFO - Intervallo polling: 30s (0.5 minuti)
+2025-10-22 01:19:38,879 - INFO - Filtro attivo: NO (tutti i filing)
+2025-10-22 01:19:38,879 - INFO - Avvio Telegram Message Viewer...
+2025-10-22 01:19:38,894 - INFO - Telegram Viewer avviato con successo (via batch)!
+2025-10-22 01:19:40,894 - INFO - Inizializzazione CSV tracker...
+2025-10-22 01:19:40,895 - INFO - CSV tracker trovato: 314 holdings esistenti
+2025-10-22 01:19:40,896 - INFO - Caricati 100 ID dalla cache
+2025-10-22 01:19:40,896 - INFO - 
+============================================================
+2025-10-22 01:19:40,896 - INFO - Controllo alle 2025-10-22 01:19:40
+2025-10-22 01:19:40,896 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:19:41,737 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:19:41,741 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:19:41,741 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:19:49,173 - INFO - 
+============================================================
+2025-10-22 01:19:49,174 - INFO - Controllo alle 2025-10-22 01:19:49
+2025-10-22 01:19:49,174 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:19:50,963 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:19:50,965 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:19:50,965 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:20:11,742 - INFO - 
+============================================================
+2025-10-22 01:20:11,743 - INFO - Controllo alle 2025-10-22 01:20:11
+2025-10-22 01:20:11,743 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:20:12,642 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:20:12,645 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:20:12,645 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:20:20,965 - INFO - 
+============================================================
+2025-10-22 01:20:20,966 - INFO - Controllo alle 2025-10-22 01:20:20
+2025-10-22 01:20:20,966 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:20:21,709 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:20:21,712 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:20:21,713 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:20:42,646 - INFO - 
+============================================================
+2025-10-22 01:20:42,647 - INFO - Controllo alle 2025-10-22 01:20:42
+2025-10-22 01:20:42,648 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:20:43,731 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:20:43,734 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:20:43,734 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:20:51,714 - INFO - 
+============================================================
+2025-10-22 01:20:51,714 - INFO - Controllo alle 2025-10-22 01:20:51
+2025-10-22 01:20:51,715 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:20:52,392 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:20:52,394 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:20:52,394 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:21:13,735 - INFO - 
+============================================================
+2025-10-22 01:21:13,736 - INFO - Controllo alle 2025-10-22 01:21:13
+2025-10-22 01:21:13,736 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:21:14,413 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:21:14,415 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:21:14,415 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:21:22,396 - INFO - 
+============================================================
+2025-10-22 01:21:22,396 - INFO - Controllo alle 2025-10-22 01:21:22
+2025-10-22 01:21:22,397 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:21:23,113 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:21:23,115 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:21:23,115 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:21:44,415 - INFO - 
+============================================================
+2025-10-22 01:21:44,416 - INFO - Controllo alle 2025-10-22 01:21:44
+2025-10-22 01:21:44,416 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:21:45,104 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:21:45,106 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:21:45,106 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:21:53,116 - INFO - 
+============================================================
+2025-10-22 01:21:53,116 - INFO - Controllo alle 2025-10-22 01:21:53
+2025-10-22 01:21:53,117 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:21:53,777 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:21:53,779 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:21:53,780 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:22:15,107 - INFO - 
+============================================================
+2025-10-22 01:22:15,107 - INFO - Controllo alle 2025-10-22 01:22:15
+2025-10-22 01:22:15,107 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:22:15,769 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:22:15,771 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:22:15,772 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:22:18,428 - INFO - 
+Arresto programma richiesto dall'utente
+2025-10-22 01:22:18,428 - INFO - === Fine programma ===
+2025-10-22 01:22:23,780 - INFO - 
+============================================================
+2025-10-22 01:22:23,781 - INFO - Controllo alle 2025-10-22 01:22:23
+2025-10-22 01:22:23,781 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:22:24,515 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:22:24,517 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:22:24,518 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:22:41,418 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:42,002 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:22:42,005 - WARNING - Information Table URL non trovata
+2025-10-22 01:22:42,157 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:42,724 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1801792/000180179225000005/xslForm13F_X02/infotable.xml
+2025-10-22 01:22:43,332 - INFO - Tabella holdings trovata con 43 righe totali
+2025-10-22 01:22:43,336 - INFO - Parsate 40 holdings dalla Information Table
+2025-10-22 01:22:43,339 - INFO - Salvate 40 holdings nel CSV tracker
+2025-10-22 01:22:43,340 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:22:43,492 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:44,112 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:22:44,114 - WARNING - Information Table URL non trovata
+2025-10-22 01:22:44,266 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:44,770 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:22:44,772 - WARNING - Information Table URL non trovata
+2025-10-22 01:22:44,924 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:45,533 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:22:45,535 - WARNING - Information Table URL non trovata
+2025-10-22 01:22:45,687 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:46,205 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:22:46,207 - WARNING - Information Table URL non trovata
+2025-10-22 01:22:46,360 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:46,967 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:22:46,968 - WARNING - Information Table URL non trovata
+2025-10-22 01:22:47,120 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:47,650 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1002672/000106299325016244/xslForm13F_X02/form13fInfoTable.xml
+2025-10-22 01:22:48,320 - INFO - Tabella holdings trovata con 274 righe totali
+2025-10-22 01:22:48,345 - INFO - Parsate 271 holdings dalla Information Table
+2025-10-22 01:22:48,353 - INFO - Salvate 271 holdings nel CSV tracker
+2025-10-22 01:22:48,353 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:22:48,506 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:48,995 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:22:48,996 - WARNING - Information Table URL non trovata
+2025-10-22 01:22:49,148 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:49,633 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1907320/000110465925101147/xslForm13F_X02/infotable.xml
+2025-10-22 01:22:50,227 - INFO - Tabella holdings trovata con 193 righe totali
+2025-10-22 01:22:50,241 - INFO - Parsate 190 holdings dalla Information Table
+2025-10-22 01:22:50,245 - INFO - Salvate 190 holdings nel CSV tracker
+2025-10-22 01:22:50,246 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:22:50,398 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:50,889 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:22:50,891 - WARNING - Information Table URL non trovata
+2025-10-22 01:22:51,043 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:51,625 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1633910/000117266125004345/xslForm13F_X02/infotable.xml
+2025-10-22 01:22:52,159 - INFO - Tabella holdings trovata con 95 righe totali
+2025-10-22 01:22:52,166 - INFO - Parsate 92 holdings dalla Information Table
+2025-10-22 01:22:52,175 - INFO - Salvate 92 holdings nel CSV tracker
+2025-10-22 01:22:52,175 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:22:52,327 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:53,028 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:22:53,030 - WARNING - Information Table URL non trovata
+2025-10-22 01:22:53,182 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:53,672 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:22:53,674 - WARNING - Information Table URL non trovata
+2025-10-22 01:22:53,826 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:54,356 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:22:54,357 - WARNING - Information Table URL non trovata
+2025-10-22 01:22:54,509 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:54,518 - INFO - 
+============================================================
+2025-10-22 01:22:54,519 - INFO - Controllo alle 2025-10-22 01:22:54
+2025-10-22 01:22:54,520 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:22:55,167 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:22:55,169 - WARNING - Information Table URL non trovata
+2025-10-22 01:22:55,322 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:55,467 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:22:55,470 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:22:55,470 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:22:55,810 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:22:55,812 - WARNING - Information Table URL non trovata
+2025-10-22 01:22:55,964 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:56,528 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:22:56,530 - WARNING - Information Table URL non trovata
+2025-10-22 01:22:56,682 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:57,202 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:22:57,204 - WARNING - Information Table URL non trovata
+2025-10-22 01:22:57,357 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:57,984 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:22:57,986 - WARNING - Information Table URL non trovata
+2025-10-22 01:22:58,138 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:58,653 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/315189/000031518925000004/xslForm13F_X02/form13f-1761066701_infotable.xml
+2025-10-22 01:22:59,191 - INFO - Tabella holdings trovata con 8 righe totali
+2025-10-22 01:22:59,193 - INFO - Parsate 5 holdings dalla Information Table
+2025-10-22 01:22:59,195 - INFO - Salvate 5 holdings nel CSV tracker
+2025-10-22 01:22:59,195 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:22:59,348 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:22:59,849 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1085867/000117266125004342/xslForm13F_X02/infotable.xml
+2025-10-22 01:23:00,532 - INFO - Tabella holdings trovata con 175 righe totali
+2025-10-22 01:23:00,555 - INFO - Parsate 172 holdings dalla Information Table
+2025-10-22 01:23:00,564 - INFO - Salvate 172 holdings nel CSV tracker
+2025-10-22 01:23:00,564 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:00,717 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:01,554 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:01,556 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:01,708 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:02,277 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:02,282 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:02,434 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:03,011 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1705929/000121465925015139/xslForm13F_X02/infotable.xml
+2025-10-22 01:23:03,612 - INFO - Tabella holdings trovata con 87 righe totali
+2025-10-22 01:23:03,621 - INFO - Parsate 84 holdings dalla Information Table
+2025-10-22 01:23:03,625 - INFO - Salvate 84 holdings nel CSV tracker
+2025-10-22 01:23:03,626 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:03,777 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:04,494 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:04,495 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:04,647 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:05,210 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/2060298/000117266125004341/xslForm13F_X02/infotable.xml
+2025-10-22 01:23:05,785 - INFO - Tabella holdings trovata con 62 righe totali
+2025-10-22 01:23:05,789 - INFO - Parsate 59 holdings dalla Information Table
+2025-10-22 01:23:05,792 - INFO - Salvate 59 holdings nel CSV tracker
+2025-10-22 01:23:05,793 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:05,945 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:06,441 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:06,442 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:06,595 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:07,165 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:07,166 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:07,318 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:07,988 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:07,990 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:08,142 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:08,676 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:08,678 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:08,830 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:09,561 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:09,563 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:09,715 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:10,358 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1085041/000108504125000006/xslForm13F_X02/Form13InfoTable_09302025.xml
+2025-10-22 01:23:11,170 - INFO - Tabella holdings trovata con 174 righe totali
+2025-10-22 01:23:11,184 - INFO - Parsate 171 holdings dalla Information Table
+2025-10-22 01:23:11,192 - INFO - Salvate 171 holdings nel CSV tracker
+2025-10-22 01:23:11,192 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:11,344 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:11,938 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:11,995 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:12,149 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:12,696 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/2026150/000117266125004346/xslForm13F_X02/infotable.xml
+2025-10-22 01:23:13,265 - INFO - Tabella holdings trovata con 52 righe totali
+2025-10-22 01:23:13,270 - INFO - Parsate 49 holdings dalla Information Table
+2025-10-22 01:23:13,273 - INFO - Salvate 49 holdings nel CSV tracker
+2025-10-22 01:23:13,273 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:13,426 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:13,931 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:13,932 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:14,084 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:14,598 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:14,600 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:14,752 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:15,474 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1665925/000166592525000005/xslForm13F_X02/infotable.xml
+2025-10-22 01:23:15,991 - INFO - Tabella holdings trovata con 38 righe totali
+2025-10-22 01:23:15,994 - INFO - Parsate 35 holdings dalla Information Table
+2025-10-22 01:23:15,997 - INFO - Salvate 35 holdings nel CSV tracker
+2025-10-22 01:23:15,998 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:16,150 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:16,653 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:16,654 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:16,806 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:17,444 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:17,445 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:17,597 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:18,173 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:18,174 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:18,325 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:18,847 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1756959/000175695925000004/xslForm13F_X02/infotable.xml
+2025-10-22 01:23:19,496 - INFO - Tabella holdings trovata con 123 righe totali
+2025-10-22 01:23:19,504 - INFO - Parsate 120 holdings dalla Information Table
+2025-10-22 01:23:19,508 - INFO - Salvate 120 holdings nel CSV tracker
+2025-10-22 01:23:19,508 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:19,661 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:20,260 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:20,261 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:20,414 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:20,960 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1594540/000159454025000003/xslForm13F_X02/infotable.xml
+2025-10-22 01:23:21,509 - INFO - Tabella holdings trovata con 12 righe totali
+2025-10-22 01:23:21,511 - INFO - Parsate 9 holdings dalla Information Table
+2025-10-22 01:23:21,514 - INFO - Salvate 9 holdings nel CSV tracker
+2025-10-22 01:23:21,515 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:21,667 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:22,245 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1957840/000195784025000002/xslForm13F_X02/infotable.xml
+2025-10-22 01:23:22,862 - INFO - Tabella holdings trovata con 22 righe totali
+2025-10-22 01:23:22,864 - INFO - Parsate 19 holdings dalla Information Table
+2025-10-22 01:23:22,866 - INFO - Salvate 19 holdings nel CSV tracker
+2025-10-22 01:23:22,866 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:23,018 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:23,587 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1756959/000175695925000004/xslForm13F_X02/infotable.xml
+2025-10-22 01:23:24,224 - INFO - Tabella holdings trovata con 123 righe totali
+2025-10-22 01:23:24,236 - INFO - Parsate 120 holdings dalla Information Table
+2025-10-22 01:23:24,241 - INFO - Salvate 120 holdings nel CSV tracker
+2025-10-22 01:23:24,241 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:24,393 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:24,933 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:24,935 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:25,086 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:25,471 - INFO - 
+============================================================
+2025-10-22 01:23:25,471 - INFO - Controllo alle 2025-10-22 01:23:25
+2025-10-22 01:23:25,472 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:23:25,677 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1594540/000159454025000003/xslForm13F_X02/infotable.xml
+2025-10-22 01:23:26,276 - INFO - Tabella holdings trovata con 12 righe totali
+2025-10-22 01:23:26,277 - INFO - Parsate 9 holdings dalla Information Table
+2025-10-22 01:23:26,280 - INFO - Salvate 9 holdings nel CSV tracker
+2025-10-22 01:23:26,280 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:26,291 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:23:26,295 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:23:26,296 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:23:26,432 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:26,980 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1957840/000195784025000002/xslForm13F_X02/infotable.xml
+2025-10-22 01:23:27,535 - INFO - Tabella holdings trovata con 22 righe totali
+2025-10-22 01:23:27,537 - INFO - Parsate 19 holdings dalla Information Table
+2025-10-22 01:23:27,539 - INFO - Salvate 19 holdings nel CSV tracker
+2025-10-22 01:23:27,540 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:27,691 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:28,219 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1846177/000184617725000004/xslForm13F_X02/infotable.xml
+2025-10-22 01:23:28,863 - INFO - Tabella holdings trovata con 185 righe totali
+2025-10-22 01:23:28,886 - INFO - Parsate 182 holdings dalla Information Table
+2025-10-22 01:23:28,892 - INFO - Salvate 182 holdings nel CSV tracker
+2025-10-22 01:23:28,892 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:29,044 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:29,579 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1910381/000191038125000003/xslForm13F_X02/infotable.xml
+2025-10-22 01:23:30,149 - INFO - Tabella holdings trovata con 79 righe totali
+2025-10-22 01:23:30,159 - INFO - Parsate 76 holdings dalla Information Table
+2025-10-22 01:23:30,163 - INFO - Salvate 76 holdings nel CSV tracker
+2025-10-22 01:23:30,163 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:30,316 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:30,857 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1901337/000190133725000002/xslForm13F_X02/infotable.xml
+2025-10-22 01:23:31,424 - INFO - Tabella holdings trovata con 78 righe totali
+2025-10-22 01:23:31,432 - INFO - Parsate 75 holdings dalla Information Table
+2025-10-22 01:23:31,441 - INFO - Salvate 75 holdings nel CSV tracker
+2025-10-22 01:23:31,441 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:31,593 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:32,112 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1085041/000108504125000006/xslForm13F_X02/Form13InfoTable_09302025.xml
+2025-10-22 01:23:32,729 - INFO - Tabella holdings trovata con 174 righe totali
+2025-10-22 01:23:32,740 - INFO - Parsate 171 holdings dalla Information Table
+2025-10-22 01:23:32,744 - INFO - Salvate 171 holdings nel CSV tracker
+2025-10-22 01:23:32,745 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:32,897 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:33,480 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:33,482 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:33,634 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:34,151 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:34,153 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:34,305 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:34,839 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/754811/000143774925031428/xslForm13F_X02/F13InfoTable_78009.xml
+2025-10-22 01:23:35,493 - INFO - Tabella holdings trovata con 174 righe totali
+2025-10-22 01:23:35,507 - INFO - Parsate 171 holdings dalla Information Table
+2025-10-22 01:23:35,513 - INFO - Salvate 171 holdings nel CSV tracker
+2025-10-22 01:23:35,513 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:35,666 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:36,174 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:36,175 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:36,328 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:36,846 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:36,848 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:37,000 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:37,519 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:37,521 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:37,673 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:38,308 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:38,311 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:38,464 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:39,047 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:39,049 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:39,202 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:39,763 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:39,766 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:39,918 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:40,476 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:40,478 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:40,630 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:41,168 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:41,170 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:41,322 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:41,872 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:41,874 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:42,026 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:42,553 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/2026150/000117266125004346/xslForm13F_X02/infotable.xml
+2025-10-22 01:23:43,197 - INFO - Tabella holdings trovata con 52 righe totali
+2025-10-22 01:23:43,203 - INFO - Parsate 49 holdings dalla Information Table
+2025-10-22 01:23:43,207 - INFO - Salvate 49 holdings nel CSV tracker
+2025-10-22 01:23:43,208 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:43,361 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:43,974 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:43,976 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:44,127 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:44,683 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/2028621/000202862125000002/xslForm13F_X02/infotable.xml
+2025-10-22 01:23:45,274 - INFO - Tabella holdings trovata con 79 righe totali
+2025-10-22 01:23:45,279 - INFO - Parsate 76 holdings dalla Information Table
+2025-10-22 01:23:45,282 - INFO - Salvate 76 holdings nel CSV tracker
+2025-10-22 01:23:45,283 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:45,435 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:45,973 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:45,974 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:46,126 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:46,712 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:46,715 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:46,867 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:47,400 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:47,401 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:47,553 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:48,070 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1909739/000142050625002885/xslForm13F_X02/Form13F_InfoTable.xml
+2025-10-22 01:23:48,634 - INFO - Tabella holdings trovata con 6 righe totali
+2025-10-22 01:23:48,635 - INFO - Parsate 3 holdings dalla Information Table
+2025-10-22 01:23:48,637 - INFO - Salvate 3 holdings nel CSV tracker
+2025-10-22 01:23:48,637 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:48,790 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:49,393 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:49,396 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:49,548 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:50,076 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:50,078 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:50,229 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:50,769 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:50,771 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:50,922 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:51,492 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1801792/000180179225000005/xslForm13F_X02/infotable.xml
+2025-10-22 01:23:52,075 - INFO - Tabella holdings trovata con 43 righe totali
+2025-10-22 01:23:52,079 - INFO - Parsate 40 holdings dalla Information Table
+2025-10-22 01:23:52,083 - INFO - Salvate 40 holdings nel CSV tracker
+2025-10-22 01:23:52,083 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:52,235 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:52,759 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:52,760 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:52,912 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:53,455 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:53,457 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:53,609 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:54,175 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1002672/000106299325016244/xslForm13F_X02/form13fInfoTable.xml
+2025-10-22 01:23:54,981 - INFO - Tabella holdings trovata con 274 righe totali
+2025-10-22 01:23:55,020 - INFO - Parsate 271 holdings dalla Information Table
+2025-10-22 01:23:55,027 - INFO - Salvate 271 holdings nel CSV tracker
+2025-10-22 01:23:55,028 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:55,180 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:55,724 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:55,725 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:55,877 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:56,297 - INFO - 
+============================================================
+2025-10-22 01:23:56,297 - INFO - Controllo alle 2025-10-22 01:23:56
+2025-10-22 01:23:56,297 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:23:56,462 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1907320/000110465925101147/xslForm13F_X02/infotable.xml
+2025-10-22 01:23:57,213 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:23:57,215 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:23:57,216 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:23:57,357 - INFO - Tabella holdings trovata con 193 righe totali
+2025-10-22 01:23:57,381 - INFO - Parsate 190 holdings dalla Information Table
+2025-10-22 01:23:57,389 - INFO - Salvate 190 holdings nel CSV tracker
+2025-10-22 01:23:57,390 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:57,544 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:58,132 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:23:58,133 - WARNING - Information Table URL non trovata
+2025-10-22 01:23:58,285 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:23:58,859 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1633910/000117266125004345/xslForm13F_X02/infotable.xml
+2025-10-22 01:23:59,486 - INFO - Tabella holdings trovata con 95 righe totali
+2025-10-22 01:23:59,495 - INFO - Parsate 92 holdings dalla Information Table
+2025-10-22 01:23:59,498 - INFO - Salvate 92 holdings nel CSV tracker
+2025-10-22 01:23:59,498 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:23:59,651 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:24:00,258 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:24:00,265 - WARNING - Information Table URL non trovata
+2025-10-22 01:24:00,418 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:24:01,227 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:24:01,237 - WARNING - Information Table URL non trovata
+2025-10-22 01:24:01,393 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:24:02,039 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:24:02,041 - WARNING - Information Table URL non trovata
+2025-10-22 01:24:02,193 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:24:02,755 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/315189/000031518925000004/xslForm13F_X02/form13f-1761066701_infotable.xml
+2025-10-22 01:24:03,312 - INFO - Tabella holdings trovata con 8 righe totali
+2025-10-22 01:24:03,314 - INFO - Parsate 5 holdings dalla Information Table
+2025-10-22 01:24:03,322 - INFO - Salvate 5 holdings nel CSV tracker
+2025-10-22 01:24:03,322 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:24:03,474 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:24:04,071 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:24:04,073 - WARNING - Information Table URL non trovata
+2025-10-22 01:24:04,225 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:24:04,859 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:24:04,862 - WARNING - Information Table URL non trovata
+2025-10-22 01:24:05,016 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:24:05,613 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1705929/000121465925015139/xslForm13F_X02/infotable.xml
+2025-10-22 01:24:06,256 - INFO - Tabella holdings trovata con 87 righe totali
+2025-10-22 01:24:06,262 - INFO - Parsate 84 holdings dalla Information Table
+2025-10-22 01:24:06,269 - INFO - Salvate 84 holdings nel CSV tracker
+2025-10-22 01:24:06,269 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:24:06,421 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:24:07,039 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/2060298/000117266125004341/xslForm13F_X02/infotable.xml
+2025-10-22 01:24:07,729 - INFO - Tabella holdings trovata con 62 righe totali
+2025-10-22 01:24:07,735 - INFO - Parsate 59 holdings dalla Information Table
+2025-10-22 01:24:07,740 - INFO - Salvate 59 holdings nel CSV tracker
+2025-10-22 01:24:07,740 - INFO - Holdings processate con successo per Filer Sconosciuto
+2025-10-22 01:24:07,892 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:24:08,441 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:24:08,443 - WARNING - Information Table URL non trovata
+2025-10-22 01:24:08,595 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:24:09,191 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:24:09,192 - WARNING - Information Table URL non trovata
+2025-10-22 01:24:09,345 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:24:09,910 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:24:09,912 - WARNING - Information Table URL non trovata
+2025-10-22 01:24:10,064 - INFO - Processamento holdings per: Filer Sconosciuto
+2025-10-22 01:24:10,619 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:24:10,622 - WARNING - Information Table URL non trovata
+2025-10-22 01:24:10,774 - INFO - Processamento holdings per: U S GLOBAL INVESTORS INC
+2025-10-22 01:24:11,318 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/754811/000143774925031428/xslForm13F_X02/F13InfoTable_78009.xml
+2025-10-22 01:24:12,009 - INFO - Tabella holdings trovata con 174 righe totali
+2025-10-22 01:24:12,024 - INFO - Parsate 171 holdings dalla Information Table
+2025-10-22 01:24:12,030 - INFO - Salvate 171 holdings nel CSV tracker
+2025-10-22 01:24:12,030 - INFO - Holdings processate con successo per U S GLOBAL INVESTORS INC
+2025-10-22 01:24:12,182 - INFO - Processamento holdings per: NTV ASSET MANAGEMENT LLC
+2025-10-22 01:24:12,774 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:24:12,776 - WARNING - Information Table URL non trovata
+2025-10-22 01:24:12,929 - INFO - Processamento holdings per: Thoma Capital Management LLC
+2025-10-22 01:24:13,476 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/2060298/000117266125004341/xslForm13F_X02/infotable.xml
+2025-10-22 01:24:14,044 - INFO - Tabella holdings trovata con 62 righe totali
+2025-10-22 01:24:14,050 - INFO - Parsate 59 holdings dalla Information Table
+2025-10-22 01:24:14,053 - INFO - Salvate 59 holdings nel CSV tracker
+2025-10-22 01:24:14,053 - INFO - Holdings processate con successo per Thoma Capital Management LLC
+2025-10-22 01:24:14,205 - INFO - Processamento holdings per: Radnor Capital Management, LLC
+2025-10-22 01:24:14,767 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1696867/000169686725000006/xslForm13F_X02/infotable.xml
+2025-10-22 01:24:15,579 - INFO - Tabella holdings trovata con 317 righe totali
+2025-10-22 01:24:15,604 - INFO - Parsate 314 holdings dalla Information Table
+2025-10-22 01:24:15,611 - INFO - Salvate 314 holdings nel CSV tracker
+2025-10-22 01:24:15,612 - INFO - Holdings processate con successo per Radnor Capital Management, LLC
+2025-10-22 01:24:15,765 - INFO - Processamento holdings per: Verity & Verity, LLC
+2025-10-22 01:24:16,342 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:24:16,345 - WARNING - Information Table URL non trovata
+2025-10-22 01:24:27,216 - INFO - 
+============================================================
+2025-10-22 01:24:27,217 - INFO - Controllo alle 2025-10-22 01:24:27
+2025-10-22 01:24:27,217 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:24:28,155 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:24:28,157 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:24:28,158 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:24:58,159 - INFO - 
+============================================================
+2025-10-22 01:24:58,159 - INFO - Controllo alle 2025-10-22 01:24:58
+2025-10-22 01:24:58,159 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:24:58,894 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:24:58,896 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:24:58,897 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:25:28,897 - INFO - 
+============================================================
+2025-10-22 01:25:28,898 - INFO - Controllo alle 2025-10-22 01:25:28
+2025-10-22 01:25:28,898 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:25:29,711 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:25:29,713 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:25:29,713 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:25:59,714 - INFO - 
+============================================================
+2025-10-22 01:25:59,714 - INFO - Controllo alle 2025-10-22 01:25:59
+2025-10-22 01:25:59,715 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:26:00,524 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:26:00,529 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:26:00,530 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:26:30,530 - INFO - 
+============================================================
+2025-10-22 01:26:30,531 - INFO - Controllo alle 2025-10-22 01:26:30
+2025-10-22 01:26:30,531 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:26:31,396 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:26:31,398 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:26:31,399 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:27:01,400 - INFO - 
+============================================================
+2025-10-22 01:27:01,400 - INFO - Controllo alle 2025-10-22 01:27:01
+2025-10-22 01:27:01,401 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:27:02,170 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:27:02,172 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:27:02,172 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:27:32,173 - INFO - 
+============================================================
+2025-10-22 01:27:32,174 - INFO - Controllo alle 2025-10-22 01:27:32
+2025-10-22 01:27:32,174 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:27:32,832 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:27:32,834 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:27:32,834 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:28:02,835 - INFO - 
+============================================================
+2025-10-22 01:28:02,836 - INFO - Controllo alle 2025-10-22 01:28:02
+2025-10-22 01:28:02,836 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:28:03,539 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:28:03,541 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:28:03,541 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:28:33,542 - INFO - 
+============================================================
+2025-10-22 01:28:33,542 - INFO - Controllo alle 2025-10-22 01:28:33
+2025-10-22 01:28:33,542 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:28:34,274 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:28:34,277 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:28:34,278 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:29:04,278 - INFO - 
+============================================================
+2025-10-22 01:29:04,279 - INFO - Controllo alle 2025-10-22 01:29:04
+2025-10-22 01:29:04,279 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:29:05,066 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:29:05,068 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:29:05,069 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:29:35,069 - INFO - 
+============================================================
+2025-10-22 01:29:35,070 - INFO - Controllo alle 2025-10-22 01:29:35
+2025-10-22 01:29:35,070 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:29:35,946 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:29:35,949 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:29:35,951 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:30:05,953 - INFO - 
+============================================================
+2025-10-22 01:30:05,953 - INFO - Controllo alle 2025-10-22 01:30:05
+2025-10-22 01:30:05,954 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:30:06,800 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:30:06,802 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:30:06,802 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:30:36,803 - INFO - 
+============================================================
+2025-10-22 01:30:36,804 - INFO - Controllo alle 2025-10-22 01:30:36
+2025-10-22 01:30:36,804 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:30:37,546 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:30:37,548 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:30:37,549 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:31:07,550 - INFO - 
+============================================================
+2025-10-22 01:31:07,550 - INFO - Controllo alle 2025-10-22 01:31:07
+2025-10-22 01:31:07,550 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:31:08,278 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:31:08,280 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:31:08,281 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:31:38,281 - INFO - 
+============================================================
+2025-10-22 01:31:38,282 - INFO - Controllo alle 2025-10-22 01:31:38
+2025-10-22 01:31:38,282 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:31:39,066 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:31:39,068 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:31:39,069 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:32:09,069 - INFO - 
+============================================================
+2025-10-22 01:32:09,070 - INFO - Controllo alle 2025-10-22 01:32:09
+2025-10-22 01:32:09,070 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:32:09,821 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:32:09,823 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:32:09,823 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:32:39,824 - INFO - 
+============================================================
+2025-10-22 01:32:39,825 - INFO - Controllo alle 2025-10-22 01:32:39
+2025-10-22 01:32:39,825 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:32:40,550 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:32:40,552 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:32:40,553 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:32:55,624 - INFO - Processamento holdings per: Wellesley Asset Management
+2025-10-22 01:32:56,086 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:32:56,087 - WARNING - Information Table URL non trovata
+2025-10-22 01:32:56,239 - INFO - Processamento holdings per: Chronos Wealth Management, LLC
+2025-10-22 01:32:56,698 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1801792/000180179225000005/xslForm13F_X02/infotable.xml
+2025-10-22 01:32:57,208 - INFO - Tabella holdings trovata con 43 righe totali
+2025-10-22 01:32:57,211 - INFO - Parsate 40 holdings dalla Information Table
+2025-10-22 01:32:57,213 - INFO - Creato nuovo CSV tracker: 13f_holdings_tracker.csv
+2025-10-22 01:32:57,214 - INFO - Salvate 40 holdings nel CSV tracker
+2025-10-22 01:32:57,214 - INFO - Holdings processate con successo per Chronos Wealth Management, LLC
+2025-10-22 01:32:57,366 - INFO - Processamento holdings per: BOS Asset Management, LLC
+2025-10-22 01:32:57,847 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:32:57,849 - WARNING - Information Table URL non trovata
+2025-10-22 01:32:58,001 - INFO - Processamento holdings per: Pflug Koory, LLC
+2025-10-22 01:32:58,459 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:32:58,461 - WARNING - Information Table URL non trovata
+2025-10-22 01:32:58,613 - INFO - Processamento holdings per: Galibier Capital Management Ltd.
+2025-10-22 01:32:59,080 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:32:59,082 - WARNING - Information Table URL non trovata
+2025-10-22 01:32:59,234 - INFO - Processamento holdings per: Buttonwood Financial Advisors Inc.
+2025-10-22 01:32:59,691 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:32:59,693 - WARNING - Information Table URL non trovata
+2025-10-22 01:32:59,844 - INFO - Processamento holdings per: Altus Wealth Group LLC
+2025-10-22 01:33:00,369 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:00,374 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:00,526 - INFO - Processamento holdings per: Bell Bank
+2025-10-22 01:33:01,233 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1002672/000106299325016244/xslForm13F_X02/form13fInfoTable.xml
+2025-10-22 01:33:01,905 - INFO - Tabella holdings trovata con 274 righe totali
+2025-10-22 01:33:01,924 - INFO - Parsate 271 holdings dalla Information Table
+2025-10-22 01:33:01,929 - INFO - Salvate 271 holdings nel CSV tracker
+2025-10-22 01:33:01,929 - INFO - Holdings processate con successo per Bell Bank
+2025-10-22 01:33:02,081 - INFO - Processamento holdings per: Intelligent Financial Strategies
+2025-10-22 01:33:02,577 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:02,578 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:02,731 - INFO - Processamento holdings per: Western Pacific Wealth Management, LP
+2025-10-22 01:33:03,205 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1907320/000110465925101147/xslForm13F_X02/infotable.xml
+2025-10-22 01:33:03,781 - INFO - Tabella holdings trovata con 193 righe totali
+2025-10-22 01:33:03,794 - INFO - Parsate 190 holdings dalla Information Table
+2025-10-22 01:33:03,798 - INFO - Salvate 190 holdings nel CSV tracker
+2025-10-22 01:33:03,798 - INFO - Holdings processate con successo per Western Pacific Wealth Management, LP
+2025-10-22 01:33:03,950 - INFO - Processamento holdings per: Financiere des Professionnels - Fonds d'investissement inc.
+2025-10-22 01:33:04,428 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:04,429 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:04,581 - INFO - Processamento holdings per: Hedeker Wealth, LLC
+2025-10-22 01:33:05,038 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1633910/000117266125004345/xslForm13F_X02/infotable.xml
+2025-10-22 01:33:05,537 - INFO - Tabella holdings trovata con 95 righe totali
+2025-10-22 01:33:05,542 - INFO - Parsate 92 holdings dalla Information Table
+2025-10-22 01:33:05,545 - INFO - Salvate 92 holdings nel CSV tracker
+2025-10-22 01:33:05,546 - INFO - Holdings processate con successo per Hedeker Wealth, LLC
+2025-10-22 01:33:05,698 - INFO - Processamento holdings per: ETF Portfolio Partners, Inc.
+2025-10-22 01:33:06,161 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:06,163 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:06,315 - INFO - Processamento holdings per: PDS Planning, Inc
+2025-10-22 01:33:06,786 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:06,788 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:06,940 - INFO - Processamento holdings per: Meredith Wealth Planning
+2025-10-22 01:33:07,397 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:07,398 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:07,550 - INFO - Processamento holdings per: Three Bridge Wealth Advisors, LLC
+2025-10-22 01:33:08,018 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:08,019 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:08,171 - INFO - Processamento holdings per: NTV ASSET MANAGEMENT LLC
+2025-10-22 01:33:08,642 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:08,645 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:08,796 - INFO - Processamento holdings per: Brown Miller Wealth Management, LLC
+2025-10-22 01:33:09,268 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:09,269 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:09,421 - INFO - Processamento holdings per: Synergy Asset Management, LLC
+2025-10-22 01:33:09,881 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:09,883 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:10,035 - INFO - Processamento holdings per: SIGNATUREFD, LLC
+2025-10-22 01:33:10,485 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:10,487 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:10,554 - INFO - 
+============================================================
+2025-10-22 01:33:10,554 - INFO - Controllo alle 2025-10-22 01:33:10
+2025-10-22 01:33:10,554 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:33:10,639 - INFO - Processamento holdings per: DEERE & CO
+2025-10-22 01:33:11,187 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/315189/000031518925000004/xslForm13F_X02/form13f-1761066701_infotable.xml
+2025-10-22 01:33:11,328 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:33:11,332 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:33:11,332 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:33:11,713 - INFO - Tabella holdings trovata con 8 righe totali
+2025-10-22 01:33:11,714 - INFO - Parsate 5 holdings dalla Information Table
+2025-10-22 01:33:11,716 - INFO - Salvate 5 holdings nel CSV tracker
+2025-10-22 01:33:11,716 - INFO - Holdings processate con successo per DEERE & CO
+2025-10-22 01:33:11,869 - INFO - Processamento holdings per: BRAVE ASSET MANAGEMENT INC
+2025-10-22 01:33:12,400 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1085867/000117266125004342/xslForm13F_X02/infotable.xml
+2025-10-22 01:33:13,002 - INFO - Tabella holdings trovata con 175 righe totali
+2025-10-22 01:33:13,014 - INFO - Parsate 172 holdings dalla Information Table
+2025-10-22 01:33:13,018 - INFO - Salvate 172 holdings nel CSV tracker
+2025-10-22 01:33:13,018 - INFO - Holdings processate con successo per BRAVE ASSET MANAGEMENT INC
+2025-10-22 01:33:13,170 - INFO - Processamento holdings per: Taylor Frigon Capital Management LLC
+2025-10-22 01:33:13,668 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:13,670 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:13,822 - INFO - Processamento holdings per: Townsend & Associates, Inc
+2025-10-22 01:33:14,341 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:14,342 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:14,494 - INFO - Processamento holdings per: QUATTRO FINANCIAL ADVISORS LLC
+2025-10-22 01:33:15,038 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1705929/000121465925015139/xslForm13F_X02/infotable.xml
+2025-10-22 01:33:15,594 - INFO - Tabella holdings trovata con 87 righe totali
+2025-10-22 01:33:15,600 - INFO - Parsate 84 holdings dalla Information Table
+2025-10-22 01:33:15,604 - INFO - Salvate 84 holdings nel CSV tracker
+2025-10-22 01:33:15,604 - INFO - Holdings processate con successo per QUATTRO FINANCIAL ADVISORS LLC
+2025-10-22 01:33:15,756 - INFO - Processamento holdings per: ALTFEST L J & CO INC
+2025-10-22 01:33:16,248 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:16,250 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:16,402 - INFO - Processamento holdings per: Thoma Capital Management LLC
+2025-10-22 01:33:16,928 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/2060298/000117266125004341/xslForm13F_X02/infotable.xml
+2025-10-22 01:33:17,482 - INFO - Tabella holdings trovata con 62 righe totali
+2025-10-22 01:33:17,486 - INFO - Parsate 59 holdings dalla Information Table
+2025-10-22 01:33:17,489 - INFO - Salvate 59 holdings nel CSV tracker
+2025-10-22 01:33:17,490 - INFO - Holdings processate con successo per Thoma Capital Management LLC
+2025-10-22 01:33:17,641 - INFO - Processamento holdings per: Arbor Investment Advisors, LLC
+2025-10-22 01:33:18,141 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:18,143 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:18,295 - INFO - Processamento holdings per: Kooman & Associates
+2025-10-22 01:33:18,790 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:18,791 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:18,944 - INFO - Processamento holdings per: Kagan Cocozza Asset Management
+2025-10-22 01:33:19,481 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:19,483 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:19,635 - INFO - Processamento holdings per: CROWLEY WEALTH MANAGEMENT, INC.
+2025-10-22 01:33:20,173 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:20,175 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:20,327 - INFO - Processamento holdings per: Prepared Retirement Institute LLC
+2025-10-22 01:33:20,868 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:20,870 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:21,021 - INFO - Processamento holdings per: FIRST NATIONAL BANK SIOUX FALLS
+2025-10-22 01:33:21,546 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1085041/000108504125000006/xslForm13F_X02/Form13InfoTable_09302025.xml
+2025-10-22 01:33:22,180 - INFO - Tabella holdings trovata con 174 righe totali
+2025-10-22 01:33:22,191 - INFO - Parsate 171 holdings dalla Information Table
+2025-10-22 01:33:22,195 - INFO - Salvate 171 holdings nel CSV tracker
+2025-10-22 01:33:22,195 - INFO - Holdings processate con successo per FIRST NATIONAL BANK SIOUX FALLS
+2025-10-22 01:33:22,347 - INFO - Processamento holdings per: Asset Management Advisors, LLC
+2025-10-22 01:33:22,826 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:22,828 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:22,979 - INFO - Processamento holdings per: M Wealth Management, LLC
+2025-10-22 01:33:23,465 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/2026150/000117266125004346/xslForm13F_X02/infotable.xml
+2025-10-22 01:33:23,994 - INFO - Tabella holdings trovata con 52 righe totali
+2025-10-22 01:33:23,997 - INFO - Parsate 49 holdings dalla Information Table
+2025-10-22 01:33:24,000 - INFO - Salvate 49 holdings nel CSV tracker
+2025-10-22 01:33:24,000 - INFO - Holdings processate con successo per M Wealth Management, LLC
+2025-10-22 01:33:24,152 - INFO - Processamento holdings per: PDS Planning, Inc
+2025-10-22 01:33:24,644 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:24,646 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:24,798 - INFO - Processamento holdings per: Meredith Wealth Planning
+2025-10-22 01:33:25,312 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:25,314 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:25,466 - INFO - Processamento holdings per: Ariose Capital Management Ltd
+2025-10-22 01:33:26,034 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1665925/000166592525000005/xslForm13F_X02/infotable.xml
+2025-10-22 01:33:26,577 - INFO - Tabella holdings trovata con 38 righe totali
+2025-10-22 01:33:26,579 - INFO - Parsate 35 holdings dalla Information Table
+2025-10-22 01:33:26,582 - INFO - Salvate 35 holdings nel CSV tracker
+2025-10-22 01:33:26,582 - INFO - Holdings processate con successo per Ariose Capital Management Ltd
+2025-10-22 01:33:26,734 - INFO - Processamento holdings per: DAVIDSON INVESTMENT ADVISORS
+2025-10-22 01:33:27,230 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:27,232 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:27,383 - INFO - Processamento holdings per: Moss Adams Wealth Advisors LLC
+2025-10-22 01:33:27,907 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:27,908 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:28,060 - INFO - Processamento holdings per: SIGNATUREFD, LLC
+2025-10-22 01:33:28,585 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:28,587 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:28,739 - INFO - Processamento holdings per: McGuire Investment Group, LLC
+2025-10-22 01:33:29,222 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1756959/000175695925000004/xslForm13F_X02/infotable.xml
+2025-10-22 01:33:29,789 - INFO - Tabella holdings trovata con 123 righe totali
+2025-10-22 01:33:29,796 - INFO - Parsate 120 holdings dalla Information Table
+2025-10-22 01:33:29,800 - INFO - Salvate 120 holdings nel CSV tracker
+2025-10-22 01:33:29,801 - INFO - Holdings processate con successo per McGuire Investment Group, LLC
+2025-10-22 01:33:29,953 - INFO - Processamento holdings per: Fountainhead AM, LLC
+2025-10-22 01:33:30,473 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:30,475 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:30,627 - INFO - Processamento holdings per: PEAVINE CAPITAL, LLC
+2025-10-22 01:33:31,089 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1594540/000159454025000003/xslForm13F_X02/infotable.xml
+2025-10-22 01:33:31,590 - INFO - Tabella holdings trovata con 12 righe totali
+2025-10-22 01:33:31,591 - INFO - Parsate 9 holdings dalla Information Table
+2025-10-22 01:33:31,593 - INFO - Salvate 9 holdings nel CSV tracker
+2025-10-22 01:33:31,594 - INFO - Holdings processate con successo per PEAVINE CAPITAL, LLC
+2025-10-22 01:33:31,745 - INFO - Processamento holdings per: Onyx Financial Advisors, LLC
+2025-10-22 01:33:32,204 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1957840/000195784025000002/xslForm13F_X02/infotable.xml
+2025-10-22 01:33:32,669 - INFO - Tabella holdings trovata con 22 righe totali
+2025-10-22 01:33:32,670 - INFO - Parsate 19 holdings dalla Information Table
+2025-10-22 01:33:32,673 - INFO - Salvate 19 holdings nel CSV tracker
+2025-10-22 01:33:32,673 - INFO - Holdings processate con successo per Onyx Financial Advisors, LLC
+2025-10-22 01:33:32,825 - INFO - Processamento holdings per: McGuire Investment Group, LLC
+2025-10-22 01:33:33,288 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1756959/000175695925000004/xslForm13F_X02/infotable.xml
+2025-10-22 01:33:33,810 - INFO - Tabella holdings trovata con 123 righe totali
+2025-10-22 01:33:33,817 - INFO - Parsate 120 holdings dalla Information Table
+2025-10-22 01:33:33,821 - INFO - Salvate 120 holdings nel CSV tracker
+2025-10-22 01:33:33,821 - INFO - Holdings processate con successo per McGuire Investment Group, LLC
+2025-10-22 01:33:33,973 - INFO - Processamento holdings per: Fountainhead AM, LLC
+2025-10-22 01:33:34,452 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:34,453 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:34,605 - INFO - Processamento holdings per: PEAVINE CAPITAL, LLC
+2025-10-22 01:33:35,069 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1594540/000159454025000003/xslForm13F_X02/infotable.xml
+2025-10-22 01:33:35,546 - INFO - Tabella holdings trovata con 12 righe totali
+2025-10-22 01:33:35,547 - INFO - Parsate 9 holdings dalla Information Table
+2025-10-22 01:33:35,550 - INFO - Salvate 9 holdings nel CSV tracker
+2025-10-22 01:33:35,550 - INFO - Holdings processate con successo per PEAVINE CAPITAL, LLC
+2025-10-22 01:33:35,701 - INFO - Processamento holdings per: Onyx Financial Advisors, LLC
+2025-10-22 01:33:36,174 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1957840/000195784025000002/xslForm13F_X02/infotable.xml
+2025-10-22 01:33:36,673 - INFO - Tabella holdings trovata con 22 righe totali
+2025-10-22 01:33:36,674 - INFO - Parsate 19 holdings dalla Information Table
+2025-10-22 01:33:36,677 - INFO - Salvate 19 holdings nel CSV tracker
+2025-10-22 01:33:36,677 - INFO - Holdings processate con successo per Onyx Financial Advisors, LLC
+2025-10-22 01:33:36,829 - INFO - Processamento holdings per: WOODWARD DIVERSIFIED CAPITAL, LLC
+2025-10-22 01:33:37,300 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1846177/000184617725000004/xslForm13F_X02/infotable.xml
+2025-10-22 01:33:37,878 - INFO - Tabella holdings trovata con 185 righe totali
+2025-10-22 01:33:37,891 - INFO - Parsate 182 holdings dalla Information Table
+2025-10-22 01:33:37,895 - INFO - Salvate 182 holdings nel CSV tracker
+2025-10-22 01:33:37,895 - INFO - Holdings processate con successo per WOODWARD DIVERSIFIED CAPITAL, LLC
+2025-10-22 01:33:38,048 - INFO - Processamento holdings per: Kellett Wealth Advisors, LLC
+2025-10-22 01:33:38,513 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1910381/000191038125000003/xslForm13F_X02/infotable.xml
+2025-10-22 01:33:39,003 - INFO - Tabella holdings trovata con 79 righe totali
+2025-10-22 01:33:39,008 - INFO - Parsate 76 holdings dalla Information Table
+2025-10-22 01:33:39,012 - INFO - Salvate 76 holdings nel CSV tracker
+2025-10-22 01:33:39,012 - INFO - Holdings processate con successo per Kellett Wealth Advisors, LLC
+2025-10-22 01:33:39,163 - INFO - Processamento holdings per: DMKC Advisory Services, LLC
+2025-10-22 01:33:39,626 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1901337/000190133725000002/xslForm13F_X02/infotable.xml
+2025-10-22 01:33:40,132 - INFO - Tabella holdings trovata con 78 righe totali
+2025-10-22 01:33:40,137 - INFO - Parsate 75 holdings dalla Information Table
+2025-10-22 01:33:40,140 - INFO - Salvate 75 holdings nel CSV tracker
+2025-10-22 01:33:40,140 - INFO - Holdings processate con successo per DMKC Advisory Services, LLC
+2025-10-22 01:33:40,292 - INFO - Processamento holdings per: FIRST NATIONAL BANK SIOUX FALLS
+2025-10-22 01:33:40,772 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1085041/000108504125000006/xslForm13F_X02/Form13InfoTable_09302025.xml
+2025-10-22 01:33:41,311 - INFO - Tabella holdings trovata con 174 righe totali
+2025-10-22 01:33:41,330 - INFO - Parsate 171 holdings dalla Information Table
+2025-10-22 01:33:41,333 - INFO - 
+============================================================
+2025-10-22 01:33:41,334 - INFO - Controllo alle 2025-10-22 01:33:41
+2025-10-22 01:33:41,334 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:33:41,335 - INFO - Salvate 171 holdings nel CSV tracker
+2025-10-22 01:33:41,335 - INFO - Holdings processate con successo per FIRST NATIONAL BANK SIOUX FALLS
+2025-10-22 01:33:41,487 - INFO - Processamento holdings per: ARROW FINANCIAL CORP
+2025-10-22 01:33:42,054 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:42,056 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:42,087 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:33:42,089 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:33:42,089 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:33:42,208 - INFO - Processamento holdings per: Elm3 Financial Group, LLC
+2025-10-22 01:33:42,722 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:42,723 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:42,875 - INFO - Processamento holdings per: U S GLOBAL INVESTORS INC
+2025-10-22 01:33:43,409 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/754811/000143774925031428/xslForm13F_X02/F13InfoTable_78009.xml
+2025-10-22 01:33:44,019 - INFO - Tabella holdings trovata con 174 righe totali
+2025-10-22 01:33:44,157 - INFO - Parsate 171 holdings dalla Information Table
+2025-10-22 01:33:44,161 - INFO - Salvate 171 holdings nel CSV tracker
+2025-10-22 01:33:44,162 - INFO - Holdings processate con successo per U S GLOBAL INVESTORS INC
+2025-10-22 01:33:44,314 - INFO - Processamento holdings per: Citadel Investment Advisory, Inc.
+2025-10-22 01:33:44,847 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:44,848 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:45,001 - INFO - Processamento holdings per: Christensen, King & Associates Investment Services, Inc.
+2025-10-22 01:33:45,522 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:45,524 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:45,676 - INFO - Processamento holdings per: DAVIDSON INVESTMENT ADVISORS
+2025-10-22 01:33:46,194 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:46,196 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:46,348 - INFO - Processamento holdings per: Trustees of Dartmouth College
+2025-10-22 01:33:46,916 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:46,918 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:47,070 - INFO - Processamento holdings per: CAPITAL ADVISORS INC/OK
+2025-10-22 01:33:47,569 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:47,570 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:47,723 - INFO - Processamento holdings per: Asset Management Advisors, LLC
+2025-10-22 01:33:48,243 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:48,245 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:48,397 - INFO - Processamento holdings per: Davis Capital Management
+2025-10-22 01:33:48,903 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:48,904 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:49,056 - INFO - Processamento holdings per: PENN DAVIS MCFARLAND INC
+2025-10-22 01:33:49,526 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:49,528 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:49,680 - INFO - Processamento holdings per: SigFig Wealth Management, LLC
+2025-10-22 01:33:50,145 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:50,146 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:50,298 - INFO - Processamento holdings per: M Wealth Management, LLC
+2025-10-22 01:33:50,774 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/2026150/000117266125004346/xslForm13F_X02/infotable.xml
+2025-10-22 01:33:51,242 - INFO - Tabella holdings trovata con 52 righe totali
+2025-10-22 01:33:51,245 - INFO - Parsate 49 holdings dalla Information Table
+2025-10-22 01:33:51,248 - INFO - Salvate 49 holdings nel CSV tracker
+2025-10-22 01:33:51,248 - INFO - Holdings processate con successo per M Wealth Management, LLC
+2025-10-22 01:33:51,400 - INFO - Processamento holdings per: CPA Asset Management Group, LLC
+2025-10-22 01:33:51,862 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:51,864 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:52,016 - INFO - Processamento holdings per: ACCREDITED INVESTOR SERVICES, LLC
+2025-10-22 01:33:52,502 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/2028621/000202862125000002/xslForm13F_X02/infotable.xml
+2025-10-22 01:33:53,000 - INFO - Tabella holdings trovata con 79 righe totali
+2025-10-22 01:33:53,006 - INFO - Parsate 76 holdings dalla Information Table
+2025-10-22 01:33:53,009 - INFO - Salvate 76 holdings nel CSV tracker
+2025-10-22 01:33:53,009 - INFO - Holdings processate con successo per ACCREDITED INVESTOR SERVICES, LLC
+2025-10-22 01:33:53,162 - INFO - Processamento holdings per: Tradewinds Capital Management, LLC
+2025-10-22 01:33:53,618 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:53,620 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:53,772 - INFO - Processamento holdings per: MN Wealth Advisors, LLC
+2025-10-22 01:33:54,248 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:54,250 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:54,401 - INFO - Processamento holdings per: SIMON QUICK ADVISORS, LLC
+2025-10-22 01:33:54,855 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:54,856 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:55,008 - INFO - Processamento holdings per: 400 Capital Management LLC
+2025-10-22 01:33:55,484 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1909739/000142050625002885/xslForm13F_X02/Form13F_InfoTable.xml
+2025-10-22 01:33:55,973 - INFO - Tabella holdings trovata con 6 righe totali
+2025-10-22 01:33:55,974 - INFO - Parsate 3 holdings dalla Information Table
+2025-10-22 01:33:55,976 - INFO - Salvate 3 holdings nel CSV tracker
+2025-10-22 01:33:55,976 - INFO - Holdings processate con successo per 400 Capital Management LLC
+2025-10-22 01:33:56,129 - INFO - Processamento holdings per: Commonwealth Financial Services, LLC
+2025-10-22 01:33:56,598 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:56,600 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:56,752 - INFO - Processamento holdings per: First City Capital Management, Inc.
+2025-10-22 01:33:57,207 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:57,208 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:57,361 - INFO - Processamento holdings per: Wellesley Asset Management
+2025-10-22 01:33:57,867 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:57,868 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:58,021 - INFO - Processamento holdings per: Chronos Wealth Management, LLC
+2025-10-22 01:33:58,514 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1801792/000180179225000005/xslForm13F_X02/infotable.xml
+2025-10-22 01:33:59,014 - INFO - Tabella holdings trovata con 43 righe totali
+2025-10-22 01:33:59,017 - INFO - Parsate 40 holdings dalla Information Table
+2025-10-22 01:33:59,019 - INFO - Salvate 40 holdings nel CSV tracker
+2025-10-22 01:33:59,020 - INFO - Holdings processate con successo per Chronos Wealth Management, LLC
+2025-10-22 01:33:59,172 - INFO - Processamento holdings per: Pflug Koory, LLC
+2025-10-22 01:33:59,630 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:33:59,631 - WARNING - Information Table URL non trovata
+2025-10-22 01:33:59,784 - INFO - Processamento holdings per: Buttonwood Financial Advisors Inc.
+2025-10-22 01:34:00,315 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:34:00,387 - WARNING - Information Table URL non trovata
+2025-10-22 01:34:00,539 - INFO - Processamento holdings per: Bell Bank
+2025-10-22 01:34:01,219 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1002672/000106299325016244/xslForm13F_X02/form13fInfoTable.xml
+2025-10-22 01:34:01,913 - INFO - Tabella holdings trovata con 274 righe totali
+2025-10-22 01:34:01,930 - INFO - Parsate 271 holdings dalla Information Table
+2025-10-22 01:34:01,935 - INFO - Salvate 271 holdings nel CSV tracker
+2025-10-22 01:34:01,936 - INFO - Holdings processate con successo per Bell Bank
+2025-10-22 01:34:02,088 - INFO - Processamento holdings per: Intelligent Financial Strategies
+2025-10-22 01:34:02,551 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:34:02,552 - WARNING - Information Table URL non trovata
+2025-10-22 01:34:02,704 - INFO - Processamento holdings per: Western Pacific Wealth Management, LP
+2025-10-22 01:34:03,202 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1907320/000110465925101147/xslForm13F_X02/infotable.xml
+2025-10-22 01:34:03,784 - INFO - Tabella holdings trovata con 193 righe totali
+2025-10-22 01:34:03,795 - INFO - Parsate 190 holdings dalla Information Table
+2025-10-22 01:34:03,800 - INFO - Salvate 190 holdings nel CSV tracker
+2025-10-22 01:34:03,800 - INFO - Holdings processate con successo per Western Pacific Wealth Management, LP
+2025-10-22 01:34:03,952 - INFO - Processamento holdings per: Financiere des Professionnels - Fonds d'investissement inc.
+2025-10-22 01:34:04,453 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:34:04,455 - WARNING - Information Table URL non trovata
+2025-10-22 01:34:04,607 - INFO - Processamento holdings per: Hedeker Wealth, LLC
+2025-10-22 01:34:05,078 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1633910/000117266125004345/xslForm13F_X02/infotable.xml
+2025-10-22 01:34:05,591 - INFO - Tabella holdings trovata con 95 righe totali
+2025-10-22 01:34:05,596 - INFO - Parsate 92 holdings dalla Information Table
+2025-10-22 01:34:05,600 - INFO - Salvate 92 holdings nel CSV tracker
+2025-10-22 01:34:05,600 - INFO - Holdings processate con successo per Hedeker Wealth, LLC
+2025-10-22 01:34:05,753 - INFO - Processamento holdings per: Three Bridge Wealth Advisors, LLC
+2025-10-22 01:34:06,322 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:34:06,323 - WARNING - Information Table URL non trovata
+2025-10-22 01:34:06,475 - INFO - Processamento holdings per: Brown Miller Wealth Management, LLC
+2025-10-22 01:34:06,937 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:34:06,938 - WARNING - Information Table URL non trovata
+2025-10-22 01:34:07,090 - INFO - Processamento holdings per: Synergy Asset Management, LLC
+2025-10-22 01:34:07,586 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:34:07,588 - WARNING - Information Table URL non trovata
+2025-10-22 01:34:07,740 - INFO - Processamento holdings per: DEERE & CO
+2025-10-22 01:34:08,229 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/315189/000031518925000004/xslForm13F_X02/form13f-1761066701_infotable.xml
+2025-10-22 01:34:08,712 - INFO - Tabella holdings trovata con 8 righe totali
+2025-10-22 01:34:08,713 - INFO - Parsate 5 holdings dalla Information Table
+2025-10-22 01:34:08,715 - INFO - Salvate 5 holdings nel CSV tracker
+2025-10-22 01:34:08,715 - INFO - Holdings processate con successo per DEERE & CO
+2025-10-22 01:34:08,867 - INFO - Processamento holdings per: Taylor Frigon Capital Management LLC
+2025-10-22 01:34:09,333 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:34:09,335 - WARNING - Information Table URL non trovata
+2025-10-22 01:34:09,487 - INFO - Processamento holdings per: Townsend & Associates, Inc
+2025-10-22 01:34:09,950 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:34:09,951 - WARNING - Information Table URL non trovata
+2025-10-22 01:34:10,103 - INFO - Processamento holdings per: QUATTRO FINANCIAL ADVISORS LLC
+2025-10-22 01:34:10,562 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1705929/000121465925015139/xslForm13F_X02/infotable.xml
+2025-10-22 01:34:11,060 - INFO - Tabella holdings trovata con 87 righe totali
+2025-10-22 01:34:11,065 - INFO - Parsate 84 holdings dalla Information Table
+2025-10-22 01:34:11,069 - INFO - Salvate 84 holdings nel CSV tracker
+2025-10-22 01:34:11,069 - INFO - Holdings processate con successo per QUATTRO FINANCIAL ADVISORS LLC
+2025-10-22 01:34:11,221 - INFO - Processamento holdings per: Thoma Capital Management LLC
+2025-10-22 01:34:11,700 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/2060298/000117266125004341/xslForm13F_X02/infotable.xml
+2025-10-22 01:34:12,090 - INFO - 
+============================================================
+2025-10-22 01:34:12,090 - INFO - Controllo alle 2025-10-22 01:34:12
+2025-10-22 01:34:12,091 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:34:12,274 - INFO - Tabella holdings trovata con 62 righe totali
+2025-10-22 01:34:12,283 - INFO - Parsate 59 holdings dalla Information Table
+2025-10-22 01:34:12,287 - INFO - Salvate 59 holdings nel CSV tracker
+2025-10-22 01:34:12,287 - INFO - Holdings processate con successo per Thoma Capital Management LLC
+2025-10-22 01:34:12,439 - INFO - Processamento holdings per: Arbor Investment Advisors, LLC
+2025-10-22 01:34:12,835 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:34:12,838 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:34:12,838 - INFO - Prossimo controllo tra 0.5 minuti
+2025-10-22 01:34:12,987 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:34:12,989 - WARNING - Information Table URL non trovata
+2025-10-22 01:34:13,142 - INFO - Processamento holdings per: Kooman & Associates
+2025-10-22 01:34:13,692 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:34:13,694 - WARNING - Information Table URL non trovata
+2025-10-22 01:34:13,845 - INFO - Processamento holdings per: CROWLEY WEALTH MANAGEMENT, INC.
+2025-10-22 01:34:14,390 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:34:14,392 - WARNING - Information Table URL non trovata
+2025-10-22 01:34:14,543 - INFO - Processamento holdings per: Prepared Retirement Institute LLC
+2025-10-22 01:34:15,070 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:34:15,072 - WARNING - Information Table URL non trovata
+2025-10-22 01:34:15,223 - INFO - Processamento holdings per: U S GLOBAL INVESTORS INC
+2025-10-22 01:34:15,736 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/754811/000143774925031428/xslForm13F_X02/F13InfoTable_78009.xml
+2025-10-22 01:34:16,370 - INFO - Tabella holdings trovata con 174 righe totali
+2025-10-22 01:34:16,386 - INFO - Parsate 171 holdings dalla Information Table
+2025-10-22 01:34:16,390 - INFO - Salvate 171 holdings nel CSV tracker
+2025-10-22 01:34:16,390 - INFO - Holdings processate con successo per U S GLOBAL INVESTORS INC
+2025-10-22 01:34:16,542 - INFO - Processamento holdings per: NTV ASSET MANAGEMENT LLC
+2025-10-22 01:34:17,052 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:34:17,054 - WARNING - Information Table URL non trovata
+2025-10-22 01:34:17,206 - INFO - Processamento holdings per: Thoma Capital Management LLC
+2025-10-22 01:34:17,765 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/2060298/000117266125004341/xslForm13F_X02/infotable.xml
+2025-10-22 01:34:18,295 - INFO - Tabella holdings trovata con 62 righe totali
+2025-10-22 01:34:18,301 - INFO - Parsate 59 holdings dalla Information Table
+2025-10-22 01:34:18,305 - INFO - Salvate 59 holdings nel CSV tracker
+2025-10-22 01:34:18,305 - INFO - Holdings processate con successo per Thoma Capital Management LLC
+2025-10-22 01:34:18,457 - INFO - Processamento holdings per: Radnor Capital Management, LLC
+2025-10-22 01:34:18,986 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1696867/000169686725000006/xslForm13F_X02/infotable.xml
+2025-10-22 01:34:19,736 - INFO - Tabella holdings trovata con 317 righe totali
+2025-10-22 01:34:19,759 - INFO - Parsate 314 holdings dalla Information Table
+2025-10-22 01:34:19,765 - INFO - Salvate 314 holdings nel CSV tracker
+2025-10-22 01:34:19,765 - INFO - Holdings processate con successo per Radnor Capital Management, LLC
+2025-10-22 01:34:19,917 - INFO - Processamento holdings per: Verity & Verity, LLC
+2025-10-22 01:34:20,447 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 01:34:20,449 - WARNING - Information Table URL non trovata
+2025-10-22 01:34:42,839 - INFO - 
+============================================================
+2025-10-22 01:34:42,839 - INFO - Controllo alle 2025-10-22 01:34:42
+2025-10-22 01:34:42,840 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2025-10-22 01:34:43,523 - INFO - Feed scaricato: 100 entry trovate
+2025-10-22 01:34:43,525 - INFO - Nessun nuovo filing da notificare
+2025-10-22 01:34:43,526 - INFO - Prossimo controllo tra 0.5 minuti

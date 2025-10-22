@@ -34,6 +34,39 @@ def extract_date_from_message(message: str) -> str:
         return match.group(1).split('T')[0]  # Solo la data, non l'ora
     return "N/A"
 
+def extract_filer_from_message(message: str) -> str:
+    """Estrae il nome del filer dal titolo nel messaggio"""
+    try:
+        # Cerca il pattern "13F-HR - NOME FUND (CIK) (Filer)"
+        match = re.search(r'<b>Titolo:</b> 13F-HR - ([^(]+)', message)
+        if match:
+            filer_name = match.group(1).strip()
+            if filer_name:  # Verifica che non sia vuoto
+                return filer_name
+        
+        # Fallback 1: cerca il campo Filer se presente
+        match = re.search(r'<b>Filer:</b> ([^<\n]+)', message)
+        if match:
+            filer_name = match.group(1).strip()
+            if filer_name:
+                return filer_name
+        
+        # Fallback 2: estrae tutto il titolo e prende il testo prima della prima parentesi
+        match = re.search(r'<b>Titolo:</b> ([^<\n]+)', message)
+        if match:
+            full_title = match.group(1).strip()
+            # Rimuovi "13F-HR -" e prendi tutto prima della parentesi
+            clean_title = full_title.replace('13F-HR -', '').strip()
+            if '(' in clean_title:
+                filer_name = clean_title.split('(')[0].strip()
+                if filer_name:
+                    return filer_name
+        
+    except Exception as e:
+        logger.debug(f"Errore estrazione filer name da messaggio: {e}")
+    
+    return "Filer Sconosciuto"
+
 def main():
     print("="*80)
     print("PROCESSAMENTO RETROATTIVO FILING 13F-HR")
@@ -72,7 +105,9 @@ def main():
         print(f"\n[{i}/{len(messages)}] Processamento...")
         
         message = msg_data.get('message', '')
-        filer = msg_data.get('filer', 'Filer Sconosciuto')
+        
+        # Estrai nome filer dal titolo nel messaggio
+        filer = extract_filer_from_message(message)
         
         # Estrai URL
         filing_url = extract_link_from_message(message)

@@ -430,7 +430,7 @@ def parse_information_table(html_url: str) -> List[Dict]:
         logger.error(f"Errore parsing Information Table: {e}")
         return []
 
-def save_holdings_to_csv(holdings: List[Dict], filer_name: str, filing_date: str, cik: str, accession_number: str = 'N/A'):
+ef save_holdings_to_csv(holdings: List[Dict], filer_name: str, filing_date: str, cik: str, accession_number: str = 'N/A', filing_url: str = ''):
     """
     Salva le holdings nel CSV tracker con nomi colonne migliorati per leggibilità
     """
@@ -447,6 +447,7 @@ def save_holdings_to_csv(holdings: List[Dict], filer_name: str, filing_date: str
             'Fund Name',
             'Fund CIK',
             'Accession Number',
+            'Filing URL',
             'Name of Issuer',
             'Title of Class',
             'CUSIP',
@@ -478,6 +479,7 @@ def save_holdings_to_csv(holdings: List[Dict], filer_name: str, filing_date: str
                     'Fund Name': filer_name,
                     'Fund CIK': cik,
                     'Accession Number': accession_number,
+                    'Filing URL': filing_url,
                     'Name of Issuer': holding.get('issuer_name', ''),
                     'Title of Class': holding.get('share_class', ''),
                     'CUSIP': holding.get('cusip', ''),
@@ -503,6 +505,13 @@ def save_holdings_to_csv(holdings: List[Dict], filer_name: str, filing_date: str
         try:
             logger.warning(f"Tentativo di ricreare il CSV tracker...")
             with open(HOLDINGS_CSV, 'w', newline='', encoding='utf-8') as f:
+                fieldnames = [
+                    'Filing Date', 'Fund Name', 'Fund CIK', 'Accession Number', 'Filing URL',
+                    'Name of Issuer', 'Title of Class', 'CUSIP', 'FIGI',
+                    'Value ($)', 'Shares/Principal Amount', 'SH/PRN', 'Put/Call',
+                    'Investment Discretion', 'Other Manager',
+                    'Voting Authority - Sole', 'Voting Authority - Shared', 'Voting Authority - None'
+                ]
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
             logger.info(f"CSV tracker ricreato con successo")
@@ -555,7 +564,7 @@ def process_filing_holdings(filing_link: str, filer_name: str, filing_date: str)
             return False
         
         # Salva nel CSV (passa anche accession_number)
-        success = save_holdings_to_csv(holdings, filer_name, filing_date, cik, accession_number)
+        success = save_holdings_to_csv(holdings, filer_name, filing_date, cik, accession_number, filing_link)
         
         if success:
             logger.info(f"Holdings processate con successo per {filer_name}")
@@ -578,9 +587,25 @@ def extract_filer_name_from_title(title: str) -> str:
             # Rimuovi la parte " (CIK...)" alla fine
             if '(' in name_part:
                 filer_name = name_part.split('(')[0].strip()
-                return filer_name
+                # Verifica che non sia vuoto
+                if filer_name and filer_name != '':
+                    return filer_name
+        # Se non riesce, prova a estrarre da altri pattern
+        # Pattern alternativo: cerca tra parentesi per CIK
+        if '(' in title and ')' in title:
+            # Estrai tutto prima della prima parentesi
+            name_before_paren = title.split('(')[0].strip()
+            if name_before_paren and '13F-HR' not in name_before_paren:
+                return name_before_paren
+            # Altrimenti cerca dopo "13F-HR -"
+            if '13F-HR -' in name_before_paren:
+                name = name_before_paren.replace('13F-HR -', '').strip()
+                if name:
+                    return name
+        
         return title  # Fallback: ritorna il titolo completo
-    except:
+    except Exception as e:
+        logger.debug(f"Errore estrazione filer name: {e}")
         return 'Filer Sconosciuto'
 
 def initialize_csv_tracker():
@@ -593,7 +618,7 @@ def initialize_csv_tracker():
             logger.info(f"Creazione nuovo CSV tracker: {HOLDINGS_CSV}")
             # Crea il file con header
             fieldnames = [
-                'Filing Date', 'Fund Name', 'Fund CIK', 'Accession Number',
+                'Filing Date', 'Fund Name', 'Fund CIK', 'Accession Number', 'Filing URL',
                 'Name of Issuer', 'Title of Class', 'CUSIP', 'FIGI',
                 'Value ($)', 'Shares/Principal Amount', 'SH/PRN', 'Put/Call',
                 'Investment Discretion', 'Other Manager',
@@ -610,7 +635,7 @@ def initialize_csv_tracker():
             logger.warning(f"CSV tracker vuoto, reinizializzazione...")
             # Ricrea l'header
             fieldnames = [
-                'Filing Date', 'Fund Name', 'Fund CIK', 'Accession Number',
+                'Filing Date', 'Fund Name', 'Fund CIK', 'Accession Number', 'Filing URL',
                 'Name of Issuer', 'Title of Class', 'CUSIP', 'FIGI',
                 'Value ($)', 'Shares/Principal Amount', 'SH/PRN', 'Put/Call',
                 'Investment Discretion', 'Other Manager',
