@@ -302,6 +302,10 @@ class FilingProcessorGUI:
             if full_refresh and mode in ['catalog', 'full']:
                 cmd.append("--full-refresh")
             
+            # Aggiungi --yes per modalità che richiedono conferma
+            if mode in ['full', 'holdings']:
+                cmd.append("--yes")
+            
             self.log(f"$ {' '.join(cmd)}\n", "warning")
             
             # Esegui processo con output in tempo reale
@@ -309,7 +313,6 @@ class FilingProcessorGUI:
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
-                stdin=subprocess.PIPE,  # Aggiunto per fornire input automatico
                 text=True,
                 bufsize=1,
                 universal_newlines=True,
@@ -317,14 +320,6 @@ class FilingProcessorGUI:
                 errors='replace',
                 env={**os.environ, 'PYTHONIOENCODING': 'utf-8', 'PYTHONUTF8': '1'}
             )
-            
-            # Fornisci automaticamente "s" per conferme interattive (full/holdings)
-            if mode in ['full', 'holdings']:
-                try:
-                    self.process.stdin.write("s\n")
-                    self.process.stdin.flush()
-                except Exception as e:
-                    self.log(f"⚠️ Errore nell'invio conferma automatica: {e}", "warning")
             
             # Leggi output linea per linea
             for line in iter(self.process.stdout.readline, ''):

@@ -53,7 +53,29 @@ import argparse
 import importlib.util
 from datetime import datetime
 from typing import List, Dict, Optional
-from hedge_funds_config import HEDGE_FUNDS_CIK, get_total_funds, get_fund_name_by_cik
+# Import hedge_funds_config dynamically to avoid editor/linter "could not be resolved" warnings
+try:
+    spec_h = importlib.util.spec_from_file_location("hedge_config", "hedge_funds_config.py")
+    hedge_module = importlib.util.module_from_spec(spec_h)
+    spec_h.loader.exec_module(hedge_module)
+    HEDGE_FUNDS_CIK = getattr(hedge_module, 'HEDGE_FUNDS_CIK', {})
+    get_total_funds = getattr(hedge_module, 'get_total_funds', lambda: len(HEDGE_FUNDS_CIK))
+    get_fund_name_by_cik = getattr(hedge_module, 'get_fund_name_by_cik', lambda cik: HEDGE_FUNDS_CIK.get(cik, 'Fund Sconosciuto'))
+    get_all_ciks = getattr(hedge_module, 'get_all_ciks', lambda: list(HEDGE_FUNDS_CIK.keys()))
+    get_all_fund_names = getattr(hedge_module, 'get_all_fund_names', lambda: list(HEDGE_FUNDS_CIK.values()))
+    HAS_HEDGE_CONFIG = True
+except Exception as e:
+    print(f"⚠️  Modulo hedge_funds_config.py non disponibile: {e}")
+    HEDGE_FUNDS_CIK = {}
+    def get_total_funds():
+        return 0
+    def get_fund_name_by_cik(cik: str) -> str:
+        return HEDGE_FUNDS_CIK.get(cik, 'Fund Sconosciuto')
+    def get_all_ciks() -> list:
+        return []
+    def get_all_fund_names() -> list:
+        return []
+    HAS_HEDGE_CONFIG = False
 import sys
 
 # Ensure stdout/stderr are UTF-8 to avoid UnicodeEncodeError on Windows consoles
@@ -343,7 +365,7 @@ def download_catalog(output_file: str = CATALOG_FILE, incremental: bool = True) 
 
 # ==================== MODALITÀ 2: HOLDINGS ====================
 
-def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE, workers: Optional[int] = None) -> None:
+def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE, workers: Optional[int] = None, auto_confirm: bool = False) -> None:
     """
     MODALITÀ 2: Estrae holdings dettagliate da un catalogo esistente
     Processa SOLO i filing non ancora processati (tracking automatico)
@@ -388,10 +410,14 @@ def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE, workers: Opt
     print("⚠️  ATTENZIONE: Questo scaricherà holdings dettagliate da SEC.")
     print(f"   Tempo stimato (grezzo): ~{len(filings_to_process) * 0.15 / 60:.1f} minuti con rate limiting.\n")
 
-    risposta = input("Vuoi procedere? (s/n): ").lower()
-    if risposta != 's':
-        print("\n❌ Operazione annullata.")
-        return
+    # Salta conferma se auto_confirm è abilitato
+    if not auto_confirm:
+        risposta = input("Vuoi procedere? (s/n): ").lower()
+        if risposta != 's':
+            print("\n❌ Operazione annullata.")
+            return
+    else:
+        print("✅ Modalità automatica: procedo senza conferma...")
 
     # Raggruppa filing per fund
     filings_by_fund = {}
@@ -580,7 +606,7 @@ def process_full_pipeline(workers: Optional[int] = None):
     print("="*80 + "\n")
     
     # Use CLI-provided workers if available via global args (main will call with workers)
-    extract_holdings_from_catalog(workers=workers)
+    extract_holdings_from_catalog(workers=workers, auto_confirm=True)
     
     print("\n" + "="*80)
     print("🎉 PIPELINE COMPLETO TERMINATO")
@@ -653,6 +679,12 @@ NOTES:
     )
 
     parser.add_argument(
+        '--yes',
+        action='store_true',
+        help='Salta la conferma interattiva e procedi automaticamente'
+    )
+    
+    parser.add_argument(
         '--throttle',
         dest='throttle',
         type=float,
@@ -688,7 +720,7 @@ NOTES:
     
     elif args.mode == 'holdings':
         # Use the workers provided via CLI
-        extract_holdings_from_catalog(args.catalog_file, workers=args.workers)
+        extract_holdings_from_catalog(args.catalog_file, workers=args.workers, auto_confirm=args.yes)
     
     elif args.mode == 'full':
         process_full_pipeline(workers=args.workers)
