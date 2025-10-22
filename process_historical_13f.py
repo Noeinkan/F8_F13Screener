@@ -393,6 +393,17 @@ def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE, workers: Opt
         print("\n❌ Operazione annullata.")
         return
 
+    # Raggruppa filing per fund
+    filings_by_fund = {}
+    for filing in filings_to_process:
+        fund_name = filing.get('fund_name', 'Sconosciuto')
+        if fund_name not in filings_by_fund:
+            filings_by_fund[fund_name] = []
+        filings_by_fund[fund_name].append(filing)
+    
+    print(f"🏦 Funds da processare: {len(filings_by_fund)}")
+    print(f"📄 Filing totali da processare: {len(filings_to_process)}\n")
+
     # Use workers passed by CLI if provided; default to 1 (sequential) if not
     if workers is None:
         workers = 1
@@ -446,7 +457,7 @@ def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE, workers: Opt
                     falliti += 1
                     processed_filings.add(accession_number)
 
-                # Aggiorna metriche globali ogni 20 filing processati
+                # Aggiorna metriche globali ogni filing processato
                 if len(local_times) >= 1:
                     try:
                         metrics = load_processing_metrics()
@@ -470,31 +481,33 @@ def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE, workers: Opt
         # Small sleep to avoid bursting requests (per-worker throttle)
         time.sleep(0.15)
 
-    if workers <= 1:
-        # Sequential (compatibile con comportamento precedente)
-        for i, filing in enumerate(filings_to_process, 1):
-            print(f"\n[{i}/{len(filings_to_process)}] Processamento...")
-            worker_process(filing)
-            # Salva tracking ogni 10 successi
-            if successi > 0 and successi % 10 == 0:
-                save_processed_filings(processed_filings)
-    else:
-        # Parallel execution with ThreadPoolExecutor
-        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
-            futures = []
-            for filing in filings_to_process:
-                futures.append(executor.submit(worker_process, filing))
-
-            # Wait for completion and periodically save tracking
-            completed = 0
-            for fut in concurrent.futures.as_completed(futures):
-                completed += 1
-                # Save every 20 completed
-                if completed % 20 == 0:
-                    with lock:
-                        save_processed_filings(processed_filings)
-
-    # Salva tracking finale
+    # Processa per fund invece che per filing individuale
+    fund_index = 0
+    for fund_name, fund_filings in filings_by_fund.items():
+        fund_index += 1
+        print(f"\n🏦 [{fund_index}/{len(filings_by_fund)}] Processamento fund: {fund_name}")
+        print(f"   📄 Filing da processare: {len(fund_filings)}")
+        
+        if workers <= 1:
+            # Sequential processing per fund
+            for filing in fund_filings:
+                worker_process(filing)
+        else:
+            # Parallel execution with ThreadPoolExecutor per fund
+            with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
+                futures = [executor.submit(worker_process, filing) for filing in fund_filings]
+                
+                # Wait for all filings of this fund to complete
+                for fut in concurrent.futures.as_completed(futures):
+                    pass  # Just wait for completion
+        
+        # Salva tracking dopo ogni fund completato
+        print(f"   💾 Salvataggio tracking per {fund_name}...")
+        with lock:
+            save_processed_filings(processed_filings)
+        print(f"   ✅ Tracking aggiornato (totale processati: {len(processed_filings)})")
+    
+    # Salva tracking finale (ridondante ma sicuro)
     save_processed_filings(processed_filings)
     
     # Salva tracking finale

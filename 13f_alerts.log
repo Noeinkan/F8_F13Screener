@@ -8310,3 +8310,293 @@ Arresto programma richiesto dall'utente
 2025-10-22 22:38:15,670 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
 2025-10-22 22:57:03,325 - INFO - Parsate 585 holdings dalla Information Table (HTML/XML)
 2025-10-22 22:57:03,340 - INFO - Salvate 585 holdings nel CSV tracker
+2025-10-22 23:25:50,621 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:25:51,287 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 23:25:51,288 - WARNING - Information Table URL non trovata
+2025-10-22 23:25:51,441 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:25:52,047 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 23:25:52,049 - WARNING - Information Table URL non trovata
+2025-10-22 23:25:52,202 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:25:52,822 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 23:25:52,991 - WARNING - Information Table URL non trovata
+2025-10-22 23:25:53,146 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:25:53,847 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 23:25:53,849 - WARNING - Information Table URL non trovata
+2025-10-22 23:25:54,002 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:25:54,598 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1061768/000156761924000363/xslForm13F_X02/form13fInfoTable.xml
+2025-10-22 23:25:55,331 - INFO - Parsate 24 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:25:55,335 - INFO - Salvate 24 holdings nel CSV tracker
+2025-10-22 23:25:55,335 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
+2025-10-22 23:25:55,488 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:25:56,096 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1061768/000156761924000317/xslForm13F_X02/form13fInfoTable.xml
+2025-10-22 23:25:56,743 - INFO - Parsate 22 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:25:56,749 - INFO - Salvate 22 holdings nel CSV tracker
+2025-10-22 23:25:56,750 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
+2025-10-22 23:25:56,902 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:25:57,517 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1061768/000156761924000192/xslForm13F_X02/form13fInfoTable.xml
+2025-10-22 23:25:58,149 - INFO - Parsate 23 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:25:58,152 - INFO - Salvate 23 holdings nel CSV tracker
+2025-10-22 23:25:58,152 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
+2025-10-22 23:25:58,305 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:25:58,914 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1061768/000156761923007709/xslForm13F_X02/form13fInfoTable.xml
+2025-10-22 23:25:59,539 - INFO - Parsate 32 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:25:59,542 - INFO - Salvate 32 holdings nel CSV tracker
+2025-10-22 23:25:59,542 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
+2025-10-22 23:25:59,697 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:26:00,338 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1061768/000156761923006910/xslForm13F_X02/form13fInfoTable.xml
+2025-10-22 23:26:01,310 - INFO - Parsate 29 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:01,322 - INFO - Salvate 29 holdings nel CSV tracker
+2025-10-22 23:26:01,324 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
+2025-10-22 23:26:01,483 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:26:02,096 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1061768/000156761923006061/xslForm13F_X02/form13fInfoTable.xml
+2025-10-22 23:26:02,744 - INFO - Parsate 31 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:02,747 - INFO - Salvate 31 holdings nel CSV tracker
+2025-10-22 23:26:02,747 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
+2025-10-22 23:26:02,901 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:26:03,496 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1061768/000156761923002543/xslForm13F_X02/form13fInfoTable.xml
+2025-10-22 23:26:04,160 - INFO - Parsate 34 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:04,163 - INFO - Salvate 34 holdings nel CSV tracker
+2025-10-22 23:26:04,163 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
+2025-10-22 23:26:04,316 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:26:04,945 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1061768/000156761922020125/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:06,033 - INFO - Parsate 45 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:06,038 - INFO - Salvate 45 holdings nel CSV tracker
+2025-10-22 23:26:06,038 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
+2025-10-22 23:26:06,195 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:26:06,972 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1061768/000156761922015853/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:07,718 - INFO - Parsate 52 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:07,722 - INFO - Salvate 52 holdings nel CSV tracker
+2025-10-22 23:26:07,723 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
+2025-10-22 23:26:07,876 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:26:08,529 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1061768/000156761922010529/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:09,285 - INFO - Parsate 55 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:09,288 - INFO - Salvate 55 holdings nel CSV tracker
+2025-10-22 23:26:09,289 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
+2025-10-22 23:26:09,443 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:26:10,080 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1061768/000156761922003626/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:10,782 - INFO - Parsate 54 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:10,785 - INFO - Salvate 54 holdings nel CSV tracker
+2025-10-22 23:26:10,786 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
+2025-10-22 23:26:10,938 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:26:11,671 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1061768/000156761921020056/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:12,388 - INFO - Parsate 57 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:12,393 - INFO - Salvate 57 holdings nel CSV tracker
+2025-10-22 23:26:12,394 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
+2025-10-22 23:26:12,548 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:26:13,177 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1061768/000156761921015518/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:13,934 - INFO - Parsate 59 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:13,938 - INFO - Salvate 59 holdings nel CSV tracker
+2025-10-22 23:26:13,938 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
+2025-10-22 23:26:14,091 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:26:14,796 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1061768/000156761921010187/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:15,508 - INFO - Parsate 59 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:15,511 - INFO - Salvate 59 holdings nel CSV tracker
+2025-10-22 23:26:15,512 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
+2025-10-22 23:26:15,665 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:26:16,280 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1061768/000156761921003545/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:17,028 - INFO - Parsate 45 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:17,031 - INFO - Salvate 45 holdings nel CSV tracker
+2025-10-22 23:26:17,031 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
+2025-10-22 23:26:17,184 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:26:17,803 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1061768/000156761920019585/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:18,454 - INFO - Parsate 37 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:18,999 - INFO - Salvate 37 holdings nel CSV tracker
+2025-10-22 23:26:19,000 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
+2025-10-22 23:26:19,154 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:26:19,751 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1061768/000156761920015100/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:20,407 - INFO - Parsate 31 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:20,410 - INFO - Salvate 31 holdings nel CSV tracker
+2025-10-22 23:26:20,410 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
+2025-10-22 23:26:20,563 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:26:21,178 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1061768/000156761920010141/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:21,929 - INFO - Parsate 33 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:21,934 - INFO - Salvate 33 holdings nel CSV tracker
+2025-10-22 23:26:21,935 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
+2025-10-22 23:26:22,087 - INFO - Processamento holdings per: Baupost Group (Seth Klarman)
+2025-10-22 23:26:22,698 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1061768/000156761920003359/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:23,348 - INFO - Parsate 31 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:23,351 - INFO - Salvate 31 holdings nel CSV tracker
+2025-10-22 23:26:23,351 - INFO - Holdings processate con successo per Baupost Group (Seth Klarman)
+2025-10-22 23:26:23,504 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:24,179 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1649339/000187920225000038/xslForm13F_X02/infotable.xml
+2025-10-22 23:26:24,804 - INFO - Parsate 15 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:24,807 - INFO - Salvate 15 holdings nel CSV tracker
+2025-10-22 23:26:24,808 - INFO - Holdings processate con successo per Scion Asset Management (Michael Burry)
+2025-10-22 23:26:24,961 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:25,573 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1649339/000187920225000025/xslForm13F_X02/infotable.xml
+2025-10-22 23:26:26,192 - INFO - Parsate 7 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:26,199 - INFO - Salvate 7 holdings nel CSV tracker
+2025-10-22 23:26:26,200 - INFO - Holdings processate con successo per Scion Asset Management (Michael Burry)
+2025-10-22 23:26:26,352 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:27,046 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1649339/000187920225000012/xslForm13F_X02/infotable.xml
+2025-10-22 23:26:27,698 - INFO - Parsate 13 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:27,701 - INFO - Salvate 13 holdings nel CSV tracker
+2025-10-22 23:26:27,702 - INFO - Holdings processate con successo per Scion Asset Management (Michael Burry)
+2025-10-22 23:26:27,856 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:28,438 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 23:26:28,439 - WARNING - Information Table URL non trovata
+2025-10-22 23:26:28,592 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:29,206 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 23:26:29,207 - WARNING - Information Table URL non trovata
+2025-10-22 23:26:29,361 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:29,976 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 23:26:29,978 - WARNING - Information Table URL non trovata
+2025-10-22 23:26:30,130 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:30,717 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 23:26:30,719 - WARNING - Information Table URL non trovata
+2025-10-22 23:26:30,873 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:31,475 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 23:26:31,478 - WARNING - Information Table URL non trovata
+2025-10-22 23:26:31,631 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:32,447 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 23:26:32,450 - WARNING - Information Table URL non trovata
+2025-10-22 23:26:32,602 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:33,260 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 23:26:33,262 - WARNING - Information Table URL non trovata
+2025-10-22 23:26:33,414 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:34,044 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 23:26:34,045 - WARNING - Information Table URL non trovata
+2025-10-22 23:26:34,198 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:34,816 - WARNING - Information Table HTML non trovata nella pagina
+2025-10-22 23:26:34,818 - WARNING - Information Table URL non trovata
+2025-10-22 23:26:34,971 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:35,577 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1649339/000156761922019784/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:36,219 - INFO - Parsate 6 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:36,222 - INFO - Salvate 6 holdings nel CSV tracker
+2025-10-22 23:26:36,222 - INFO - Holdings processate con successo per Scion Asset Management (Michael Burry)
+2025-10-22 23:26:36,376 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:37,000 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1649339/000156761922015999/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:37,722 - INFO - Parsate 1 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:37,733 - INFO - Salvate 1 holdings nel CSV tracker
+2025-10-22 23:26:37,734 - INFO - Holdings processate con successo per Scion Asset Management (Michael Burry)
+2025-10-22 23:26:37,887 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:38,559 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1649339/000156761922010747/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:39,228 - INFO - Parsate 12 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:39,233 - INFO - Salvate 12 holdings nel CSV tracker
+2025-10-22 23:26:39,234 - INFO - Holdings processate con successo per Scion Asset Management (Michael Burry)
+2025-10-22 23:26:39,388 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:40,106 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1649339/000156761922003986/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:40,763 - INFO - Parsate 6 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:40,766 - INFO - Salvate 6 holdings nel CSV tracker
+2025-10-22 23:26:40,767 - INFO - Holdings processate con successo per Scion Asset Management (Michael Burry)
+2025-10-22 23:26:40,920 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:41,552 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1649339/000156761921020215/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:42,196 - INFO - Parsate 6 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:42,198 - INFO - Salvate 6 holdings nel CSV tracker
+2025-10-22 23:26:42,199 - INFO - Holdings processate con successo per Scion Asset Management (Michael Burry)
+2025-10-22 23:26:42,352 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:42,993 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1649339/000156761921015632/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:43,629 - INFO - Parsate 22 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:43,632 - INFO - Salvate 22 holdings nel CSV tracker
+2025-10-22 23:26:43,632 - INFO - Holdings processate con successo per Scion Asset Management (Michael Burry)
+2025-10-22 23:26:43,786 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:44,410 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1649339/000156761921010281/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:45,144 - INFO - Parsate 31 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:45,147 - INFO - Salvate 31 holdings nel CSV tracker
+2025-10-22 23:26:45,147 - INFO - Holdings processate con successo per Scion Asset Management (Michael Burry)
+2025-10-22 23:26:45,301 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:45,911 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1649339/000156761921003819/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:46,546 - INFO - Parsate 23 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:46,549 - INFO - Salvate 23 holdings nel CSV tracker
+2025-10-22 23:26:46,550 - INFO - Holdings processate con successo per Scion Asset Management (Michael Burry)
+2025-10-22 23:26:46,704 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:47,327 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1649339/000156761920019679/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:47,999 - INFO - Parsate 33 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:48,002 - INFO - Salvate 33 holdings nel CSV tracker
+2025-10-22 23:26:48,003 - INFO - Holdings processate con successo per Scion Asset Management (Michael Burry)
+2025-10-22 23:26:48,156 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:48,784 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1649339/000156761920015233/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:49,415 - INFO - Parsate 29 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:49,417 - INFO - Salvate 29 holdings nel CSV tracker
+2025-10-22 23:26:49,418 - INFO - Holdings processate con successo per Scion Asset Management (Michael Burry)
+2025-10-22 23:26:49,570 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:50,178 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1649339/000156761920010271/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:50,889 - INFO - Parsate 14 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:50,892 - INFO - Salvate 14 holdings nel CSV tracker
+2025-10-22 23:26:50,892 - INFO - Holdings processate con successo per Scion Asset Management (Michael Burry)
+2025-10-22 23:26:51,046 - INFO - Processamento holdings per: Scion Asset Management (Michael Burry)
+2025-10-22 23:26:51,670 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1649339/000156761920003530/xslForm13F_X01/form13fInfoTable.xml
+2025-10-22 23:26:52,383 - INFO - Parsate 9 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:52,386 - INFO - Salvate 9 holdings nel CSV tracker
+2025-10-22 23:26:52,386 - INFO - Holdings processate con successo per Scion Asset Management (Michael Burry)
+2025-10-22 23:26:52,540 - INFO - Processamento holdings per: Appaloosa Management (David Tepper)
+2025-10-22 23:26:53,226 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1656456/000165645625000006/xslForm13F_X02/Form13FInfoTable.xml
+2025-10-22 23:26:53,968 - INFO - Parsate 38 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:53,972 - INFO - Salvate 38 holdings nel CSV tracker
+2025-10-22 23:26:53,972 - INFO - Holdings processate con successo per Appaloosa Management (David Tepper)
+2025-10-22 23:26:54,125 - INFO - Processamento holdings per: Appaloosa Management (David Tepper)
+2025-10-22 23:26:54,730 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1656456/000165645625000005/xslForm13F_X02/Form13FInfoTable.xml
+2025-10-22 23:26:55,408 - INFO - Parsate 38 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:55,448 - INFO - Salvate 38 holdings nel CSV tracker
+2025-10-22 23:26:55,448 - INFO - Holdings processate con successo per Appaloosa Management (David Tepper)
+2025-10-22 23:26:55,602 - INFO - Processamento holdings per: Appaloosa Management (David Tepper)
+2025-10-22 23:26:56,188 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1656456/000165645625000001/xslForm13F_X02/Form13FInfoTable.xml
+2025-10-22 23:26:56,864 - INFO - Parsate 37 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:56,868 - INFO - Salvate 37 holdings nel CSV tracker
+2025-10-22 23:26:56,868 - INFO - Holdings processate con successo per Appaloosa Management (David Tepper)
+2025-10-22 23:26:57,021 - INFO - Processamento holdings per: Appaloosa Management (David Tepper)
+2025-10-22 23:26:57,627 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1656456/000165645624000004/xslForm13F_X02/Form13FInfoTable.xml
+2025-10-22 23:26:58,310 - INFO - Parsate 38 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:58,315 - INFO - Salvate 38 holdings nel CSV tracker
+2025-10-22 23:26:58,316 - INFO - Holdings processate con successo per Appaloosa Management (David Tepper)
+2025-10-22 23:26:58,470 - INFO - Processamento holdings per: Appaloosa Management (David Tepper)
+2025-10-22 23:26:59,081 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1656456/000165645624000003/xslForm13F_X02/Form13FInfoTable.xml
+2025-10-22 23:26:59,749 - INFO - Parsate 37 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:26:59,752 - INFO - Salvate 37 holdings nel CSV tracker
+2025-10-22 23:26:59,752 - INFO - Holdings processate con successo per Appaloosa Management (David Tepper)
+2025-10-22 23:26:59,905 - INFO - Processamento holdings per: Appaloosa Management (David Tepper)
+2025-10-22 23:27:00,597 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1656456/000165645624000002/xslForm13F_X02/Form13FInfoTable.xml
+2025-10-22 23:27:01,584 - INFO - Parsate 39 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:27:01,587 - INFO - Salvate 39 holdings nel CSV tracker
+2025-10-22 23:27:01,588 - INFO - Holdings processate con successo per Appaloosa Management (David Tepper)
+2025-10-22 23:27:01,742 - INFO - Processamento holdings per: Appaloosa Management (David Tepper)
+2025-10-22 23:27:02,373 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1656456/000165645624000001/xslForm13F_X02/Form13FInfoTable.xml
+2025-10-22 23:27:03,064 - INFO - Parsate 40 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:27:03,067 - INFO - Salvate 40 holdings nel CSV tracker
+2025-10-22 23:27:03,068 - INFO - Holdings processate con successo per Appaloosa Management (David Tepper)
+2025-10-22 23:27:03,221 - INFO - Processamento holdings per: Appaloosa Management (David Tepper)
+2025-10-22 23:27:03,922 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1656456/000165645623000004/xslForm13F_X02/Form13FInfoTable.xml
+2025-10-22 23:27:04,565 - INFO - Parsate 32 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:27:04,569 - INFO - Salvate 32 holdings nel CSV tracker
+2025-10-22 23:27:04,569 - INFO - Holdings processate con successo per Appaloosa Management (David Tepper)
+2025-10-22 23:27:04,722 - INFO - Processamento holdings per: Appaloosa Management (David Tepper)
+2025-10-22 23:27:05,337 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1656456/000165645623000003/xslForm13F_X02/Form13FInfoTable.xml
+2025-10-22 23:27:06,006 - INFO - Parsate 39 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:27:06,009 - INFO - Salvate 39 holdings nel CSV tracker
+2025-10-22 23:27:06,010 - INFO - Holdings processate con successo per Appaloosa Management (David Tepper)
+2025-10-22 23:27:06,163 - INFO - Processamento holdings per: Appaloosa Management (David Tepper)
+2025-10-22 23:27:06,788 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1656456/000165645623000002/xslForm13F_X02/Form13FInfoTable.xml
+2025-10-22 23:27:07,459 - INFO - Parsate 29 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:27:07,462 - INFO - Salvate 29 holdings nel CSV tracker
+2025-10-22 23:27:07,462 - INFO - Holdings processate con successo per Appaloosa Management (David Tepper)
+2025-10-22 23:27:07,616 - INFO - Processamento holdings per: Appaloosa Management (David Tepper)
+2025-10-22 23:27:08,217 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1656456/000165645623000001/xslForm13F_X02/Form13FInfoTable.xml
+2025-10-22 23:27:08,905 - INFO - Parsate 24 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:27:08,908 - INFO - Salvate 24 holdings nel CSV tracker
+2025-10-22 23:27:08,908 - INFO - Holdings processate con successo per Appaloosa Management (David Tepper)
+2025-10-22 23:27:09,062 - INFO - Processamento holdings per: Appaloosa Management (David Tepper)
+2025-10-22 23:27:09,781 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1656456/000165645622000004/xslForm13F_X01/Form13FInfoTable.xml
+2025-10-22 23:27:10,462 - INFO - Parsate 22 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:27:10,465 - INFO - Salvate 22 holdings nel CSV tracker
+2025-10-22 23:27:10,466 - INFO - Holdings processate con successo per Appaloosa Management (David Tepper)
+2025-10-22 23:27:10,619 - INFO - Processamento holdings per: Appaloosa Management (David Tepper)
+2025-10-22 23:27:11,238 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1656456/000165645622000003/xslForm13F_X01/Form13FInfoTable.xml
+2025-10-22 23:27:11,879 - INFO - Parsate 30 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:27:11,882 - INFO - Salvate 30 holdings nel CSV tracker
+2025-10-22 23:27:11,883 - INFO - Holdings processate con successo per Appaloosa Management (David Tepper)
+2025-10-22 23:27:12,036 - INFO - Processamento holdings per: Appaloosa Management (David Tepper)
+2025-10-22 23:27:12,673 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1656456/000165645622000002/xslForm13F_X01/Form13FInfoTable.xml
+2025-10-22 23:27:13,367 - INFO - Parsate 34 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:27:13,370 - INFO - Salvate 34 holdings nel CSV tracker
+2025-10-22 23:27:13,370 - INFO - Holdings processate con successo per Appaloosa Management (David Tepper)
+2025-10-22 23:27:13,524 - INFO - Processamento holdings per: Appaloosa Management (David Tepper)
+2025-10-22 23:27:14,188 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1656456/000165645622000001/xslForm13F_X01/Form13FInfoTable.xml
+2025-10-22 23:27:14,878 - INFO - Parsate 44 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:27:14,881 - INFO - Salvate 44 holdings nel CSV tracker
+2025-10-22 23:27:14,882 - INFO - Holdings processate con successo per Appaloosa Management (David Tepper)
+2025-10-22 23:27:15,034 - INFO - Processamento holdings per: Appaloosa Management (David Tepper)
+2025-10-22 23:27:15,677 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1656456/000165645621000004/xslForm13F_X01/Form13FInfoTable.xml
+2025-10-22 23:27:16,394 - INFO - Parsate 51 holdings dalla Information Table (HTML/XML)
+2025-10-22 23:27:16,397 - INFO - Salvate 51 holdings nel CSV tracker
+2025-10-22 23:27:16,398 - INFO - Holdings processate con successo per Appaloosa Management (David Tepper)
+2025-10-22 23:27:16,552 - INFO - Processamento holdings per: Appaloosa Management (David Tepper)
