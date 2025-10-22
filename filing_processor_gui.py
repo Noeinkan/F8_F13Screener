@@ -250,15 +250,23 @@ class FilingProcessorGUI:
         mode = self.mode_var.get()
         full_refresh = self.full_refresh_var.get()
         
-        # Conferma per holdings/full
+        # Conferma per holdings/full (mostra stima dinamica se possibile)
         if mode in ['holdings', 'full']:
             msg = f"Modalità '{mode}' selezionata.\n\n"
-            if mode == 'holdings':
-                msg += "Questo processo può richiedere 1-2 ore.\n"
-            else:
-                msg += "Questo processo può richiedere 2-3 ore.\n"
+
+            # Calcola stima dinamica basata su file locali (se disponibili)
+            try:
+                estimate_str = self.compute_estimated_time(mode, full_refresh)
+                msg += f"Stima: {estimate_str}\n"
+            except Exception:
+                # Fallback testuale se qualcosa va storto
+                if mode == 'holdings':
+                    msg += "Questo processo può richiedere 1-2 ore.\n"
+                else:
+                    msg += "Questo processo può richiedere 2-3 ore.\n"
+
             msg += "\nVuoi procedere?"
-            
+
             if not messagebox.askyesno("Conferma", msg):
                 return
         
@@ -360,6 +368,109 @@ class FilingProcessorGUI:
         self.start_btn.config(state=tk.NORMAL, bg="#28a745")
         self.stop_btn.config(state=tk.DISABLED)
         self.update_stats()
+
+    def compute_estimated_time(self, mode: str, full_refresh: bool) -> str:
+        """Calcola una stima di durata in base ai file locali se disponibili.
+
+        Ritorna una stringa leggibile (es. '~45 minuti' o '1-2 ore').
+        Usa `historical_13f_catalog_5years.json` per contare i filing e
+        `processed_filings_tracking.json` per escludere quelli già processati.
+        Se i file non esistono torna una stima generica.
+        """
+        try:
+            # Default estimates (fallback)
+            if mode == 'holdings':
+                per_filing_seconds = 9  # stima media: 9s per filing (download+parse)
+            else:
+                # full = catalog (rapido) + holdings
+                per_filing_seconds = 9
+
+            catalog_path = 'historical_13f_catalog_5years.json'
+            tracking_path = 'processed_filings_tracking.json'
+
+            total_to_process = None
+
+            if mode == 'catalog':
+                # catalog step is proportional al numero di funds
+                from hedge_funds_config import get_total_funds
+                # catalog takes ~0.11s per fund for API call (rate limit backoff)
+                est_seconds = get_total_funds() * 0.11
+                # convert to human string
+                if est_seconds < 60:
+                    return f"~{int(est_seconds)} secondi (solo catalog)"
+                else:
+                    minutes = est_seconds / 60
+                    return f"~{minutes:.1f} minuti (solo catalog)"
+
+            # For holdings and full, try to read catalog to know number of filings
+            if os.path.exists(catalog_path):
+                with open(catalog_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    filings = data.get('filings', [])
+                    total_filings = len(filings)
+            else:
+                total_filings = None
+
+            # Prefer measured metrics if available
+            metrics_path = 'processing_metrics.json'
+            if os.path.exists(metrics_path):
+                try:
+                    with open(metrics_path, 'r', encoding='utf-8') as mf:
+                        m = json.load(mf)
+                        avg = m.get('avg')
+                        if avg and avg > 0:
+                            per_filing_seconds = float(avg)
+                except Exception:
+                    pass
+
+            processed = 0
+            if os.path.exists(tracking_path):
+                try:
+                    with open(tracking_path, 'r', encoding='utf-8') as f:
+                        t = json.load(f)
+                        processed = len(t.get('processed_accession_numbers', []))
+                except Exception:
+                    processed = 0
+
+            if total_filings is None:
+                # Not available -> return generic message
+                if mode == 'holdings':
+                    return "~1-2 ore (dipende dal numero di filing e dalla rete)"
+                else:
+                    return "~2-3 ore (catalog + holdings; dipende dal numero di filing)"
+
+            # Calculate remaining filings to process
+            if full_refresh:
+                remaining = total_filings
+            else:
+                remaining = max(0, total_filings - processed)
+
+            # Estimate seconds: per_filing_seconds * remaining
+            est_seconds = per_filing_seconds * remaining
+
+            # Add catalog time for full mode
+            if mode == 'full':
+                from hedge_funds_config import get_total_funds
+                est_seconds += get_total_funds() * 0.11
+
+            # Build human readable
+            if est_seconds < 60:
+                return f"~{int(est_seconds)} secondi (circa {remaining} filing)"
+            elif est_seconds < 3600:
+                minutes = est_seconds / 60
+                return f"~{int(minutes)} minuti (circa {remaining} filing)"
+            else:
+                hours = est_seconds / 3600
+                if hours < 2:
+                    return f"~{hours:.1f} ore (circa {remaining} filing)"
+                else:
+                    return f"~{int(hours)} ore (circa {remaining} filing)"
+        except Exception:
+            # Fallback generic
+            if mode == 'holdings':
+                return "~1-2 ore (stima generica)"
+            else:
+                return "~2-3 ore (stima generica)"
 
 def main():
     root = tk.Tk()

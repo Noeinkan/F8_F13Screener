@@ -18,6 +18,34 @@ PERIODO: Ultimi 5 anni (dal 2020-01-01 ad oggi)
 import requests
 import json
 import time
+import concurrent.futures
+import threading
+import statistics
+from collections import deque
+
+
+class RateLimiter:
+    """Semplice rate limiter basato su delay tra chiamate (seconds per request).
+
+    Usare RateLimiter(delay_seconds) e chiamare wait() prima di ogni richiesta.
+    """
+    def __init__(self, delay_seconds: float = 0.11):
+        self.delay = delay_seconds
+        self._lock = threading.Lock()
+        self._last = 0.0
+
+    def wait(self):
+        with self._lock:
+            now = time.time()
+            elapsed = now - self._last
+            to_wait = max(0.0, self.delay - elapsed)
+            if to_wait > 0:
+                time.sleep(to_wait)
+            self._last = time.time()
+
+
+# Global rate limiter (popolato da main se --throttle fornito)
+rate_limiter = None
 import os
 import csv
 import re
@@ -44,6 +72,7 @@ CUTOFF_DATE = '2020-01-01'  # Solo ultimi 5 anni
 CATALOG_FILE = 'historical_13f_catalog_5years.json'
 HOLDINGS_CSV = '13f_holdings_5years.csv'
 PROCESSED_TRACKING_FILE = 'processed_filings_tracking.json'  # Traccia filing già processati
+PROCESSING_METRICS_FILE = 'processing_metrics.json'  # Salva avg/median/time samples
 
 # Importa funzioni da 13f_alert.py se disponibile
 try:
@@ -104,6 +133,24 @@ def load_existing_catalog() -> List[Dict]:
         print(f"⚠️  Errore caricamento catalogo esistente: {e}")
         return []
 
+
+def load_processing_metrics() -> Dict:
+    if not os.path.exists(PROCESSING_METRICS_FILE):
+        return {'samples': [], 'avg': None, 'median': None, 'count': 0}
+    try:
+        with open(PROCESSING_METRICS_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception:
+        return {'samples': [], 'avg': None, 'median': None, 'count': 0}
+
+
+def save_processing_metrics(metrics: Dict) -> None:
+    try:
+        with open(PROCESSING_METRICS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(metrics, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"⚠️  Errore salvataggio metrics: {e}")
+
 def get_13f_filings_for_cik(cik: str, fund_name: str) -> List[Dict]:
     """
     Recupera tutti i filing 13F-HR per un CIK dalla SEC API.
@@ -115,6 +162,10 @@ def get_13f_filings_for_cik(cik: str, fund_name: str) -> List[Dict]:
     print(f"   CIK: {cik} | API: {api_url}")
     
     try:
+        # Respect global rate limiter if present
+        if 'rate_limiter' in globals() and rate_limiter is not None:
+            rate_limiter.wait()
+
         response = requests.get(api_url, headers=HEADERS, timeout=30)
         
         if response.status_code != 200:
@@ -292,7 +343,7 @@ def download_catalog(output_file: str = CATALOG_FILE, incremental: bool = True) 
 
 # ==================== MODALITÀ 2: HOLDINGS ====================
 
-def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE) -> None:
+def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE, workers: Optional[int] = None) -> None:
     """
     MODALITÀ 2: Estrae holdings dettagliate da un catalogo esistente
     Processa SOLO i filing non ancora processati (tracking automatico)
@@ -335,62 +386,116 @@ def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE) -> None:
         return
     
     print("⚠️  ATTENZIONE: Questo scaricherà holdings dettagliate da SEC.")
-    print(f"   Tempo stimato: ~{len(filings_to_process) * 0.15 / 60:.1f} minuti con rate limiting.\n")
-    
+    print(f"   Tempo stimato (grezzo): ~{len(filings_to_process) * 0.15 / 60:.1f} minuti con rate limiting.\n")
+
     risposta = input("Vuoi procedere? (s/n): ").lower()
     if risposta != 's':
         print("\n❌ Operazione annullata.")
         return
-    
+
+    # Use workers passed by CLI if provided; default to 1 (sequential) if not
+    if workers is None:
+        workers = 1
+
     print("\n" + "="*80)
-    print("🔄 INIZIO PROCESSAMENTO")
+    print(f"🔄 INIZIO PROCESSAMENTO (workers={workers})")
     print("="*80 + "\n")
-    
+
     successi = 0
     falliti = 0
     skipped = 0
-    
-    for i, filing in enumerate(filings_to_process, 1):
-        print(f"\n[{i}/{len(filings_to_process)}] Processamento...")
-        
+
+    # Thread-safe structures
+    lock = threading.Lock()
+
+    def worker_process(filing):
+        nonlocal successi, falliti, skipped
+        local_times = []
         fund_name = filing.get('fund_name', 'Sconosciuto')
         filing_url = filing.get('filing_url', '')
         filing_date = filing.get('filing_date', 'N/A')
         accession_number = filing.get('accession_number', '')
-        
+
         if not filing_url:
+            with lock:
+                skipped += 1
             print(f"  ⚠️  Skipped: {fund_name} (URL non trovato)")
-            skipped += 1
-            continue
-        
+            return
+
         print(f"  📊 {fund_name}")
         print(f"  📅 {filing_date}")
         print(f"  🔗 {filing_url[:60]}...")
-        
+
         try:
+            # Global rate limiter before per-filing processing
+            if 'rate_limiter' in globals() and rate_limiter is not None:
+                rate_limiter.wait()
+
+            t0 = time.time()
             success = process_filing_holdings(filing_url, fund_name, filing_date)
-            if success:
-                print(f"  ✅ Holdings salvate")
-                successi += 1
-                # Marca come processato
-                processed_filings.add(accession_number)
-                
-                # Salva tracking ogni 10 filing per sicurezza
-                if successi % 10 == 0:
-                    save_processed_filings(processed_filings)
-            else:
-                print(f"  ⚠️  Nessuna holding trovata")
-                falliti += 1
-                # Marca comunque come processato per non riprovarci
-                processed_filings.add(accession_number)
+            t1 = time.time()
+            elapsed = t1 - t0
+            local_times.append(elapsed)
+            with lock:
+                if success:
+                    print(f"  ✅ Holdings salvate: {accession_number}")
+                    successi += 1
+                    processed_filings.add(accession_number)
+                else:
+                    print(f"  ⚠️  Nessuna holding trovata: {accession_number}")
+                    falliti += 1
+                    processed_filings.add(accession_number)
+
+                # Aggiorna metriche globali ogni 20 filing processati
+                if len(local_times) >= 1:
+                    try:
+                        metrics = load_processing_metrics()
+                        samples = metrics.get('samples', [])
+                        samples.extend(local_times)
+                        samples = samples[-100:]
+                        metrics['samples'] = samples
+                        if samples:
+                            metrics['avg'] = statistics.mean(samples)
+                            metrics['median'] = statistics.median(samples)
+                        metrics['count'] = metrics.get('count', 0) + len(local_times)
+                        save_processing_metrics(metrics)
+                    except Exception as e:
+                        print(f"⚠️ Errore aggiornamento metrics: {e}")
+                    local_times.clear()
         except Exception as e:
-            print(f"  ❌ Errore: {e}")
-            falliti += 1
-            # Non marca come processato in caso di errore per riprovarci
-        
-        # Rate limiting SEC (max 10 req/sec)
-        if i < len(filings_to_process):
-            time.sleep(0.15)  # ~6-7 req/sec per sicurezza
+            with lock:
+                falliti += 1
+            print(f"  ❌ Errore processing {accession_number}: {e}")
+
+        # Small sleep to avoid bursting requests (per-worker throttle)
+        time.sleep(0.15)
+
+    if workers <= 1:
+        # Sequential (compatibile con comportamento precedente)
+        for i, filing in enumerate(filings_to_process, 1):
+            print(f"\n[{i}/{len(filings_to_process)}] Processamento...")
+            worker_process(filing)
+            # Salva tracking ogni 10 successi
+            if successi > 0 and successi % 10 == 0:
+                save_processed_filings(processed_filings)
+    else:
+        # Parallel execution with ThreadPoolExecutor
+        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
+            futures = []
+            for filing in filings_to_process:
+                futures.append(executor.submit(worker_process, filing))
+
+            # Wait for completion and periodically save tracking
+            completed = 0
+            for fut in concurrent.futures.as_completed(futures):
+                completed += 1
+                # Save every 20 completed
+                if completed % 20 == 0:
+                    with lock:
+                        save_processed_filings(processed_filings)
+
+    # Salva tracking finale
+    save_processed_filings(processed_filings)
     
     # Salva tracking finale
     save_processed_filings(processed_filings)
@@ -418,7 +523,7 @@ def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE) -> None:
 
 # ==================== MODALITÀ 3: FULL ====================
 
-def process_full_pipeline():
+def process_full_pipeline(workers: Optional[int] = None):
     """
     MODALITÀ 3: Esegue tutto il pipeline (catalog + holdings)
     Completamente automatico: usa solo hedge_funds_config.py
@@ -461,7 +566,8 @@ def process_full_pipeline():
     print("FASE 2/2: ESTRAZIONE HOLDINGS")
     print("="*80 + "\n")
     
-    extract_holdings_from_catalog()
+    # Use CLI-provided workers if available via global args (main will call with workers)
+    extract_holdings_from_catalog(workers=workers)
     
     print("\n" + "="*80)
     print("🎉 PIPELINE COMPLETO TERMINATO")
@@ -502,7 +608,7 @@ NOTES:
     
     parser.add_argument(
         'mode',
-        choices=['catalog', 'holdings', 'full'],
+        choices=['catalog', 'holdings', 'full', 'benchmark'],
         help='Modalità di esecuzione'
     )
     
@@ -516,6 +622,29 @@ NOTES:
         '--full-refresh',
         action='store_true',
         help='Disabilita modalità incrementale e scarica tutto da zero'
+    )
+
+    parser.add_argument(
+        '--workers',
+        type=int,
+        default=1,
+        help='Numero di worker concorrenti per la modalità holdings (default: 1)'
+    )
+
+    parser.add_argument(
+        '--sample-size',
+        dest='sample_size',
+        type=int,
+        default=5,
+        help='Dimensione del campione per la modalità benchmark (default: 5)'
+    )
+
+    parser.add_argument(
+        '--throttle',
+        dest='throttle',
+        type=float,
+        default=None,
+        help='Delay (secondi) minimo tra richieste HTTP globali (es. 0.11). Se non settato usa valori interni.'
     )
     
     args = parser.parse_args()
@@ -537,14 +666,70 @@ NOTES:
     print("="*80 + "\n")
     
     # Esegui modalità richiesta
+    # Setup global rate limiter se richiesto
+    global rate_limiter
+    if args.throttle is not None:
+        rate_limiter = RateLimiter(delay_seconds=args.throttle)
     if args.mode == 'catalog':
         download_catalog(args.catalog_file, incremental=not args.full_refresh)
     
     elif args.mode == 'holdings':
-        extract_holdings_from_catalog(args.catalog_file)
+        # Use the workers provided via CLI
+        extract_holdings_from_catalog(args.catalog_file, workers=args.workers)
     
     elif args.mode == 'full':
-        process_full_pipeline()
+        process_full_pipeline(workers=args.workers)
+    elif args.mode == 'benchmark':
+        # Quick benchmark to estimate average time per filing
+        def run_benchmark(sample_size: int = args.sample_size):
+            if not os.path.exists(args.catalog_file):
+                print(f"❌ Catalog file not found: {args.catalog_file}")
+                return
+            with open(args.catalog_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            filings = data.get('filings', [])
+            if not filings:
+                print("❌ No filings in catalog to benchmark")
+                return
+
+            sample = filings[:sample_size]
+            times = []
+            print(f"Benchmarking {len(sample)} filings (senza salvare risultati)...")
+            for i, filing in enumerate(sample, 1):
+                url = filing.get('filing_url')
+                fund = filing.get('fund_name')
+                date = filing.get('filing_date')
+                print(f"[{i}/{len(sample)}] {fund} {date} -> {url[:60]}...")
+                t0 = time.time()
+                try:
+                    # Call process_filing_holdings but don't persist side-effects if possible
+                    process_filing_holdings(url, fund, date)
+                except Exception as e:
+                    print(f"  Errore durante benchmark: {e}")
+                t1 = time.time()
+                elapsed = t1 - t0
+                times.append(elapsed)
+                print(f"  Tempo: {elapsed:.1f}s")
+
+            if times:
+                avg = statistics.mean(times)
+                med = statistics.median(times)
+                print(f"\nRisultati benchmark: avg={avg:.1f}s, median={med:.1f}s per filing")
+                est_total_seconds = avg * len(filings)
+                print(f"Stima basata su avg: ~{est_total_seconds/3600:.1f} ore per {len(filings)} filing")
+                # Salva le metriche aggregate
+                metrics = load_processing_metrics()
+                # Append samples but limit stored samples to last 100
+                metrics_samples = metrics.get('samples', [])
+                metrics_samples.extend(times)
+                metrics_samples = metrics_samples[-100:]
+                metrics['samples'] = metrics_samples
+                metrics['avg'] = statistics.mean(metrics_samples)
+                metrics['median'] = statistics.median(metrics_samples)
+                metrics['count'] = metrics.get('count', 0) + len(times)
+                save_processing_metrics(metrics)
+
+        run_benchmark()
 
 if __name__ == '__main__':
     main()
