@@ -34,6 +34,7 @@ import logging
 import shutil
 import multiprocessing
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from tqdm import tqdm
 class TokenBucketRateLimiter:
     """Token bucket rate limiter per gestire burst di richieste rispettando un limite massimo per secondo."""
     
@@ -629,7 +630,7 @@ def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE, workers: Opt
 
 # ==================== MODALITÀ 3: FULL ====================
 
-def process_full_pipeline(workers: Optional[int] = None, use_processes: bool = False, save_interval: int = 5, start_date: str = CUTOFF_DATE, end_date: str = None, quiet: bool = False):
+def process_full_pipeline(workers: Optional[int] = None, use_processes: bool = False, save_interval: int = 5, start_date: str = CUTOFF_DATE, end_date: str = None, quiet: bool = False, auto_confirm: bool = False):
     """
     MODALITÀ 3: Esegue tutto il pipeline (catalog + holdings)
     Completamente automatico: usa solo hedge_funds_config.py
@@ -647,10 +648,14 @@ def process_full_pipeline(workers: Optional[int] = None, use_processes: bool = F
     print(f"   - Fase 2 (Holdings): variabile (dipende da quanti filing vengono trovati)")
     print(f"   - Totale: ~30-90 minuti per processo completo\n")
     
-    risposta = input("Vuoi procedere con il pipeline completo? (s/n): ").lower()
-    if risposta != 's':
-        print("\n❌ Operazione annullata.")
-        return
+    # Salta conferma se auto_confirm è abilitato
+    if not auto_confirm:
+        risposta = input("Vuoi procedere con il pipeline completo? (s/n): ").lower()
+        if risposta != 's':
+            print("\n❌ Operazione annullata.")
+            return
+    else:
+        print("✅ Modalità automatica: procedo senza conferma...")
     
     # Fase 1: Catalog
     print("\n" + "="*80)
@@ -681,6 +686,13 @@ def process_full_pipeline(workers: Optional[int] = None, use_processes: bool = F
 
 # ==================== MAIN ====================
 
+def setup_logging(quiet=False):
+    """Setup logging configuration"""
+    if quiet:
+        logging.basicConfig(level=logging.WARNING, format='%(levelname)s: %(message)s')
+    else:
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 def main():
     parser = argparse.ArgumentParser(
         description='Script unificato per processare filing 13F-HR storici dagli ultimi 5 anni',
@@ -689,7 +701,7 @@ def main():
 FONTE DATI:
   - Lista {get_total_funds()} hedge funds da hedge_funds_config.py
   - API SEC EDGAR per scoperta filing
-  - Periodo: dal {CUTOFF_DATE} ad oggi (ultimi 5 anni)
+  - Periodo: ultimi 5 anni (dal 2020-01-01 ad oggi)
 
 MODALITÀ DISPONIBILI:
   catalog   - Scarica catalogo filing da API SEC (veloce, ~5 min per {get_total_funds()} funds)
@@ -788,7 +800,7 @@ NOTES:
     
     parser.add_argument(
         '--start-date',
-        default=CUTOFF_DATE,
+        default='2020-01-01',
         help='Data di inizio (YYYY-MM-DD, default: 2020-01-01)'
     )
     
@@ -833,7 +845,7 @@ NOTES:
         extract_holdings_from_catalog(args.catalog_file, workers=args.workers, auto_confirm=args.yes, use_processes=args.use_processes, save_interval=args.save_interval)
     
     elif args.mode == 'full':
-        process_full_pipeline(workers=args.workers, use_processes=args.use_processes, save_interval=args.save_interval, start_date=args.start_date, end_date=args.end_date, quiet=args.quiet)
+        process_full_pipeline(workers=args.workers, use_processes=args.use_processes, save_interval=args.save_interval, start_date=args.start_date, end_date=args.end_date, quiet=args.quiet, auto_confirm=args.yes)
     elif args.mode == 'benchmark':
         # Quick benchmark to estimate average time per filing
         def run_benchmark(sample_size: int = args.sample_size):

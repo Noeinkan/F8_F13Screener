@@ -1,0 +1,104 @@
+{
+  "last_updated": 1761253165.759245,
+  "filings": [
+    {
+      "cik": "0001404599",
+      "fund_name": "Aquamarine Capital (Guy Spier)",
+      "form": "13F-HR",
+      "filing_date": "2022-08-02",
+      "accession_number": "0001404599-22-000005",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1404599/000140459922000005/0001404599-22-000005-index.htm"
+    },
+    {
+      "cik": "0001404599",
+      "fund_name": "Aquamarine Capital (Guy Spier)",
+      "form": "13F-HR",
+      "filing_date": "2022-05-12",
+      "accession_number": "0001404599-22-000002",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1404599/000140459922000002/0001404599-22-000002-index.htm"
+    },
+    {
+      "cik": "0001404599",
+      "fund_name": "Aquamarine Capital (Guy Spier)",
+      "form": "13F-HR",
+      "filing_date": "2022-02-07",
+      "accession_number": "0001404599-22-000001",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1404599/000140459922000001/0001404599-22-000001-index.htm"
+    },
+    {
+      "cik": "0001404599",
+      "fund_name": "Aquamarine Capital (Guy Spier)",
+      "form": "13F-HR",
+      "filing_date": "2021-10-28",
+      "accession_number": "0001404599-21-000006",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1404599/000140459921000006/0001404599-21-000006-index.htm"
+    },
+    {
+      "cik": "0001404599",
+      "fund_name": "Aquamarine Capital (Guy Spier)",
+      "form": "13F-HR",
+      "filing_date": "2021-08-04",
+      "accession_number": "0001404599-21-000005",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1404599/000140459921000005/0001404599-21-000005-index.htm"
+    },
+    {
+      "cik": "0001404599",
+      "fund_name": "Aquamarine Capital (Guy Spier)",
+      "form": "13F-HR",
+      "filing_date": "2021-05-17",
+      "accession_number": "0001404599-21-000004",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1404599/000140459921000004/0001404599-21-000004-index.htm"
+    },
+    {
+      "cik": "0001404599",
+      "fund_name": "Aquamarine Capital (Guy Spier)",
+      "form": "13F-HR",
+      "filing_date": "2021-02-12",
+      "accession_number": "0001404599-21-000002",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1404599/000140459921000002/0001404599-21-000002-index.htm"
+    },
+    {
+      "cik": "0001404599",
+      "fund_name": "Aquamarine Capital (Guy Spier)",
+      "form": "13F-HR",
+      "filing_date": "2020-11-13",
+      "accession_number": "0001404599-20-000007",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1404599/000140459920000007/0001404599-20-000007-index.htm"
+    },
+    {
+      "cik": "0001404599",
+      "fund_name": "Aquamarine Capital (Guy Spier)",
+      "form": "13F-HR",
+      "filing_date": "2020-08-13",
+      "accession_number": "0001404599-20-000005",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1404599/000140459920000005/0001404599-20-000005-index.htm"
+    },
+    {
+      "cik": "0001404599",
+      "fund_name": "Aquamarine Capital (Guy Spier)",
+      "form": "13F-HR",
+      "filing_date": "2020-05-06",
+      "accession_number": "0001404599-20-000003",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1404599/000140459920000003/0001404599-20-000003-index.htm"
+    },
+    {
+      "cik": "0001404599",
+      "fund_name": "Aquamarine Capital (Guy Spier)",
+      "form": "13F-HR",
+      "filing_date": "2020-01-17",
+      "accession_number": "0001404599-20-000001",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1404599/000140459920000001/0001404599-20-000001-index.htm"
+    }
+  ]
+}

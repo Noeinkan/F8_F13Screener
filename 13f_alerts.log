@@ -10402,3 +10402,304 @@ Arresto programma richiesto dall'utente
 2025-10-22 23:45:12,148 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
 2025-10-22 23:45:12,300 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
 2025-10-22 23:45:12,965 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266120001844/xslForm13F_X01/infotable.xml
+2025-10-23 22:02:37,237 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:02:37,700 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266124001512/xslForm13F_X02/infotable.xml
+2025-10-23 22:02:38,295 - INFO - Parsate 116 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:02:38,299 - INFO - Salvate 116 holdings nel CSV tracker
+2025-10-23 22:02:38,299 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:02:38,451 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:02:38,910 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266123004012/xslForm13F_X02/infotable.xml
+2025-10-23 22:02:39,563 - INFO - Parsate 116 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:02:39,567 - INFO - Salvate 116 holdings nel CSV tracker
+2025-10-23 22:02:39,567 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:20,142 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:20,622 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266124001512/xslForm13F_X02/infotable.xml
+2025-10-23 22:03:21,188 - INFO - Parsate 116 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:21,192 - INFO - Salvate 116 holdings nel CSV tracker
+2025-10-23 22:03:21,192 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:21,344 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:21,798 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266123004012/xslForm13F_X02/infotable.xml
+2025-10-23 22:03:22,382 - INFO - Parsate 116 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:22,386 - INFO - Salvate 116 holdings nel CSV tracker
+2025-10-23 22:03:22,386 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:22,539 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:22,987 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266123003174/xslForm13F_X02/infotable.xml
+2025-10-23 22:03:23,538 - INFO - Parsate 122 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:23,542 - INFO - Salvate 122 holdings nel CSV tracker
+2025-10-23 22:03:23,542 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:23,694 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:24,150 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266123002282/xslForm13F_X02/infotable.xml
+2025-10-23 22:03:24,714 - INFO - Parsate 114 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:24,718 - INFO - Salvate 114 holdings nel CSV tracker
+2025-10-23 22:03:24,718 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:24,886 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:25,344 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266123001336/xslForm13F_X02/infotable.xml
+2025-10-23 22:03:25,995 - INFO - Parsate 123 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:25,999 - INFO - Salvate 123 holdings nel CSV tracker
+2025-10-23 22:03:25,999 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:26,151 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:26,695 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266122002565/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:27,292 - INFO - Parsate 124 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:27,297 - INFO - Salvate 124 holdings nel CSV tracker
+2025-10-23 22:03:27,297 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:27,449 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:27,927 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266122002019/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:28,604 - INFO - Parsate 140 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:28,608 - INFO - Salvate 140 holdings nel CSV tracker
+2025-10-23 22:03:28,608 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:28,761 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:29,540 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266122001474/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:30,201 - INFO - Parsate 154 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:30,205 - INFO - Salvate 154 holdings nel CSV tracker
+2025-10-23 22:03:30,205 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:30,357 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:30,838 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266122000884/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:31,510 - INFO - Parsate 169 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:31,515 - INFO - Salvate 169 holdings nel CSV tracker
+2025-10-23 22:03:31,515 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:31,668 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:32,164 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266121002370/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:32,794 - INFO - Parsate 173 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:32,799 - INFO - Salvate 173 holdings nel CSV tracker
+2025-10-23 22:03:32,799 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:32,951 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:33,387 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266121001874/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:34,132 - INFO - Parsate 207 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:34,136 - INFO - Salvate 207 holdings nel CSV tracker
+2025-10-23 22:03:34,137 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:34,289 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:34,753 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266121001325/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:35,356 - INFO - Parsate 183 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:35,361 - INFO - Salvate 183 holdings nel CSV tracker
+2025-10-23 22:03:35,361 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:35,513 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:35,951 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266121000770/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:36,518 - INFO - Parsate 105 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:36,522 - INFO - Salvate 105 holdings nel CSV tracker
+2025-10-23 22:03:36,522 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:36,674 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:37,135 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266120002335/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:37,757 - INFO - Parsate 106 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:37,761 - INFO - Salvate 106 holdings nel CSV tracker
+2025-10-23 22:03:37,761 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:37,913 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:38,374 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266120001844/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:38,967 - INFO - Parsate 69 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:38,970 - INFO - Salvate 69 holdings nel CSV tracker
+2025-10-23 22:03:38,970 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:39,123 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:39,596 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266120001391/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:40,147 - INFO - Parsate 70 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:40,150 - INFO - Salvate 70 holdings nel CSV tracker
+2025-10-23 22:03:40,150 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:40,303 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:40,750 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266120000807/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:41,249 - INFO - Parsate 51 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:41,252 - INFO - Salvate 51 holdings nel CSV tracker
+2025-10-23 22:03:41,252 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:41,404 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:41,851 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266124001512/xslForm13F_X02/infotable.xml
+2025-10-23 22:03:42,412 - INFO - Parsate 116 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:42,416 - INFO - Salvate 116 holdings nel CSV tracker
+2025-10-23 22:03:42,416 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:42,568 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:43,017 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266123004012/xslForm13F_X02/infotable.xml
+2025-10-23 22:03:43,578 - INFO - Parsate 116 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:43,582 - INFO - Salvate 116 holdings nel CSV tracker
+2025-10-23 22:03:43,582 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:43,736 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:44,264 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266123003174/xslForm13F_X02/infotable.xml
+2025-10-23 22:03:44,822 - INFO - Parsate 122 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:44,826 - INFO - Salvate 122 holdings nel CSV tracker
+2025-10-23 22:03:44,826 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:44,980 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:45,427 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266123002282/xslForm13F_X02/infotable.xml
+2025-10-23 22:03:45,999 - INFO - Parsate 114 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:46,003 - INFO - Salvate 114 holdings nel CSV tracker
+2025-10-23 22:03:46,003 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:46,155 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:46,601 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266123001336/xslForm13F_X02/infotable.xml
+2025-10-23 22:03:47,152 - INFO - Parsate 123 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:47,156 - INFO - Salvate 123 holdings nel CSV tracker
+2025-10-23 22:03:47,156 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:47,307 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:47,761 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266122002565/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:48,322 - INFO - Parsate 124 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:48,326 - INFO - Salvate 124 holdings nel CSV tracker
+2025-10-23 22:03:48,326 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:48,478 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:48,937 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266122002019/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:49,514 - INFO - Parsate 140 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:49,518 - INFO - Salvate 140 holdings nel CSV tracker
+2025-10-23 22:03:49,518 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:49,672 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:50,101 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266122001474/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:50,734 - INFO - Parsate 154 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:50,739 - INFO - Salvate 154 holdings nel CSV tracker
+2025-10-23 22:03:50,739 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:50,892 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:51,336 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266122000884/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:51,920 - INFO - Parsate 169 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:51,924 - INFO - Salvate 169 holdings nel CSV tracker
+2025-10-23 22:03:51,924 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:52,076 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:52,544 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266121002370/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:53,232 - INFO - Parsate 173 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:53,236 - INFO - Salvate 173 holdings nel CSV tracker
+2025-10-23 22:03:53,237 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:53,389 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:53,865 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266121001874/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:54,506 - INFO - Parsate 207 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:54,511 - INFO - Salvate 207 holdings nel CSV tracker
+2025-10-23 22:03:54,512 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:54,664 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:55,100 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266121001325/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:55,726 - INFO - Parsate 183 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:55,731 - INFO - Salvate 183 holdings nel CSV tracker
+2025-10-23 22:03:55,731 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:55,884 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:56,385 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266121000770/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:56,992 - INFO - Parsate 105 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:56,996 - INFO - Salvate 105 holdings nel CSV tracker
+2025-10-23 22:03:56,996 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:57,148 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:57,678 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266120002335/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:58,212 - INFO - Parsate 106 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:58,215 - INFO - Salvate 106 holdings nel CSV tracker
+2025-10-23 22:03:58,216 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:58,368 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:03:58,847 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266120001844/xslForm13F_X01/infotable.xml
+2025-10-23 22:03:59,345 - INFO - Parsate 69 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:03:59,348 - INFO - Salvate 69 holdings nel CSV tracker
+2025-10-23 22:03:59,348 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:03:59,500 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:00,084 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266120001391/xslForm13F_X01/infotable.xml
+2025-10-23 22:04:02,207 - INFO - Parsate 70 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:02,211 - INFO - Salvate 70 holdings nel CSV tracker
+2025-10-23 22:04:02,211 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:02,364 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:02,956 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266120000807/xslForm13F_X01/infotable.xml
+2025-10-23 22:04:04,010 - INFO - Parsate 51 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:04,013 - INFO - Salvate 51 holdings nel CSV tracker
+2025-10-23 22:04:04,013 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:04,165 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:04,733 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266124001512/xslForm13F_X02/infotable.xml
+2025-10-23 22:04:05,463 - INFO - Parsate 116 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:05,466 - INFO - Salvate 116 holdings nel CSV tracker
+2025-10-23 22:04:05,466 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:05,620 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:06,167 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266123004012/xslForm13F_X02/infotable.xml
+2025-10-23 22:04:07,686 - INFO - Parsate 116 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:07,690 - INFO - Salvate 116 holdings nel CSV tracker
+2025-10-23 22:04:07,690 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:07,843 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:08,459 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266123003174/xslForm13F_X02/infotable.xml
+2025-10-23 22:04:09,888 - INFO - Parsate 122 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:09,892 - INFO - Salvate 122 holdings nel CSV tracker
+2025-10-23 22:04:09,892 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:10,044 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:10,611 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266123002282/xslForm13F_X02/infotable.xml
+2025-10-23 22:04:12,257 - INFO - Parsate 114 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:12,260 - INFO - Salvate 114 holdings nel CSV tracker
+2025-10-23 22:04:12,260 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:12,412 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:13,326 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266123001336/xslForm13F_X02/infotable.xml
+2025-10-23 22:04:14,887 - INFO - Parsate 123 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:14,892 - INFO - Salvate 123 holdings nel CSV tracker
+2025-10-23 22:04:14,892 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:15,045 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:15,623 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266122002565/xslForm13F_X01/infotable.xml
+2025-10-23 22:04:17,521 - INFO - Parsate 124 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:17,525 - INFO - Salvate 124 holdings nel CSV tracker
+2025-10-23 22:04:17,525 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:17,677 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:18,356 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266122002019/xslForm13F_X01/infotable.xml
+2025-10-23 22:04:19,923 - INFO - Parsate 140 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:19,926 - INFO - Salvate 140 holdings nel CSV tracker
+2025-10-23 22:04:19,927 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:20,079 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:20,621 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266122001474/xslForm13F_X01/infotable.xml
+2025-10-23 22:04:21,351 - INFO - Parsate 154 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:21,356 - INFO - Salvate 154 holdings nel CSV tracker
+2025-10-23 22:04:21,356 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:21,508 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:22,111 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266122000884/xslForm13F_X01/infotable.xml
+2025-10-23 22:04:22,922 - INFO - Parsate 169 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:22,927 - INFO - Salvate 169 holdings nel CSV tracker
+2025-10-23 22:04:22,928 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:23,080 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:23,668 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266121002370/xslForm13F_X01/infotable.xml
+2025-10-23 22:04:24,613 - INFO - Parsate 173 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:24,617 - INFO - Salvate 173 holdings nel CSV tracker
+2025-10-23 22:04:24,705 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:24,857 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:25,436 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266121001874/xslForm13F_X01/infotable.xml
+2025-10-23 22:04:26,260 - INFO - Parsate 207 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:26,265 - INFO - Salvate 207 holdings nel CSV tracker
+2025-10-23 22:04:26,265 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:26,417 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:27,106 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266121001325/xslForm13F_X01/infotable.xml
+2025-10-23 22:04:28,973 - INFO - Parsate 183 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:28,977 - INFO - Salvate 183 holdings nel CSV tracker
+2025-10-23 22:04:28,977 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:29,129 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:29,760 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266121000770/xslForm13F_X01/infotable.xml
+2025-10-23 22:04:30,913 - INFO - Parsate 105 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:30,917 - INFO - Salvate 105 holdings nel CSV tracker
+2025-10-23 22:04:30,917 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:31,069 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:31,988 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266120002335/xslForm13F_X01/infotable.xml
+2025-10-23 22:04:32,894 - INFO - Parsate 106 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:32,897 - INFO - Salvate 106 holdings nel CSV tracker
+2025-10-23 22:04:32,898 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:33,052 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:33,878 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266120001844/xslForm13F_X01/infotable.xml
+2025-10-23 22:04:34,540 - INFO - Parsate 69 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:34,543 - INFO - Salvate 69 holdings nel CSV tracker
+2025-10-23 22:04:34,543 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:34,696 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:35,232 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266120001391/xslForm13F_X01/infotable.xml
+2025-10-23 22:04:36,067 - INFO - Parsate 70 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:36,071 - INFO - Salvate 70 holdings nel CSV tracker
+2025-10-23 22:04:36,071 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:36,224 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:36,945 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266120000807/xslForm13F_X01/infotable.xml
+2025-10-23 22:04:37,534 - INFO - Parsate 51 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:37,537 - INFO - Salvate 51 holdings nel CSV tracker
+2025-10-23 22:04:37,537 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:37,691 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:38,394 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266124001512/xslForm13F_X02/infotable.xml
+2025-10-23 22:04:39,655 - INFO - Parsate 116 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:39,660 - INFO - Salvate 116 holdings nel CSV tracker
+2025-10-23 22:04:39,660 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:39,814 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:40,401 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266123004012/xslForm13F_X02/infotable.xml
+2025-10-23 22:04:41,040 - INFO - Parsate 116 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:41,044 - INFO - Salvate 116 holdings nel CSV tracker
+2025-10-23 22:04:41,045 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:41,197 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:41,717 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266123003174/xslForm13F_X02/infotable.xml
+2025-10-23 22:04:42,425 - INFO - Parsate 122 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:42,429 - INFO - Salvate 122 holdings nel CSV tracker
+2025-10-23 22:04:42,429 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:42,582 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:43,084 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266123002282/xslForm13F_X02/infotable.xml
+2025-10-23 22:04:43,697 - INFO - Parsate 114 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:43,704 - INFO - Salvate 114 holdings nel CSV tracker
+2025-10-23 22:04:43,704 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:43,857 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:44,380 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266123001336/xslForm13F_X02/infotable.xml
+2025-10-23 22:04:45,059 - INFO - Parsate 123 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:45,063 - INFO - Salvate 123 holdings nel CSV tracker
+2025-10-23 22:04:45,063 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:45,215 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:45,751 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266122002565/xslForm13F_X01/infotable.xml
+2025-10-23 22:04:46,406 - INFO - Parsate 124 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:46,410 - INFO - Salvate 124 holdings nel CSV tracker
+2025-10-23 22:04:46,410 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:46,562 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)
+2025-10-23 22:04:47,085 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1079114/000117266122002019/xslForm13F_X01/infotable.xml
+2025-10-23 22:04:47,798 - INFO - Parsate 140 holdings dalla Information Table (HTML/XML)
+2025-10-23 22:04:47,803 - INFO - Salvate 140 holdings nel CSV tracker
+2025-10-23 22:04:47,803 - INFO - Holdings processate con successo per Greenlight Capital (David Einhorn)
+2025-10-23 22:04:47,955 - INFO - Processamento holdings per: Greenlight Capital (David Einhorn)

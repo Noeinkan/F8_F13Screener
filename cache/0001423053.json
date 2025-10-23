@@ -1,0 +1,248 @@
+{
+  "last_updated": 1761253190.1316967,
+  "filings": [
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2025-08-14",
+      "accession_number": "0001104659-25-078555",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000110465925078555/0001104659-25-078555-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2025-05-15",
+      "accession_number": "0000950123-25-005687",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012325005687/0000950123-25-005687-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2025-02-14",
+      "accession_number": "0000950123-25-002739",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012325002739/0000950123-25-002739-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2024-11-14",
+      "accession_number": "0000950123-24-011767",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012324011767/0000950123-24-011767-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2024-08-14",
+      "accession_number": "0000950123-24-008735",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012324008735/0000950123-24-008735-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2024-05-15",
+      "accession_number": "0000950123-24-005615",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012324005615/0000950123-24-005615-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2024-02-14",
+      "accession_number": "0000950123-24-002516",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012324002516/0000950123-24-002516-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2023-11-14",
+      "accession_number": "0000950123-23-010889",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012323010889/0000950123-23-010889-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2023-08-14",
+      "accession_number": "0000950123-23-008075",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012323008075/0000950123-23-008075-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2023-05-15",
+      "accession_number": "0000950123-23-005271",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012323005271/0000950123-23-005271-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2023-02-14",
+      "accession_number": "0000950123-23-002617",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012323002617/0000950123-23-002617-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2022-11-14",
+      "accession_number": "0000950123-22-012276",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012322012276/0000950123-22-012276-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2022-08-15",
+      "accession_number": "0000950123-22-009440",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012322009440/0000950123-22-009440-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2022-05-16",
+      "accession_number": "0000950123-22-006403",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012322006403/0000950123-22-006403-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR/A",
+      "filing_date": "2022-03-11",
+      "accession_number": "0000950123-22-003427",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012322003427/0000950123-22-003427-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2022-02-14",
+      "accession_number": "0000950123-22-003088",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012322003088/0000950123-22-003088-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2021-11-15",
+      "accession_number": "0000950123-21-015522",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012321015522/0000950123-21-015522-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2021-08-16",
+      "accession_number": "0000950123-21-011394",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012321011394/0000950123-21-011394-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR/A",
+      "filing_date": "2021-05-21",
+      "accession_number": "0000950123-21-007263",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012321007263/0000950123-21-007263-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR/A",
+      "filing_date": "2021-05-21",
+      "accession_number": "0000950123-21-007261",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012321007261/0000950123-21-007261-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2021-05-17",
+      "accession_number": "0000950123-21-007021",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012321007021/0000950123-21-007021-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2021-02-16",
+      "accession_number": "0000950123-21-002766",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012321002766/0000950123-21-002766-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2020-11-16",
+      "accession_number": "0000950123-20-012129",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012320012129/0000950123-20-012129-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2020-08-14",
+      "accession_number": "0000950123-20-009061",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012320009061/0000950123-20-009061-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2020-05-15",
+      "accession_number": "0000950123-20-005339",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012320005339/0000950123-20-005339-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR/A",
+      "filing_date": "2020-02-14",
+      "accession_number": "0000950123-20-002478",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012320002478/0000950123-20-002478-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2020-02-14",
+      "accession_number": "0000950123-20-002457",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000095012320002457/0000950123-20-002457-index.htm"
+    }
+  ]
+}

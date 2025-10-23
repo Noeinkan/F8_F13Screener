@@ -27,6 +27,10 @@ class FilingProcessorGUI:
         self.is_running = False
         self.process = None
         
+        # Variabili per progresso
+        self.total_items = 0
+        self.current_item = 0
+        
         # Nuove variabili per ottimizzazioni
         self.rate_var = tk.DoubleVar(value=10.0)
         self.capacity_var = tk.DoubleVar(value=10.0)
@@ -250,6 +254,21 @@ class FilingProcessorGUI:
         right_panel = tk.Frame(main_frame, bg="#ffffff", relief=tk.RIDGE, bd=1)
         right_panel.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=0, pady=0)
         
+        # Progress section
+        progress_frame = tk.Frame(right_panel, bg="#2c3e50", height=60)
+        progress_frame.pack(fill=tk.X)
+        progress_frame.pack_propagate(False)
+        
+        # Counter label
+        self.progress_counter_label = tk.Label(progress_frame, text="🔢 Progresso: In attesa...", 
+                                              font=('Segoe UI', 9, 'bold'), bg="#2c3e50", fg="white")
+        self.progress_counter_label.pack(side=tk.TOP, padx=10, pady=5, anchor=tk.W)
+        
+        # Progress bar
+        self.progress_bar = ttk.Progressbar(progress_frame, orient="horizontal", mode="determinate", length=400)
+        self.progress_bar.pack(side=tk.TOP, padx=10, pady=(0,5), fill=tk.X, expand=True)
+        self.progress_bar['value'] = 0
+        
         # Header log
         log_header = tk.Frame(right_panel, bg="#2c3e50", height=35)
         log_header.pack(fill=tk.X)
@@ -345,8 +364,81 @@ class FilingProcessorGUI:
         self.stats_text.insert(1.0, "\n".join(stats))
         self.stats_text.config(state=tk.DISABLED)
     
+    def reset_progress(self, mode):
+        """Reset barra progresso e counter"""
+        self.total_items = 0
+        self.current_item = 0
+        self.progress_bar['value'] = 0
+        self.progress_counter_label.config(text="🔢 Progresso: In attesa...")
+    
+    def update_progress(self, message):
+        """Aggiorna barra progresso e counter se trova pattern"""
+        import re
+        
+        # Pattern per [current/total] (tqdm style)
+        tqdm_match = re.search(r'\[(\d+)/(\d+)\]', message)
+        if tqdm_match:
+            try:
+                current = int(tqdm_match.group(1))
+                total = int(tqdm_match.group(2))
+                self.current_item = current
+                self.total_items = total
+                percentage = (current / total) * 100 if total > 0 else 0
+                self.progress_bar['value'] = percentage
+                self.progress_counter_label.config(text=f"🔢 Progresso: {current}/{total} ({percentage:.1f}%)")
+                return
+            except (ValueError, IndexError):
+                pass
+        
+        # Pattern per 🏦 [current/total] (fase holdings)
+        fund_match = re.search(r'🏦 \[(\d+)/(\d+)\]', message)
+        if fund_match:
+            try:
+                current = int(fund_match.group(1))
+                total = int(fund_match.group(2))
+                self.current_item = current
+                self.total_items = total
+                percentage = (current / total) * 100 if total > 0 else 0
+                self.progress_bar['value'] = percentage
+                self.progress_counter_label.config(text=f"🔢 Funds: {current}/{total} ({percentage:.1f}%)")
+                return
+            except (ValueError, IndexError):
+                pass
+        
+        # Pattern per "Successi: X" o simili riepiloghi
+        success_match = re.search(r'Successi:\s*(\d+)', message, re.IGNORECASE)
+        if success_match:
+            try:
+                current = int(success_match.group(1))
+                self.current_item = current
+                if self.total_items > 0:
+                    percentage = (current / self.total_items) * 100
+                    self.progress_bar['value'] = percentage
+                    self.progress_counter_label.config(text=f"🔢 Successi: {current}/{self.total_items} ({percentage:.1f}%)")
+                else:
+                    self.progress_counter_label.config(text=f"🔢 Successi: {current}")
+                return
+            except (ValueError, IndexError):
+                pass
+        
+        # Pattern per "Da processare: X" per impostare total
+        total_match = re.search(r'Da processare:\s*(\d+)', message, re.IGNORECASE)
+        if total_match:
+            try:
+                self.total_items = int(total_match.group(1))
+                self.progress_counter_label.config(text=f"🔢 Da processare: {self.total_items}")
+                return
+            except (ValueError, IndexError):
+                pass
+    
     def log(self, message, tag=None):
         """Aggiungi messaggio al log"""
+        # Aggiorna progresso
+        self.update_progress(message)
+        
+        # Stampa anche nel terminal di VS Code
+        print(message)
+        
         self.log_text.config(state=tk.NORMAL)
         if tag:
             self.log_text.insert(tk.END, message + "\n", tag)
@@ -390,6 +482,9 @@ class FilingProcessorGUI:
         self.start_btn.config(state=tk.DISABLED, bg="#6c757d")
         self.stop_btn.config(state=tk.NORMAL)
         self.status_label.config(text=f"⏳ In esecuzione: {mode}...", fg="#ff6600")
+        
+        # Reset progresso
+        self.reset_progress(mode)
         
         # Pulisci log
         self.log_text.config(state=tk.NORMAL)
@@ -507,6 +602,10 @@ class FilingProcessorGUI:
         self.start_btn.config(state=tk.NORMAL, bg="#28a745")
         self.stop_btn.config(state=tk.DISABLED)
         self.update_stats()
+        
+        # Reset progresso
+        self.progress_bar['value'] = 100 if self.total_items > 0 and self.current_item >= self.total_items else 0
+        self.progress_counter_label.config(text=f"🔢 Completato: {self.current_item}/{self.total_items}" if self.total_items > 0 else "🔢 Completato")
 
     def compute_estimated_time(self, mode: str, full_refresh: bool) -> str:
         """Calcola una stima di durata in base ai file locali se disponibili.
