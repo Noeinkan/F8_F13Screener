@@ -18,7 +18,7 @@ class FilingProcessorGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("🏦 13F Filing Processor - Historical Data Manager")
-        self.root.geometry("1000x750")
+        self.root.geometry("1200x1100")  # Altezza aumentata per ospitare tutti i controlli senza scrollbar
         self.root.resizable(True, True)
         
         # Variabili
@@ -26,6 +26,16 @@ class FilingProcessorGUI:
         self.full_refresh_var = tk.BooleanVar(value=False)
         self.is_running = False
         self.process = None
+        
+        # Nuove variabili per ottimizzazioni
+        self.rate_var = tk.DoubleVar(value=10.0)
+        self.capacity_var = tk.DoubleVar(value=10.0)
+        self.workers_var = tk.IntVar(value=1)
+        self.use_processes_var = tk.BooleanVar(value=False)
+        self.save_interval_var = tk.IntVar(value=5)
+        self.start_date_var = tk.StringVar(value="2020-01-01")
+        self.end_date_var = tk.StringVar(value=datetime.now().strftime('%Y-%m-%d'))
+        self.quiet_var = tk.BooleanVar(value=False)
         
         # Stile
         self.setup_styles()
@@ -109,7 +119,7 @@ class FilingProcessorGUI:
         
         # ===== OPZIONI =====
         options_frame = tk.LabelFrame(controls_frame, text=" Opzioni Avanzate ", 
-                                     font=('Segoe UI', 10, 'bold'), bg="#ffffff", padx=10, pady=10)
+                                   font=('Segoe UI', 10, 'bold'), bg="#ffffff", padx=10, pady=10)
         options_frame.pack(fill=tk.X, pady=(0, 15))
         
         refresh_cb = ttk.Checkbutton(options_frame, text="🔄 Full Refresh", 
@@ -121,12 +131,96 @@ class FilingProcessorGUI:
                                 font=('Segoe UI', 8), foreground='#666')
         refresh_info.pack(anchor=tk.W, padx=(20, 0))
         
+        # ===== PARAMETRI OTTIMIZZAZIONE =====
+        optimization_frame = tk.LabelFrame(controls_frame, text=" 🚀 Parametri Ottimizzazione ", 
+                                   font=('Segoe UI', 10, 'bold'), bg="#ffffff", padx=10, pady=10)
+        optimization_frame.pack(fill=tk.X, pady=(0, 15))
+        
+        # Rate Limiting
+        rate_frame = tk.Frame(optimization_frame, bg="#ffffff")
+        rate_frame.pack(fill=tk.X, pady=(0, 8))
+        
+        ttk.Label(rate_frame, text="Rate Limit (req/sec):", font=('Segoe UI', 9)).grid(row=0, column=0, sticky=tk.W, pady=2)
+        rate_spin = tk.Spinbox(rate_frame, from_=1, to=20, textvariable=self.rate_var, width=5, font=('Segoe UI', 9))
+        rate_spin.grid(row=0, column=1, sticky=tk.W, padx=(5, 0))
+        
+        ttk.Label(rate_frame, text="Capacity:", font=('Segoe UI', 9)).grid(row=0, column=2, sticky=tk.W, padx=(10, 0))
+        capacity_spin = tk.Spinbox(rate_frame, from_=1, to=50, textvariable=self.capacity_var, width=5, font=('Segoe UI', 9))
+        capacity_spin.grid(row=0, column=3, sticky=tk.W, padx=(5, 0))
+        
+        rate_info = ttk.Label(optimization_frame, 
+                             text="   ↳ Limite richieste SEC (10/sec raccomandato). Capacity per burst.",
+                             font=('Segoe UI', 8), foreground='#666')
+        rate_info.pack(anchor=tk.W, padx=(0, 0))
+        
+        # Parallelismo
+        parallel_frame = tk.Frame(optimization_frame, bg="#ffffff")
+        parallel_frame.pack(fill=tk.X, pady=(5, 8))
+        
+        ttk.Label(parallel_frame, text="Workers:", font=('Segoe UI', 9)).grid(row=0, column=0, sticky=tk.W, pady=2)
+        workers_spin = tk.Spinbox(parallel_frame, from_=1, to=16, textvariable=self.workers_var, width=5, font=('Segoe UI', 9))
+        workers_spin.grid(row=0, column=1, sticky=tk.W, padx=(5, 0))
+        
+        processes_cb = ttk.Checkbutton(parallel_frame, text="Usa Processi", variable=self.use_processes_var)
+        processes_cb.grid(row=0, column=2, sticky=tk.W, padx=(10, 0))
+        
+        parallel_info = ttk.Label(optimization_frame, 
+                                 text="   ↳ Workers concorrenti. Processi per CPU-intensive, Thread per I/O.",
+                                 font=('Segoe UI', 8), foreground='#666')
+        parallel_info.pack(anchor=tk.W, padx=(0, 0))
+        
+        # Salvataggio
+        save_frame = tk.Frame(optimization_frame, bg="#ffffff")
+        save_frame.pack(fill=tk.X, pady=(5, 8))
+        
+        ttk.Label(save_frame, text="Save Interval:", font=('Segoe UI', 9)).grid(row=0, column=0, sticky=tk.W, pady=2)
+        save_spin = tk.Spinbox(save_frame, from_=1, to=20, textvariable=self.save_interval_var, width=5, font=('Segoe UI', 9))
+        save_spin.grid(row=0, column=1, sticky=tk.W, padx=(5, 0))
+        
+        save_info = ttk.Label(optimization_frame, 
+                             text="   ↳ Salva tracking ogni N fondi processati (riduce I/O disco).",
+                             font=('Segoe UI', 8), foreground='#666')
+        save_info.pack(anchor=tk.W, padx=(0, 0))
+        
+        # Date Range
+        date_frame = tk.Frame(optimization_frame, bg="#ffffff")
+        date_frame.pack(fill=tk.X, pady=(5, 8))
+        
+        ttk.Label(date_frame, text="Start Date:", font=('Segoe UI', 9)).grid(row=0, column=0, sticky=tk.W, pady=2)
+        start_entry = ttk.Entry(date_frame, textvariable=self.start_date_var, width=12, font=('Segoe UI', 9))
+        start_entry.grid(row=0, column=1, sticky=tk.W, padx=(5, 0))
+        
+        ttk.Label(date_frame, text="End Date:", font=('Segoe UI', 9)).grid(row=0, column=2, sticky=tk.W, padx=(10, 0))
+        end_entry = ttk.Entry(date_frame, textvariable=self.end_date_var, width=12, font=('Segoe UI', 9))
+        end_entry.grid(row=0, column=3, sticky=tk.W, padx=(5, 0))
+        
+        date_info = ttk.Label(optimization_frame, 
+                             text="   ↳ Range temporale (YYYY-MM-DD). Default: ultimi 5 anni.",
+                             font=('Segoe UI', 8), foreground='#666')
+        date_info.pack(anchor=tk.W, padx=(0, 0))
+        
+        # Quiet Mode
+        quiet_cb = ttk.Checkbutton(optimization_frame, text="🔇 Modalità Silenziosa", variable=self.quiet_var)
+        quiet_cb.pack(anchor=tk.W, pady=(5, 0))
+        
+        quiet_info = ttk.Label(optimization_frame, 
+                              text="   ↳ Output minimo (solo errori e riepilogo).",
+                              font=('Segoe UI', 8), foreground='#666')
+        quiet_info.pack(anchor=tk.W, padx=(20, 0))
+        
+        # Pulsante reset
+        reset_btn = tk.Button(optimization_frame, text="🔄 Ripristina Default", 
+                             command=self.reset_optimization_defaults,
+                             font=('Segoe UI', 9), bg="#6c757d", fg="white",
+                             activebackground="#5a6268", relief=tk.RAISED, bd=1)
+        reset_btn.pack(anchor=tk.W, pady=(10, 0))
+        
         # ===== STATISTICHE =====
         stats_frame = tk.LabelFrame(controls_frame, text=" 📊 Statistiche ", 
                                    font=('Segoe UI', 10, 'bold'), bg="#ffffff", padx=10, pady=10)
         stats_frame.pack(fill=tk.X, pady=(0, 15))
         
-        self.stats_text = tk.Text(stats_frame, height=8, font=('Consolas', 9), 
+        self.stats_text = tk.Text(stats_frame, height=6, font=('Consolas', 9), 
                                  bg="#f8f9fa", relief=tk.FLAT, wrap=tk.WORD)
         self.stats_text.pack(fill=tk.X)
         
@@ -191,6 +285,18 @@ class FilingProcessorGUI:
                                      font=('Segoe UI', 9), bg="#e0e0e0", fg="#333")
         self.status_label.pack(side=tk.LEFT, padx=10, pady=5)
     
+    def reset_optimization_defaults(self):
+        """Ripristina i valori di default per i parametri di ottimizzazione"""
+        self.rate_var.set(10.0)
+        self.capacity_var.set(10.0)
+        self.workers_var.set(1)
+        self.use_processes_var.set(False)
+        self.save_interval_var.set(5)
+        self.start_date_var.set("2020-01-01")
+        self.end_date_var.set(datetime.now().strftime('%Y-%m-%d'))
+        self.quiet_var.set(False)
+        self.update_stats()
+    
     def update_stats(self):
         """Aggiorna le statistiche"""
         self.stats_text.delete(1.0, tk.END)
@@ -226,6 +332,15 @@ class FilingProcessorGUI:
                     stats.append(f"✅ Processati: {data.get('total_processed', 0)}")
             except:
                 pass
+        
+        # Impostazioni ottimizzazione correnti
+        stats.append("")
+        stats.append("⚙️ Impostazioni Ottimizzazione:")
+        stats.append(f"  🚀 Rate: {self.rate_var.get()}/sec (cap: {self.capacity_var.get()})")
+        stats.append(f"  👥 Workers: {self.workers_var.get()} ({'Processi' if self.use_processes_var.get() else 'Thread'})")
+        stats.append(f"  💾 Save Interval: {self.save_interval_var.get()}")
+        stats.append(f"  📅 Range: {self.start_date_var.get()} → {self.end_date_var.get()}")
+        stats.append(f"  🔇 Quiet: {'Sì' if self.quiet_var.get() else 'No'}")
         
         self.stats_text.insert(1.0, "\n".join(stats))
         self.stats_text.config(state=tk.DISABLED)
@@ -286,6 +401,11 @@ class FilingProcessorGUI:
         self.log(f"{'='*70}", "info")
         self.log(f"⏰ Ora: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", "info")
         self.log(f"⚙️  Full Refresh: {'Sì' if full_refresh else 'No'}", "info")
+        self.log(f"🚀 Rate Limit: {self.rate_var.get()}/sec (capacity: {self.capacity_var.get()})", "info")
+        self.log(f"👥 Workers: {self.workers_var.get()} ({'Processi' if self.use_processes_var.get() else 'Thread'})", "info")
+        self.log(f"💾 Save Interval: {self.save_interval_var.get()} fondi", "info")
+        self.log(f"📅 Date Range: {self.start_date_var.get()} → {self.end_date_var.get()}", "info")
+        self.log(f"🔇 Quiet Mode: {'Sì' if self.quiet_var.get() else 'No'}", "info")
         self.log("")
         
         # Avvia in thread separato
@@ -305,6 +425,18 @@ class FilingProcessorGUI:
             # Aggiungi --yes per modalità che richiedono conferma
             if mode in ['full', 'holdings']:
                 cmd.append("--yes")
+            
+            # Parametri ottimizzazione
+            cmd.extend(["--rate", str(self.rate_var.get())])
+            cmd.extend(["--capacity", str(self.capacity_var.get())])
+            cmd.extend(["--workers", str(self.workers_var.get())])
+            if self.use_processes_var.get():
+                cmd.append("--use-processes")
+            cmd.extend(["--save-interval", str(self.save_interval_var.get())])
+            cmd.extend(["--start-date", self.start_date_var.get()])
+            cmd.extend(["--end-date", self.end_date_var.get()])
+            if self.quiet_var.get():
+                cmd.append("--quiet")
             
             self.log(f"$ {' '.join(cmd)}\n", "warning")
             
@@ -401,7 +533,10 @@ class FilingProcessorGUI:
                 # catalog step is proportional al numero di funds
                 from hedge_funds_config import get_total_funds
                 # catalog takes ~0.11s per fund for API call (rate limit backoff)
-                est_seconds = get_total_funds() * 0.11
+                # But with higher rate, it's faster
+                rate = self.rate_var.get()
+                base_time_per_fund = max(0.11, 1.0 / rate)  # minimum time per request
+                est_seconds = get_total_funds() * base_time_per_fund
                 # convert to human string
                 if est_seconds < 60:
                     return f"~{int(est_seconds)} secondi (solo catalog)"
@@ -452,13 +587,16 @@ class FilingProcessorGUI:
             else:
                 remaining = max(0, total_filings - processed)
 
-            # Estimate seconds: per_filing_seconds * remaining
-            est_seconds = per_filing_seconds * remaining
+            # Estimate seconds: per_filing_seconds * remaining / workers
+            workers = self.workers_var.get()
+            est_seconds = (per_filing_seconds * remaining) / workers
 
             # Add catalog time for full mode
             if mode == 'full':
                 from hedge_funds_config import get_total_funds
-                est_seconds += get_total_funds() * 0.11
+                rate = self.rate_var.get()
+                base_time_per_fund = max(0.11, 1.0 / rate)
+                est_seconds += get_total_funds() * base_time_per_fund
 
             # Build human readable
             if est_seconds < 60:

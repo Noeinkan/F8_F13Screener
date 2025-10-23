@@ -288,7 +288,7 @@ def _fetch_13f_filings_from_api(cik: str, fund_name: str, start_date: str = CUTO
         print(f"    ❌ Errore: {e}")
         return []
 
-def get_13f_filings_for_cik(cik: str, fund_name: str, cache_dir: str = "cache", start_date: str = CUTOFF_DATE) -> List[Dict]:
+def get_13f_filings_for_cik(cik: str, fund_name: str, cache_dir: str = "cache", start_date: str = CUTOFF_DATE, end_date: str = None) -> List[Dict]:
     """
     Recupera tutti i filing 13F-HR per un CIK, con caching locale.
     """
@@ -307,7 +307,7 @@ def get_13f_filings_for_cik(cik: str, fund_name: str, cache_dir: str = "cache", 
             print(f"    ⚠️ Errore caricamento cache: {e}")
     
     # Scarica da API
-    filings = _fetch_13f_filings_from_api(cik, fund_name)
+    filings = _fetch_13f_filings_from_api(cik, fund_name, start_date, end_date)
     if filings is not None:  # Anche se vuoto, salva per evitare retry
         try:
             with open(cache_file, 'w', encoding='utf-8') as f:
@@ -362,7 +362,7 @@ def download_catalog(output_file: str = CATALOG_FILE, incremental: bool = True, 
     for i, (cik, fund_name) in tqdm(enumerate(HEDGE_FUNDS_CIK.items(), 1), total=get_total_funds(), desc="Downloading catalog", disable=quiet):
         print(f"[{i}/{get_total_funds()}]", end=" ")
         
-        filings = get_13f_filings_for_cik(cik, fund_name)
+        filings = get_13f_filings_for_cik(cik, fund_name, "cache", start_date, end_date)
         
         if filings:
             # Filtra solo filing nuovi se in modalità incrementale
@@ -657,7 +657,7 @@ def process_full_pipeline(workers: Optional[int] = None, use_processes: bool = F
     print("FASE 1/2: DOWNLOAD CATALOGO")
     print("="*80 + "\n")
     
-    filings = download_catalog()
+    filings = download_catalog(quiet=quiet, start_date=start_date, end_date=end_date)
     
     if not filings:
         print("\n❌ Nessun filing trovato. Pipeline interrotto.")
@@ -673,7 +673,7 @@ def process_full_pipeline(workers: Optional[int] = None, use_processes: bool = F
     print("="*80 + "\n")
     
     # Use CLI-provided workers if available via global args (main will call with workers)
-    extract_holdings_from_catalog(workers=workers, auto_confirm=True)
+    extract_holdings_from_catalog(workers=workers, auto_confirm=True, use_processes=use_processes, save_interval=save_interval)
     
     print("\n" + "="*80)
     print("🎉 PIPELINE COMPLETO TERMINATO")
@@ -800,11 +800,16 @@ NOTES:
     
     args = parser.parse_args()
     
+    # Setup
+    validate_hedge_funds_config()
+    setup_logging(quiet=args.quiet)
+    CUTOFF_DATE = args.start_date
+    
     # Banner iniziale
     print("\n" + "="*80)
-    print("🏦 PROCESSAMENTO FILING 13F-HR STORICI (ULTIMI 5 ANNI)")
+    print("🏦 PROCESSAMENTO FILING 13F-HR STORICI")
     print("="*80)
-    print(f"📅 Periodo: dal {CUTOFF_DATE} ad oggi")
+    print(f"📅 Periodo: dal {args.start_date} al {args.end_date}")
     print(f"🏢 Hedge funds: {get_total_funds()} (da hedge_funds_config.py)")
     print(f"⚙️  Modalità: {args.mode.upper()}")
     print(f"🌐 Fonte: SEC EDGAR API + HTML parsing")
@@ -821,14 +826,14 @@ NOTES:
     global rate_limiter
     rate_limiter = TokenBucketRateLimiter(rate=args.rate, capacity=args.capacity)
     if args.mode == 'catalog':
-        download_catalog(args.catalog_file, incremental=not args.full_refresh)
+        download_catalog(args.catalog_file, incremental=not args.full_refresh, quiet=args.quiet, start_date=args.start_date, end_date=args.end_date)
     
     elif args.mode == 'holdings':
         # Use the workers provided via CLI
-        extract_holdings_from_catalog(args.catalog_file, workers=args.workers, auto_confirm=args.yes)
+        extract_holdings_from_catalog(args.catalog_file, workers=args.workers, auto_confirm=args.yes, use_processes=args.use_processes, save_interval=args.save_interval)
     
     elif args.mode == 'full':
-        process_full_pipeline(workers=args.workers)
+        process_full_pipeline(workers=args.workers, use_processes=args.use_processes, save_interval=args.save_interval, start_date=args.start_date, end_date=args.end_date, quiet=args.quiet)
     elif args.mode == 'benchmark':
         # Quick benchmark to estimate average time per filing
         def run_benchmark(sample_size: int = args.sample_size):
