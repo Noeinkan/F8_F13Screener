@@ -226,13 +226,13 @@ def process_filing_holdings(filing_url: str, fund_name: str, filing_date: str) -
 
 # ==================== MODALITÀ 1: CATALOG ====================
 
-def load_processed_filings() -> Dict[str, set]:
+def load_processed_filings() -> set:
     """
     Carica il tracking dei filing già processati.
-    Ritorna un dict: {accession_number: True}
+    Ritorna un set di accession numbers
     """
     if not os.path.exists(PROCESSED_TRACKING_FILE):
-        return {}
+        return set()
     
     try:
         with open(PROCESSED_TRACKING_FILE, 'r', encoding='utf-8') as f:
