@@ -4,8 +4,7 @@ Message Bridge - Intercetta e salva i messaggi per il visualizzatore
 import json
 import os
 from datetime import datetime
-
-MESSAGE_LOG_FILE = 'telegram_messages.json'
+from paths import MESSAGE_LOG_FILE
 
 def save_message_to_viewer(message_html, filer_name=""):
     """Salva il messaggio per il visualizzatore Telegram"""

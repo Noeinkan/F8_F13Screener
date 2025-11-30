@@ -13,6 +13,12 @@ import json
 import sys
 from datetime import datetime
 from hedge_funds_config import get_total_funds
+from paths import (
+    CATALOG_FILE,
+    HISTORICAL_HOLDINGS_CSV,
+    PROCESSED_TRACKING_FILE,
+    PROCESSING_METRICS_FILE,
+)
 
 class FilingProcessorGUI:
     def __init__(self, root):
@@ -324,9 +330,9 @@ class FilingProcessorGUI:
         stats.append(f"🏢 Hedge funds: {get_total_funds()}")
         
         # Catalogo
-        if os.path.exists('historical_13f_catalog_5years.json'):
+        if os.path.exists(CATALOG_FILE):
             try:
-                with open('historical_13f_catalog_5years.json', 'r') as f:
+                with open(CATALOG_FILE, 'r') as f:
                     data = json.load(f)
                     stats.append(f"📄 Filing catalogati: {data.get('total_filings', 0)}")
                     stats.append(f"🆕 Nuovi: {data.get('new_filings', 0)}")
@@ -337,16 +343,16 @@ class FilingProcessorGUI:
             stats.append("📄 Catalogo: Non ancora creato")
         
         # Holdings CSV
-        if os.path.exists('13f_holdings_5years.csv'):
-            size_mb = os.path.getsize('13f_holdings_5years.csv') / (1024*1024)
+        if os.path.exists(HISTORICAL_HOLDINGS_CSV):
+            size_mb = os.path.getsize(HISTORICAL_HOLDINGS_CSV) / (1024*1024)
             stats.append(f"📊 Holdings CSV: {size_mb:.1f} MB")
         else:
             stats.append("📊 Holdings CSV: Non ancora creato")
         
         # Tracking
-        if os.path.exists('processed_filings_tracking.json'):
+        if os.path.exists(PROCESSED_TRACKING_FILE):
             try:
-                with open('processed_filings_tracking.json', 'r') as f:
+                with open(PROCESSED_TRACKING_FILE, 'r') as f:
                     data = json.load(f)
                     stats.append(f"✅ Processati: {data.get('total_processed', 0)}")
             except:
@@ -623,8 +629,8 @@ class FilingProcessorGUI:
                 # full = catalog (rapido) + holdings
                 per_filing_seconds = 9
 
-            catalog_path = 'historical_13f_catalog_5years.json'
-            tracking_path = 'processed_filings_tracking.json'
+            catalog_path = CATALOG_FILE
+            tracking_path = PROCESSED_TRACKING_FILE
 
             total_to_process = None
 
@@ -653,7 +659,7 @@ class FilingProcessorGUI:
                 total_filings = None
 
             # Prefer measured metrics if available
-            metrics_path = 'processing_metrics.json'
+            metrics_path = PROCESSING_METRICS_FILE
             if os.path.exists(metrics_path):
                 try:
                     with open(metrics_path, 'r', encoding='utf-8') as mf:

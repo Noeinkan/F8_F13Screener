@@ -7,6 +7,9 @@ echo.
 echo Avvio interfaccia grafica...
 echo.
 
+REM Change to project root directory
+cd /d "%~dp0\.."
+
 python filing_processor_gui.py
 
 if errorlevel 1 (

@@ -14,6 +14,7 @@ from datetime import datetime
 import re
 import sys
 import psutil  # Per gestire processi
+from paths import MESSAGE_LOG_FILE
 
 class SingleInstanceChecker:
     """Controlla che ci sia solo un'istanza del viewer attiva"""
@@ -165,7 +166,7 @@ class TelegramViewer:
             self.add_system_message("ℹ️ Messaggi precedenti già caricati!")
             return
         
-        message_file = 'telegram_messages.json'
+        message_file = MESSAGE_LOG_FILE
         if os.path.exists(message_file):
             try:
                 with open(message_file, 'r', encoding='utf-8') as f:
@@ -319,7 +320,7 @@ class TelegramViewer:
     
     def monitor_cache(self):
         """Monitora il file cache per nuovi messaggi"""
-        message_file = 'telegram_messages.json'
+        message_file = MESSAGE_LOG_FILE
         last_count = 0
         shown_welcome = False
         auto_loaded = False  # Flag per auto-caricamento iniziale

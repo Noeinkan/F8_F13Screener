@@ -1,6 +1,25 @@
+# F8_F13Screener - Python Dependencies
+
+# HTTP requests
 requests>=2.31.0
+
+# RSS feed parsing
 feedparser>=6.0.10
-psutil>=5.9.0
+
+# HTML parsing
 beautifulsoup4>=4.12.0
+
+# Retry logic
 tenacity>=8.2.0
-tqdm>=4.65.0
+
+# Progress bars
+tqdm>=4.66.0
+
+# Process management
+psutil>=5.9.0
+
+# Python standard library packages (no install needed):
+# tkinter (built-in, may need: sudo apt-get install python3-tk on Linux)
+# json, time, logging, os, subprocess, sys, tempfile
+# csv, re, datetime, typing, threading, statistics
+# collections, argparse, importlib, shutil, multiprocessing

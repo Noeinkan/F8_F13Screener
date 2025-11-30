@@ -35,6 +35,15 @@ import shutil
 import multiprocessing
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from tqdm import tqdm
+from paths import (
+    CATALOG_FILE,
+    HISTORICAL_HISTORICAL_HOLDINGS_CSV,
+    PROCESSED_TRACKING_FILE,
+    PROCESSING_METRICS_FILE,
+    PROCESSING_CHECKPOINT_FILE,
+    FILING_CACHE_DIR,
+)
+
 class TokenBucketRateLimiter:
     """Token bucket rate limiter per gestire burst di richieste rispettando un limite massimo per secondo."""
     
@@ -118,7 +127,8 @@ def validate_hedge_funds_config():
             raise ValueError(f"Nome fondo non valido per CIK {cik}: {name}")
 
 def check_disk_space(path: str, min_space_mb: int = 100):
-    total, used, free = shutil.disk_usage(os.path.dirname(path))
+    dir_path = os.path.dirname(path) or "."
+    total, used, free = shutil.disk_usage(dir_path)
     free_mb = free / (1024 * 1024)
     if free_mb < min_space_mb:
         raise RuntimeError(f"Spazio su disco insufficiente: {free_mb:.1f} MB disponibili, richiesto almeno {min_space_mb} MB")
@@ -127,10 +137,7 @@ def check_disk_space(path: str, min_space_mb: int = 100):
 USER_AGENT = os.getenv('SEC_USER_AGENT', 'andrea.aita@libero.it')
 HEADERS = {'User-Agent': USER_AGENT}
 CUTOFF_DATE = '2020-01-01'  # Solo ultimi 5 anni
-CATALOG_FILE = 'historical_13f_catalog_5years.json'
-HOLDINGS_CSV = '13f_holdings_5years.csv'
-PROCESSED_TRACKING_FILE = 'processed_filings_tracking.json'  # Traccia filing già processati
-PROCESSING_METRICS_FILE = 'processing_metrics.json'  # Salva avg/median/time samples
+# CATALOG_FILE, HISTORICAL_HISTORICAL_HOLDINGS_CSV, PROCESSED_TRACKING_FILE, PROCESSING_METRICS_FILE imported from paths.py
 
 # Importa funzioni da 13f_alert.py se disponibile
 try:
@@ -289,7 +296,9 @@ def _fetch_13f_filings_from_api(cik: str, fund_name: str, start_date: str = CUTO
         print(f"    ❌ Errore: {e}")
         return []
 
-def get_13f_filings_for_cik(cik: str, fund_name: str, cache_dir: str = "cache", start_date: str = CUTOFF_DATE, end_date: str = None) -> List[Dict]:
+def get_13f_filings_for_cik(cik: str, fund_name: str, cache_dir: str = None, start_date: str = CUTOFF_DATE, end_date: str = None) -> List[Dict]:
+    if cache_dir is None:
+        cache_dir = FILING_CACHE_DIR
     """
     Recupera tutti i filing 13F-HR per un CIK, con caching locale.
     """
@@ -619,7 +628,7 @@ def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE, workers: Opt
     print("="*80)
     
     if successi > 0:
-        csv_path = alert_module.HOLDINGS_CSV if HAS_ALERT_MODULE else HOLDINGS_CSV
+        csv_path = alert_module.HISTORICAL_HOLDINGS_CSV if HAS_ALERT_MODULE else HISTORICAL_HOLDINGS_CSV
         if os.path.exists(csv_path):
             print(f"\n✅ CSV tracker aggiornato: {csv_path}")
             print(f"   📊 Puoi aprirlo con Excel o Python/Pandas per analizzarlo")
