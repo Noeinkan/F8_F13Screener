@@ -182,7 +182,7 @@ def save_holdings_to_csv(holdings: List[Dict], fund_name: str, filing_date: str,
                     'CUSIP': holding.get('cusip', ''),
                     'FIGI': holding.get('figi', ''),
                     'Value ($)': holding.get('value_x1000', ''),
-                    'Shares/Principal Amount': holding.get('shares', ''),
+                    'Shares/Principal Amount': holding.get('shares_raw', '') or holding.get('shares', ''),
                     'SH/PRN': holding.get('sh_prn', ''),
                     'Put/Call': holding.get('put_call', ''),
                     'Investment Discretion': holding.get('investment_discretion', ''),
@@ -229,8 +229,19 @@ def process_filing_holdings(filing_url: str, fund_name: str, filing_date: str) -
 def load_processed_filings() -> set:
     """
     Carica il tracking dei filing già processati.
-    Ritorna un set di accession numbers
+    Ritorna un set di accession numbers.
+    
+    Se il CSV non esiste ma il tracking sì, resetta il tracking
+    per forzare la ricreazione del CSV da zero.
     """
+    # Se il CSV non esiste, ignora il tracking esistente
+    if not os.path.exists(HISTORICAL_HOLDINGS_CSV):
+        if os.path.exists(PROCESSED_TRACKING_FILE):
+            print(f"⚠️  CSV non trovato ma tracking esiste - verrà resettato")
+            print(f"   CSV atteso: {HISTORICAL_HOLDINGS_CSV}")
+            print(f"   Il CSV verrà ricreato da zero\n")
+        return set()
+    
     if not os.path.exists(PROCESSED_TRACKING_FILE):
         return set()
     

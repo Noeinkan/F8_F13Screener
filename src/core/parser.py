@@ -165,25 +165,30 @@ class HoldingsParser:
 
             issuer = get_tag_text('nameOfIssuer') or get_tag_text('nameofissuer') or get_tag_text('NAMEOFISSUER')
             share_class = get_tag_text('titleOfClass') or get_tag_text('titleofclass')
-            cusip = get_tag_text('cusip')
-            figi = get_tag_text('figi')
-            value_raw = get_tag_text('value')
+            cusip = get_tag_text('cusip') or get_tag_text('CUSIP')
+            figi = get_tag_text('figi') or get_tag_text('FIGI')
+            value_raw = get_tag_text('value') or get_tag_text('VALUE') or get_tag_text('marketValue') or get_tag_text('marketvalue')
 
             # shrsOrPrn can be nested
             sh_qty = ''
-            sh_tag = entry.find('shrsOrPrn')
+            sh_prn_type = ''
+            sh_tag = entry.find('shrsOrPrn') or entry.find('shrsorprn')
             if sh_tag:
-                amt = sh_tag.find(['sshPrnamt', 'sshPrnAmt', 'sshpnamt'])
+                amt = sh_tag.find(['sshPrnamt', 'sshPrnAmt', 'sshpnamt', 'sshPrnamtType', 'sshPrnAmtType'])
                 if amt:
                     sh_qty = amt.get_text(strip=True)
                 else:
                     sh_qty = sh_tag.get_text(strip=True)
+                # Extract SH/PRN type
+                prn_type_tag = sh_tag.find(['sshPrnamtType', 'sshPrnAmtType', 'sshprnamttype'])
+                if prn_type_tag:
+                    sh_prn_type = prn_type_tag.get_text(strip=True)
             else:
-                sh_qty = get_tag_text('shrsOrPrn') or get_tag_text('amount')
+                sh_qty = get_tag_text('shrsOrPrn') or get_tag_text('shrsorprn') or get_tag_text('amount')
 
-            put_call = get_tag_text('putCall')
-            investment_discretion = get_tag_text('investmentDiscretion')
-            other_manager = get_tag_text('otherManager')
+            put_call = get_tag_text('putCall') or get_tag_text('putcall')
+            investment_discretion = get_tag_text('investmentDiscretion') or get_tag_text('investmentdiscretion')
+            other_manager = get_tag_text('otherManager') or get_tag_text('othermanager')
 
             # VotingAuthority may be structured
             voting_sole = ''
@@ -210,7 +215,7 @@ class HoldingsParser:
                 'value': self._to_int(value_raw),
                 'shares_raw': sh_qty,
                 'shares': self._to_int(sh_qty),
-                'sh_prn': '',
+                'sh_prn': sh_prn_type,
                 'put_call': put_call,
                 'investment_discretion': investment_discretion,
                 'other_manager': other_manager,
@@ -219,7 +224,7 @@ class HoldingsParser:
                 'voting_authority_shared': self._to_int(voting_shared),
                 'voting_authority_none': self._to_int(voting_none),
                 'voting_authority_raw': '',
-                'all_columns_raw': ' | '.join([str(x) for x in [issuer, share_class, cusip, value_raw, sh_qty] if x])
+                'all_columns_raw': ' | '.join([str(x) for x in [issuer, share_class, cusip, figi, value_raw, sh_qty, sh_prn_type, put_call, investment_discretion, other_manager, voting_sole, voting_shared, voting_none] if x])
             }
 
             if holding['cusip'] or holding['issuer_name']:
@@ -268,15 +273,15 @@ class HoldingsParser:
             'share_class': ['TITLE OF CLASS', 'TITLE', 'CLASS'],
             'cusip': ['CUSIP'],
             'figi': ['FIGI'],
-            'value_x1000': ['VALUE', 'MARKET VALUE'],
-            'shares': ['SHRS OR PRN AMT', 'AMOUNT', 'SHARE', 'SHRS'],
-            'sh_prn': ['SH/PRN'],
-            'put_call': ['PUT/CALL'],
-            'investment_discretion': ['INVESTMENT DISCRETION', 'DISCRETION'],
-            'other_manager': ['OTHER', 'OTHER MANAGER', 'OTHER MANAGERS'],
-            'voting_authority_sole': ['VOTING AUTH. - SOLE', 'SOLE VOTING', 'VOTING SOLE'],
-            'voting_authority_shared': ['VOTING AUTH. - SHARED', 'SHARED VOTING', 'VOTING SHARED'],
-            'voting_authority_none': ['VOTING AUTH. - NONE', 'NONE VOTING', 'VOTING NONE'],
+            'value_x1000': ['VALUE', 'MARKET VALUE', 'MKT VALUE'],
+            'shares': ['SHRS OR PRN AMT', 'PRN AMT', 'AMOUNT', 'SHARE', 'SHRS', 'SHARES'],
+            'sh_prn': ['SH/PRN', 'PRN', 'SH PRN'],
+            'put_call': ['PUT/CALL', 'CALL', 'PUT CALL'],
+            'investment_discretion': ['INVESTMENT DISCRETION', 'DISCRETION', 'INV DISCRETION'],
+            'other_manager': ['OTHER MANAGER', 'OTHER MANAGERS', 'OTHER', 'MANAGER'],
+            'voting_authority_sole': ['VOTING AUTH. - SOLE', 'SOLE VOTING', 'VOTING SOLE', 'SOLE'],
+            'voting_authority_shared': ['VOTING AUTH. - SHARED', 'SHARED VOTING', 'VOTING SHARED', 'SHARED'],
+            'voting_authority_none': ['VOTING AUTH. - NONE', 'NONE VOTING', 'VOTING NONE', 'NONE'],
             'voting_authority_raw': ['VOTING AUTHORITY', 'VOTING AUTH']
         }
 
@@ -295,8 +300,19 @@ class HoldingsParser:
                     upper = label.upper()
                     mapped = None
 
-                    for key, variants in canonical_keys.items():
-                        for v in variants:
+                    # Priorità: match più specifici prima di match generici
+                    # Per evitare che "SOLE" matchi "OTHER" prima di "VOTING SOLE"
+                    priority_keys = [
+                        'voting_authority_sole', 'voting_authority_shared', 'voting_authority_none',
+                        'issuer_name', 'share_class', 'cusip', 'figi', 'value_x1000', 
+                        'shares', 'sh_prn', 'put_call', 'investment_discretion',
+                        'other_manager', 'voting_authority_raw'
+                    ]
+                    
+                    for key in priority_keys:
+                        if key not in canonical_keys:
+                            continue
+                        for v in canonical_keys[key]:
                             if v in upper:
                                 mapped = key
                                 break
@@ -352,11 +368,15 @@ class HoldingsParser:
                     if key in holding:
                         if key in ('value_x1000', 'shares', 'voting_authority_sole', 'voting_authority_shared', 'voting_authority_none'):
                             holding[key] = clean_val.replace(',', '')
+                            if key == 'shares':
+                                holding['shares_raw'] = clean_val.replace(',', '')
                         else:
                             holding[key] = clean_val
 
             # Numeric conversions
             holding['value'] = self._to_int(holding.get('value_x1000'))
+            if not holding.get('shares_raw'):
+                holding['shares_raw'] = holding.get('shares', '')
             holding['shares'] = self._to_int(holding.get('shares'))
 
             # Parse voting authority if combined
