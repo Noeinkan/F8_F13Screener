@@ -10,7 +10,10 @@ echo.
 REM Change to project root directory
 cd /d "%~dp0\.."
 
-python 13f_alert.py
+REM Set PYTHONPATH to project root
+set PYTHONPATH=%cd%
+
+python src\cli\main.py
 
 if errorlevel 1 (
     echo.

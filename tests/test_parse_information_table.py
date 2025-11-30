@@ -3,9 +3,15 @@ import tempfile
 import requests
 import pytest
 from bs4 import BeautifulSoup
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 # We'll import the function under test
-from 13f_alert import parse_information_table
+from src.core.parser import HoldingsParser
+import os
+
+USER_AGENT = os.getenv('SEC_USER_AGENT', 'test@example.com')
+parser = HoldingsParser(USER_AGENT)
 
 SAMPLE_XML = '''<?xml version="1.0" encoding="UTF-8"?>
 <informationTable>
@@ -63,7 +69,7 @@ def test_parse_xml(write_temp_file):
     url = 'file://' + xml_path
     # parse_information_table uses requests.get; requests supports file:// only via adapters, but we can read file directly by calling function's logic
     # For test purpose, call parse_information_table with a small wrapper: we'll monkeypatch requests.get
-    import 13f_alert as mod
+    import requests as req_mod
 
     class DummyResp:
         def __init__(self, content):
@@ -75,9 +81,9 @@ def test_parse_xml(write_temp_file):
             return DummyResp(f.read())
 
     monkey = pytest.MonkeyPatch()
-    monkey.setattr(mod.requests, 'get', fake_get)
+    monkey.setattr(req_mod, 'get', fake_get)
     try:
-        holdings = mod.parse_information_table(xml_path)
+        holdings = parser.parse_information_table(xml_path)
         assert isinstance(holdings, list)
         assert len(holdings) >= 1
         h = holdings[0]
@@ -91,7 +97,7 @@ def test_parse_xml(write_temp_file):
 
 def test_parse_html(write_temp_file):
     xml_path, html_path = write_temp_file
-    import 13f_alert as mod
+    import requests as req_mod
 
     class DummyResp:
         def __init__(self, content):
@@ -103,9 +109,9 @@ def test_parse_html(write_temp_file):
             return DummyResp(f.read())
 
     monkey = pytest.MonkeyPatch()
-    monkey.setattr(mod.requests, 'get', fake_get)
+    monkey.setattr(req_mod, 'get', fake_get)
     try:
-        holdings = mod.parse_information_table(html_path)
+        holdings = parser.parse_information_table(html_path)
         assert isinstance(holdings, list)
         assert len(holdings) >= 1
         h = holdings[0]

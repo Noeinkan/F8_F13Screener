@@ -1,0 +1,221 @@
+{
+  "last_updated": 1764532416.195002,
+  "filings": [
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2025-11-13",
+      "accession_number": "0001037389-25-000064",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738925000064/0001037389-25-000064-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2025-08-13",
+      "accession_number": "0001037389-25-000034",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738925000034/0001037389-25-000034-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2025-05-14",
+      "accession_number": "0001037389-25-000023",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738925000023/0001037389-25-000023-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2025-02-13",
+      "accession_number": "0001037389-25-000009",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738925000009/0001037389-25-000009-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2024-11-13",
+      "accession_number": "0001037389-24-000091",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000091/0001037389-24-000091-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2024-08-09",
+      "accession_number": "0001037389-24-000073",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000073/0001037389-24-000073-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2024-05-13",
+      "accession_number": "0001037389-24-000072",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000072/0001037389-24-000072-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2024-02-13",
+      "accession_number": "0001037389-24-000071",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738924000071/0001037389-24-000071-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2023-11-14",
+      "accession_number": "0001037389-23-000124",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738923000124/0001037389-23-000124-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2023-08-11",
+      "accession_number": "0001037389-23-000122",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738923000122/0001037389-23-000122-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2023-05-12",
+      "accession_number": "0001037389-23-000121",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738923000121/0001037389-23-000121-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2023-02-13",
+      "accession_number": "0001037389-23-000119",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738923000119/0001037389-23-000119-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2022-11-14",
+      "accession_number": "0001037389-22-000225",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738922000225/0001037389-22-000225-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2022-08-12",
+      "accession_number": "0001037389-22-000224",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738922000224/0001037389-22-000224-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2022-05-13",
+      "accession_number": "0001037389-22-000223",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738922000223/0001037389-22-000223-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2022-02-11",
+      "accession_number": "0001037389-22-000219",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738922000219/0001037389-22-000219-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2021-11-12",
+      "accession_number": "0001037389-21-000335",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738921000335/0001037389-21-000335-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2021-08-13",
+      "accession_number": "0001037389-21-000333",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738921000333/0001037389-21-000333-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2021-05-13",
+      "accession_number": "0001037389-21-000330",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738921000330/0001037389-21-000330-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2021-02-10",
+      "accession_number": "0001037389-21-000082",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738921000082/0001037389-21-000082-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2020-11-13",
+      "accession_number": "0001037389-20-000322",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738920000322/0001037389-20-000322-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2020-08-13",
+      "accession_number": "0001037389-20-000321",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738920000321/0001037389-20-000321-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2020-05-14",
+      "accession_number": "0001037389-20-000320",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738920000320/0001037389-20-000320-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2020-02-13",
+      "accession_number": "0001037389-20-000102",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738920000102/0001037389-20-000102-index.htm"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "2025-11-26": {
+    "count": 10,
+    "filings": [
+      {
+        "entry_id": "urn:tag:sec.gov,2008:accession-number=0001991340-25-000003",
+        "filer_name": "Strategic Advocates LLC",
+        "cik": "1991340",
+        "filing_date": "2025-11-26T15:38:42-05:00"
+      },
+      {
+        "entry_id": "urn:tag:sec.gov,2008:accession-number=0001172661-25-005225",
+        "filer_name": "Lantern Wealth Advisors, LLC",
+        "cik": "1950218",
+        "filing_date": "2025-11-26T12:49:07-05:00"
+      },
+      {
+        "entry_id": "urn:tag:sec.gov,2008:accession-number=0001420506-25-003510",
+        "filer_name": "EQUITEC PROPRIETARY MARKETS, LLC",
+        "cik": "1143261",
+        "filing_date": "2025-11-26T11:18:21-05:00"
+      },
+      {
+        "entry_id": "urn:tag:sec.gov,2008:accession-number=0000019617-25-001093",
+        "filer_name": "13F-HR/A - JPMORGAN CHASE & CO (0000019617) (Filer)",
+        "cik": "19617",
+        "filing_date": "2025-11-26T11:13:56-05:00"
+      },
+      {
+        "entry_id": "urn:tag:sec.gov,2008:accession-number=0001828822-25-000006",
+        "filer_name": "XXEC, Inc.",
+        "cik": "1828822",
+        "filing_date": "2025-11-26T10:45:10-05:00"
+      },
+      {
+        "entry_id": "urn:tag:sec.gov,2008:accession-number=0001991340-25-000003",
+        "filer_name": "Strategic Advocates LLC",
+        "cik": "1991340",
+        "filing_date": "2025-11-26T15:38:42-05:00"
+      },
+      {
+        "entry_id": "urn:tag:sec.gov,2008:accession-number=0001172661-25-005225",
+        "filer_name": "Lantern Wealth Advisors, LLC",
+        "cik": "1950218",
+        "filing_date": "2025-11-26T12:49:07-05:00"
+      },
+      {
+        "entry_id": "urn:tag:sec.gov,2008:accession-number=0001420506-25-003510",
+        "filer_name": "EQUITEC PROPRIETARY MARKETS, LLC",
+        "cik": "1143261",
+        "filing_date": "2025-11-26T11:18:21-05:00"
+      },
+      {
+        "entry_id": "urn:tag:sec.gov,2008:accession-number=0000019617-25-001093",
+        "filer_name": "13F-HR/A - JPMORGAN CHASE & CO (0000019617) (Filer)",
+        "cik": "19617",
+        "filing_date": "2025-11-26T11:13:56-05:00"
+      },
+      {
+        "entry_id": "urn:tag:sec.gov,2008:accession-number=0001828822-25-000006",
+        "filer_name": "XXEC, Inc.",
+        "cik": "1828822",
+        "filing_date": "2025-11-26T10:45:10-05:00"
+      }
+    ]
+  }
+}

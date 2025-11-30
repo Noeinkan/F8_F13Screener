@@ -10,7 +10,10 @@ echo.
 REM Change to project root directory
 cd /d "%~dp0\.."
 
-python filing_processor_gui.py
+REM Set PYTHONPATH to project root
+set PYTHONPATH=%cd%
+
+python src\gui\filing_processor_gui.py
 
 if errorlevel 1 (
     echo.

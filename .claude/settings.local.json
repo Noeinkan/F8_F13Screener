@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git mv:*)",
+      "Bash(git add:*)",
+      "Bash(if [ -f telegram_messages.json ])",
+      "Bash(then git mv telegram_messages.json data/messages/)",
+      "Bash(else echo \"telegram_messages.json not found\")",
+      "Bash(fi)",
+      "Bash(if [ -f 13f_daily_summary.json ])",
+      "Bash(then git mv 13f_daily_summary.json data/realtime/)",
+      "Bash(else echo \"13f_daily_summary.json not found or not tracked\")",
+      "Bash(if [ -f 13f_alerts.log ])",
+      "Bash(then git mv 13f_alerts.log logs/)",
+      "Bash(else mv 13f_alerts.log logs/)",
+      "Bash(python -c:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nUpdate Python code to use new folder structure\n\n- Import paths from centralized paths.py module\n- Update all file I/O to use new data/logs locations\n- Replace hardcoded paths with path constants\n- Maintain backward compatibility for imports\n\nModified files:\n- 13f_alert.py: Use REALTIME_HOLDINGS_CSV, REALTIME_LOG_FILE\n- process_historical_13f.py: Use HISTORICAL_HOLDINGS_CSV, FILING_CACHE_DIR\n- message_bridge.py: Use MESSAGE_LOG_FILE\n- filing_processor_gui.py: Use all path constants\n- telegram_viewer.py: Use MESSAGE_LOG_FILE\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
