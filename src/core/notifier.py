@@ -3,6 +3,7 @@ Telegram notification service
 """
 import logging
 import time
+from datetime import datetime
 from typing import Optional
 import requests
 
@@ -57,6 +58,16 @@ class TelegramNotifier:
         logger.error("Fallito invio notifica Telegram dopo tutti i tentativi")
         return False
 
+    @staticmethod
+    def _format_date(date_str: str) -> str:
+        MONTHS_IT = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu',
+                     'lug', 'ago', 'set', 'ott', 'nov', 'dic']
+        try:
+            dt = datetime.fromisoformat(date_str)
+            return f"{dt.day:02d} {MONTHS_IT[dt.month - 1]} {dt.year}, {dt.hour:02d}:{dt.minute:02d}"
+        except (ValueError, TypeError):
+            return date_str
+
     def send_filing_alert(
         self,
         fund_name: str,
@@ -82,7 +93,7 @@ class TelegramNotifier:
             f"🔔 <b>Nuovo Form 13F-HR Rilevato!</b>\n\n"
             f"📊 <b>Fund:</b> {fund_name}\n"
             f"🏢 <b>Filer:</b> {filer_name}\n"
-            f"📅 <b>Data:</b> {filing_date}\n"
+            f"📅 <b>Data:</b> {self._format_date(filing_date)}\n"
             f"🔗 <b>Link:</b> <a href='{filing_url}'>Visualizza su EDGAR</a>"
         )
 
