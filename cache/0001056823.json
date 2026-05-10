@@ -1,6 +1,15 @@
 {
-  "last_updated": 1764532403.4171565,
+  "last_updated": 1778449794.0684917,
   "filings": [
+    {
+      "cik": "0001056823",
+      "fund_name": "Horizon Kinetics",
+      "form": "13F-HR",
+      "filing_date": "2026-02-11",
+      "accession_number": "0001056823-26-000007",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1056823/000105682326000007/0001056823-26-000007-index.htm"
+    },
     {
       "cik": "0001056823",
       "fund_name": "Horizon Kinetics",
@@ -135,24 +144,6 @@
       "accession_number": "0001056823-22-000017",
       "primary_document": "xslForm13F_X01/primary_doc.xml",
       "filing_url": "https://www.sec.gov/Archives/edgar/data/1056823/000105682322000017/0001056823-22-000017-index.htm"
-    },
-    {
-      "cik": "0001056823",
-      "fund_name": "Horizon Kinetics",
-      "form": "13F-HR",
-      "filing_date": "2022-05-13",
-      "accession_number": "0001056823-22-000016",
-      "primary_document": "xslForm13F_X01/primary_doc.xml",
-      "filing_url": "https://www.sec.gov/Archives/edgar/data/1056823/000105682322000016/0001056823-22-000016-index.htm"
-    },
-    {
-      "cik": "0001056823",
-      "fund_name": "Horizon Kinetics",
-      "form": "13F-HR",
-      "filing_date": "2022-02-15",
-      "accession_number": "0001056823-22-000015",
-      "primary_document": "xslForm13F_X01/primary_doc.xml",
-      "filing_url": "https://www.sec.gov/Archives/edgar/data/1056823/000105682322000015/0001056823-22-000015-index.htm"
     }
   ]
 }

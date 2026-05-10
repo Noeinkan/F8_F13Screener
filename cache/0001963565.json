@@ -1,0 +1,140 @@
+{
+  "last_updated": 1778449809.9352925,
+  "filings": [
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001963565-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000196356526000002/0001963565-26-000002-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR/A",
+      "filing_date": "2025-12-03",
+      "accession_number": "0001963565-25-000005",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000196356525000005/0001963565-25-000005-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2025-11-14",
+      "accession_number": "0001963565-25-000004",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000196356525000004/0001963565-25-000004-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2025-08-14",
+      "accession_number": "0001085146-25-005297",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514625005297/0001085146-25-005297-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2025-05-15",
+      "accession_number": "0001085146-25-003278",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514625003278/0001085146-25-003278-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR/A",
+      "filing_date": "2025-02-18",
+      "accession_number": "0001085146-25-001746",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514625001746/0001085146-25-001746-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2025-02-13",
+      "accession_number": "0001085146-25-001262",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514625001262/0001085146-25-001262-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2024-11-08",
+      "accession_number": "0001085146-24-005462",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514624005462/0001085146-24-005462-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2024-08-09",
+      "accession_number": "0001085146-24-003633",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514624003633/0001085146-24-003633-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2024-04-26",
+      "accession_number": "0001085146-24-002050",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514624002050/0001085146-24-002050-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2024-01-19",
+      "accession_number": "0001085146-24-000338",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514624000338/0001085146-24-000338-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2023-11-08",
+      "accession_number": "0001085146-23-004189",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514623004189/0001085146-23-004189-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2023-08-03",
+      "accession_number": "0001085146-23-003067",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514623003067/0001085146-23-003067-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2023-04-24",
+      "accession_number": "0001085146-23-001820",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514623001820/0001085146-23-001820-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2023-01-30",
+      "accession_number": "0001085146-23-000432",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514623000432/0001085146-23-000432-index.htm"
+    }
+  ]
+}

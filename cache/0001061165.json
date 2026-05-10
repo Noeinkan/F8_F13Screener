@@ -1,0 +1,248 @@
+{
+  "last_updated": 1778449811.242503,
+  "filings": [
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0000902664-26-001084",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266426001084/0000902664-26-001084-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2025-11-14",
+      "accession_number": "0000902664-25-004988",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266425004988/0000902664-25-004988-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2025-08-14",
+      "accession_number": "0000902664-25-003627",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266425003627/0000902664-25-003627-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2025-05-15",
+      "accession_number": "0000902664-25-002417",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266425002417/0000902664-25-002417-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2025-02-14",
+      "accession_number": "0000902664-25-001072",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266425001072/0000902664-25-001072-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2024-11-14",
+      "accession_number": "0000902664-24-006633",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266424006633/0000902664-24-006633-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2024-08-14",
+      "accession_number": "0000902664-24-005150",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266424005150/0000902664-24-005150-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2024-05-15",
+      "accession_number": "0000902664-24-003638",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266424003638/0000902664-24-003638-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2024-02-14",
+      "accession_number": "0000902664-24-001732",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266424001732/0000902664-24-001732-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2023-11-14",
+      "accession_number": "0000902664-23-005548",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266423005548/0000902664-23-005548-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2023-08-14",
+      "accession_number": "0000902664-23-004451",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266423004451/0000902664-23-004451-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2023-05-15",
+      "accession_number": "0000902664-23-003075",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266423003075/0000902664-23-003075-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2023-02-14",
+      "accession_number": "0000902664-23-001763",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266423001763/0000902664-23-001763-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2022-11-14",
+      "accession_number": "0000902664-22-004869",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266422004869/0000902664-22-004869-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2022-08-15",
+      "accession_number": "0000902664-22-003974",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266422003974/0000902664-22-003974-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2022-05-16",
+      "accession_number": "0001567619-22-010934",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000156761922010934/0001567619-22-010934-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2022-02-14",
+      "accession_number": "0001567619-22-004367",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000156761922004367/0001567619-22-004367-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2021-11-15",
+      "accession_number": "0000902664-21-004961",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266421004961/0000902664-21-004961-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR/A",
+      "filing_date": "2021-11-15",
+      "accession_number": "0000902664-21-004960",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266421004960/0000902664-21-004960-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2021-08-16",
+      "accession_number": "0001567619-21-015851",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000156761921015851/0001567619-21-015851-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2021-05-18",
+      "accession_number": "0001567619-21-010580",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000156761921010580/0001567619-21-010580-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2021-02-16",
+      "accession_number": "0000902664-21-001403",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266421001403/0000902664-21-001403-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR/A",
+      "filing_date": "2021-02-16",
+      "accession_number": "0000902664-21-001402",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266421001402/0000902664-21-001402-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2020-11-16",
+      "accession_number": "0001567619-20-019876",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000156761920019876/0001567619-20-019876-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2020-08-14",
+      "accession_number": "0001567619-20-015477",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000156761920015477/0001567619-20-015477-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2020-05-15",
+      "accession_number": "0001567619-20-010490",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000156761920010490/0001567619-20-010490-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2020-02-14",
+      "accession_number": "0001567619-20-004017",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000156761920004017/0001567619-20-004017-index.htm"
+    }
+  ]
+}

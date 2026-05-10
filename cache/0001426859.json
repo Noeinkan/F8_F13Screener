@@ -1,6 +1,15 @@
 {
-  "last_updated": 1764532421.7932618,
+  "last_updated": 1778449816.595577,
   "filings": [
+    {
+      "cik": "0001426859",
+      "fund_name": "Ruffer Investment Co.",
+      "form": "13F-HR",
+      "filing_date": "2026-01-28",
+      "accession_number": "0001426859-26-000001",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1426859/000142685926000001/0001426859-26-000001-index.htm"
+    },
     {
       "cik": "0001426859",
       "fund_name": "Ruffer Investment Co.",

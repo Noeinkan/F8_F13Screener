@@ -1,6 +1,15 @@
 {
-  "last_updated": 1764532407.3316088,
+  "last_updated": 1778449798.9812775,
   "filings": [
+    {
+      "cik": "0001536411",
+      "fund_name": "Duquesne Family Office (Stanley Druckenmiller)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001536411-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000002/0001536411-26-000002-index.htm"
+    },
     {
       "cik": "0001536411",
       "fund_name": "Duquesne Family Office (Stanley Druckenmiller)",

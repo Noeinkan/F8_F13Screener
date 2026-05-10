@@ -1,6 +1,24 @@
 {
-  "last_updated": 1764532392.742061,
+  "last_updated": 1778449783.621271,
   "filings": [
+    {
+      "cik": "0000732905",
+      "fund_name": "Tweedy Browne Company",
+      "form": "13F-HR",
+      "filing_date": "2026-05-06",
+      "accession_number": "0001193125-26-208439",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/732905/000119312526208439/0001193125-26-208439-index.htm"
+    },
+    {
+      "cik": "0000732905",
+      "fund_name": "Tweedy Browne Company",
+      "form": "13F-HR",
+      "filing_date": "2026-02-03",
+      "accession_number": "0001193125-26-033986",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/732905/000119312526033986/0001193125-26-033986-index.htm"
+    },
     {
       "cik": "0000732905",
       "fund_name": "Tweedy Browne Company",

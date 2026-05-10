@@ -1,6 +1,24 @@
 {
-  "last_updated": 1764532415.4216194,
+  "last_updated": 1778449807.373585,
   "filings": [
+    {
+      "cik": "0001448793",
+      "fund_name": "Prime Capital Management (Liu Yijun)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-06",
+      "accession_number": "0001448793-26-000004",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1448793/000144879326000004/0001448793-26-000004-index.htm"
+    },
+    {
+      "cik": "0001448793",
+      "fund_name": "Prime Capital Management (Liu Yijun)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-12",
+      "accession_number": "0001448793-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1448793/000144879326000002/0001448793-26-000002-index.htm"
+    },
     {
       "cik": "0001448793",
       "fund_name": "Prime Capital Management (Liu Yijun)",

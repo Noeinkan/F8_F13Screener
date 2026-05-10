@@ -1,0 +1,230 @@
+{
+  "last_updated": 1778449795.316937,
+  "filings": [
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001539497-26-000679",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949726000679/0001539497-26-000679-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2025-11-14",
+      "accession_number": "0001539497-25-002973",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949725002973/0001539497-25-002973-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2025-08-14",
+      "accession_number": "0001539497-25-002145",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949725002145/0001539497-25-002145-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2025-05-15",
+      "accession_number": "0001539497-25-001390",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949725001390/0001539497-25-001390-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2025-02-14",
+      "accession_number": "0001539497-25-000660",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949725000660/0001539497-25-000660-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2024-11-14",
+      "accession_number": "0001539497-24-002435",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949724002435/0001539497-24-002435-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2024-08-14",
+      "accession_number": "0001539497-24-001704",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949724001704/0001539497-24-001704-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2024-05-15",
+      "accession_number": "0001539497-24-001052",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949724001052/0001539497-24-001052-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2024-02-14",
+      "accession_number": "0001539497-24-000494",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949724000494/0001539497-24-000494-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2023-11-14",
+      "accession_number": "0001539497-23-001928",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949723001928/0001539497-23-001928-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2023-08-14",
+      "accession_number": "0001539497-23-001450",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949723001450/0001539497-23-001450-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2023-05-15",
+      "accession_number": "0001539497-23-000903",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949723000903/0001539497-23-000903-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2023-02-14",
+      "accession_number": "0001539497-23-000294",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949723000294/0001539497-23-000294-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2022-11-14",
+      "accession_number": "0001539497-22-001801",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949722001801/0001539497-22-001801-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2022-08-15",
+      "accession_number": "0001539497-22-001439",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949722001439/0001539497-22-001439-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2022-05-13",
+      "accession_number": "0001539497-22-000974",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949722000974/0001539497-22-000974-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2022-02-14",
+      "accession_number": "0001539497-22-000389",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949722000389/0001539497-22-000389-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2021-11-15",
+      "accession_number": "0001539497-21-001816",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949721001816/0001539497-21-001816-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2021-08-13",
+      "accession_number": "0001567619-21-015525",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000156761921015525/0001567619-21-015525-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2021-05-14",
+      "accession_number": "0001567619-21-010164",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000156761921010164/0001567619-21-010164-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2021-02-12",
+      "accession_number": "0001567619-21-003568",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000156761921003568/0001567619-21-003568-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2020-11-13",
+      "accession_number": "0001567619-20-019587",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000156761920019587/0001567619-20-019587-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2020-08-14",
+      "accession_number": "0001567619-20-015547",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000156761920015547/0001567619-20-015547-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2020-05-15",
+      "accession_number": "0001567619-20-010498",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000156761920010498/0001567619-20-010498-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2020-02-14",
+      "accession_number": "0001567619-20-003965",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000156761920003965/0001567619-20-003965-index.htm"
+    }
+  ]
+}

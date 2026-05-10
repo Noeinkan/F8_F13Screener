@@ -1,6 +1,24 @@
 {
-  "last_updated": 1764532414.8060741,
+  "last_updated": 1778449806.7605302,
   "filings": [
+    {
+      "cik": "0001462245",
+      "fund_name": "Shannon River Fund Management (Spencer Waxman)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-05",
+      "accession_number": "0001085146-26-000383",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1462245/000108514626000383/0001085146-26-000383-index.htm"
+    },
+    {
+      "cik": "0001462245",
+      "fund_name": "Shannon River Fund Management (Spencer Waxman)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-06",
+      "accession_number": "0001085146-26-000163",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1462245/000108514626000163/0001085146-26-000163-index.htm"
+    },
     {
       "cik": "0001462245",
       "fund_name": "Shannon River Fund Management (Spencer Waxman)",

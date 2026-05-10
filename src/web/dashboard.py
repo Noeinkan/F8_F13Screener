@@ -3,16 +3,17 @@ F8 F13 Screener — Streamlit Dashboard
 Run locally:  streamlit run src/web/dashboard.py
 """
 import sqlite3
-from pathlib import Path
 
 import pandas as pd
 import plotly.express as px
 import streamlit as st
 
+from src.core.paths import HOLDINGS_DB_FILE
+
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
-DB_PATH = Path(__file__).parent.parent / "core" / "data" / "13f_holdings.db"
+DB_PATH = HOLDINGS_DB_FILE
 
 st.set_page_config(
     page_title="F8 13F Screener",
@@ -39,6 +40,10 @@ def query(sql: str, params: tuple = ()) -> pd.DataFrame:
     return pd.read_sql_query(sql, conn, params=params)
 
 
+def dataframe_to_csv_bytes(df: pd.DataFrame) -> bytes:
+    return df.to_csv(index=False).encode("utf-8")
+
+
 def fmt_value(val_thousands):
     """Format thousands-of-USD into readable string."""
     if pd.isna(val_thousands) or val_thousands == 0:
@@ -51,6 +56,59 @@ def fmt_value(val_thousands):
     if v >= 1e3:
         return f"${v/1e3:.0f}k"
     return f"${v:,.0f}"
+
+
+FULL_HOLDINGS_EXPORT_SQL = """
+    SELECT
+        filing_date AS "Filing Date",
+        fund_name AS "Fund Name",
+        fund_cik AS "Fund CIK",
+        accession_number AS "Accession Number",
+        filing_url AS "Filing URL",
+        issuer_name AS "Name of Issuer",
+        share_class AS "Title of Class",
+        cusip AS "CUSIP",
+        figi AS "FIGI",
+        value_x1000 AS "Value Raw ($000s)",
+        value_usd AS "Value ($000s)",
+        shares_raw AS "Shares/Principal Amount Raw",
+        shares AS "Shares/Principal Amount",
+        sh_prn AS "SH/PRN",
+        put_call AS "Put/Call",
+        investment_discretion AS "Investment Discretion",
+        other_manager AS "Other Manager",
+        other_managers_raw AS "Other Managers (raw)",
+        all_columns_raw AS "All Columns (raw)",
+        voting_authority_sole AS "Voting Authority - Sole",
+        voting_authority_shared AS "Voting Authority - Shared",
+        voting_authority_none AS "Voting Authority - None"
+    FROM holdings
+    ORDER BY filing_date DESC, fund_name, issuer_name
+"""
+
+
+LATEST_SNAPSHOT_EXPORT_SQL = """
+    WITH latest_filing AS (
+        SELECT fund_name, MAX(filing_date) AS filing_date
+        FROM holdings
+        GROUP BY fund_name
+    )
+    SELECT
+        h.fund_name AS "Fund Name",
+        h.filing_date AS "Filing Date",
+        h.accession_number AS "Accession Number",
+        h.issuer_name AS "Name of Issuer",
+        h.share_class AS "Title of Class",
+        h.cusip AS "CUSIP",
+        h.value_usd AS "Value ($000s)",
+        h.shares AS "Shares/Principal Amount",
+        h.put_call AS "Put/Call"
+    FROM holdings h
+    INNER JOIN latest_filing lf
+        ON h.fund_name = lf.fund_name
+       AND h.filing_date = lf.filing_date
+    ORDER BY h.fund_name, h.value_usd DESC NULLS LAST, h.issuer_name
+"""
 
 
 # ---------------------------------------------------------------------------
@@ -74,13 +132,30 @@ if st.sidebar.button("🔄 Aggiorna dati"):
 if page == "Overview":
     st.title("Overview — Fondi monitorati")
 
+    dataset = query("""
+        SELECT
+            COUNT(*) AS positions,
+            COUNT(DISTINCT accession_number) AS filings,
+            COUNT(DISTINCT fund_name) AS funds
+        FROM holdings
+    """)
+    if not dataset.empty:
+        d = dataset.iloc[0]
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Posizioni nel DB", f"{int(d['positions']):,}")
+        c2.metric("Filing 13F", f"{int(d['filings']):,}")
+        c3.metric("Fondi coperti", f"{int(d['funds']):,}")
+
     stats = query("SELECT * FROM statistics WHERE id = 1")
     if not stats.empty:
         s = stats.iloc[0]
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Filing totali controllati", f"{int(s['total_checked']):,}")
-        c2.metric("Filing matched", f"{int(s['matched']):,}")
-        c3.metric("Filing filtrati", f"{int(s['filtered']):,}")
+        if any(int(s[col]) for col in ("total_checked", "matched", "filtered")):
+            st.caption(
+                "Feed monitor stats: "
+                f"checked {int(s['total_checked']):,} | "
+                f"matched {int(s['matched']):,} | "
+                f"filtered {int(s['filtered']):,}"
+            )
 
     st.subheader("Fondi nel database")
     df = query("""
@@ -98,6 +173,25 @@ if page == "Overview":
     if df.empty:
         st.info("Nessun dato nel database ancora.")
     else:
+        full_export = query(FULL_HOLDINGS_EXPORT_SQL)
+        latest_snapshot = query(LATEST_SNAPSHOT_EXPORT_SQL)
+
+        d1, d2 = st.columns(2)
+        d1.download_button(
+            "Scarica CSV completo holdings",
+            dataframe_to_csv_bytes(full_export),
+            file_name="f8_13f_all_holdings.csv",
+            mime="text/csv",
+            use_container_width=True,
+        )
+        d2.download_button(
+            "Scarica ultimo snapshot per fondo",
+            dataframe_to_csv_bytes(latest_snapshot),
+            file_name="f8_13f_latest_snapshot.csv",
+            mime="text/csv",
+            use_container_width=True,
+        )
+
         df["Valore Totale"] = df["value_sum"].apply(fmt_value)
         st.dataframe(
             df[["Fund", "Trimestri", "Ultimo Filing", "Holdings", "Valore Totale"]],
@@ -175,6 +269,12 @@ elif page == "Fund Detail":
         )
         df = df[mask]
 
+    st.download_button(
+        "Scarica CSV del trimestre selezionato",
+        dataframe_to_csv_bytes(df),
+        file_name=f"f8_13f_{selected_acc}.csv",
+        mime="text/csv",
+    )
     st.dataframe(df, use_container_width=True, hide_index=True)
 
 
@@ -317,6 +417,12 @@ elif page == "Holdings Search":
     df["Valore"] = df["Valore ($000s)"].apply(fmt_value)
     df["Azioni"] = df["Azioni"].apply(lambda x: f"{int(x):,}" if pd.notna(x) and x else "-")
 
+    st.download_button(
+        "Scarica risultati CSV",
+        dataframe_to_csv_bytes(df),
+        file_name="f8_13f_search_results.csv",
+        mime="text/csv",
+    )
     st.dataframe(
         df[["Issuer", "CUSIP", "Fund", "Filing Date", "Azioni", "Valore"]],
         use_container_width=True,

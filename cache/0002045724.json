@@ -1,0 +1,50 @@
+{
+  "last_updated": 1778449809.3054767,
+  "filings": [
+    {
+      "cik": "0002045724",
+      "fund_name": "Situational Awareness LP (Leopold Aschenbrenner)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-11",
+      "accession_number": "0002045724-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/2045724/000204572426000002/0002045724-26-000002-index.htm"
+    },
+    {
+      "cik": "0002045724",
+      "fund_name": "Situational Awareness LP (Leopold Aschenbrenner)",
+      "form": "13F-HR",
+      "filing_date": "2025-11-14",
+      "accession_number": "0002045724-25-000008",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/2045724/000204572425000008/0002045724-25-000008-index.htm"
+    },
+    {
+      "cik": "0002045724",
+      "fund_name": "Situational Awareness LP (Leopold Aschenbrenner)",
+      "form": "13F-HR",
+      "filing_date": "2025-08-14",
+      "accession_number": "0002045724-25-000006",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/2045724/000204572425000006/0002045724-25-000006-index.htm"
+    },
+    {
+      "cik": "0002045724",
+      "fund_name": "Situational Awareness LP (Leopold Aschenbrenner)",
+      "form": "13F-HR",
+      "filing_date": "2025-05-14",
+      "accession_number": "0002045724-25-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/2045724/000204572425000002/0002045724-25-000002-index.htm"
+    },
+    {
+      "cik": "0002045724",
+      "fund_name": "Situational Awareness LP (Leopold Aschenbrenner)",
+      "form": "13F-HR",
+      "filing_date": "2025-02-12",
+      "accession_number": "0000935836-25-000120",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/2045724/000093583625000120/0000935836-25-000120-index.htm"
+    }
+  ]
+}

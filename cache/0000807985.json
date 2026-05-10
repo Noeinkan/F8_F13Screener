@@ -1,6 +1,15 @@
 {
-  "last_updated": 1764532397.3818545,
+  "last_updated": 1778449788.0406818,
   "filings": [
+    {
+      "cik": "0000807985",
+      "fund_name": "Southeastern Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2026-02-13",
+      "accession_number": "0001398344-26-003084",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/807985/000139834426003084/0001398344-26-003084-index.htm"
+    },
     {
       "cik": "0000807985",
       "fund_name": "Southeastern Asset Management",

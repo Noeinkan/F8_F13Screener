@@ -106,6 +106,53 @@ class TestHoldings:
         result = db.get_holdings_by_accession("ACC-003")
         assert len(result) == 1  # should not crash or skip
 
+    def test_save_holdings_replaces_existing_accession(self, db):
+        first = [_make_holding("Apple Inc", "037833100", 1000, 5000)]
+        second = [_make_holding("Microsoft Corp", "594918104", 400, 2500)]
+
+        db.save_holdings(first, "Fund", "123", "2026-05-01", "ACC-004", "https://sec.gov/x")
+        db.save_holdings(second, "Fund", "123", "2026-05-01", "ACC-004", "https://sec.gov/x")
+
+        result = db.get_holdings_by_accession("ACC-004")
+        assert "037833100" not in result
+        assert "594918104" in result
+        assert len(result) == 1
+
+    def test_export_csv_includes_raw_parser_fields(self, db, tmp_path):
+        holding = _make_holding()
+        holding["value_x1000"] = "5000"
+        holding["shares_raw"] = "1000"
+        holding["other_managers_raw"] = "MGR-1"
+        holding["all_columns_raw"] = "Apple Inc | COM | 037833100"
+
+        db.save_holdings([holding], "Fund", "123", "2026-05-01", "ACC-005", "https://sec.gov/x")
+
+        output_path = tmp_path / "holdings.csv"
+        db.export_holdings_to_csv(output_path)
+
+        csv_text = output_path.read_text(encoding="utf-8")
+        assert "Value Raw ($000s)" in csv_text
+        assert "Shares/Principal Amount Raw" in csv_text
+        assert "Other Managers (raw)" in csv_text
+        assert "All Columns (raw)" in csv_text
+
+    def test_export_latest_snapshot_uses_newest_filing_per_fund(self, db, tmp_path):
+        older = _make_holding("Apple Inc", "037833100", 1000, 5000)
+        newer = _make_holding("Microsoft Corp", "594918104", 400, 2500)
+
+        db.save_holdings([older], "Fund A", "123", "2026-02-14", "ACC-OLD", "https://sec.gov/old")
+        db.save_holdings([newer], "Fund A", "123", "2026-05-15", "ACC-NEW", "https://sec.gov/new")
+        db.save_holdings([_make_holding("NVIDIA Corp", "67066G104", 200, 8000)], "Fund B", "456", "2026-03-31", "ACC-B", "https://sec.gov/b")
+
+        output_path = tmp_path / "latest_snapshot.csv"
+        row_count = db.export_latest_snapshot_to_csv(output_path)
+
+        csv_text = output_path.read_text(encoding="utf-8")
+        assert row_count == 2
+        assert "ACC-NEW" in csv_text
+        assert "ACC-OLD" not in csv_text
+        assert "ACC-B" in csv_text
+
 
 # ---------------------------------------------------------------------------
 # get_latest_accessions_for_fund
@@ -196,3 +243,9 @@ class TestCleanup:
         db.mark_filing_seen("new-entry", "NewFund", "888", "2026-05-01")
         db.cleanup_old_filings(days=90)
         assert "new-entry" in db.get_seen_filings()
+
+    def test_clear_holdings_removes_all_rows(self, db):
+        db.save_holdings([_make_holding()], "Fund", "123", "2026-05-01", "ACC-100", "https://sec.gov/x")
+        deleted = db.clear_holdings()
+        assert deleted == 1
+        assert db.get_holdings_by_accession("ACC-100") == {}

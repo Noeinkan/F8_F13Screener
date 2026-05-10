@@ -1,6 +1,15 @@
 {
-  "last_updated": 1764532410.0457487,
+  "last_updated": 1778449801.9470344,
   "filings": [
+    {
+      "cik": "0001891904",
+      "fund_name": "Octahedron Capital Management",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001891904-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1891904/000189190426000002/0001891904-26-000002-index.htm"
+    },
     {
       "cik": "0001891904",
       "fund_name": "Octahedron Capital Management",

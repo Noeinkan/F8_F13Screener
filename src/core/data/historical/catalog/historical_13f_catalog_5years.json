@@ -1,12 +1,21 @@
 {
-  "generated_at": "2025-11-30T19:53:41.794541",
-  "total_filings": 1160,
-  "new_filings": 1160,
+  "generated_at": "2026-05-10T22:52:03.814385",
+  "total_filings": 1445,
+  "new_filings": 1445,
   "skipped_filings": 0,
-  "total_funds": 45,
+  "total_funds": 55,
   "cutoff_date": "2020-01-01",
   "incremental_mode": false,
   "filings": [
+    {
+      "cik": "0001061768",
+      "fund_name": "Baupost Group (Seth Klarman)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-13",
+      "accession_number": "0001061768-26-000005",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/0001061768-26-000005-index.htm"
+    },
     {
       "cik": "0001061768",
       "fund_name": "Baupost Group (Seth Klarman)",
@@ -452,6 +461,15 @@
       "cik": "0001656456",
       "fund_name": "Appaloosa Management (David Tepper)",
       "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001656456-26-000001",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000001/0001656456-26-000001-index.htm"
+    },
+    {
+      "cik": "0001656456",
+      "fund_name": "Appaloosa Management (David Tepper)",
+      "form": "13F-HR",
       "filing_date": "2025-11-13",
       "accession_number": "0001656456-25-000007",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -668,6 +686,24 @@
       "cik": "0000905567",
       "fund_name": "Yacktman Asset Management",
       "form": "13F-HR",
+      "filing_date": "2026-05-01",
+      "accession_number": "0000905567-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/905567/000090556726000002/0000905567-26-000002-index.htm"
+    },
+    {
+      "cik": "0000905567",
+      "fund_name": "Yacktman Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2026-02-03",
+      "accession_number": "0000905567-26-000001",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/905567/000090556726000001/0000905567-26-000001-index.htm"
+    },
+    {
+      "cik": "0000905567",
+      "fund_name": "Yacktman Asset Management",
+      "form": "13F-HR",
       "filing_date": "2025-11-04",
       "accession_number": "0000905567-25-000006",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -879,6 +915,15 @@
       "accession_number": "0000905567-20-000002",
       "primary_document": "xslForm13F_X01/primary_doc.xml",
       "filing_url": "https://www.sec.gov/Archives/edgar/data/905567/000090556720000002/0000905567-20-000002-index.htm"
+    },
+    {
+      "cik": "0001336528",
+      "fund_name": "Pershing Square Capital (Bill Ackman)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001172661-26-001091",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1336528/000117266126001091/0001172661-26-001091-index.htm"
     },
     {
       "cik": "0001336528",
@@ -1271,6 +1316,15 @@
       "cik": "0001056831",
       "fund_name": "Fairholme Capital (Bruce Berkowitz)",
       "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0000919574-26-001186",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1056831/000091957426001186/0000919574-26-001186-index.htm"
+    },
+    {
+      "cik": "0001056831",
+      "fund_name": "Fairholme Capital (Bruce Berkowitz)",
+      "form": "13F-HR",
       "filing_date": "2025-11-14",
       "accession_number": "0000919574-25-007000",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -1487,6 +1541,24 @@
       "cik": "0000732905",
       "fund_name": "Tweedy Browne Company",
       "form": "13F-HR",
+      "filing_date": "2026-05-06",
+      "accession_number": "0001193125-26-208439",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/732905/000119312526208439/0001193125-26-208439-index.htm"
+    },
+    {
+      "cik": "0000732905",
+      "fund_name": "Tweedy Browne Company",
+      "form": "13F-HR",
+      "filing_date": "2026-02-03",
+      "accession_number": "0001193125-26-033986",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/732905/000119312526033986/0001193125-26-033986-index.htm"
+    },
+    {
+      "cik": "0000732905",
+      "fund_name": "Tweedy Browne Company",
+      "form": "13F-HR",
       "filing_date": "2025-11-20",
       "accession_number": "0001193125-25-288943",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -1698,6 +1770,15 @@
       "accession_number": "0000950123-20-002221",
       "primary_document": "xslForm13F_X01/primary_doc.xml",
       "filing_url": "https://www.sec.gov/Archives/edgar/data/732905/000095012320002221/0000950123-20-002221-index.htm"
+    },
+    {
+      "cik": "0001099281",
+      "fund_name": "Third Avenue Management",
+      "form": "13F-HR",
+      "filing_date": "2026-02-12",
+      "accession_number": "0001099281-26-000003",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1099281/000109928126000003/0001099281-26-000003-index.htm"
     },
     {
       "cik": "0001099281",
@@ -1923,6 +2004,15 @@
       "accession_number": "0001099281-20-000003",
       "primary_document": "xslForm13F_X01/primary_doc.xml",
       "filing_url": "https://www.sec.gov/Archives/edgar/data/1099281/000109928120000003/0001099281-20-000003-index.htm"
+    },
+    {
+      "cik": "0000949509",
+      "fund_name": "Oaktree Capital Management (Howard Marks)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0000949509-26-000001",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000001/0000949509-26-000001-index.htm"
     },
     {
       "cik": "0000949509",
@@ -2324,6 +2414,15 @@
       "cik": "0001549575",
       "fund_name": "Pabrai Investment Funds (Mohnish Pabrai)",
       "form": "13F-HR",
+      "filing_date": "2026-02-13",
+      "accession_number": "0001549575-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1549575/000154957526000002/0001549575-26-000002-index.htm"
+    },
+    {
+      "cik": "0001549575",
+      "fund_name": "Pabrai Investment Funds (Mohnish Pabrai)",
+      "form": "13F-HR",
       "filing_date": "2025-11-13",
       "accession_number": "0001549575-25-000012",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -2639,6 +2738,15 @@
       "cik": "0000860643",
       "fund_name": "Gardner Russo & Gardner (Tom Russo)",
       "form": "13F-HR",
+      "filing_date": "2026-02-12",
+      "accession_number": "0000860643-26-000001",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/860643/000086064326000001/0000860643-26-000001-index.htm"
+    },
+    {
+      "cik": "0000860643",
+      "fund_name": "Gardner Russo & Gardner (Tom Russo)",
+      "form": "13F-HR",
       "filing_date": "2025-11-12",
       "accession_number": "0000860643-25-000007",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -2850,6 +2958,15 @@
       "accession_number": "0000860643-20-000001",
       "primary_document": "xslForm13F_X01/primary_doc.xml",
       "filing_url": "https://www.sec.gov/Archives/edgar/data/860643/000086064320000001/0000860643-20-000001-index.htm"
+    },
+    {
+      "cik": "0000906304",
+      "fund_name": "Royce Investment Partners (Chuck Royce)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-09",
+      "accession_number": "0000906304-26-000037",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/906304/000090630426000037/0000906304-26-000037-index.htm"
     },
     {
       "cik": "0000906304",
@@ -3089,6 +3206,15 @@
       "cik": "0000807985",
       "fund_name": "Southeastern Asset Management",
       "form": "13F-HR",
+      "filing_date": "2026-02-13",
+      "accession_number": "0001398344-26-003084",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/807985/000139834426003084/0001398344-26-003084-index.htm"
+    },
+    {
+      "cik": "0000807985",
+      "fund_name": "Southeastern Asset Management",
+      "form": "13F-HR",
       "filing_date": "2025-11-14",
       "accession_number": "0001398344-25-020985",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -3305,6 +3431,15 @@
       "cik": "0001040273",
       "fund_name": "Third Point LLC (Dan Loeb)",
       "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001040273-26-000001",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000001/0001040273-26-000001-index.htm"
+    },
+    {
+      "cik": "0001040273",
+      "fund_name": "Third Point LLC (Dan Loeb)",
+      "form": "13F-HR",
       "filing_date": "2025-11-14",
       "accession_number": "0001040273-25-000003",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -3516,6 +3651,24 @@
       "accession_number": "0001085146-20-000685",
       "primary_document": "xslForm13F_X01/primary_doc.xml",
       "filing_url": "https://www.sec.gov/Archives/edgar/data/1040273/000108514620000685/0001085146-20-000685-index.htm"
+    },
+    {
+      "cik": "0001709323",
+      "fund_name": "Himalaya Capital (Li Lu)",
+      "form": "13F-HR/A",
+      "filing_date": "2026-02-19",
+      "accession_number": "0002043585-26-000012",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1709323/000204358526000012/0002043585-26-000012-index.htm"
+    },
+    {
+      "cik": "0001709323",
+      "fund_name": "Himalaya Capital (Li Lu)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0002043585-26-000011",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1709323/000204358526000011/0002043585-26-000011-index.htm"
     },
     {
       "cik": "0001709323",
@@ -3755,6 +3908,15 @@
       "cik": "0001112520",
       "fund_name": "Akre Capital Management (Chuck Akre)",
       "form": "13F-HR",
+      "filing_date": "2026-02-13",
+      "accession_number": "0001112520-26-000008",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1112520/000111252026000008/0001112520-26-000008-index.htm"
+    },
+    {
+      "cik": "0001112520",
+      "fund_name": "Akre Capital Management (Chuck Akre)",
+      "form": "13F-HR",
       "filing_date": "2025-11-13",
       "accession_number": "0001112520-25-000029",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -3984,6 +4146,15 @@
       "accession_number": "0001112520-20-000010",
       "primary_document": "xslForm13F_X01/primary_doc.xml",
       "filing_url": "https://www.sec.gov/Archives/edgar/data/1112520/000111252020000010/0001112520-20-000010-index.htm"
+    },
+    {
+      "cik": "0001641864",
+      "fund_name": "Giverny Capital",
+      "form": "13F-HR",
+      "filing_date": "2026-02-13",
+      "accession_number": "0001641864-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1641864/000164186426000002/0001641864-26-000002-index.htm"
     },
     {
       "cik": "0001641864",
@@ -4286,6 +4457,24 @@
       "cik": "0001218254",
       "fund_name": "Boyar Asset Management",
       "form": "13F-HR",
+      "filing_date": "2026-05-08",
+      "accession_number": "0001218254-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218254/000121825426000002/0001218254-26-000002-index.htm"
+    },
+    {
+      "cik": "0001218254",
+      "fund_name": "Boyar Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2026-02-13",
+      "accession_number": "0001218254-26-000001",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218254/000121825426000001/0001218254-26-000001-index.htm"
+    },
+    {
+      "cik": "0001218254",
+      "fund_name": "Boyar Asset Management",
+      "form": "13F-HR",
       "filing_date": "2025-11-18",
       "accession_number": "0001218254-25-000005",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -4502,6 +4691,15 @@
       "cik": "0001056823",
       "fund_name": "Horizon Kinetics",
       "form": "13F-HR",
+      "filing_date": "2026-02-11",
+      "accession_number": "0001056823-26-000007",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1056823/000105682326000007/0001056823-26-000007-index.htm"
+    },
+    {
+      "cik": "0001056823",
+      "fund_name": "Horizon Kinetics",
+      "form": "13F-HR",
       "filing_date": "2025-11-14",
       "accession_number": "0001056823-25-000029",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -4634,22 +4832,22 @@
       "filing_url": "https://www.sec.gov/Archives/edgar/data/1056823/000105682322000017/0001056823-22-000017-index.htm"
     },
     {
-      "cik": "0001056823",
-      "fund_name": "Horizon Kinetics",
+      "cik": "0001039565",
+      "fund_name": "Kahn Brothers",
       "form": "13F-HR",
-      "filing_date": "2022-05-13",
-      "accession_number": "0001056823-22-000016",
-      "primary_document": "xslForm13F_X01/primary_doc.xml",
-      "filing_url": "https://www.sec.gov/Archives/edgar/data/1056823/000105682322000016/0001056823-22-000016-index.htm"
+      "filing_date": "2026-05-08",
+      "accession_number": "0001039565-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1039565/000103956526000002/0001039565-26-000002-index.htm"
     },
     {
-      "cik": "0001056823",
-      "fund_name": "Horizon Kinetics",
+      "cik": "0001039565",
+      "fund_name": "Kahn Brothers",
       "form": "13F-HR",
-      "filing_date": "2022-02-15",
-      "accession_number": "0001056823-22-000015",
-      "primary_document": "xslForm13F_X01/primary_doc.xml",
-      "filing_url": "https://www.sec.gov/Archives/edgar/data/1056823/000105682322000015/0001056823-22-000015-index.htm"
+      "filing_date": "2026-02-12",
+      "accession_number": "0001039565-26-000001",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1039565/000103956526000001/0001039565-26-000001-index.htm"
     },
     {
       "cik": "0001039565",
@@ -4868,6 +5066,510 @@
       "filing_url": "https://www.sec.gov/Archives/edgar/data/1039565/000103956520000002/0001039565-20-000002-index.htm"
     },
     {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001539497-26-000679",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949726000679/0001539497-26-000679-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2025-11-14",
+      "accession_number": "0001539497-25-002973",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949725002973/0001539497-25-002973-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2025-08-14",
+      "accession_number": "0001539497-25-002145",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949725002145/0001539497-25-002145-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2025-05-15",
+      "accession_number": "0001539497-25-001390",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949725001390/0001539497-25-001390-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2025-02-14",
+      "accession_number": "0001539497-25-000660",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949725000660/0001539497-25-000660-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2024-11-14",
+      "accession_number": "0001539497-24-002435",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949724002435/0001539497-24-002435-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2024-08-14",
+      "accession_number": "0001539497-24-001704",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949724001704/0001539497-24-001704-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2024-05-15",
+      "accession_number": "0001539497-24-001052",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949724001052/0001539497-24-001052-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2024-02-14",
+      "accession_number": "0001539497-24-000494",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949724000494/0001539497-24-000494-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2023-11-14",
+      "accession_number": "0001539497-23-001928",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949723001928/0001539497-23-001928-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2023-08-14",
+      "accession_number": "0001539497-23-001450",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949723001450/0001539497-23-001450-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2023-05-15",
+      "accession_number": "0001539497-23-000903",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949723000903/0001539497-23-000903-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2023-02-14",
+      "accession_number": "0001539497-23-000294",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949723000294/0001539497-23-000294-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2022-11-14",
+      "accession_number": "0001539497-22-001801",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949722001801/0001539497-22-001801-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2022-08-15",
+      "accession_number": "0001539497-22-001439",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949722001439/0001539497-22-001439-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2022-05-13",
+      "accession_number": "0001539497-22-000974",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949722000974/0001539497-22-000974-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2022-02-14",
+      "accession_number": "0001539497-22-000389",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949722000389/0001539497-22-000389-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2021-11-15",
+      "accession_number": "0001539497-21-001816",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949721001816/0001539497-21-001816-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2021-08-13",
+      "accession_number": "0001567619-21-015525",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000156761921015525/0001567619-21-015525-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2021-05-14",
+      "accession_number": "0001567619-21-010164",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000156761921010164/0001567619-21-010164-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2021-02-12",
+      "accession_number": "0001567619-21-003568",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000156761921003568/0001567619-21-003568-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2020-11-13",
+      "accession_number": "0001567619-20-019587",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000156761920019587/0001567619-20-019587-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2020-08-14",
+      "accession_number": "0001567619-20-015547",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000156761920015547/0001567619-20-015547-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2020-05-15",
+      "accession_number": "0001567619-20-010498",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000156761920010498/0001567619-20-010498-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2020-02-14",
+      "accession_number": "0001567619-20-003965",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000156761920003965/0001567619-20-003965-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001193125-26-054580",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526054580/0001193125-26-054580-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2025-11-14",
+      "accession_number": "0001193125-25-282901",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312525282901/0001193125-25-282901-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR/A",
+      "filing_date": "2025-08-14",
+      "accession_number": "0000950123-25-008361",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012325008361/0000950123-25-008361-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2025-08-14",
+      "accession_number": "0000950123-25-008343",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012325008343/0000950123-25-008343-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2025-05-15",
+      "accession_number": "0000950123-25-005701",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012325005701/0000950123-25-005701-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2025-02-14",
+      "accession_number": "0000950123-25-002701",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012325002701/0000950123-25-002701-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2024-11-14",
+      "accession_number": "0000950123-24-011775",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012324011775/0000950123-24-011775-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2024-08-14",
+      "accession_number": "0000950123-24-008740",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012324008740/0000950123-24-008740-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR/A",
+      "filing_date": "2024-05-15",
+      "accession_number": "0000950123-24-005664",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012324005664/0000950123-24-005664-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR/A",
+      "filing_date": "2024-05-15",
+      "accession_number": "0000950123-24-005653",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012324005653/0000950123-24-005653-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2024-05-15",
+      "accession_number": "0000950123-24-005622",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012324005622/0000950123-24-005622-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2024-02-14",
+      "accession_number": "0000950123-24-002518",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012324002518/0000950123-24-002518-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR/A",
+      "filing_date": "2023-11-16",
+      "accession_number": "0000950123-23-011029",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012323011029/0000950123-23-011029-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2023-11-14",
+      "accession_number": "0000950123-23-010898",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012323010898/0000950123-23-010898-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2023-08-14",
+      "accession_number": "0000950123-23-008074",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012323008074/0000950123-23-008074-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2023-05-15",
+      "accession_number": "0000950123-23-005270",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012323005270/0000950123-23-005270-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2023-02-14",
+      "accession_number": "0000950123-23-002585",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012323002585/0000950123-23-002585-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2022-11-14",
+      "accession_number": "0000950123-22-012275",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012322012275/0000950123-22-012275-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2022-08-15",
+      "accession_number": "0000950123-22-009450",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012322009450/0000950123-22-009450-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2022-05-16",
+      "accession_number": "0000950123-22-006442",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012322006442/0000950123-22-006442-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2022-02-14",
+      "accession_number": "0000950123-22-002973",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012322002973/0000950123-22-002973-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2021-11-15",
+      "accession_number": "0000950123-21-015518",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012321015518/0000950123-21-015518-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2021-08-16",
+      "accession_number": "0000950123-21-011396",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012321011396/0000950123-21-011396-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2021-05-17",
+      "accession_number": "0000950123-21-007024",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012321007024/0000950123-21-007024-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2021-02-16",
+      "accession_number": "0000950123-21-002786",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012321002786/0000950123-21-002786-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR/A",
+      "filing_date": "2021-02-16",
+      "accession_number": "0000950123-21-002781",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012321002781/0000950123-21-002781-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2020-11-16",
+      "accession_number": "0000950123-20-012127",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012320012127/0000950123-20-012127-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2020-08-14",
+      "accession_number": "0000950123-20-009058",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012320009058/0000950123-20-009058-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2020-05-15",
+      "accession_number": "0000950123-20-005345",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012320005345/0000950123-20-005345-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2020-02-14",
+      "accession_number": "0000950123-20-002466",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000095012320002466/0000950123-20-002466-index.htm"
+    },
+    {
+      "cik": "0001840735",
+      "fund_name": "Greenoaks Capital Partners",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001840735-26-000003",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1840735/000184073526000003/0001840735-26-000003-index.htm"
+    },
+    {
       "cik": "0001840735",
       "fund_name": "Greenoaks Capital Partners",
       "form": "13F-HR",
@@ -5046,6 +5748,15 @@
       "accession_number": "0000902664-21-001360",
       "primary_document": "xslForm13F_X01/primary_doc.xml",
       "filing_url": "https://www.sec.gov/Archives/edgar/data/1840735/000090266421001360/0000902664-21-001360-index.htm"
+    },
+    {
+      "cik": "0001697591",
+      "fund_name": "CAS Investment Partners (Clifford Sosin)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001697591-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1697591/000169759126000002/0001697591-26-000002-index.htm"
     },
     {
       "cik": "0001697591",
@@ -5456,6 +6167,15 @@
       "cik": "0001766596",
       "fund_name": "RV Capital AG (Rob Vinall)",
       "form": "13F-HR",
+      "filing_date": "2026-01-30",
+      "accession_number": "0001172661-26-000401",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1766596/000117266126000401/0001172661-26-000401-index.htm"
+    },
+    {
+      "cik": "0001766596",
+      "fund_name": "RV Capital AG (Rob Vinall)",
+      "form": "13F-HR",
       "filing_date": "2025-10-22",
       "accession_number": "0001172661-25-004353",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -5667,6 +6387,15 @@
       "accession_number": "0001172661-20-000321",
       "primary_document": "xslForm13F_X01/primary_doc.xml",
       "filing_url": "https://www.sec.gov/Archives/edgar/data/1766596/000117266120000321/0001172661-20-000321-index.htm"
+    },
+    {
+      "cik": "0001536411",
+      "fund_name": "Duquesne Family Office (Stanley Druckenmiller)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001536411-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000002/0001536411-26-000002-index.htm"
     },
     {
       "cik": "0001536411",
@@ -5906,6 +6635,15 @@
       "cik": "0001387322",
       "fund_name": "Whale Rock Capital Management (Alex Sacerdote)",
       "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001172661-26-001153",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1387322/000117266126001153/0001172661-26-001153-index.htm"
+    },
+    {
+      "cik": "0001387322",
+      "fund_name": "Whale Rock Capital Management (Alex Sacerdote)",
+      "form": "13F-HR",
       "filing_date": "2025-11-14",
       "accession_number": "0001172661-25-005025",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -6126,6 +6864,15 @@
       "accession_number": "0001387322-20-000002",
       "primary_document": "xslForm13F_X01/primary_doc.xml",
       "filing_url": "https://www.sec.gov/Archives/edgar/data/1387322/000138732220000002/0001387322-20-000002-index.htm"
+    },
+    {
+      "cik": "0001592413",
+      "fund_name": "Strategy Capital",
+      "form": "13F-HR",
+      "filing_date": "2026-02-13",
+      "accession_number": "0001104659-26-014672",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1592413/000110465926014672/0001104659-26-014672-index.htm"
     },
     {
       "cik": "0001592413",
@@ -6365,6 +7112,15 @@
       "cik": "0001135730",
       "fund_name": "Coatue Management (Philippe Laffont)",
       "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0000919574-26-001239",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1135730/000091957426001239/0000919574-26-001239-index.htm"
+    },
+    {
+      "cik": "0001135730",
+      "fund_name": "Coatue Management (Philippe Laffont)",
+      "form": "13F-HR",
       "filing_date": "2025-11-14",
       "accession_number": "0000919574-25-006976",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -6590,6 +7346,15 @@
       "cik": "0001891904",
       "fund_name": "Octahedron Capital Management",
       "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001891904-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1891904/000189190426000002/0001891904-26-000002-index.htm"
+    },
+    {
+      "cik": "0001891904",
+      "fund_name": "Octahedron Capital Management",
+      "form": "13F-HR",
       "filing_date": "2025-11-12",
       "accession_number": "0001891904-25-000011",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -6756,6 +7521,15 @@
       "accession_number": "0001891904-22-000001",
       "primary_document": "xslForm13F_X01/primary_doc.xml",
       "filing_url": "https://www.sec.gov/Archives/edgar/data/1891904/000189190422000001/0001891904-22-000001-index.htm"
+    },
+    {
+      "cik": "0001389234",
+      "fund_name": "Symmetry Peak Management (Quint Slattery)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0000919574-26-001170",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1389234/000091957426001170/0000919574-26-001170-index.htm"
     },
     {
       "cik": "0001389234",
@@ -6977,6 +7751,15 @@
       "cik": "0001050464",
       "fund_name": "Peconic Partners (William Harnisch)",
       "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001050464-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1050464/000105046426000002/0001050464-26-000002-index.htm"
+    },
+    {
+      "cik": "0001050464",
+      "fund_name": "Peconic Partners (William Harnisch)",
+      "form": "13F-HR",
       "filing_date": "2025-11-14",
       "accession_number": "0001050464-25-000005",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -7193,6 +7976,15 @@
       "cik": "0001104329",
       "fund_name": "Crosslink Capital (Seymour Kaufman)",
       "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001104329-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1104329/000110432926000002/0001104329-26-000002-index.htm"
+    },
+    {
+      "cik": "0001104329",
+      "fund_name": "Crosslink Capital (Seymour Kaufman)",
+      "form": "13F-HR",
       "filing_date": "2025-11-14",
       "accession_number": "0001104329-25-000010",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -7404,6 +8196,33 @@
       "accession_number": "0001567619-20-003905",
       "primary_document": "xslForm13F_X01/primary_doc.xml",
       "filing_url": "https://www.sec.gov/Archives/edgar/data/1104329/000156761920003905/0001567619-20-003905-index.htm"
+    },
+    {
+      "cik": "0001103887",
+      "fund_name": "Nwi Management (Hari Hariharan)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001103887-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1103887/000110388726000002/0001103887-26-000002-index.htm"
+    },
+    {
+      "cik": "0001103887",
+      "fund_name": "Nwi Management (Hari Hariharan)",
+      "form": "13F-HR/A",
+      "filing_date": "2025-12-05",
+      "accession_number": "0001103887-25-000012",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1103887/000110388725000012/0001103887-25-000012-index.htm"
+    },
+    {
+      "cik": "0001103887",
+      "fund_name": "Nwi Management (Hari Hariharan)",
+      "form": "13F-HR/A",
+      "filing_date": "2025-12-05",
+      "accession_number": "0001103887-25-000011",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1103887/000110388725000011/0001103887-25-000011-index.htm"
     },
     {
       "cik": "0001103887",
@@ -7643,6 +8462,24 @@
       "cik": "0001462245",
       "fund_name": "Shannon River Fund Management (Spencer Waxman)",
       "form": "13F-HR",
+      "filing_date": "2026-05-05",
+      "accession_number": "0001085146-26-000383",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1462245/000108514626000383/0001085146-26-000383-index.htm"
+    },
+    {
+      "cik": "0001462245",
+      "fund_name": "Shannon River Fund Management (Spencer Waxman)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-06",
+      "accession_number": "0001085146-26-000163",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1462245/000108514626000163/0001085146-26-000163-index.htm"
+    },
+    {
+      "cik": "0001462245",
+      "fund_name": "Shannon River Fund Management (Spencer Waxman)",
+      "form": "13F-HR",
       "filing_date": "2025-11-07",
       "accession_number": "0001462245-25-000007",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -7854,6 +8691,24 @@
       "accession_number": "0001085146-20-000828",
       "primary_document": "xslForm13F_X01/primary_doc.xml",
       "filing_url": "https://www.sec.gov/Archives/edgar/data/1462245/000108514620000828/0001085146-20-000828-index.htm"
+    },
+    {
+      "cik": "0001448793",
+      "fund_name": "Prime Capital Management (Liu Yijun)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-06",
+      "accession_number": "0001448793-26-000004",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1448793/000144879326000004/0001448793-26-000004-index.htm"
+    },
+    {
+      "cik": "0001448793",
+      "fund_name": "Prime Capital Management (Liu Yijun)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-12",
+      "accession_number": "0001448793-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1448793/000144879326000002/0001448793-26-000002-index.htm"
     },
     {
       "cik": "0001448793",
@@ -8075,6 +8930,15 @@
       "cik": "0001037389",
       "fund_name": "Renaissance Technologies (Jim Simons)",
       "form": "13F-HR",
+      "filing_date": "2026-02-12",
+      "accession_number": "0001037389-26-000023",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000023/0001037389-26-000023-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
       "filing_date": "2025-11-13",
       "accession_number": "0001037389-25-000064",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -8286,6 +9150,906 @@
       "accession_number": "0001037389-20-000102",
       "primary_document": "xslForm13F_X01/primary_doc.xml",
       "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738920000102/0001037389-20-000102-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0000919574-26-001143",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426001143/0000919574-26-001143-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2025-11-14",
+      "accession_number": "0000919574-25-006931",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957425006931/0000919574-25-006931-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2025-08-14",
+      "accession_number": "0000919574-25-004870",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957425004870/0000919574-25-004870-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2025-05-15",
+      "accession_number": "0000919574-25-003217",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957425003217/0000919574-25-003217-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2025-02-14",
+      "accession_number": "0000919574-25-001475",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957425001475/0000919574-25-001475-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2024-11-14",
+      "accession_number": "0000919574-24-006690",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957424006690/0000919574-24-006690-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2024-08-14",
+      "accession_number": "0000919574-24-004713",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957424004713/0000919574-24-004713-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2024-05-15",
+      "accession_number": "0000919574-24-003172",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957424003172/0000919574-24-003172-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2024-02-14",
+      "accession_number": "0000919574-24-001349",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957424001349/0000919574-24-001349-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2023-11-14",
+      "accession_number": "0000919574-23-006372",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957423006372/0000919574-23-006372-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2023-08-14",
+      "accession_number": "0000919574-23-004771",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957423004771/0000919574-23-004771-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2023-05-15",
+      "accession_number": "0000919574-23-003305",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957423003305/0000919574-23-003305-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2023-02-14",
+      "accession_number": "0000919574-23-001481",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957423001481/0000919574-23-001481-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2022-11-14",
+      "accession_number": "0000919574-22-006727",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957422006727/0000919574-22-006727-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2022-08-15",
+      "accession_number": "0000919574-22-005053",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957422005053/0000919574-22-005053-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2022-05-16",
+      "accession_number": "0000919574-22-003470",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957422003470/0000919574-22-003470-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2022-02-14",
+      "accession_number": "0000919574-22-001371",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957422001371/0000919574-22-001371-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2021-11-15",
+      "accession_number": "0000919574-21-007099",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957421007099/0000919574-21-007099-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2021-08-16",
+      "accession_number": "0000919574-21-005372",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957421005372/0000919574-21-005372-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2021-05-17",
+      "accession_number": "0000919574-21-003697",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957421003697/0000919574-21-003697-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2021-02-16",
+      "accession_number": "0000919574-21-001376",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957421001376/0000919574-21-001376-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2020-11-16",
+      "accession_number": "0000919574-20-007148",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957420007148/0000919574-20-007148-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2020-08-14",
+      "accession_number": "0000919574-20-005337",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957420005337/0000919574-20-005337-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2020-05-15",
+      "accession_number": "0000919574-20-003646",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957420003646/0000919574-20-003646-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2020-02-14",
+      "accession_number": "0000919574-20-001541",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957420001541/0000919574-20-001541-index.htm"
+    },
+    {
+      "cik": "0002045724",
+      "fund_name": "Situational Awareness LP (Leopold Aschenbrenner)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-11",
+      "accession_number": "0002045724-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/2045724/000204572426000002/0002045724-26-000002-index.htm"
+    },
+    {
+      "cik": "0002045724",
+      "fund_name": "Situational Awareness LP (Leopold Aschenbrenner)",
+      "form": "13F-HR",
+      "filing_date": "2025-11-14",
+      "accession_number": "0002045724-25-000008",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/2045724/000204572425000008/0002045724-25-000008-index.htm"
+    },
+    {
+      "cik": "0002045724",
+      "fund_name": "Situational Awareness LP (Leopold Aschenbrenner)",
+      "form": "13F-HR",
+      "filing_date": "2025-08-14",
+      "accession_number": "0002045724-25-000006",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/2045724/000204572425000006/0002045724-25-000006-index.htm"
+    },
+    {
+      "cik": "0002045724",
+      "fund_name": "Situational Awareness LP (Leopold Aschenbrenner)",
+      "form": "13F-HR",
+      "filing_date": "2025-05-14",
+      "accession_number": "0002045724-25-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/2045724/000204572425000002/0002045724-25-000002-index.htm"
+    },
+    {
+      "cik": "0002045724",
+      "fund_name": "Situational Awareness LP (Leopold Aschenbrenner)",
+      "form": "13F-HR",
+      "filing_date": "2025-02-12",
+      "accession_number": "0000935836-25-000120",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/2045724/000093583625000120/0000935836-25-000120-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001963565-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000196356526000002/0001963565-26-000002-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR/A",
+      "filing_date": "2025-12-03",
+      "accession_number": "0001963565-25-000005",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000196356525000005/0001963565-25-000005-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2025-11-14",
+      "accession_number": "0001963565-25-000004",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000196356525000004/0001963565-25-000004-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2025-08-14",
+      "accession_number": "0001085146-25-005297",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514625005297/0001085146-25-005297-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2025-05-15",
+      "accession_number": "0001085146-25-003278",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514625003278/0001085146-25-003278-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR/A",
+      "filing_date": "2025-02-18",
+      "accession_number": "0001085146-25-001746",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514625001746/0001085146-25-001746-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2025-02-13",
+      "accession_number": "0001085146-25-001262",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514625001262/0001085146-25-001262-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2024-11-08",
+      "accession_number": "0001085146-24-005462",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514624005462/0001085146-24-005462-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2024-08-09",
+      "accession_number": "0001085146-24-003633",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514624003633/0001085146-24-003633-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2024-04-26",
+      "accession_number": "0001085146-24-002050",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514624002050/0001085146-24-002050-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2024-01-19",
+      "accession_number": "0001085146-24-000338",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514624000338/0001085146-24-000338-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2023-11-08",
+      "accession_number": "0001085146-23-004189",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514623004189/0001085146-23-004189-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2023-08-03",
+      "accession_number": "0001085146-23-003067",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514623003067/0001085146-23-003067-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2023-04-24",
+      "accession_number": "0001085146-23-001820",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514623001820/0001085146-23-001820-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2023-01-30",
+      "accession_number": "0001085146-23-000432",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000108514623000432/0001085146-23-000432-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001541617-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161726000002/0001541617-26-000002-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2025-11-14",
+      "accession_number": "0001541617-25-000013",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161725000013/0001541617-25-000013-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2025-08-14",
+      "accession_number": "0001541617-25-000009",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161725000009/0001541617-25-000009-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2025-05-15",
+      "accession_number": "0001541617-25-000005",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161725000005/0001541617-25-000005-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2025-02-14",
+      "accession_number": "0001541617-25-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161725000002/0001541617-25-000002-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2024-11-14",
+      "accession_number": "0001541617-24-000009",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161724000009/0001541617-24-000009-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2024-08-14",
+      "accession_number": "0001541617-24-000007",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161724000007/0001541617-24-000007-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2024-05-15",
+      "accession_number": "0001541617-24-000006",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161724000006/0001541617-24-000006-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2024-02-14",
+      "accession_number": "0001541617-24-000004",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161724000004/0001541617-24-000004-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2023-11-14",
+      "accession_number": "0001541617-23-000010",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161723000010/0001541617-23-000010-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2023-08-14",
+      "accession_number": "0001541617-23-000009",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161723000009/0001541617-23-000009-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2023-05-16",
+      "accession_number": "0001541617-23-000007",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161723000007/0001541617-23-000007-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2023-02-14",
+      "accession_number": "0001541617-23-000003",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161723000003/0001541617-23-000003-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2022-11-14",
+      "accession_number": "0001541617-22-000020",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161722000020/0001541617-22-000020-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2022-08-15",
+      "accession_number": "0001541617-22-000019",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161722000019/0001541617-22-000019-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR/A",
+      "filing_date": "2022-05-17",
+      "accession_number": "0001541617-22-000015",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161722000015/0001541617-22-000015-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2022-05-17",
+      "accession_number": "0001541617-22-000014",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161722000014/0001541617-22-000014-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2022-02-14",
+      "accession_number": "0001541617-22-000002",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161722000002/0001541617-22-000002-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2021-11-15",
+      "accession_number": "0001541617-21-000009",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161721000009/0001541617-21-000009-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR/A",
+      "filing_date": "2021-10-07",
+      "accession_number": "0001541617-21-000008",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161721000008/0001541617-21-000008-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2021-08-16",
+      "accession_number": "0001541617-21-000007",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161721000007/0001541617-21-000007-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2021-05-17",
+      "accession_number": "0001541617-21-000003",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161721000003/0001541617-21-000003-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2021-02-16",
+      "accession_number": "0001104659-21-024216",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000110465921024216/0001104659-21-024216-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2020-11-16",
+      "accession_number": "0001104659-20-125814",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000110465920125814/0001104659-20-125814-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2020-08-14",
+      "accession_number": "0001104659-20-095505",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000110465920095505/0001104659-20-095505-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2020-05-15",
+      "accession_number": "0001104659-20-062573",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000110465920062573/0001104659-20-062573-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2020-02-14",
+      "accession_number": "0001104659-20-021715",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000110465920021715/0001104659-20-021715-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0000902664-26-001084",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266426001084/0000902664-26-001084-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2025-11-14",
+      "accession_number": "0000902664-25-004988",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266425004988/0000902664-25-004988-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2025-08-14",
+      "accession_number": "0000902664-25-003627",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266425003627/0000902664-25-003627-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2025-05-15",
+      "accession_number": "0000902664-25-002417",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266425002417/0000902664-25-002417-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2025-02-14",
+      "accession_number": "0000902664-25-001072",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266425001072/0000902664-25-001072-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2024-11-14",
+      "accession_number": "0000902664-24-006633",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266424006633/0000902664-24-006633-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2024-08-14",
+      "accession_number": "0000902664-24-005150",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266424005150/0000902664-24-005150-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2024-05-15",
+      "accession_number": "0000902664-24-003638",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266424003638/0000902664-24-003638-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2024-02-14",
+      "accession_number": "0000902664-24-001732",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266424001732/0000902664-24-001732-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2023-11-14",
+      "accession_number": "0000902664-23-005548",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266423005548/0000902664-23-005548-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2023-08-14",
+      "accession_number": "0000902664-23-004451",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266423004451/0000902664-23-004451-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2023-05-15",
+      "accession_number": "0000902664-23-003075",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266423003075/0000902664-23-003075-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2023-02-14",
+      "accession_number": "0000902664-23-001763",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266423001763/0000902664-23-001763-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2022-11-14",
+      "accession_number": "0000902664-22-004869",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266422004869/0000902664-22-004869-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2022-08-15",
+      "accession_number": "0000902664-22-003974",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266422003974/0000902664-22-003974-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2022-05-16",
+      "accession_number": "0001567619-22-010934",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000156761922010934/0001567619-22-010934-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2022-02-14",
+      "accession_number": "0001567619-22-004367",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000156761922004367/0001567619-22-004367-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2021-11-15",
+      "accession_number": "0000902664-21-004961",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266421004961/0000902664-21-004961-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR/A",
+      "filing_date": "2021-11-15",
+      "accession_number": "0000902664-21-004960",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266421004960/0000902664-21-004960-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2021-08-16",
+      "accession_number": "0001567619-21-015851",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000156761921015851/0001567619-21-015851-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2021-05-18",
+      "accession_number": "0001567619-21-010580",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000156761921010580/0001567619-21-010580-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2021-02-16",
+      "accession_number": "0000902664-21-001403",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266421001403/0000902664-21-001403-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR/A",
+      "filing_date": "2021-02-16",
+      "accession_number": "0000902664-21-001402",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000090266421001402/0000902664-21-001402-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2020-11-16",
+      "accession_number": "0001567619-20-019876",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000156761920019876/0001567619-20-019876-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2020-08-14",
+      "accession_number": "0001567619-20-015477",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000156761920015477/0001567619-20-015477-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2020-05-15",
+      "accession_number": "0001567619-20-010490",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000156761920010490/0001567619-20-010490-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2020-02-14",
+      "accession_number": "0001567619-20-004017",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000156761920004017/0001567619-20-004017-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001104659-26-016408",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926016408/0001104659-26-016408-index.htm"
     },
     {
       "cik": "0001423053",
@@ -8543,6 +10307,15 @@
       "cik": "0001350694",
       "fund_name": "Bridgewater Associates (Ray Dalio)",
       "form": "13F-HR",
+      "filing_date": "2026-02-13",
+      "accession_number": "0001350694-26-000001",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000001/0001350694-26-000001-index.htm"
+    },
+    {
+      "cik": "0001350694",
+      "fund_name": "Bridgewater Associates (Ray Dalio)",
+      "form": "13F-HR",
       "filing_date": "2025-11-13",
       "accession_number": "0001172661-25-004777",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -8759,6 +10532,15 @@
       "cik": "0001167557",
       "fund_name": "AQR Capital Management (Cliff Asness)",
       "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001085146-26-000240",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167557/000108514626000240/0001085146-26-000240-index.htm"
+    },
+    {
+      "cik": "0001167557",
+      "fund_name": "AQR Capital Management (Cliff Asness)",
+      "form": "13F-HR",
       "filing_date": "2025-11-14",
       "accession_number": "0001167557-25-000065",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -8970,6 +10752,15 @@
       "accession_number": "0001085146-20-000902",
       "primary_document": "xslForm13F_X01/primary_doc.xml",
       "filing_url": "https://www.sec.gov/Archives/edgar/data/1167557/000108514620000902/0001085146-20-000902-index.htm"
+    },
+    {
+      "cik": "0001791786",
+      "fund_name": "Elliott Investment Management (Paul Singer)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-18",
+      "accession_number": "0001013594-26-000272",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000272/0001013594-26-000272-index.htm"
     },
     {
       "cik": "0001791786",
@@ -9213,6 +11004,51 @@
       "accession_number": "0001567619-20-010514",
       "primary_document": "xslForm13F_X01/primary_doc.xml",
       "filing_url": "https://www.sec.gov/Archives/edgar/data/1791786/000156761920010514/0001567619-20-010514-index.htm"
+    },
+    {
+      "cik": "0000909661",
+      "fund_name": "Farallon Capital Management (Thomas Steyer)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0000908834-26-000087",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/909661/000090883426000087/0000908834-26-000087-index.htm"
+    },
+    {
+      "cik": "0000909661",
+      "fund_name": "Farallon Capital Management (Thomas Steyer)",
+      "form": "13F-HR/A",
+      "filing_date": "2026-02-17",
+      "accession_number": "0000908834-26-000086",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/909661/000090883426000086/0000908834-26-000086-index.htm"
+    },
+    {
+      "cik": "0000909661",
+      "fund_name": "Farallon Capital Management (Thomas Steyer)",
+      "form": "13F-HR/A",
+      "filing_date": "2026-02-17",
+      "accession_number": "0000908834-26-000085",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/909661/000090883426000085/0000908834-26-000085-index.htm"
+    },
+    {
+      "cik": "0000909661",
+      "fund_name": "Farallon Capital Management (Thomas Steyer)",
+      "form": "13F-HR/A",
+      "filing_date": "2026-02-17",
+      "accession_number": "0000908834-26-000084",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/909661/000090883426000084/0000908834-26-000084-index.htm"
+    },
+    {
+      "cik": "0000909661",
+      "fund_name": "Farallon Capital Management (Thomas Steyer)",
+      "form": "13F-HR/A",
+      "filing_date": "2026-02-17",
+      "accession_number": "0000908834-26-000083",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/909661/000090883426000083/0000908834-26-000083-index.htm"
     },
     {
       "cik": "0000909661",
@@ -10235,6 +12071,15 @@
       "cik": "0001426859",
       "fund_name": "Ruffer Investment Co.",
       "form": "13F-HR",
+      "filing_date": "2026-01-28",
+      "accession_number": "0001426859-26-000001",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1426859/000142685926000001/0001426859-26-000001-index.htm"
+    },
+    {
+      "cik": "0001426859",
+      "fund_name": "Ruffer Investment Co.",
+      "form": "13F-HR",
       "filing_date": "2025-11-03",
       "accession_number": "0001426859-25-000012",
       "primary_document": "xslForm13F_X02/primary_doc.xml",
@@ -10446,6 +12291,726 @@
       "accession_number": "0001426859-20-000004",
       "primary_document": "xslForm13F_X01/primary_doc.xml",
       "filing_url": "https://www.sec.gov/Archives/edgar/data/1426859/000142685920000004/0001426859-20-000004-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0000902664-26-001100",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000090266426001100/0000902664-26-001100-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2025-11-14",
+      "accession_number": "0000902664-25-005042",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000090266425005042/0000902664-25-005042-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2025-08-14",
+      "accession_number": "0000902664-25-003670",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000090266425003670/0000902664-25-003670-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR/A",
+      "filing_date": "2025-07-21",
+      "accession_number": "0000902664-25-003078",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000090266425003078/0000902664-25-003078-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2025-05-15",
+      "accession_number": "0000902664-25-002399",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000090266425002399/0000902664-25-002399-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2025-02-14",
+      "accession_number": "0000902664-25-001050",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000090266425001050/0000902664-25-001050-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2024-11-14",
+      "accession_number": "0000902664-24-006620",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000090266424006620/0000902664-24-006620-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR/A",
+      "filing_date": "2024-09-16",
+      "accession_number": "0000902664-24-005526",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000090266424005526/0000902664-24-005526-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR/A",
+      "filing_date": "2024-08-19",
+      "accession_number": "0000902664-24-005203",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000090266424005203/0000902664-24-005203-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2024-08-14",
+      "accession_number": "0000902664-24-005149",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000090266424005149/0000902664-24-005149-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2024-05-15",
+      "accession_number": "0000902664-24-003628",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000090266424003628/0000902664-24-003628-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2024-02-14",
+      "accession_number": "0000902664-24-001726",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000090266424001726/0000902664-24-001726-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2023-11-14",
+      "accession_number": "0000902664-23-005512",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000090266423005512/0000902664-23-005512-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2023-08-14",
+      "accession_number": "0000902664-23-004424",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000090266423004424/0000902664-23-004424-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2023-05-15",
+      "accession_number": "0000902664-23-003097",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000090266423003097/0000902664-23-003097-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR/A",
+      "filing_date": "2023-05-15",
+      "accession_number": "0000902664-23-003096",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000090266423003096/0000902664-23-003096-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2023-02-14",
+      "accession_number": "0000899140-23-000429",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000089914023000429/0000899140-23-000429-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2022-11-14",
+      "accession_number": "0001567619-22-020123",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000156761922020123/0001567619-22-020123-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2022-08-15",
+      "accession_number": "0001567619-22-016266",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000156761922016266/0001567619-22-016266-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2022-05-16",
+      "accession_number": "0001567619-22-010947",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000156761922010947/0001567619-22-010947-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2022-02-14",
+      "accession_number": "0001567619-22-004419",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000156761922004419/0001567619-22-004419-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2021-11-15",
+      "accession_number": "0001567619-21-020492",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000156761921020492/0001567619-21-020492-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2021-08-16",
+      "accession_number": "0001567619-21-015931",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000156761921015931/0001567619-21-015931-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2021-05-17",
+      "accession_number": "0001567619-21-010571",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000156761921010571/0001567619-21-010571-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2021-02-16",
+      "accession_number": "0001567619-21-004055",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000156761921004055/0001567619-21-004055-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2020-11-16",
+      "accession_number": "0001567619-20-019914",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000156761920019914/0001567619-20-019914-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2020-08-14",
+      "accession_number": "0001567619-20-015541",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000156761920015541/0001567619-20-015541-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2020-05-15",
+      "accession_number": "0001567619-20-010539",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000156761920010539/0001567619-20-010539-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2020-02-14",
+      "accession_number": "0001567619-20-004063",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000156761920004063/0001567619-20-004063-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001273087-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000002/0001273087-26-000002-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2025-11-14",
+      "accession_number": "0001273087-25-000034",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308725000034/0001273087-25-000034-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2025-08-14",
+      "accession_number": "0001273087-25-000028",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308725000028/0001273087-25-000028-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2025-05-15",
+      "accession_number": "0001273087-25-000019",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308725000019/0001273087-25-000019-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2025-02-14",
+      "accession_number": "0001273087-25-000015",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308725000015/0001273087-25-000015-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2024-11-14",
+      "accession_number": "0001273087-24-000118",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000118/0001273087-24-000118-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2024-08-14",
+      "accession_number": "0001273087-24-000084",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000084/0001273087-24-000084-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2024-05-15",
+      "accession_number": "0001273087-24-000071",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000071/0001273087-24-000071-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2024-02-14",
+      "accession_number": "0001273087-24-000045",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308724000045/0001273087-24-000045-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2023-11-14",
+      "accession_number": "0001273087-23-000146",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308723000146/0001273087-23-000146-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2023-08-14",
+      "accession_number": "0001273087-23-000126",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308723000126/0001273087-23-000126-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2023-05-15",
+      "accession_number": "0001273087-23-000113",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308723000113/0001273087-23-000113-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2023-02-14",
+      "accession_number": "0001273087-23-000097",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308723000097/0001273087-23-000097-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2022-11-14",
+      "accession_number": "0001273087-22-000116",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308722000116/0001273087-22-000116-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2022-08-15",
+      "accession_number": "0001273087-22-000099",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308722000099/0001273087-22-000099-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2022-05-16",
+      "accession_number": "0001273087-22-000070",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308722000070/0001273087-22-000070-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2022-02-14",
+      "accession_number": "0001273087-22-000013",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308722000013/0001273087-22-000013-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2021-11-15",
+      "accession_number": "0001273087-21-000016",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308721000016/0001273087-21-000016-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2021-08-16",
+      "accession_number": "0001273087-21-000013",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308721000013/0001273087-21-000013-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2021-05-17",
+      "accession_number": "0001273087-21-000006",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308721000006/0001273087-21-000006-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2021-02-16",
+      "accession_number": "0001273087-21-000003",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308721000003/0001273087-21-000003-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2020-11-16",
+      "accession_number": "0001273087-20-000034",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308720000034/0001273087-20-000034-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2020-08-14",
+      "accession_number": "0001273087-20-000025",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308720000025/0001273087-20-000025-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2020-05-14",
+      "accession_number": "0001273087-20-000017",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308720000017/0001273087-20-000017-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2020-02-14",
+      "accession_number": "0001273087-20-000008",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308720000008/0001273087-20-000008-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0001193125-26-054303",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000119312526054303/0001193125-26-054303-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2025-11-14",
+      "accession_number": "0001193125-25-282267",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000119312525282267/0001193125-25-282267-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2025-08-14",
+      "accession_number": "0000950123-25-008224",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012325008224/0000950123-25-008224-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2025-05-15",
+      "accession_number": "0000950123-25-005606",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012325005606/0000950123-25-005606-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2025-02-14",
+      "accession_number": "0000950123-25-002486",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012325002486/0000950123-25-002486-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2024-11-14",
+      "accession_number": "0000950123-24-011629",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012324011629/0000950123-24-011629-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2024-08-14",
+      "accession_number": "0000950123-24-008707",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012324008707/0000950123-24-008707-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2024-05-13",
+      "accession_number": "0000950123-24-004654",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012324004654/0000950123-24-004654-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2024-02-14",
+      "accession_number": "0000950123-24-002330",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012324002330/0000950123-24-002330-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2023-11-14",
+      "accession_number": "0000950123-23-010801",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012323010801/0000950123-23-010801-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2023-08-14",
+      "accession_number": "0000950123-23-007852",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012323007852/0000950123-23-007852-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2023-05-15",
+      "accession_number": "0000950123-23-005059",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012323005059/0000950123-23-005059-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2023-02-14",
+      "accession_number": "0000950123-23-002431",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012323002431/0000950123-23-002431-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2022-11-15",
+      "accession_number": "0000950123-22-012462",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012322012462/0000950123-22-012462-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2022-08-15",
+      "accession_number": "0000950123-22-009238",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012322009238/0000950123-22-009238-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2022-05-16",
+      "accession_number": "0000950123-22-006185",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012322006185/0000950123-22-006185-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2022-02-14",
+      "accession_number": "0000950123-22-002726",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012322002726/0000950123-22-002726-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR/A",
+      "filing_date": "2021-12-01",
+      "accession_number": "0000950123-21-015974",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012321015974/0000950123-21-015974-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2021-11-15",
+      "accession_number": "0000950123-21-015250",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012321015250/0000950123-21-015250-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2021-08-16",
+      "accession_number": "0000950123-21-011220",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012321011220/0000950123-21-011220-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2021-05-17",
+      "accession_number": "0000950123-21-006907",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012321006907/0000950123-21-006907-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2021-02-16",
+      "accession_number": "0000950123-21-002614",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012321002614/0000950123-21-002614-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2020-11-16",
+      "accession_number": "0000950123-20-012031",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012320012031/0000950123-20-012031-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2020-08-14",
+      "accession_number": "0000950123-20-008905",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012320008905/0000950123-20-008905-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2020-05-15",
+      "accession_number": "0000950123-20-005218",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012320005218/0000950123-20-005218-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2020-02-14",
+      "accession_number": "0000950123-20-002339",
+      "primary_document": "xslForm13F_X01/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012320002339/0000950123-20-002339-index.htm"
     }
   ]
 }

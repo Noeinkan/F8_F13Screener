@@ -33,6 +33,7 @@ import sys
 import logging
 import shutil
 import multiprocessing
+from pathlib import Path
 
 # Add project root to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
@@ -46,9 +47,11 @@ from src.core.paths import (
     PROCESSING_METRICS_FILE,
     PROCESSING_CHECKPOINT_FILE,
     FILING_CACHE_DIR,
+    HOLDINGS_DB_FILE,
 )
 from src.core.parser import HoldingsParser
 from src.core.sec_client import SECClient
+from src.core.storage import Storage
 
 class TokenBucketRateLimiter:
     """Token bucket rate limiter per gestire burst di richieste rispettando un limite massimo per secondo."""
@@ -82,6 +85,7 @@ RateLimiter = TokenBucketRateLimiter
 
 # Global rate limiter (inizializzato con valori di default SEC)
 rate_limiter = TokenBucketRateLimiter(rate=10, capacity=10)
+csv_write_lock = threading.Lock()
 import os
 import csv
 import re
@@ -152,7 +156,6 @@ sec_client = SECClient(USER_AGENT)
 def save_holdings_to_csv(holdings: List[Dict], fund_name: str, filing_date: str, cik: str, accession_number: str, filing_url: str) -> bool:
     """Save holdings to CSV tracker"""
     try:
-        file_exists = os.path.exists(HISTORICAL_HOLDINGS_CSV)
         filing_date_clean = filing_date.split('T')[0] if 'T' in filing_date else filing_date
         
         fieldnames = [
@@ -164,43 +167,59 @@ def save_holdings_to_csv(holdings: List[Dict], fund_name: str, filing_date: str,
             'Voting Authority - Sole', 'Voting Authority - Shared', 'Voting Authority - None'
         ]
         
-        with open(HISTORICAL_HOLDINGS_CSV, 'a', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            
-            if not file_exists or os.path.getsize(HISTORICAL_HOLDINGS_CSV) == 0:
-                writer.writeheader()
-            
-            for holding in holdings:
-                row = {
-                    'Filing Date': filing_date_clean,
-                    'Fund Name': fund_name,
-                    'Fund CIK': cik,
-                    'Accession Number': accession_number,
-                    'Filing URL': filing_url,
-                    'Name of Issuer': holding.get('issuer_name', ''),
-                    'Title of Class': holding.get('share_class', ''),
-                    'CUSIP': holding.get('cusip', ''),
-                    'FIGI': holding.get('figi', ''),
-                    'Value ($)': holding.get('value_x1000', ''),
-                    'Shares/Principal Amount': holding.get('shares_raw', '') or holding.get('shares', ''),
-                    'SH/PRN': holding.get('sh_prn', ''),
-                    'Put/Call': holding.get('put_call', ''),
-                    'Investment Discretion': holding.get('investment_discretion', ''),
-                    'Other Manager': holding.get('other_manager', ''),
-                    'Other Managers (raw)': holding.get('other_managers_raw', ''),
-                    'All Columns (raw)': holding.get('all_columns_raw', ''),
-                    'Voting Authority - Sole': holding.get('voting_authority_sole', ''),
-                    'Voting Authority - Shared': holding.get('voting_authority_shared', ''),
-                    'Voting Authority - None': holding.get('voting_authority_none', '')
-                }
-                writer.writerow(row)
+        with csv_write_lock:
+            file_exists = os.path.exists(HISTORICAL_HOLDINGS_CSV)
+            with open(HISTORICAL_HOLDINGS_CSV, 'a', newline='', encoding='utf-8') as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+
+                if not file_exists or os.path.getsize(HISTORICAL_HOLDINGS_CSV) == 0:
+                    writer.writeheader()
+
+                for holding in holdings:
+                    row = {
+                        'Filing Date': filing_date_clean,
+                        'Fund Name': fund_name,
+                        'Fund CIK': cik,
+                        'Accession Number': accession_number,
+                        'Filing URL': filing_url,
+                        'Name of Issuer': holding.get('issuer_name', ''),
+                        'Title of Class': holding.get('share_class', ''),
+                        'CUSIP': holding.get('cusip', ''),
+                        'FIGI': holding.get('figi', ''),
+                        'Value ($)': holding.get('value_x1000', ''),
+                        'Shares/Principal Amount': holding.get('shares_raw', '') or holding.get('shares', ''),
+                        'SH/PRN': holding.get('sh_prn', ''),
+                        'Put/Call': holding.get('put_call', ''),
+                        'Investment Discretion': holding.get('investment_discretion', ''),
+                        'Other Manager': holding.get('other_manager', ''),
+                        'Other Managers (raw)': holding.get('other_managers_raw', ''),
+                        'All Columns (raw)': holding.get('all_columns_raw', ''),
+                        'Voting Authority - Sole': holding.get('voting_authority_sole', ''),
+                        'Voting Authority - Shared': holding.get('voting_authority_shared', ''),
+                        'Voting Authority - None': holding.get('voting_authority_none', '')
+                    }
+                    writer.writerow(row)
         
         return True
     except Exception as e:
         print(f"Error saving CSV: {e}")
         return False
 
-def process_filing_holdings(filing_url: str, fund_name: str, filing_date: str) -> bool:
+def reset_holdings_outputs() -> None:
+    """Remove historical holdings artifacts so a full refresh can rebuild them."""
+    for file_path in (HISTORICAL_HOLDINGS_CSV, PROCESSED_TRACKING_FILE):
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+
+def process_filing_holdings(
+    filing_url: str,
+    fund_name: str,
+    filing_date: str,
+    storage: Optional[Storage] = None,
+    persist_csv: bool = True,
+    persist_db: bool = False,
+) -> bool:
     """Process a filing: download, parse and save holdings"""
     try:
         # Extract CIK and Accession Number
@@ -216,9 +235,32 @@ def process_filing_holdings(filing_url: str, fund_name: str, filing_date: str) -
         holdings = parser.parse_information_table(info_table_url)
         if not holdings:
             return False
-        
-        # Save to CSV
-        return save_holdings_to_csv(holdings, fund_name, filing_date, cik, accession_number, filing_url)
+
+        persisted = False
+
+        if persist_csv:
+            persisted = save_holdings_to_csv(
+                holdings,
+                fund_name,
+                filing_date,
+                cik,
+                accession_number,
+                filing_url,
+            ) or persisted
+
+        if persist_db:
+            db_storage = storage or Storage(Path(HOLDINGS_DB_FILE))
+            saved_count = db_storage.save_holdings(
+                holdings,
+                fund_name,
+                cik,
+                filing_date,
+                accession_number,
+                filing_url,
+            )
+            persisted = saved_count > 0 or persisted
+
+        return persisted
         
     except Exception as e:
         print(f"Error processing holdings: {e}")
@@ -528,7 +570,15 @@ def download_catalog(output_file: str = CATALOG_FILE, incremental: bool = True, 
 
 # ==================== MODALITÀ 2: HOLDINGS ====================
 
-def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE, workers: Optional[int] = None, auto_confirm: bool = False, use_processes: bool = False, save_interval: int = 5) -> None:
+def extract_holdings_from_catalog(
+    catalog_file: str = CATALOG_FILE,
+    workers: Optional[int] = None,
+    auto_confirm: bool = False,
+    use_processes: bool = False,
+    save_interval: int = 5,
+    incremental: bool = True,
+    save_db: bool = False,
+) -> None:
     """
     MODALITÀ 2: Estrae holdings dettagliate da un catalogo esistente
     Processa SOLO i filing non ancora processati (tracking automatico)
@@ -548,8 +598,11 @@ def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE, workers: Opt
     
     all_filings = catalog_data.get('filings', [])
     
-    # Carica tracking filing già processati per holdings
-    processed_filings = load_processed_filings()
+    if incremental:
+        processed_filings = load_processed_filings()
+    else:
+        reset_holdings_outputs()
+        processed_filings = set()
     
     # Filtra solo filing non ancora processati
     filings_to_process = [f for f in all_filings if f['accession_number'] not in processed_filings]
@@ -560,6 +613,16 @@ def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE, workers: Opt
     print(f"🆕 Da processare: {len(filings_to_process)}")
     print(f"🏦 Da {catalog_data.get('total_funds', 0)} hedge funds")
     print(f"📅 Periodo: dal {catalog_data.get('cutoff_date', 'N/A')}\n")
+
+    if not incremental:
+        print("🔄 Full refresh holdings: tracking e CSV storico ricreati da zero")
+
+    storage = Storage(Path(HOLDINGS_DB_FILE)) if save_db else None
+    if save_db:
+        if not incremental:
+            deleted_rows = storage.clear_holdings()
+            print(f"🧹 SQLite holdings azzerate: {deleted_rows:,} righe rimosse")
+        print(f"🗄️  Salvataggio SQLite attivo: {HOLDINGS_DB_FILE}")
     
     if len(filings_to_process) == 0:
         print("✅ Tutti i filing sono già stati processati!")
@@ -630,7 +693,14 @@ def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE, workers: Opt
                 rate_limiter.wait()
 
             t0 = time.time()
-            success = process_filing_holdings(filing_url, fund_name, filing_date)
+            success = process_filing_holdings(
+                filing_url,
+                fund_name,
+                filing_date,
+                storage=storage,
+                persist_csv=True,
+                persist_db=save_db,
+            )
             t1 = time.time()
             elapsed = t1 - t0
             local_times.append(elapsed)
@@ -718,7 +788,17 @@ def extract_holdings_from_catalog(catalog_file: str = CATALOG_FILE, workers: Opt
 
 # ==================== MODALITÀ 3: FULL ====================
 
-def process_full_pipeline(workers: Optional[int] = None, use_processes: bool = False, save_interval: int = 5, start_date: str = CUTOFF_DATE, end_date: str = None, quiet: bool = False, auto_confirm: bool = False):
+def process_full_pipeline(
+    workers: Optional[int] = None,
+    use_processes: bool = False,
+    save_interval: int = 5,
+    start_date: str = CUTOFF_DATE,
+    end_date: str = None,
+    quiet: bool = False,
+    auto_confirm: bool = False,
+    incremental: bool = True,
+    save_db: bool = False,
+):
     """
     MODALITÀ 3: Esegue tutto il pipeline (catalog + holdings)
     Completamente automatico: usa solo hedge_funds_config.py
@@ -750,7 +830,12 @@ def process_full_pipeline(workers: Optional[int] = None, use_processes: bool = F
     print("FASE 1/2: DOWNLOAD CATALOGO")
     print("="*80 + "\n")
     
-    filings = download_catalog(quiet=quiet, start_date=start_date, end_date=end_date)
+    filings = download_catalog(
+        incremental=incremental,
+        quiet=quiet,
+        start_date=start_date,
+        end_date=end_date,
+    )
     
     if not filings:
         print("\n❌ Nessun filing trovato. Pipeline interrotto.")
@@ -766,11 +851,64 @@ def process_full_pipeline(workers: Optional[int] = None, use_processes: bool = F
     print("="*80 + "\n")
     
     # Use CLI-provided workers if available via global args (main will call with workers)
-    extract_holdings_from_catalog(workers=workers, auto_confirm=True, use_processes=use_processes, save_interval=save_interval)
+    extract_holdings_from_catalog(
+        workers=workers,
+        auto_confirm=True,
+        use_processes=use_processes,
+        save_interval=save_interval,
+        incremental=incremental,
+        save_db=save_db,
+    )
     
     print("\n" + "="*80)
     print("🎉 PIPELINE COMPLETO TERMINATO")
     print("="*80 + "\n")
+
+
+def export_dashboard_csvs(output_dir: str, scope: str = 'both') -> int:
+    """Export SQLite-backed CSV files for server-side use and dashboard downloads."""
+    db_path = Path(HOLDINGS_DB_FILE)
+    if not db_path.exists():
+        print(f"❌ Database non trovato: {db_path}")
+        print("   Esegui prima la modalità 'holdings' o 'full' con --save-db.\n")
+        return 1
+
+    storage = Storage(db_path)
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    print("="*80)
+    print("MODALITÀ EXPORT: CSV DAL DATABASE SQLITE")
+    print("="*80)
+    print(f"🗄️  Database: {db_path}")
+    print(f"📁 Output directory: {output_path}")
+    print(f"📦 Scope: {scope}")
+
+    exports = []
+    if scope in ('all', 'both'):
+        full_path = output_path / 'f8_13f_all_holdings.csv'
+        full_rows = storage.export_holdings_to_csv(full_path)
+        exports.append((full_path, full_rows, 'holdings completi'))
+
+    if scope in ('latest', 'both'):
+        latest_path = output_path / 'f8_13f_latest_snapshot.csv'
+        latest_rows = storage.export_latest_snapshot_to_csv(latest_path)
+        exports.append((latest_path, latest_rows, 'ultimo snapshot per fondo'))
+
+    wrote_any = False
+    for file_path, row_count, label in exports:
+        if row_count > 0:
+            wrote_any = True
+            print(f"✅ {label}: {row_count:,} righe -> {file_path}")
+        else:
+            print(f"⚠️  Nessun dato esportato per {label}")
+
+    if not wrote_any:
+        print("\n⚠️  Il database esiste ma non contiene ancora holdings esportabili.\n")
+        return 1
+
+    print("\n🎉 Export completato.\n")
+    return 0
 
 # ==================== MAIN ====================
 
@@ -795,15 +933,20 @@ MODALITÀ DISPONIBILI:
   catalog   - Scarica catalogo filing da API SEC (veloce, ~5 min per {get_total_funds()} funds)
   holdings  - Estrae holdings dettagliate da filing nel catalogo (lento, ~1-2 ore)
   full      - Esegue catalog + holdings automaticamente (processo completo)
+    export    - Esporta CSV dal database SQLite usato dal dashboard
 
 ESEMPI:
   python process_historical_13f.py catalog
   python process_historical_13f.py holdings
   python process_historical_13f.py full
+    python process_historical_13f.py export --export-scope both
 
 OUTPUT:
   - historical_13f_catalog_5years.json  (modalità catalog/full)
   - 13f_holdings_5years.csv             (modalità holdings/full)
+    - 13f_holdings.db                     (opzionale, con --save-db per il dashboard)
+    - f8_13f_all_holdings.csv             (modalità export)
+    - f8_13f_latest_snapshot.csv          (modalità export)
 
 NOTES:
   Lo script usa SOLO hedge_funds_config.py come fonte.
@@ -814,7 +957,7 @@ NOTES:
     
     parser.add_argument(
         'mode',
-        choices=['catalog', 'holdings', 'full', 'benchmark'],
+        choices=['catalog', 'holdings', 'full', 'benchmark', 'export'],
         help='Modalità di esecuzione'
     )
     
@@ -849,6 +992,25 @@ NOTES:
         '--yes',
         action='store_true',
         help='Salta la conferma interattiva e procedi automaticamente'
+    )
+
+    parser.add_argument(
+        '--save-db',
+        action='store_true',
+        help='Salva holdings anche nel database SQLite usato dal dashboard'
+    )
+
+    parser.add_argument(
+        '--output-dir',
+        default=os.path.dirname(HISTORICAL_HOLDINGS_CSV),
+        help='Directory di output per la modalità export'
+    )
+
+    parser.add_argument(
+        '--export-scope',
+        choices=['all', 'latest', 'both'],
+        default='both',
+        help='Tipologia di export per la modalità export (default: both)'
     )
     
     parser.add_argument(
@@ -913,6 +1075,7 @@ NOTES:
     print(f"🏢 Hedge funds: {get_total_funds()} (da hedge_funds_config.py)")
     print(f"⚙️  Modalità: {args.mode.upper()}")
     print(f"🌐 Fonte: SEC EDGAR API + HTML parsing")
+    print(f"🗄️  Seed dashboard DB: {'SI' if args.save_db else 'NO'}")
     
     if args.full_refresh:
         print(f"🔄 FULL REFRESH: Scarica tutto da zero (ignora tracking)")
@@ -930,10 +1093,30 @@ NOTES:
     
     elif args.mode == 'holdings':
         # Use the workers provided via CLI
-        extract_holdings_from_catalog(args.catalog_file, workers=args.workers, auto_confirm=args.yes, use_processes=args.use_processes, save_interval=args.save_interval)
+        extract_holdings_from_catalog(
+            args.catalog_file,
+            workers=args.workers,
+            auto_confirm=args.yes,
+            use_processes=args.use_processes,
+            save_interval=args.save_interval,
+            incremental=not args.full_refresh,
+            save_db=args.save_db,
+        )
     
     elif args.mode == 'full':
-        process_full_pipeline(workers=args.workers, use_processes=args.use_processes, save_interval=args.save_interval, start_date=args.start_date, end_date=args.end_date, quiet=args.quiet, auto_confirm=args.yes)
+        process_full_pipeline(
+            workers=args.workers,
+            use_processes=args.use_processes,
+            save_interval=args.save_interval,
+            start_date=args.start_date,
+            end_date=args.end_date,
+            quiet=args.quiet,
+            auto_confirm=args.yes,
+            incremental=not args.full_refresh,
+            save_db=args.save_db,
+        )
+    elif args.mode == 'export':
+        raise SystemExit(export_dashboard_csvs(args.output_dir, scope=args.export_scope))
     elif args.mode == 'benchmark':
         # Quick benchmark to estimate average time per filing
         def run_benchmark(sample_size: int = args.sample_size):
@@ -957,8 +1140,7 @@ NOTES:
                 print(f"[{i}/{len(sample)}] {fund} {date} -> {url[:60]}...")
                 t0 = time.time()
                 try:
-                    # Call process_filing_holdings but don't persist side-effects if possible
-                    process_filing_holdings(url, fund, date)
+                    process_filing_holdings(url, fund, date, persist_csv=False, persist_db=False)
                 except Exception as e:
                     print(f"  Errore durante benchmark: {e}")
                 t1 = time.time()

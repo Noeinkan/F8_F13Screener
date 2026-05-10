@@ -1,6 +1,15 @@
 {
-  "last_updated": 1764532394.7969053,
+  "last_updated": 1778449785.4614098,
   "filings": [
+    {
+      "cik": "0001549575",
+      "fund_name": "Pabrai Investment Funds (Mohnish Pabrai)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-13",
+      "accession_number": "0001549575-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1549575/000154957526000002/0001549575-26-000002-index.htm"
+    },
     {
       "cik": "0001549575",
       "fund_name": "Pabrai Investment Funds (Mohnish Pabrai)",

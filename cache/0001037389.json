@@ -1,6 +1,15 @@
 {
-  "last_updated": 1764532416.195002,
+  "last_updated": 1778449808.0974357,
   "filings": [
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-12",
+      "accession_number": "0001037389-26-000023",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000023/0001037389-26-000023-index.htm"
+    },
     {
       "cik": "0001037389",
       "fund_name": "Renaissance Technologies (Jim Simons)",

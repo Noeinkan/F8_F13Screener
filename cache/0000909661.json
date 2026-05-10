@@ -1,6 +1,51 @@
 {
-  "last_updated": 1764532421.0489657,
+  "last_updated": 1778449815.9236987,
   "filings": [
+    {
+      "cik": "0000909661",
+      "fund_name": "Farallon Capital Management (Thomas Steyer)",
+      "form": "13F-HR",
+      "filing_date": "2026-02-17",
+      "accession_number": "0000908834-26-000087",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/909661/000090883426000087/0000908834-26-000087-index.htm"
+    },
+    {
+      "cik": "0000909661",
+      "fund_name": "Farallon Capital Management (Thomas Steyer)",
+      "form": "13F-HR/A",
+      "filing_date": "2026-02-17",
+      "accession_number": "0000908834-26-000086",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/909661/000090883426000086/0000908834-26-000086-index.htm"
+    },
+    {
+      "cik": "0000909661",
+      "fund_name": "Farallon Capital Management (Thomas Steyer)",
+      "form": "13F-HR/A",
+      "filing_date": "2026-02-17",
+      "accession_number": "0000908834-26-000085",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/909661/000090883426000085/0000908834-26-000085-index.htm"
+    },
+    {
+      "cik": "0000909661",
+      "fund_name": "Farallon Capital Management (Thomas Steyer)",
+      "form": "13F-HR/A",
+      "filing_date": "2026-02-17",
+      "accession_number": "0000908834-26-000084",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/909661/000090883426000084/0000908834-26-000084-index.htm"
+    },
+    {
+      "cik": "0000909661",
+      "fund_name": "Farallon Capital Management (Thomas Steyer)",
+      "form": "13F-HR/A",
+      "filing_date": "2026-02-17",
+      "accession_number": "0000908834-26-000083",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/909661/000090883426000083/0000908834-26-000083-index.htm"
+    },
     {
       "cik": "0000909661",
       "fund_name": "Farallon Capital Management (Thomas Steyer)",

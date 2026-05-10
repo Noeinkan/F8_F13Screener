@@ -10,7 +10,7 @@ from src.core.paths import (
     LAST_CHECK_FILE,
     REALTIME_DATA_DIR,
     LOGS_DIR,
-    DATA_DIR
+    HOLDINGS_DB_FILE,
 )
 
 
@@ -39,7 +39,7 @@ class Config:
     base_dir: Path = Path(REALTIME_DATA_DIR).parent.parent  # Project root
     last_check_file: Path = Path(LAST_CHECK_FILE)
     daily_summary_file: Path = Path(REALTIME_DATA_DIR) / '13f_daily_summary.json'
-    holdings_db: Path = Path(DATA_DIR) / '13f_holdings.db'
+    holdings_db: Path = HOLDINGS_DB_FILE
     log_file: Path = Path(LOGS_DIR) / '13f_alerts.log'
 
     # Feature flags
