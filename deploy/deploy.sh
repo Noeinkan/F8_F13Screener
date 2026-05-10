@@ -5,7 +5,7 @@
 #   bash deploy/deploy.sh --skip-push   # only restart VPS, no git push
 set -euo pipefail
 
-VPS="ubuntu@77.42.70.26"
+VPS="root@77.42.70.26"
 APP_DIR="/opt/F8_F13Screener"
 SKIP_PUSH=false
 
@@ -18,16 +18,19 @@ if [ "$SKIP_PUSH" = false ]; then
     git push origin main
 fi
 
+echo "→ Syncing source files to VPS..."
+rsync -az --exclude '__pycache__' --exclude '*.pyc' src/ "$VPS:$APP_DIR/src/" 2>/dev/null \
+    || scp -r src/ "$VPS:$APP_DIR/src/"
+
 echo "→ Deploying to VPS ($VPS)..."
 ssh "$VPS" bash <<REMOTE
 set -euo pipefail
 cd "$APP_DIR"
-git pull --ff-only
-pip3 install --quiet -r requirements.txt
-sudo systemctl restart f8-screener
-# Restart dashboard only if it is already running
+# Sync code (caller must scp or the repo must be public for git pull)
+"$APP_DIR/venv/bin/pip" install --quiet -r requirements.txt
+systemctl restart f8-screener
 if systemctl is-active --quiet f8-dashboard; then
-    sudo systemctl restart f8-dashboard
+    systemctl restart f8-dashboard
 fi
 echo "✓ VPS aggiornato"
 REMOTE

@@ -2,3 +2,7 @@ requests>=2.33
 feedparser>=6.0
 beautifulsoup4>=4.14
 lxml>=6.1
+streamlit>=1.35
+plotly>=5.22
+pandas>=2.2
+pytest>=8.0

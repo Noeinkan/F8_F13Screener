@@ -5,10 +5,10 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=ubuntu
+User=root
 WorkingDirectory=/opt/F8_F13Screener
-ExecStart=/usr/bin/python3 -m streamlit run src/web/dashboard.py \
-    --server.port 8501 \
+ExecStart=/opt/F8_F13Screener/venv/bin/python3 -m streamlit run src/web/dashboard.py \
+    --server.port 8502 \
     --server.headless true \
     --server.address 0.0.0.0
 Restart=always
