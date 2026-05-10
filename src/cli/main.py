@@ -393,6 +393,7 @@ def main():
 
     # Shared state for command handler
     pause_event = threading.Event()       # set = polling paused
+    check_now_event = threading.Event()   # set = skip the sleep, run immediately
     last_check_ref = [None]              # last_check_ref[0] = datetime of last feed check
 
     # Start Telegram command listener (daemon thread)
@@ -401,6 +402,7 @@ def main():
         chat_id=config.telegram_chat_id,
         pause_event=pause_event,
         last_check_ref=last_check_ref,
+        check_now_event=check_now_event,
     )
     cmd_handler.start()
 
@@ -428,9 +430,10 @@ def main():
             processor.process_feed()
             last_check_ref[0] = datetime.now()
 
-            # Wait for next cycle
+            # Wait for next cycle (wakes early if /start is sent)
             logger.info(f"Prossimo controllo tra {config.poll_interval/60} minuti")
-            time.sleep(config.poll_interval)
+            check_now_event.wait(timeout=config.poll_interval)
+            check_now_event.clear()
 
     except KeyboardInterrupt:
         logger.info("\nArresto programma richiesto dall'utente")

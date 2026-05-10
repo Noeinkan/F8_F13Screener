@@ -18,6 +18,10 @@ logger = logging.getLogger(__name__)
 _SUPPORTED_COMMANDS = {'/start', '/stop', '/status', '/help'}
 
 
+class _ConflictError(Exception):
+    """Raised when Telegram returns 409 (another getUpdates session is active)."""
+
+
 class TelegramCommandHandler:
     """
     Long-polls Telegram getUpdates and dispatches /start, /stop, /status.
@@ -31,10 +35,12 @@ class TelegramCommandHandler:
         chat_id: str,
         pause_event: threading.Event,
         last_check_ref: Optional[list] = None,
+        check_now_event: Optional[threading.Event] = None,
     ):
         self.bot_token = bot_token
         self.chat_id = str(chat_id)
         self.pause_event = pause_event
+        self.check_now_event = check_now_event
         # Mutable container so main loop can update the timestamp in-place:
         # last_check_ref[0] = datetime | None
         self.last_check_ref = last_check_ref or [None]
@@ -60,13 +66,34 @@ class TelegramCommandHandler:
     # Internal
     # ------------------------------------------------------------------
 
+    def _delete_webhook(self) -> None:
+        try:
+            resp = requests.post(f'{self._base_url}/deleteWebhook', timeout=10)
+            if resp.status_code == 200:
+                logger.info('Webhook eliminato, getUpdates attivo')
+            else:
+                logger.warning(f'deleteWebhook HTTP {resp.status_code}')
+        except requests.exceptions.RequestException as e:
+            logger.warning(f'deleteWebhook failed: {e}')
+
     def _poll_loop(self) -> None:
+        self._delete_webhook()
+        _409_warned = False
         while True:
             try:
                 updates = self._get_updates(timeout=30)
+                _409_warned = False
                 for update in updates:
                     self._offset = update['update_id'] + 1
                     self._dispatch(update)
+            except _ConflictError:
+                if not _409_warned:
+                    logger.warning(
+                        'getUpdates HTTP 409 — un\'altra istanza del bot è già attiva '
+                        '(VPS?). Comandi Telegram disabilitati su questo processo.'
+                    )
+                    _409_warned = True
+                time.sleep(60)
             except Exception as e:
                 logger.warning(f'Telegram command poll error: {e}')
                 time.sleep(5)
@@ -84,7 +111,11 @@ class TelegramCommandHandler:
             if resp.status_code == 200:
                 data = resp.json()
                 return data.get('result', [])
+            if resp.status_code == 409:
+                raise _ConflictError()
             logger.warning(f'getUpdates HTTP {resp.status_code}')
+        except _ConflictError:
+            raise
         except requests.exceptions.RequestException as e:
             logger.warning(f'getUpdates request failed: {e}')
         return []
@@ -111,8 +142,10 @@ class TelegramCommandHandler:
 
         elif command == '/start':
             self.pause_event.clear()
-            self._reply('▶ <b>Polling ripreso.</b>')
-            logger.info('Polling SEC ripreso via Telegram')
+            if self.check_now_event:
+                self.check_now_event.set()
+            self._reply('▶ <b>Polling ripreso.</b> Controllo in corso...')
+            logger.info('Polling SEC ripreso via Telegram — check immediato')
 
         elif command == '/status':
             state = '⏸ In pausa' if self.pause_event.is_set() else '▶ Attivo'
