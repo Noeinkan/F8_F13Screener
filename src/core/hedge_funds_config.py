@@ -32,7 +32,9 @@ HEDGE_FUNDS_CIK = {
     '0001218254': 'Boyar Asset Management',
     '0001056823': 'Horizon Kinetics',
     '0001039565': 'Kahn Brothers',
-    
+    '0000921669': 'Icahn Capital (Carl Icahn)',
+    '0001067983': 'Berkshire Hathaway (Warren Buffett)',
+
     # === GROWTH & TECH FOCUSED (18 funds) ===
     '0001840735': 'Greenoaks Capital Partners',
     '0001697591': 'CAS Investment Partners (Clifford Sosin)',
@@ -54,7 +56,12 @@ HEDGE_FUNDS_CIK = {
     '0001462245': 'Shannon River Fund Management (Spencer Waxman)',
     '0001448793': 'Prime Capital Management (Liu Yijun)',
     '0001037389': 'Renaissance Technologies (Jim Simons)',
-    
+    '0001167483': 'Tiger Global Management (Chase Coleman)',
+    '0002045724': 'Situational Awareness LP (Leopold Aschenbrenner)',
+    '0001963565': 'Value Aligned Research Advisors (Ben Hoskin & David Field)',
+    '0001541617': 'Altimeter Capital Management (Brad Gerstner)',
+    '0001061165': 'Lone Pine Capital (Stephen Mandel)',
+
     # === MEGA FUNDS & QUANT (10 funds) ===
     '0001423053': 'Citadel (Kenneth Griffin)',
     '0001350694': 'Bridgewater Associates (Ray Dalio)',
@@ -65,6 +72,9 @@ HEDGE_FUNDS_CIK = {
     '0000909661': 'Farallon Capital Management (Thomas Steyer)',
     # '': 'Man Group Ltd.',  # CIK N/A
     '0001426859': 'Ruffer Investment Co.',
+    '0001603466': 'Point72 Asset Management (Steve Cohen)',
+    '0001273087': 'Millennium Management (Israel Englander)',
+    '0001218710': 'Balyasny Asset Management',
 }
 
 # Funzioni di utilità

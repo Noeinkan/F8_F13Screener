@@ -73,10 +73,11 @@ class Config:
 
         # Load hedge funds configuration
         try:
-            from hedge_funds_config import HEDGE_FUNDS_CIK
+            from src.core.hedge_funds_config import HEDGE_FUNDS_CIK
             hedge_funds = HEDGE_FUNDS_CIK
         except ImportError:
-            hedge_funds = {}
+            from hedge_funds_config import HEDGE_FUNDS_CIK
+            hedge_funds = HEDGE_FUNDS_CIK
 
         return cls(
             telegram_bot_token=bot_token,
