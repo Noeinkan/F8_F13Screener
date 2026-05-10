@@ -383,3 +383,37 @@ class Storage:
 
             if deleted > 0:
                 logger.info(f"Cleaned up {deleted} old filing records")
+
+    def get_latest_accessions_for_fund(self, fund_cik: str, limit: int = 2) -> List[Dict]:
+        """Return the most recent accession numbers for a fund, newest first."""
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT DISTINCT accession_number, filing_date
+                FROM holdings
+                WHERE fund_cik = ?
+                ORDER BY filing_date DESC
+                LIMIT ?
+            """, (fund_cik, limit))
+            return [dict(row) for row in cursor.fetchall()]
+
+    def get_holdings_by_accession(self, accession_number: str) -> Dict[str, Dict]:
+        """Return holdings as dict keyed by CUSIP for a given accession number."""
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT cusip, issuer_name, shares, value_usd, share_class
+                FROM holdings
+                WHERE accession_number = ?
+            """, (accession_number,))
+            result = {}
+            for row in cursor.fetchall():
+                cusip = row['cusip']
+                if cusip:
+                    result[cusip] = {
+                        'issuer_name': row['issuer_name'],
+                        'shares': row['shares'],
+                        'value_usd': row['value_usd'],
+                        'share_class': row['share_class'],
+                    }
+            return result

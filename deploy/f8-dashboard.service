@@ -1,0 +1,20 @@
+[Unit]
+Description=F8 F13 Screener — Streamlit Dashboard
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/F8_F13Screener
+ExecStart=/usr/bin/python3 -m streamlit run src/web/dashboard.py \
+    --server.port 8501 \
+    --server.headless true \
+    --server.address 0.0.0.0
+Restart=always
+RestartSec=15
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

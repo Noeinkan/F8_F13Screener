@@ -1,0 +1,19 @@
+[Unit]
+Description=F8 F13 SEC Filing Screener
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/F8_F13Screener
+ExecStart=/usr/bin/python3 -m src.cli.main
+Restart=always
+RestartSec=15
+StandardOutput=journal
+StandardError=journal
+# Give it a moment to finish in-flight Telegram sends before killing
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

@@ -4,7 +4,7 @@ Telegram notification service
 import logging
 import time
 from datetime import datetime
-from typing import Optional
+from typing import Dict, Optional
 import requests
 
 from src.utils.message_bridge import save_message_to_viewer
@@ -74,10 +74,11 @@ class TelegramNotifier:
         filer_name: str,
         filing_date: str,
         filing_url: str,
-        holdings_saved: bool = False
+        holdings_saved: bool = False,
+        portfolio_diff: Optional[Dict] = None,
     ) -> bool:
         """
-        Send a 13F filing alert
+        Send a 13F filing alert, optionally including a quarter-over-quarter diff.
 
         Args:
             fund_name: Name of the matched fund
@@ -85,6 +86,7 @@ class TelegramNotifier:
             filing_date: Filing date
             filing_url: URL to the filing on EDGAR
             holdings_saved: Whether holdings were successfully saved
+            portfolio_diff: Output of compute_portfolio_diff(), or None
 
         Returns:
             True if message sent successfully
@@ -98,7 +100,13 @@ class TelegramNotifier:
         )
 
         if holdings_saved:
-            message += f"\n\n✅ <b>Holdings salvate nel database</b>"
+            message += "\n\n✅ <b>Holdings salvate nel database</b>"
+
+        if portfolio_diff is not None:
+            from src.core.diff import format_diff_for_telegram
+            diff_text = format_diff_for_telegram(portfolio_diff)
+            if diff_text:
+                message += diff_text
 
         return self.send_message(message)
 

@@ -3,6 +3,7 @@
 Refactored modular version with clean separation of concerns
 """
 import logging
+import threading
 import time
 import sys
 import os
@@ -19,6 +20,8 @@ from src.core.sec_client import SECClient
 from src.core.parser import HoldingsParser
 from src.core.notifier import TelegramNotifier
 from src.core.storage import Storage
+from src.core.diff import compute_portfolio_diff
+from src.core.telegram_commands import TelegramCommandHandler
 
 def launch_telegram_viewer() -> bool:
     """Launch Telegram viewer in a separate window"""
@@ -193,7 +196,7 @@ class FilingProcessor:
                 self.storage.mark_filing_seen(entry_id, filer_name, cik, filing_date, matched=True)
 
                 # Process holdings
-                holdings_saved = self._process_holdings(
+                holdings_saved, portfolio_diff = self._process_holdings(
                     filing_url,
                     filer_name,
                     matched_fund,
@@ -207,7 +210,8 @@ class FilingProcessor:
                     filer_name,
                     filing_date,
                     filing_url,
-                    holdings_saved
+                    holdings_saved,
+                    portfolio_diff,
                 ):
                     stats['sent'] += 1
                 else:
@@ -240,12 +244,12 @@ class FilingProcessor:
         fund_name: str,
         cik: str,
         filing_date: str
-    ) -> bool:
+    ):
         """
-        Process and save holdings for a filing
+        Process and save holdings for a filing.
 
         Returns:
-            True if holdings were successfully saved
+            Tuple (holdings_saved: bool, portfolio_diff: dict | None)
         """
         try:
             self.logger.info(f"Processamento holdings per: {filer_name}")
@@ -257,7 +261,7 @@ class FilingProcessor:
             info_table_url = self.parser.get_information_table_url(filing_url)
             if not info_table_url:
                 self.logger.warning("Information Table URL non trovata")
-                return False
+                return False, None
 
             self.logger.info(f"Trovata Information Table: {info_table_url}")
 
@@ -265,7 +269,20 @@ class FilingProcessor:
             holdings = self.parser.parse_information_table(info_table_url)
             if not holdings:
                 self.logger.warning("Nessuna holding trovata nel file")
-                return False
+                return False, None
+
+            # Snapshot previous quarter before saving the new one
+            portfolio_diff = None
+            try:
+                prev_accessions = self.storage.get_latest_accessions_for_fund(cik, limit=1)
+                prev_accession_number = prev_accessions[0]['accession_number'] if prev_accessions else None
+                old_holdings_map = (
+                    self.storage.get_holdings_by_accession(prev_accession_number)
+                    if prev_accession_number else {}
+                )
+            except Exception as e:
+                self.logger.warning(f"Impossibile recuperare holdings precedenti per diff: {e}")
+                old_holdings_map = {}
 
             # Save to database
             saved_count = self.storage.save_holdings(
@@ -277,15 +294,29 @@ class FilingProcessor:
                 filing_url
             )
 
-            if saved_count > 0:
-                self.logger.info(f"Holdings processate con successo per {filer_name}")
-                return True
+            if saved_count == 0:
+                return False, None
 
-            return False
+            # Compute diff against previous quarter if available
+            if old_holdings_map:
+                try:
+                    new_holdings_map = self.storage.get_holdings_by_accession(accession_number)
+                    portfolio_diff = compute_portfolio_diff(old_holdings_map, new_holdings_map)
+                    n_new = len(portfolio_diff.get('new_positions', []))
+                    n_closed = len(portfolio_diff.get('closed_positions', []))
+                    n_changed = len(portfolio_diff.get('increased', [])) + len(portfolio_diff.get('decreased', []))
+                    self.logger.info(
+                        f"Portfolio diff: +{n_new} nuove, -{n_closed} chiuse, ~{n_changed} variate"
+                    )
+                except Exception as e:
+                    self.logger.warning(f"Impossibile calcolare portfolio diff: {e}")
+
+            self.logger.info(f"Holdings processate con successo per {filer_name}")
+            return True, portfolio_diff
 
         except Exception as e:
             self.logger.error(f"Errore processamento holdings: {e}", exc_info=True)
-            return False
+            return False, None
 
     def send_daily_summaries(self):
         """Send daily summaries for filtered filings"""
@@ -360,11 +391,29 @@ def main():
     except Exception as e:
         logger.warning(f"Impossibile esportare CSV: {e}")
 
+    # Shared state for command handler
+    pause_event = threading.Event()       # set = polling paused
+    last_check_ref = [None]              # last_check_ref[0] = datetime of last feed check
+
+    # Start Telegram command listener (daemon thread)
+    cmd_handler = TelegramCommandHandler(
+        bot_token=config.telegram_bot_token,
+        chat_id=config.telegram_chat_id,
+        pause_event=pause_event,
+        last_check_ref=last_check_ref,
+    )
+    cmd_handler.start()
+
     # Main loop
     last_summary_date = datetime.now().date()
 
     try:
         while True:
+            # Honor /stop command: sleep briefly then re-check
+            if pause_event.is_set():
+                time.sleep(30)
+                continue
+
             current_date = datetime.now().date()
 
             # Check if new day -> send daily summaries
@@ -377,6 +426,7 @@ def main():
 
             # Process feed
             processor.process_feed()
+            last_check_ref[0] = datetime.now()
 
             # Wait for next cycle
             logger.info(f"Prossimo controllo tra {config.poll_interval/60} minuti")
