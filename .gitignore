@@ -28,6 +28,7 @@ ENV/
 
 # Data files (large files - don't commit to git)
 data/realtime/*.csv
+data/exports/*.csv
 data/historical/holdings/*.csv
 data/historical/catalog/*.json
 

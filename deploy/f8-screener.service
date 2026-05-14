@@ -5,9 +5,11 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=ubuntu
+User=root
 WorkingDirectory=/opt/F8_F13Screener
-ExecStart=/usr/bin/python3 -m src.cli.main
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONPATH=/opt/F8_F13Screener
+ExecStart=/opt/F8_F13Screener/venv/bin/python -m src.cli.main
 Restart=always
 RestartSec=15
 StandardOutput=journal

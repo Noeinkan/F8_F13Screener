@@ -44,6 +44,25 @@ SAMPLE_HTML = '''
 </body></html>
 '''
 
+SAMPLE_HTML_MULTIROW_VALUE = '''
+<html><body>
+<table>
+    <tr><th colspan="4">COLUMN 1</th><th>VALUE</th><th colspan="2">SHRS OR PRN AMT</th><th></th><th>INVESTMENT</th><th>OTHER</th><th colspan="3">VOTING AUTHORITY</th></tr>
+    <tr><th>NAME OF ISSUER</th><th>TITLE OF CLASS</th><th>CUSIP</th><th>FIGI</th><th>(to the nearest dollar)</th><th>PRN AMT</th><th>PRN</th><th>CALL</th><th>DISCRETION</th><th>MANAGER</th><th>SOLE</th><th>SHARED</th><th>NONE</th></tr>
+    <tr><td>ACUSHNET HLDGS CORP</td><td>COM</td><td>005098108</td><td>BBG00D5L3ST3</td><td>1,016,782</td><td>10,877</td><td>SH</td><td></td><td>SOLE</td><td></td><td>10,877</td><td>0</td><td>0</td></tr>
+</table>
+</body></html>
+'''
+
+SAMPLE_HTML_X1000_VALUE = '''
+<html><body>
+<table>
+    <tr><th>NAME OF ISSUER</th><th>TITLE OF CLASS</th><th>CUSIP</th><th>(x$1000)</th><th>PRN AMT</th><th>PRN</th><th>CALL</th><th>DISCRETION</th><th>MANAGER</th><th>SOLE</th><th>SHARED</th><th>NONE</th></tr>
+    <tr><td>1847 GOEDEKER INC</td><td>W EXP 06/02/202</td><td>28252C117</td><td>5</td><td>37,752</td><td>SH</td><td></td><td>DFND</td><td>1</td><td>4,719</td><td>0</td><td>0</td></tr>
+</table>
+</body></html>
+'''
+
 @pytest.fixture()
 def write_temp_file():
     files = []
@@ -119,5 +138,57 @@ def test_parse_html(write_temp_file):
         assert h.get('cusip') == '123456789'
         assert h.get('value') == 1000
         assert h.get('shares') == 500
+    finally:
+        monkey.undo()
+
+
+def test_parse_html_multiline_value_header():
+    import requests as req_mod
+
+    class DummyResp:
+        def __init__(self, content):
+            self.content = content
+            self.status_code = 200
+
+    def fake_get(url, headers=None, timeout=None):
+        return DummyResp(SAMPLE_HTML_MULTIROW_VALUE.encode('utf-8'))
+
+    monkey = pytest.MonkeyPatch()
+    monkey.setattr(req_mod, 'get', fake_get)
+    try:
+        holdings = parser.parse_information_table('https://example.com/infotable.xml')
+        assert len(holdings) == 1
+        h = holdings[0]
+        assert h.get('issuer_name') == 'ACUSHNET HLDGS CORP'
+        assert h.get('cusip') == '005098108'
+        assert h.get('value_x1000') == '1016782'
+        assert h.get('value') == 1016782
+        assert h.get('shares') == 10877
+    finally:
+        monkey.undo()
+
+
+def test_parse_html_x1000_value_header():
+    import requests as req_mod
+
+    class DummyResp:
+        def __init__(self, content):
+            self.content = content
+            self.status_code = 200
+
+    def fake_get(url, headers=None, timeout=None):
+        return DummyResp(SAMPLE_HTML_X1000_VALUE.encode('utf-8'))
+
+    monkey = pytest.MonkeyPatch()
+    monkey.setattr(req_mod, 'get', fake_get)
+    try:
+        holdings = parser.parse_information_table('https://example.com/form13fhr-infoTable.xml')
+        assert len(holdings) == 1
+        h = holdings[0]
+        assert h.get('issuer_name') == '1847 GOEDEKER INC'
+        assert h.get('cusip') == '28252C117'
+        assert h.get('value_x1000') == '5'
+        assert h.get('value') == 5
+        assert h.get('shares') == 37752
     finally:
         monkey.undo()

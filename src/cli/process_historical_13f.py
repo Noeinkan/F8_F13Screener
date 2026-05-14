@@ -21,6 +21,7 @@ import time
 import concurrent.futures
 import threading
 import statistics
+import sqlite3
 from collections import deque
 import os
 import csv
@@ -28,7 +29,8 @@ import re
 import argparse
 import importlib.util
 from datetime import datetime
-from typing import List, Dict, Optional
+from types import ModuleType
+from typing import Any, Callable, Dict, List, Optional, cast
 import sys
 import logging
 import shutil
@@ -86,43 +88,78 @@ RateLimiter = TokenBucketRateLimiter
 # Global rate limiter (inizializzato con valori di default SEC)
 rate_limiter = TokenBucketRateLimiter(rate=10, capacity=10)
 csv_write_lock = threading.Lock()
-import os
-import csv
-import re
-import argparse
-import importlib.util
-from datetime import datetime
-from typing import List, Dict, Optional
+
+
+FundLookup = Callable[[str], str]
+FundListLookup = Callable[[], List[str]]
+FundCountLookup = Callable[[], int]
+HEDGE_FUNDS_CIK: Dict[str, str] = {}
+
+
+def _default_get_total_funds() -> int:
+    return len(HEDGE_FUNDS_CIK)
+
+
+def _default_get_fund_name_by_cik(cik: str) -> str:
+    return HEDGE_FUNDS_CIK.get(cik, 'Fund Sconosciuto')
+
+
+def _default_get_all_ciks() -> List[str]:
+    return list(HEDGE_FUNDS_CIK.keys())
+
+
+def _default_get_all_fund_names() -> List[str]:
+    return list(HEDGE_FUNDS_CIK.values())
+
+
+get_total_funds: FundCountLookup = _default_get_total_funds
+get_fund_name_by_cik: FundLookup = _default_get_fund_name_by_cik
+get_all_ciks: FundListLookup = _default_get_all_ciks
+get_all_fund_names: FundListLookup = _default_get_all_fund_names
+
+
 # Import hedge_funds_config dynamically to avoid editor/linter "could not be resolved" warnings
 try:
     spec_h = importlib.util.spec_from_file_location("hedge_config", "src/core/hedge_funds_config.py")
+    if spec_h is None or spec_h.loader is None:
+        raise ImportError("Impossibile caricare hedge_funds_config.py")
+
     hedge_module = importlib.util.module_from_spec(spec_h)
     spec_h.loader.exec_module(hedge_module)
-    HEDGE_FUNDS_CIK = getattr(hedge_module, 'HEDGE_FUNDS_CIK', {})
-    get_total_funds = getattr(hedge_module, 'get_total_funds', lambda: len(HEDGE_FUNDS_CIK))
-    get_fund_name_by_cik = getattr(hedge_module, 'get_fund_name_by_cik', lambda cik: HEDGE_FUNDS_CIK.get(cik, 'Fund Sconosciuto'))
-    get_all_ciks = getattr(hedge_module, 'get_all_ciks', lambda: list(HEDGE_FUNDS_CIK.keys()))
-    get_all_fund_names = getattr(hedge_module, 'get_all_fund_names', lambda: list(HEDGE_FUNDS_CIK.values()))
+    typed_hedge_module = cast(ModuleType, hedge_module)
+
+    HEDGE_FUNDS_CIK = cast(Dict[str, str], getattr(typed_hedge_module, 'HEDGE_FUNDS_CIK', {}))
+    get_total_funds = cast(
+        FundCountLookup,
+        getattr(typed_hedge_module, 'get_total_funds', _default_get_total_funds),
+    )
+    get_fund_name_by_cik = cast(
+        FundLookup,
+        getattr(typed_hedge_module, 'get_fund_name_by_cik', _default_get_fund_name_by_cik),
+    )
+    get_all_ciks = cast(
+        FundListLookup,
+        getattr(typed_hedge_module, 'get_all_ciks', _default_get_all_ciks),
+    )
+    get_all_fund_names = cast(
+        FundListLookup,
+        getattr(typed_hedge_module, 'get_all_fund_names', _default_get_all_fund_names),
+    )
     HAS_HEDGE_CONFIG = True
 except Exception as e:
     print(f"⚠️  Modulo hedge_funds_config.py non disponibile: {e}")
     HEDGE_FUNDS_CIK = {}
-    def get_total_funds():
-        return 0
-    def get_fund_name_by_cik(cik: str) -> str:
-        return HEDGE_FUNDS_CIK.get(cik, 'Fund Sconosciuto')
-    def get_all_ciks() -> list:
-        return []
-    def get_all_fund_names() -> list:
-        return []
     HAS_HEDGE_CONFIG = False
-import sys
 
 # Ensure stdout/stderr are UTF-8 to avoid UnicodeEncodeError on Windows consoles
 try:
     # Available on Python 3.7+; will raise on unsupported streams/environments
-    sys.stdout.reconfigure(encoding='utf-8')
-    sys.stderr.reconfigure(encoding='utf-8')
+    stdout_reconfigure = cast(Any, getattr(sys.stdout, 'reconfigure', None))
+    stderr_reconfigure = cast(Any, getattr(sys.stderr, 'reconfigure', None))
+    if callable(stdout_reconfigure):
+        stdout_reconfigure(encoding='utf-8')
+    if callable(stderr_reconfigure):
+        stderr_reconfigure(encoding='utf-8')
 except Exception:
     # If reconfigure isn't available or fails, ignore and continue
     pass
@@ -348,7 +385,12 @@ def save_processing_metrics(metrics: Dict) -> None:
     wait=wait_exponential(multiplier=1, min=2, max=10),
     retry=retry_if_exception_type((requests.exceptions.RequestException,))
 )
-def _fetch_13f_filings_from_api(cik: str, fund_name: str, start_date: str = CUTOFF_DATE, end_date: str = None) -> List[Dict]:
+def _fetch_13f_filings_from_api(
+    cik: str,
+    fund_name: str,
+    start_date: str = CUTOFF_DATE,
+    end_date: Optional[str] = None,
+) -> List[Dict]:
     """
     Recupera tutti i filing 13F-HR per un CIK dalla SEC API (senza cache).
     """
@@ -422,7 +464,13 @@ def _fetch_13f_filings_from_api(cik: str, fund_name: str, start_date: str = CUTO
         print(f"    ❌ Errore: {e}")
         return []
 
-def get_13f_filings_for_cik(cik: str, fund_name: str, cache_dir: str = None, start_date: str = CUTOFF_DATE, end_date: str = None) -> List[Dict]:
+def get_13f_filings_for_cik(
+    cik: str,
+    fund_name: str,
+    cache_dir: Optional[str] = None,
+    start_date: str = CUTOFF_DATE,
+    end_date: Optional[str] = None,
+) -> List[Dict]:
     if cache_dir is None:
         cache_dir = FILING_CACHE_DIR
     """
@@ -456,7 +504,13 @@ def get_13f_filings_for_cik(cik: str, fund_name: str, cache_dir: str = None, sta
             print(f"    ⚠️ Errore salvataggio cache: {e}")
     return filings
 
-def download_catalog(output_file: str = CATALOG_FILE, incremental: bool = True, quiet: bool = False, start_date: str = CUTOFF_DATE, end_date: str = None) -> List[Dict]:
+def download_catalog(
+    output_file: str = CATALOG_FILE,
+    incremental: bool = True,
+    quiet: bool = False,
+    start_date: str = CUTOFF_DATE,
+    end_date: Optional[str] = None,
+) -> List[Dict]:
     """
     MODALITÀ 1: Scarica catalogo completo di filing da API SEC
     Usa la lista hedge funds da hedge_funds_config.py
@@ -617,8 +671,8 @@ def extract_holdings_from_catalog(
     if not incremental:
         print("🔄 Full refresh holdings: tracking e CSV storico ricreati da zero")
 
-    storage = Storage(Path(HOLDINGS_DB_FILE)) if save_db else None
-    if save_db:
+    storage: Optional[Storage] = Storage(Path(HOLDINGS_DB_FILE)) if save_db else None
+    if storage is not None:
         if not incremental:
             deleted_rows = storage.clear_holdings()
             print(f"🧹 SQLite holdings azzerate: {deleted_rows:,} righe rimosse")
@@ -793,7 +847,7 @@ def process_full_pipeline(
     use_processes: bool = False,
     save_interval: int = 5,
     start_date: str = CUTOFF_DATE,
-    end_date: str = None,
+    end_date: Optional[str] = None,
     quiet: bool = False,
     auto_confirm: bool = False,
     incremental: bool = True,
@@ -910,6 +964,129 @@ def export_dashboard_csvs(output_dir: str, scope: str = 'both') -> int:
     print("\n🎉 Export completato.\n")
     return 0
 
+
+def get_missing_value_filings(limit: Optional[int] = None) -> List[Dict[str, str]]:
+    """Return one row per accession whose saved holdings still have no market values."""
+    db_path = Path(HOLDINGS_DB_FILE)
+    if not db_path.exists():
+        return []
+
+    query = """
+        SELECT
+            accession_number,
+            MAX(fund_name) AS fund_name,
+            MAX(filing_date) AS filing_date,
+            MAX(filing_url) AS filing_url,
+            COUNT(*) AS row_count
+        FROM holdings
+        WHERE TRIM(COALESCE(accession_number, '')) <> ''
+          AND TRIM(COALESCE(filing_url, '')) <> ''
+        GROUP BY accession_number
+        HAVING SUM(
+            CASE
+                WHEN value_usd IS NOT NULL OR TRIM(COALESCE(value_x1000, '')) <> '' THEN 1
+                ELSE 0
+            END
+        ) = 0
+        ORDER BY MAX(filing_date) DESC, MAX(fund_name)
+    """
+
+    with sqlite3.connect(db_path) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(query).fetchall()
+
+    filings = [dict(row) for row in rows]
+    return filings[:limit] if limit is not None else filings
+
+
+def backfill_missing_values_in_db(
+    workers: int = 1,
+    auto_confirm: bool = False,
+    limit: Optional[int] = None,
+) -> int:
+    """Re-parse existing accessions whose holdings were saved without value fields."""
+    db_path = Path(HOLDINGS_DB_FILE)
+    if not db_path.exists():
+        print(f"❌ Database non trovato: {db_path}")
+        return 1
+
+    filings_to_process = get_missing_value_filings(limit=limit)
+    total_missing = len(get_missing_value_filings()) if limit is not None else len(filings_to_process)
+
+    print("="*80)
+    print("MODALITÀ BACKFILL VALUES")
+    print("="*80)
+    print(f"🗄️  Database: {db_path}")
+    print(f"🔎 Filing con valori mancanti trovati: {total_missing}")
+    if limit is not None:
+        print(f"📌 Limite esecuzione corrente: {len(filings_to_process)}")
+
+    if not filings_to_process:
+        print("✅ Nessun filing da correggere.\n")
+        return 0
+
+    if not auto_confirm:
+        risposta = input("Vuoi procedere con il backfill dei valori mancanti? (s/n): ").lower()
+        if risposta != 's':
+            print("\n❌ Operazione annullata.")
+            return 1
+    else:
+        print("✅ Modalità automatica: procedo senza conferma...")
+
+    storage = Storage(db_path)
+    successi = 0
+    falliti = 0
+    lock = threading.Lock()
+
+    def worker_process(filing: Dict[str, str]) -> None:
+        nonlocal successi, falliti
+        accession_number = filing['accession_number']
+        fund_name = filing['fund_name']
+        filing_date = filing['filing_date']
+        filing_url = filing['filing_url']
+
+        try:
+            if 'rate_limiter' in globals() and rate_limiter is not None:
+                rate_limiter.wait()
+
+            success = process_filing_holdings(
+                filing_url,
+                fund_name,
+                filing_date,
+                storage=storage,
+                persist_csv=False,
+                persist_db=True,
+            )
+            with lock:
+                if success:
+                    successi += 1
+                    print(f"  ✅ Backfilled: {accession_number} | {fund_name}")
+                else:
+                    falliti += 1
+                    print(f"  ⚠️  Nessuna holding salvata: {accession_number} | {fund_name}")
+        except Exception as e:
+            with lock:
+                falliti += 1
+            print(f"  ❌ Errore backfill {accession_number}: {e}")
+
+        time.sleep(0.15)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, workers)) as executor:
+        futures = [executor.submit(worker_process, filing) for filing in filings_to_process]
+        for fut in concurrent.futures.as_completed(futures):
+            fut.result()
+
+    remaining_missing = len(get_missing_value_filings())
+
+    print("\n" + "="*80)
+    print("📊 RIEPILOGO BACKFILL VALUES")
+    print("="*80)
+    print(f"✅ Successi: {successi}")
+    print(f"❌ Falliti:  {falliti}")
+    print(f"🔎 Filing ancora senza valori: {remaining_missing}")
+    print("="*80 + "\n")
+    return 0 if falliti == 0 else 1
+
 # ==================== MAIN ====================
 
 def setup_logging(quiet=False):
@@ -934,12 +1111,14 @@ MODALITÀ DISPONIBILI:
   holdings  - Estrae holdings dettagliate da filing nel catalogo (lento, ~1-2 ore)
   full      - Esegue catalog + holdings automaticamente (processo completo)
     export    - Esporta CSV dal database SQLite usato dal dashboard
+    backfill-values - Ricarica nel DB i filing già salvati senza colonna value
 
 ESEMPI:
   python process_historical_13f.py catalog
   python process_historical_13f.py holdings
   python process_historical_13f.py full
     python process_historical_13f.py export --export-scope both
+    python process_historical_13f.py backfill-values --yes --workers 2
 
 OUTPUT:
   - historical_13f_catalog_5years.json  (modalità catalog/full)
@@ -957,7 +1136,7 @@ NOTES:
     
     parser.add_argument(
         'mode',
-        choices=['catalog', 'holdings', 'full', 'benchmark', 'export'],
+        choices=['catalog', 'holdings', 'full', 'benchmark', 'export', 'backfill-values'],
         help='Modalità di esecuzione'
     )
     
@@ -1011,6 +1190,13 @@ NOTES:
         choices=['all', 'latest', 'both'],
         default='both',
         help='Tipologia di export per la modalità export (default: both)'
+    )
+
+    parser.add_argument(
+        '--limit',
+        type=int,
+        default=None,
+        help='Limita il numero di filing da processare nella modalità backfill-values'
     )
     
     parser.add_argument(
@@ -1117,6 +1303,14 @@ NOTES:
         )
     elif args.mode == 'export':
         raise SystemExit(export_dashboard_csvs(args.output_dir, scope=args.export_scope))
+    elif args.mode == 'backfill-values':
+        raise SystemExit(
+            backfill_missing_values_in_db(
+                workers=args.workers,
+                auto_confirm=args.yes,
+                limit=args.limit,
+            )
+        )
     elif args.mode == 'benchmark':
         # Quick benchmark to estimate average time per filing
         def run_benchmark(sample_size: int = args.sample_size):

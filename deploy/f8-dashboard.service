@@ -7,7 +7,9 @@ Wants=network-online.target
 Type=simple
 User=root
 WorkingDirectory=/opt/F8_F13Screener
-ExecStart=/opt/F8_F13Screener/venv/bin/python3 -m streamlit run src/web/dashboard.py \
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONPATH=/opt/F8_F13Screener
+ExecStart=/opt/F8_F13Screener/venv/bin/python -m streamlit run src/web/dashboard.py \
     --server.port 8502 \
     --server.headless true \
     --server.address 0.0.0.0

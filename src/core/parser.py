@@ -273,7 +273,7 @@ class HoldingsParser:
             'share_class': ['TITLE OF CLASS', 'TITLE', 'CLASS'],
             'cusip': ['CUSIP'],
             'figi': ['FIGI'],
-            'value_x1000': ['VALUE', 'MARKET VALUE', 'MKT VALUE'],
+            'value_x1000': ['VALUE', 'MARKET VALUE', 'MKT VALUE', 'TO THE NEAREST DOLLAR', 'X$1000', 'X 1000'],
             'shares': ['SHRS OR PRN AMT', 'PRN AMT', 'AMOUNT', 'SHARE', 'SHRS', 'SHARES'],
             'sh_prn': ['SH/PRN', 'PRN', 'SH PRN'],
             'put_call': ['PUT/CALL', 'CALL', 'PUT CALL'],
