@@ -1036,7 +1036,7 @@ def bootstrap_dashboard_db_from_csv(csv_path: str = HISTORICAL_HOLDINGS_CSV) -> 
         'other_manager', 'other_managers_raw', 'all_columns_raw',
         'voting_authority_sole', 'voting_authority_shared', 'voting_authority_none',
     ]
-    df = cast(pd.DataFrame, df.loc[:, ordered_cols].copy())
+    df = cast(pd.DataFrame, df[ordered_cols].copy())
 
     storage = DashboardStorage(db_path)
     inserted = storage.replace_holdings_from_dataframe(df)

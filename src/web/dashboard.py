@@ -497,7 +497,10 @@ def load_fund_history(fund: str) -> tuple[pd.DataFrame, list[dict]]:
 
     summary_rows = []
     snapshots = []
-    for (filing_date, accession_number), group in rows.groupby(["filing_date", "accession_number"], sort=False):
+    for group_key, group in rows.groupby(["filing_date", "accession_number"], sort=False):
+        if not isinstance(group_key, tuple) or len(group_key) != 2:
+            continue
+        filing_date, accession_number = group_key
         positions = {}
         for row in group.to_dict("records"):
             position_key = build_position_key(
