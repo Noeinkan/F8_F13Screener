@@ -41,6 +41,7 @@ class DashboardStorage:
                     fund_cik VARCHAR,
                     accession_number VARCHAR,
                     filing_url VARCHAR,
+                    acceptance_datetime VARCHAR,
                     issuer_name VARCHAR,
                     share_class VARCHAR,
                     cusip VARCHAR,
@@ -65,6 +66,12 @@ class DashboardStorage:
             conn.execute("CREATE INDEX IF NOT EXISTS idx_dash_accession ON holdings(accession_number)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_dash_fund_date ON holdings(fund_name, filing_date)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_dash_cusip ON holdings(cusip)")
+            existing_columns = {
+                row[1]
+                for row in conn.execute("PRAGMA table_info('holdings')").fetchall()
+            }
+            if 'acceptance_datetime' not in existing_columns:
+                conn.execute("ALTER TABLE holdings ADD COLUMN acceptance_datetime VARCHAR")
 
     def clear_holdings(self) -> int:
         with self._get_connection() as conn:
@@ -81,6 +88,7 @@ class DashboardStorage:
         filing_date: str,
         accession_number: str,
         filing_url: str,
+        acceptance_datetime: Optional[str] = None,
     ) -> int:
         if not holdings:
             return 0
@@ -97,6 +105,7 @@ class DashboardStorage:
                     fund_cik,
                     accession_number,
                     filing_url,
+                    acceptance_datetime,
                     holding.get("issuer_name", ""),
                     holding.get("share_class", ""),
                     holding.get("cusip", ""),
@@ -124,11 +133,12 @@ class DashboardStorage:
                 """
                 INSERT INTO holdings (
                     id, filing_date, fund_name, fund_cik, accession_number, filing_url,
+                    acceptance_datetime,
                     issuer_name, share_class, cusip, figi, value_x1000, value_usd,
                     shares_raw, shares, sh_prn, put_call, investment_discretion,
                     other_manager, other_managers_raw, all_columns_raw,
                     voting_authority_sole, voting_authority_shared, voting_authority_none
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 rows,
             )
@@ -140,18 +150,39 @@ class DashboardStorage:
         with self._get_connection() as conn:
             return conn.execute(sql, list(params)).df()
 
+    def has_holdings_for_accession(self, accession_number: str) -> bool:
+        if not accession_number:
+            return False
+
+        with self._get_connection() as conn:
+            row = conn.execute(
+                """
+                SELECT 1
+                FROM holdings
+                WHERE accession_number = ?
+                LIMIT 1
+                """,
+                [accession_number],
+            ).fetchone()
+            return row is not None
+
     def replace_holdings_from_dataframe(self, holdings_df: pd.DataFrame) -> int:
         if holdings_df.empty:
             self.clear_holdings()
             return 0
 
+        seed_df = holdings_df.copy()
+        if "acceptance_datetime" not in seed_df.columns:
+            seed_df["acceptance_datetime"] = None
+
         with self._get_connection() as conn:
-            conn.register("seed_holdings_df", holdings_df)
+            conn.register("seed_holdings_df", seed_df)
             conn.execute("DELETE FROM holdings")
             conn.execute(
                 """
                 INSERT INTO holdings (
                     id, filing_date, fund_name, fund_cik, accession_number, filing_url,
+                    acceptance_datetime,
                     issuer_name, share_class, cusip, figi, value_x1000, value_usd,
                     shares_raw, shares, sh_prn, put_call, investment_discretion,
                     other_manager, other_managers_raw, all_columns_raw,
@@ -164,6 +195,7 @@ class DashboardStorage:
                     fund_cik,
                     accession_number,
                     filing_url,
+                    acceptance_datetime,
                     issuer_name,
                     share_class,
                     cusip,

@@ -31,6 +31,7 @@ class Storage:
                     filer_name TEXT NOT NULL,
                     cik TEXT,
                     filing_date TEXT,
+                    acceptance_datetime TEXT,
                     processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     matched BOOLEAN DEFAULT 0
                 )
@@ -45,6 +46,7 @@ class Storage:
                     fund_cik TEXT,
                     accession_number TEXT,
                     filing_url TEXT,
+                    acceptance_datetime TEXT,
                     issuer_name TEXT,
                     share_class TEXT,
                     cusip TEXT,
@@ -71,6 +73,11 @@ class Storage:
                 'shares_raw': 'TEXT',
                 'other_managers_raw': 'TEXT',
                 'all_columns_raw': 'TEXT',
+                'acceptance_datetime': 'TEXT',
+            })
+
+            self._ensure_table_columns(cursor, 'seen_filings', {
+                'acceptance_datetime': 'TEXT',
             })
 
             # Create indexes for performance
@@ -167,6 +174,7 @@ class Storage:
         filer_name: str,
         cik: str,
         filing_date: str,
+        acceptance_datetime: Optional[str] = None,
         matched: bool = False
     ):
         """
@@ -183,9 +191,9 @@ class Storage:
             cursor = conn.cursor()
             cursor.execute("""
                 INSERT OR REPLACE INTO seen_filings
-                (entry_id, filer_name, cik, filing_date, matched, processed_at)
-                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-            """, (entry_id, filer_name, cik, filing_date, matched))
+                (entry_id, filer_name, cik, filing_date, acceptance_datetime, matched, processed_at)
+                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            """, (entry_id, filer_name, cik, filing_date, acceptance_datetime, matched))
             conn.commit()
 
     def save_holdings(
@@ -195,7 +203,8 @@ class Storage:
         fund_cik: str,
         filing_date: str,
         accession_number: str,
-        filing_url: str
+        filing_url: str,
+        acceptance_datetime: Optional[str] = None,
     ) -> int:
         """
         Save holdings to database
@@ -227,17 +236,19 @@ class Storage:
                 cursor.execute("""
                     INSERT INTO holdings (
                         filing_date, fund_name, fund_cik, accession_number, filing_url,
+                        acceptance_datetime,
                         issuer_name, share_class, cusip, figi, value_x1000, value_usd,
                         shares_raw, shares, sh_prn, put_call, investment_discretion,
                         other_manager, other_managers_raw, all_columns_raw,
                         voting_authority_sole, voting_authority_shared, voting_authority_none
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     filing_date_clean,
                     fund_name,
                     fund_cik,
                     accession_number,
                     filing_url,
+                    acceptance_datetime,
                     holding.get('issuer_name', ''),
                     holding.get('share_class', ''),
                     holding.get('cusip', ''),
@@ -510,3 +521,21 @@ class Storage:
                         'share_class': row['share_class'],
                     }
             return result
+
+    def has_holdings_for_accession(self, accession_number: str) -> bool:
+        """Return True when at least one holdings row exists for the accession."""
+        if not accession_number:
+            return False
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                SELECT 1
+                FROM holdings
+                WHERE accession_number = ?
+                LIMIT 1
+                """,
+                (accession_number,),
+            )
+            return cursor.fetchone() is not None

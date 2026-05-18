@@ -63,6 +63,17 @@ SAMPLE_HTML_X1000_VALUE = '''
 </body></html>
 '''
 
+SAMPLE_INDEX_WITH_INFORMATION_TABLE = '''
+<html><body>
+<table>
+    <tr><th>Seq</th><th>Description</th><th>Document</th><th>Type</th></tr>
+    <tr><td>1</td><td></td><td><a href="primary_doc.xml">primary_doc.xml</a></td><td>13F-HR</td></tr>
+    <tr><td>2</td><td></td><td><a href="salp13fq1xml.html">salp13fq1xml.html</a></td><td>INFORMATION TABLE</td></tr>
+    <tr><td>2</td><td></td><td><a href="salp13fq1xml.xml">salp13fq1xml.xml</a></td><td>INFORMATION TABLE</td></tr>
+</table>
+</body></html>
+'''
+
 @pytest.fixture()
 def write_temp_file():
     files = []
@@ -190,5 +201,29 @@ def test_parse_html_x1000_value_header():
         assert h.get('value_x1000') == '5'
         assert h.get('value') == 5
         assert h.get('shares') == 37752
+    finally:
+        monkey.undo()
+
+
+def test_get_information_table_url_prefers_explicit_information_table_xml():
+    import requests as req_mod
+
+    class DummyResp:
+        def __init__(self, content):
+            self.content = content
+            self.status_code = 200
+
+    def fake_get(url, headers=None, timeout=None):
+        return DummyResp(SAMPLE_INDEX_WITH_INFORMATION_TABLE.encode('utf-8'))
+
+    monkey = pytest.MonkeyPatch()
+    monkey.setattr(req_mod, 'get', fake_get)
+    try:
+        result = parser.get_information_table_url(
+            'https://www.sec.gov/Archives/edgar/data/2045724/000204572426000008/0002045724-26-000008-index.htm'
+        )
+        assert result is not None
+        assert result.endswith('/salp13fq1xml.xml')
+        assert not result.endswith('/primary_doc.xml')
     finally:
         monkey.undo()

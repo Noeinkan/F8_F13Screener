@@ -4,7 +4,7 @@ SEC API client for fetching 13F filings
 import re
 import logging
 import time
-from typing import Optional, List, Dict
+from typing import List, Dict
 from functools import lru_cache
 import requests
 import feedparser
@@ -53,6 +53,83 @@ class SECClient:
         logger.error("Fallito scaricamento feed dopo tutti i tentativi")
         return feedparser.FeedParserDict()
 
+    def fetch_recent_13f_for_cik(
+        self,
+        cik: str,
+        max_entries: int = 10,
+        forms: tuple[str, ...] = ('13F-HR', '13F-HR/A'),
+    ) -> List[Dict[str, str]]:
+        """
+        Fetch recent 13F filings for one CIK from SEC submissions endpoint.
+
+        Returns:
+            List of dicts with form, filing_date, acceptance_datetime,
+            accession_number, filing_url and filer_name.
+        """
+        cik_padded = cik.zfill(10)
+        submissions_url = f"https://data.sec.gov/submissions/CIK{cik_padded}.json"
+
+        for attempt in range(self.max_retries):
+            try:
+                response = self._session.get(submissions_url, timeout=30)
+                if response.status_code != 200:
+                    logger.warning(
+                        "Errore submissions SEC per CIK %s HTTP %s",
+                        cik,
+                        response.status_code,
+                    )
+                else:
+                    data = response.json()
+                    recent = data.get('filings', {}).get('recent', {})
+                    forms_list = recent.get('form', [])
+                    accession_numbers = recent.get('accessionNumber', [])
+                    filing_dates = recent.get('filingDate', [])
+                    acceptance_datetimes = recent.get('acceptanceDateTime', [])
+                    primary_documents = recent.get('primaryDocument', [])
+                    filer_name = data.get('name', '').strip()
+
+                    filings: List[Dict[str, str]] = []
+                    for idx, form in enumerate(forms_list):
+                        if form not in forms:
+                            continue
+
+                        accession_number = accession_numbers[idx] if idx < len(accession_numbers) else ''
+                        filing_date = filing_dates[idx] if idx < len(filing_dates) else ''
+                        acceptance_datetime = (
+                            acceptance_datetimes[idx] if idx < len(acceptance_datetimes) else ''
+                        )
+                        primary_document = (
+                            primary_documents[idx] if idx < len(primary_documents) else ''
+                        )
+
+                        filing_url = self.build_filing_index_url(cik, accession_number)
+
+                        filings.append({
+                            'cik': cik,
+                            'form': form,
+                            'filing_date': filing_date,
+                            'acceptance_datetime': acceptance_datetime,
+                            'accession_number': accession_number,
+                            'primary_document': primary_document,
+                            'filing_url': filing_url,
+                            'filer_name': filer_name,
+                        })
+
+                        if len(filings) >= max_entries:
+                            break
+
+                    return filings
+
+            except requests.exceptions.RequestException as e:
+                logger.error("Eccezione submissions SEC per CIK %s: %s", cik, e)
+            except ValueError as e:
+                logger.error("JSON non valido da submissions SEC per CIK %s: %s", cik, e)
+
+            if attempt < self.max_retries - 1:
+                time.sleep(self.retry_delay)
+
+        return []
+
     @staticmethod
     @lru_cache(maxsize=1000)
     def extract_cik_from_link(link: str) -> str:
@@ -93,6 +170,19 @@ class SECClient:
         except Exception as e:
             logger.debug(f"Errore estrazione accession number: {e}")
             return 'N/A'
+
+    @staticmethod
+    def build_filing_index_url(cik: str, accession_number: str) -> str:
+        """Build SEC filing index URL from CIK and accession number."""
+        if not accession_number:
+            return ''
+
+        accession_no_dashes = accession_number.replace('-', '')
+        cik_no_leading = cik.lstrip('0') if cik else ''
+        return (
+            f"https://www.sec.gov/Archives/edgar/data/{cik_no_leading}/"
+            f"{accession_no_dashes}/{accession_number}-index.htm"
+        )
 
     @staticmethod
     def extract_filer_name_from_title(title: str) -> str:

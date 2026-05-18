@@ -35,69 +35,70 @@ class HoldingsParser:
                 return None
 
             soup = BeautifulSoup(response.content, 'html.parser')
+            base_url = '/'.join(filing_index_url.split('/')[:-1])
 
-            # Method 1: Search for link containing "infotable" (XSLT rendered form)
+            def build_full_url(href: str) -> str:
+                if href.startswith('http'):
+                    return href
+                if href.startswith('/'):
+                    return f"https://www.sec.gov{href}"
+                return f"{base_url}/{href}"
+
+            # Method 1: Prefer rows explicitly labeled INFORMATION TABLE.
+            candidates = []
+            for row in soup.find_all('tr'):
+                cells = row.find_all('td')
+                if len(cells) < 3:
+                    continue
+
+                row_text = ' '.join(cell.get_text(' ', strip=True) for cell in cells).upper()
+                if 'INFORMATION TABLE' not in row_text and 'INFO TABLE' not in row_text:
+                    continue
+
+                for cell in cells:
+                    link = cell.find('a', href=True)
+                    if not link:
+                        continue
+                    href = link['href']
+                    lower_href = href.lower()
+                    if lower_href.endswith('.xml'):
+                        candidates.append((0, build_full_url(href)))
+                    elif lower_href.endswith(('.html', '.htm')):
+                        candidates.append((1, build_full_url(href)))
+
+            if candidates:
+                best_url = sorted(candidates, key=lambda item: item[0])[0][1]
+                logger.debug(f"Found infotable (method 1): {best_url}")
+                return best_url
+
+            # Method 2: Search for link containing "infotable" (XSLT rendered form)
             for link in soup.find_all('a', href=True):
                 href = link['href']
                 link_text = link.get_text(strip=True).lower()
 
                 # Search "infotable" in link text or href
                 if 'infotable' in link_text or 'infotable' in href.lower():
-                    # Build complete URL
-                    if href.startswith('http'):
-                        logger.debug(f"Found infotable (method 1): {href}")
-                        return href
-                    else:
-                        # Relative URL
-                        if href.startswith('/'):
-                            full_url = f"https://www.sec.gov{href}"
-                            logger.debug(f"Found infotable (method 1): {full_url}")
-                            return full_url
-                        else:
-                            base_url = '/'.join(filing_index_url.split('/')[:-1])
-                            full_url = f"{base_url}/{href}"
-                            logger.debug(f"Found infotable (method 1): {full_url}")
-                            return full_url
+                    full_url = build_full_url(href)
+                    logger.debug(f"Found infotable (method 2): {full_url}")
+                    return full_url
 
-            # Method 2: Search in document table (old format)
-            for row in soup.find_all('tr'):
-                cells = row.find_all('td')
-                if len(cells) >= 3:
-                    # Search "INFORMATION TABLE" in description
-                    description = ' '.join([cell.get_text(strip=True).upper() for cell in cells])
-                    if 'INFORMATION TABLE' in description or 'INFO TABLE' in description:
-                        # Find link to HTML file
-                        for cell in cells:
-                            link = cell.find('a', href=True)
-                            if link and (link['href'].lower().endswith('.html') or link['href'].lower().endswith('.htm')):
-                                href = link['href']
-                                if href.startswith('http'):
-                                    logger.debug(f"Found infotable (method 2): {href}")
-                                    return href
-                                else:
-                                    base_url = '/'.join(filing_index_url.split('/')[:-1])
-                                    full_url = f"{base_url}/{href}"
-                                    logger.debug(f"Found infotable (method 2): {full_url}")
-                                    return full_url
-
-            # Method 3: Search for XML file (form13fInfoTable.xml)
-            base_url = '/'.join(filing_index_url.split('/')[:-1])
+            # Method 3: Search for likely XML information-table files, excluding the primary cover XML.
             for link in soup.find_all('a', href=True):
                 href = link['href']
                 link_text = link.get_text(strip=True).lower()
+                lower_href = href.lower()
                 
-                # Look for XML files with "table" or "13f" in name
-                if href.lower().endswith('.xml') and ('table' in href.lower() or '13f' in href.lower() or 'info' in href.lower()):
-                    if href.startswith('http'):
-                        logger.debug(f"Found XML table (method 3): {href}")
-                        return href
-                    else:
-                        if href.startswith('/'):
-                            full_url = f"https://www.sec.gov{href}"
-                        else:
-                            full_url = f"{base_url}/{href}"
-                        logger.debug(f"Found XML table (method 3): {full_url}")
-                        return full_url
+                # Look for XML files with strong information-table hints.
+                if not lower_href.endswith('.xml'):
+                    continue
+                if 'primary_doc' in lower_href:
+                    continue
+                if not any(token in lower_href for token in ('infotable', 'information', 'table', 'xml')) and 'information table' not in link_text:
+                    continue
+
+                full_url = build_full_url(href)
+                logger.debug(f"Found XML table (method 3): {full_url}")
+                return full_url
 
             logger.warning(f"Information Table HTML non trovata nella pagina: {filing_index_url}")
             # Log available files for debugging

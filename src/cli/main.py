@@ -2,6 +2,7 @@
 13F Alert System - Main orchestration
 Refactored modular version with clean separation of concerns
 """
+import json
 import logging
 import threading
 import time
@@ -16,12 +17,14 @@ from pathlib import Path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from src.core.config import Config
+from src.core.dashboard_storage import DashboardStorage
 from src.core.sec_client import SECClient
 from src.core.parser import HoldingsParser
 from src.core.notifier import TelegramNotifier
 from src.core.storage import Storage
 from src.core.diff import compute_portfolio_diff
 from src.core.telegram_commands import TelegramCommandHandler
+from src.core.paths import DASHBOARD_DB_FILE
 
 def launch_telegram_viewer() -> bool:
     """Launch Telegram viewer in a separate window"""
@@ -125,12 +128,226 @@ class FilingProcessor:
             config.retry_delay
         )
         self.storage = Storage(config.holdings_db)
+        self.dashboard_storage = DashboardStorage(DASHBOARD_DB_FILE)
         self.logger = logging.getLogger(__name__)
+        self.runtime_state = self._load_runtime_state()
 
-    def process_feed(self):
-        """Process the current RSS feed"""
+    def _load_runtime_state(self) -> dict:
+        if not self.config.last_check_file.exists():
+            return {}
+
+        try:
+            with self.config.last_check_file.open('r', encoding='utf-8') as f:
+                data = json.load(f)
+                return data if isinstance(data, dict) else {}
+        except Exception as e:
+            self.logger.warning(f"Impossibile leggere state file realtime: {e}")
+            return {}
+
+    def _save_runtime_state(self) -> None:
+        try:
+            self.config.last_check_file.parent.mkdir(parents=True, exist_ok=True)
+            with self.config.last_check_file.open('w', encoding='utf-8') as f:
+                json.dump(self.runtime_state, f, indent=2)
+        except Exception as e:
+            self.logger.warning(f"Impossibile salvare state file realtime: {e}")
+
+    @staticmethod
+    def _build_entry_id(source: str, cik: str, accession_number: str, fallback: str) -> str:
+        if accession_number and accession_number != 'N/A':
+            return f"filing:{cik}:{accession_number}"
+        return fallback
+
+    @staticmethod
+    def _build_seen_candidates(source: str, cik: str, accession_number: str, fallback: str) -> set[str]:
+        if accession_number and accession_number != 'N/A':
+            return {
+                f"filing:{cik}:{accession_number}",
+                f"submissions:{cik}:{accession_number}",
+                f"feed:{cik}:{accession_number}",
+            }
+        return {fallback, f"{source}:{fallback}"}
+
+    def _needs_holdings_backfill(self, accession_number: str) -> bool:
+        if not accession_number or accession_number == 'N/A':
+            return False
+
+        return (
+            not self.storage.has_holdings_for_accession(accession_number)
+            or not self.dashboard_storage.has_holdings_for_accession(accession_number)
+        )
+
+    def process_filings_cycle(self):
+        """Primary filings cycle: submissions endpoint first, Atom feed fallback second."""
+        self.process_submissions()
+        if self.config.enable_atom_fallback:
+            self.process_feed_fallback()
+
+    def process_submissions(self):
+        """Process recent filings discovered via SEC submissions endpoint."""
+        self.logger.info("\n%s", "=" * 60)
+        self.logger.info("Controllo submissions alle %s", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+        seen_filings = self.storage.get_seen_filings(limit=2000)
+        bootstrap_mode = not self.runtime_state.get('submissions_bootstrapped', False)
+        if bootstrap_mode:
+            self.logger.info(
+                "Bootstrap submissions attivo: backfill DB e seed dei filing recenti senza invio Telegram"
+            )
+
+        stats = {
+            'total_checked': 0,
+            'already_seen': 0,
+            'bootstrapped': 0,
+            'matched': 0,
+            'filtered': 0,
+            'sent': 0,
+            'failed': 0,
+        }
+
+        for cik, fund_name in self.config.hedge_funds_cik.items():
+            filings = self.sec_client.fetch_recent_13f_for_cik(
+                cik,
+                max_entries=self.config.submissions_recent_limit,
+            )
+
+            for filing in filings:
+                stats['total_checked'] += 1
+
+                accession_number = filing.get('accession_number', '')
+                filing_url = filing.get('filing_url', '')
+                filer_name = filing.get('filer_name', '') or fund_name
+                filing_date = filing.get('filing_date', '')
+                acceptance_datetime = filing.get('acceptance_datetime', '') or filing_date
+
+                entry_id = self._build_entry_id(
+                    source='submissions',
+                    cik=cik,
+                    accession_number=accession_number,
+                    fallback=f"submissions:{cik}:{filing_date}:{filing.get('primary_document', '')}",
+                )
+                seen_candidates = self._build_seen_candidates(
+                    source='submissions',
+                    cik=cik,
+                    accession_number=accession_number,
+                    fallback=f"submissions:{cik}:{filing_date}:{filing.get('primary_document', '')}",
+                )
+
+                if any(candidate in seen_filings for candidate in seen_candidates):
+                    if self._needs_holdings_backfill(accession_number):
+                        self.logger.info(
+                            "Backfill holdings per filing gia visto %s (%s)",
+                            accession_number,
+                            fund_name,
+                        )
+                        self._process_holdings(
+                            filing_url,
+                            filer_name,
+                            fund_name,
+                            cik,
+                            filing_date,
+                            acceptance_datetime=acceptance_datetime,
+                        )
+                    stats['already_seen'] += 1
+                    continue
+
+                if bootstrap_mode:
+                    self.storage.mark_filing_seen(
+                        entry_id,
+                        filer_name,
+                        cik,
+                        filing_date,
+                        acceptance_datetime=acceptance_datetime,
+                        matched=True,
+                    )
+                    if self._needs_holdings_backfill(accession_number):
+                        self.logger.info(
+                            "Bootstrap backfill holdings per %s (%s)",
+                            accession_number,
+                            fund_name,
+                        )
+                        self._process_holdings(
+                            filing_url,
+                            filer_name,
+                            fund_name,
+                            cik,
+                            filing_date,
+                            acceptance_datetime=acceptance_datetime,
+                        )
+                    seen_filings.add(entry_id)
+                    stats['bootstrapped'] += 1
+                    continue
+
+                # Mark as seen before outbound notification to avoid duplicate alerts.
+                self.storage.mark_filing_seen(
+                    entry_id,
+                    filer_name,
+                    cik,
+                    filing_date,
+                    acceptance_datetime=acceptance_datetime,
+                    matched=False,
+                )
+
+                stats['matched'] += 1
+                self.storage.mark_filing_seen(
+                    entry_id,
+                    filer_name,
+                    cik,
+                    filing_date,
+                    acceptance_datetime=acceptance_datetime,
+                    matched=True,
+                )
+
+                holdings_saved, portfolio_diff = self._process_holdings(
+                    filing_url,
+                    filer_name,
+                    fund_name,
+                    cik,
+                    filing_date,
+                    acceptance_datetime=acceptance_datetime,
+                )
+
+                if self.notifier.send_filing_alert(
+                    fund_name,
+                    filer_name,
+                    acceptance_datetime,
+                    filing_url,
+                    holdings_saved,
+                    portfolio_diff,
+                ):
+                    stats['sent'] += 1
+                else:
+                    stats['failed'] += 1
+
+                seen_filings.add(entry_id)
+
+            time.sleep(self.config.submissions_request_delay_seconds)
+
+        self.logger.info(
+            "📊 Submissions: %s totali | %s già visti | %s bootstrap | %s matched | %s inviati | %s falliti",
+            stats['total_checked'],
+            stats['already_seen'],
+            stats['bootstrapped'],
+            stats['matched'],
+            stats['sent'],
+            stats['failed'],
+        )
+
+        if bootstrap_mode:
+            self.runtime_state['submissions_bootstrapped'] = True
+            self.runtime_state['submissions_bootstrapped_at'] = datetime.utcnow().isoformat(timespec='seconds') + 'Z'
+            self._save_runtime_state()
+
+        self.storage.update_statistics(
+            total_checked=stats['total_checked'] - stats['already_seen'],
+            matched=stats['matched'],
+            filtered=stats['filtered'],
+        )
+
+    def process_feed_fallback(self):
+        """Process the current RSS feed as fallback/secondary monitoring."""
         self.logger.info(f"\n{'='*60}")
-        self.logger.info(f"Controllo alle {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        self.logger.info(f"Controllo feed fallback alle {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
         # Fetch feed
         feed = self.sec_client.fetch_13f_feed(self.config.rss_url)
@@ -155,26 +372,61 @@ class FilingProcessor:
         # Process each entry
         for entry in feed.entries:
             try:
-                entry_id = entry.id
-                stats['total_checked'] += 1
-
-                # Skip if already seen
-                if entry_id in seen_filings:
-                    stats['already_seen'] += 1
-                    continue
-
                 # Extract information
-                title = entry.get('title', '')
+                title = str(entry.get('title', '') or '')
                 filer_name = self.sec_client.extract_filer_name_from_title(title)
-                filing_date = entry.get('updated', 'Data N/A')
-                filing_url = entry.get('link', '')
+                filing_date = str(entry.get('updated', 'Data N/A') or 'Data N/A')
+                filing_url = str(entry.get('link', '') or '')
 
                 # Extract CIK
                 cik = self.sec_client.extract_cik_from_link(filing_url)
+                accession_number = self.sec_client.extract_accession_number(filing_url)
+                entry_fallback_id = str(getattr(entry, 'id', '') or '')
+
+                entry_id = self._build_entry_id(
+                    source='feed',
+                    cik=cik,
+                    accession_number=accession_number,
+                    fallback=entry_fallback_id,
+                )
+                seen_candidates = self._build_seen_candidates(
+                    source='feed',
+                    cik=cik,
+                    accession_number=accession_number,
+                    fallback=entry_fallback_id,
+                )
+                stats['total_checked'] += 1
+
+                # Skip if already seen
+                if any(candidate in seen_filings for candidate in seen_candidates):
+                    matched_fund = self.config.hedge_funds_cik.get(cik.zfill(10)) or self.config.hedge_funds_cik.get(cik)
+                    if matched_fund and self._needs_holdings_backfill(accession_number):
+                        self.logger.info(
+                            "Backfill holdings da feed fallback per filing gia visto %s (%s)",
+                            accession_number,
+                            matched_fund,
+                        )
+                        self._process_holdings(
+                            filing_url,
+                            filer_name,
+                            matched_fund,
+                            cik,
+                            filing_date,
+                            acceptance_datetime=filing_date,
+                        )
+                    stats['already_seen'] += 1
+                    continue
 
                 # CRITICAL FIX: Mark as seen immediately after parsing
                 # This prevents re-processing if notification fails
-                self.storage.mark_filing_seen(entry_id, filer_name, cik, filing_date, matched=False)
+                self.storage.mark_filing_seen(
+                    entry_id,
+                    filer_name,
+                    cik,
+                    filing_date,
+                    acceptance_datetime=filing_date,
+                    matched=False,
+                )
 
                 # Check if matches our filter
                 is_match, matched_fund = self.sec_client.should_notify(
@@ -193,7 +445,14 @@ class FilingProcessor:
                 self.logger.info(f"✓ MATCH: {matched_fund} - {filer_name}")
 
                 # Update as matched
-                self.storage.mark_filing_seen(entry_id, filer_name, cik, filing_date, matched=True)
+                self.storage.mark_filing_seen(
+                    entry_id,
+                    filer_name,
+                    cik,
+                    filing_date,
+                    acceptance_datetime=filing_date,
+                    matched=True,
+                )
 
                 # Process holdings
                 holdings_saved, portfolio_diff = self._process_holdings(
@@ -201,7 +460,8 @@ class FilingProcessor:
                     filer_name,
                     matched_fund,
                     cik,
-                    filing_date
+                    filing_date,
+                    acceptance_datetime=filing_date,
                 )
 
                 # Send notification (failure here won't cause re-processing)
@@ -243,7 +503,8 @@ class FilingProcessor:
         filer_name: str,
         fund_name: str,
         cik: str,
-        filing_date: str
+        filing_date: str,
+        acceptance_datetime: str = '',
     ):
         """
         Process and save holdings for a filing.
@@ -291,10 +552,21 @@ class FilingProcessor:
                 cik,
                 filing_date,
                 accession_number,
-                filing_url
+                filing_url,
+                acceptance_datetime=acceptance_datetime or filing_date,
             )
 
-            if saved_count == 0:
+            dashboard_saved_count = self.dashboard_storage.save_holdings(
+                holdings,
+                fund_name,
+                cik,
+                filing_date,
+                accession_number,
+                filing_url,
+                acceptance_datetime=acceptance_datetime or filing_date,
+            )
+
+            if saved_count == 0 or dashboard_saved_count == 0:
                 return False, None
 
             # Compute diff against previous quarter if available
@@ -365,6 +637,12 @@ def main():
 
     logger.info("=== Avvio 13F Alert System v3.0 (Refactored) ===")
     logger.info(f"Intervallo polling: {config.poll_interval}s ({config.poll_interval/60} minuti)")
+    logger.info(
+        "Submissions watcher: ultimi %s filing per CIK | delay %.2fs | atom fallback %s",
+        config.submissions_recent_limit,
+        config.submissions_request_delay_seconds,
+        'ON' if config.enable_atom_fallback else 'OFF',
+    )
     logger.info(f"Filtro attivo: SI - {len(config.hedge_funds_cik)} hedge funds monitorati (filtro per CIK)")
 
     # Log first 5 funds
@@ -394,7 +672,7 @@ def main():
     # Shared state for command handler
     pause_event = threading.Event()       # set = polling paused
     check_now_event = threading.Event()   # set = skip the sleep, run immediately
-    last_check_ref = [None]              # last_check_ref[0] = datetime of last feed check
+    last_check_ref: list[datetime | None] = [None]  # last_check_ref[0] = datetime of last feed check
 
     # Start Telegram command listener (daemon thread)
     cmd_handler = TelegramCommandHandler(
@@ -427,7 +705,7 @@ def main():
                 processor.storage.cleanup_old_filings(days=90)
 
             # Process feed
-            processor.process_feed()
+            processor.process_filings_cycle()
             last_check_ref[0] = datetime.now()
 
             # Wait for next cycle (wakes early if /start is sent)

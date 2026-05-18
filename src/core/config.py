@@ -14,6 +14,33 @@ from src.core.paths import (
 )
 
 
+def _env_int(name: str, default: int) -> int:
+    raw = os.getenv(name)
+    if raw is None or raw == '':
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        return default
+
+
+def _env_float(name: str, default: float) -> float:
+    raw = os.getenv(name)
+    if raw is None or raw == '':
+        return default
+    try:
+        return float(raw)
+    except ValueError:
+        return default
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    raw = os.getenv(name)
+    if raw is None or raw == '':
+        return default
+    return raw.strip().lower() in {'1', 'true', 'yes', 'on'}
+
+
 @dataclass
 class Config:
     """Application configuration"""
@@ -29,7 +56,12 @@ class Config:
     rss_url: str = 'https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=13F-HR&count=100&output=atom'
 
     # Polling intervals (seconds)
-    poll_interval: int = 900  # 15 minutes for production
+    poll_interval: int = 120  # 2 minutes: near real-time submissions polling
+
+    # SEC submissions watcher tuning
+    submissions_recent_limit: int = 10
+    submissions_request_delay_seconds: float = 1.0
+    enable_atom_fallback: bool = True
 
     # Retry configuration
     max_retries: int = 3
@@ -83,6 +115,14 @@ class Config:
             telegram_bot_token=bot_token,
             telegram_chat_id=chat_id,
             sec_user_agent=user_agent or 'YourName yourname@email.com',
+            poll_interval=_env_int('F13F_POLL_INTERVAL_SECONDS', 120),
+            submissions_recent_limit=_env_int('F13F_SUBMISSIONS_RECENT_LIMIT', 10),
+            submissions_request_delay_seconds=_env_float(
+                'F13F_SUBMISSIONS_REQUEST_DELAY_SECONDS',
+                1.0,
+            ),
+            enable_atom_fallback=_env_bool('F13F_ENABLE_ATOM_FALLBACK', True),
+            auto_launch_viewer=_env_bool('F13F_AUTO_LAUNCH_VIEWER', True),
             hedge_funds_cik=hedge_funds
         )
 
