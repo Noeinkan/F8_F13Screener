@@ -4,7 +4,7 @@ Centralized configuration management for 13F Alert System
 import os
 from pathlib import Path
 from typing import Dict, Optional
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from src.core.paths import (
     LAST_CHECK_FILE,
@@ -46,7 +46,7 @@ class Config:
     auto_launch_viewer: bool = True
 
     # Hedge funds filter
-    hedge_funds_cik: Dict[str, str] = None
+    hedge_funds_cik: Dict[str, str] = field(default_factory=dict)
 
     @classmethod
     def from_env(cls) -> 'Config':

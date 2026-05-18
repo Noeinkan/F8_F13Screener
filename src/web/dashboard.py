@@ -2,6 +2,7 @@
 F8 F13 Screener — Streamlit Dashboard
 Run locally:  streamlit run src/web/dashboard.py
 """
+import json
 import sys
 import textwrap
 from pathlib import Path
@@ -23,6 +24,7 @@ from src.core.diff import (
     compute_quarterly_history_transitions,
 )
 from src.core.dashboard_storage import DashboardStorage
+from src.core.hedge_funds_config import HEDGE_FUNDS_CIK
 from src.core.paths import DASHBOARD_DB_FILE
 
 # ---------------------------------------------------------------------------
@@ -38,6 +40,9 @@ st.set_page_config(
 
 
 SelectionT = TypeVar("SelectionT")
+TRACKED_FUND_NAMES = sorted(HEDGE_FUNDS_CIK.values())
+FUND_NAME_TO_CIK = {name: cik for cik, name in HEDGE_FUNDS_CIK.items()}
+CACHE_DIR = PROJECT_ROOT / "cache"
 
 
 # ---------------------------------------------------------------------------
@@ -107,6 +112,56 @@ def query(sql: str, params: tuple = ()) -> pd.DataFrame:
         show_db_recovery_help(error=exc)
         st.stop()
     raise RuntimeError("Dashboard query interrupted")
+
+
+def get_fund_options() -> list[str]:
+    db_funds = query("SELECT DISTINCT fund_name FROM holdings ORDER BY fund_name")
+    db_names = []
+    if not db_funds.empty and "fund_name" in db_funds.columns:
+        db_names = [str(name) for name in db_funds["fund_name"].dropna().tolist()]
+    return sorted(set(db_names).union(TRACKED_FUND_NAMES))
+
+
+def load_cached_accessions_for_fund(fund: str) -> pd.DataFrame:
+    cik = FUND_NAME_TO_CIK.get(fund)
+    if not cik:
+        return pd.DataFrame(columns=["accession_number", "filing_date"])
+
+    cache_file = CACHE_DIR / f"{cik}.json"
+    if not cache_file.exists():
+        return pd.DataFrame(columns=["accession_number", "filing_date"])
+
+    try:
+        with cache_file.open("r", encoding="utf-8") as f:
+            cached_data = json.load(f)
+    except Exception:
+        return pd.DataFrame(columns=["accession_number", "filing_date"])
+
+    rows = []
+    for filing in cached_data.get("filings", []):
+        accession_number = filing.get("accession_number")
+        filing_date = filing.get("filing_date")
+        if accession_number and filing_date:
+            rows.append({"accession_number": accession_number, "filing_date": filing_date})
+
+    if not rows:
+        return pd.DataFrame(columns=["accession_number", "filing_date"])
+
+    return pd.DataFrame(rows).drop_duplicates().sort_values(
+        ["filing_date", "accession_number"], ascending=[False, False]
+    )
+
+
+def fund_has_db_holdings(fund: str) -> bool:
+    return not query(
+        """
+            SELECT 1
+            FROM holdings
+            WHERE fund_name = ?
+            LIMIT 1
+        """,
+        (fund,),
+    ).empty
 
 
 def table_exists(table_name: str) -> bool:
@@ -468,7 +523,7 @@ TOP_HELD_SECURITIES_SQL = f"""
 
 
 def load_accessions_for_fund(fund: str) -> pd.DataFrame:
-    return query(
+    accessions = query(
         """
             SELECT DISTINCT accession_number, filing_date
             FROM holdings
@@ -478,6 +533,10 @@ def load_accessions_for_fund(fund: str) -> pd.DataFrame:
         """,
         (fund,),
     )
+    if not accessions.empty:
+        return accessions
+
+    return load_cached_accessions_for_fund(fund)
 
 
 def load_normalized_positions_map(fund: str, accession_number: str) -> dict:
@@ -821,15 +880,21 @@ if page == "Overview":
 elif page == "Fund Detail":
     st.title("Fund Detail")
 
-    funds = query("SELECT DISTINCT fund_name FROM holdings ORDER BY fund_name")
-    if funds.empty:
+    funds = get_fund_options()
+    if not funds:
         st.info("Nessun dato nel database ancora.")
         st.stop()
 
     fund = require_selection(
-        st.selectbox("Seleziona fondo", funds["fund_name"].tolist()),
+        st.selectbox("Seleziona fondo", funds),
         "Seleziona un fondo per continuare.",
     )
+
+    if not fund_has_db_holdings(fund):
+        st.warning(
+            "Questo fondo è selezionabile dalla configurazione, ma il DB holdings non contiene ancora "
+            "righe per questo fondo. La lista trimestri arriva dalla cache locale."
+        )
 
     accessions = load_accessions_for_fund(fund)
     if accessions.empty:
@@ -915,15 +980,22 @@ elif page == "Fund Detail":
 elif page == "Fund History":
     st.title("Fund History — Quarter over Quarter")
 
-    funds = query("SELECT DISTINCT fund_name FROM holdings ORDER BY fund_name")
-    if funds.empty:
+    funds = get_fund_options()
+    if not funds:
         st.info("Nessun dato nel database ancora.")
         st.stop()
 
     fund = require_selection(
-        st.selectbox("Seleziona fondo", funds["fund_name"].tolist(), key="fund_history_fund"),
+        st.selectbox("Seleziona fondo", funds, key="fund_history_fund"),
         "Seleziona un fondo per visualizzare la history.",
     )
+
+    if not fund_has_db_holdings(fund):
+        st.warning(
+            "Questo fondo è selezionabile dalla configurazione, ma il DB holdings non contiene ancora "
+            "righe per questo fondo."
+        )
+
     history_df, transitions = load_fund_history(fund)
 
     if history_df.empty:
@@ -1057,15 +1129,21 @@ elif page == "Fund History":
 elif page == "Portfolio Diff":
     st.title("Portfolio Diff — Quarter over Quarter")
 
-    funds = query("SELECT DISTINCT fund_name FROM holdings ORDER BY fund_name")
-    if funds.empty:
+    funds = get_fund_options()
+    if not funds:
         st.info("Nessun dato nel database ancora.")
         st.stop()
 
     fund = require_selection(
-        st.selectbox("Seleziona fondo", funds["fund_name"].tolist(), key="portfolio_diff_fund"),
+        st.selectbox("Seleziona fondo", funds, key="portfolio_diff_fund"),
         "Seleziona un fondo per calcolare il diff.",
     )
+
+    if not fund_has_db_holdings(fund):
+        st.warning(
+            "Questo fondo è selezionabile dalla configurazione, ma il DB holdings non contiene ancora "
+            "righe per questo fondo."
+        )
 
     accessions = load_accessions_for_fund(fund)
     if len(accessions) < 2:
