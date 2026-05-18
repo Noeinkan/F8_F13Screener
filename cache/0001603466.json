@@ -1,6 +1,15 @@
 {
-  "last_updated": 1778449817.2218523,
+  "last_updated": 1779141593.630699,
   "filings": [
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0000919574-26-003476",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000091957426003476/0000919574-26-003476-index.htm"
+    },
     {
       "cik": "0001603466",
       "fund_name": "Point72 Asset Management (Steve Cohen)",

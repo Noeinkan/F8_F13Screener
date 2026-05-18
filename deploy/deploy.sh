@@ -3,6 +3,8 @@
 # Usage (from Git Bash / WSL / Mac terminal):
 #   bash deploy/deploy.sh
 #   bash deploy/deploy.sh --skip-push   # only restart VPS, no git push
+#   bash deploy/deploy.sh --skip-tests  # skip local test gate
+#   bash deploy/deploy.sh --tests "tests/test_storage.py -q"
 #   bash deploy/deploy.sh --rebuild-db  # rebuild SQLite used by dashboard
 #   bash deploy/deploy.sh --rebuild-db --workers 2
 set -euo pipefail
@@ -10,6 +12,8 @@ set -euo pipefail
 VPS="root@77.42.70.26"
 APP_DIR="/opt/F8_F13Screener"
 SKIP_PUSH=false
+SKIP_TESTS=false
+TEST_ARGS="tests/"
 REBUILD_DB=false
 WORKERS=1
 
@@ -18,6 +22,18 @@ while [ $# -gt 0 ]; do
         --skip-push)
             SKIP_PUSH=true
             shift
+            ;;
+        --skip-tests)
+            SKIP_TESTS=true
+            shift
+            ;;
+        --tests)
+            if [ $# -lt 2 ]; then
+                echo "Errore: --tests richiede una stringa argomenti pytest"
+                exit 1
+            fi
+            TEST_ARGS="$2"
+            shift 2
             ;;
         --rebuild-db)
             REBUILD_DB=true
@@ -33,11 +49,30 @@ while [ $# -gt 0 ]; do
             ;;
         *)
             echo "Argomento non riconosciuto: $1"
-            echo "Uso: bash deploy/deploy.sh [--skip-push] [--rebuild-db] [--workers N]"
+            echo "Uso: bash deploy/deploy.sh [--skip-push] [--skip-tests] [--tests \"...\"] [--rebuild-db] [--workers N]"
             exit 1
             ;;
     esac
 done
+
+if [ "$SKIP_TESTS" = false ]; then
+    echo "→ Running local tests before deploy..."
+
+    if [ -x "venv/bin/python" ]; then
+        TEST_PYTHON="venv/bin/python"
+    elif command -v python3 >/dev/null 2>&1; then
+        TEST_PYTHON="python3"
+    elif command -v python >/dev/null 2>&1; then
+        TEST_PYTHON="python"
+    else
+        echo "Errore: nessun interprete Python trovato per eseguire pytest"
+        exit 1
+    fi
+
+    # shellcheck disable=SC2086
+    $TEST_PYTHON -m pytest $TEST_ARGS
+    echo "✓ Test gate passed"
+fi
 
 if [ "$SKIP_PUSH" = false ]; then
     echo "→ Pushing to GitHub..."

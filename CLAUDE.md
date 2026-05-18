@@ -1,94 +1,90 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Compact working notes for this repo.
 
-## What this project does
+## Project
 
-SEC 13F filing screener. Polls the SEC EDGAR RSS feed every 15 minutes, filters for ~53 tracked hedge funds by CIK, parses their holdings from the Information Table XML/HTML, stores everything in SQLite, fires Telegram alerts on matches, and computes quarter-over-quarter portfolio diffs.
+SEC 13F screener: poll SEC EDGAR RSS, filter tracked hedge funds by CIK, parse Information Table XML/HTML, store holdings in SQLite, send Telegram alerts, and compare quarter-over-quarter portfolios.
 
 ## Commands
 
 ```powershell
-# Install dependencies
-pip install requests feedparser beautifulsoup4 lxml tenacity tqdm pandas pytest
+# Install deps
+rtk pip install -r requirements.txt
 
-# Main polling loop (polls every 15 min, sends Telegram alerts)
-python -m src.cli.main
+# Main poller
+rtk python -m src.cli.main
 
-# Historical bulk processing (last 5 years, ~1000+ filings, resumable)
-python -m src.cli.process_historical_13f
+# Historical refresh + dashboard DB
+rtk python -m src.cli.process_historical_13f full --yes --save-db
 
-# Run all tests
-pytest tests/
+# Fast local rebuild of dashboard DB from historical CSV (no SEC re-fetch)
+rtk python -m src.cli.process_historical_13f bootstrap-dashboard-db
 
-# Run a single test file
-pytest tests/test_sec_client.py -v
+# Tests
+rtk pytest tests/ -v
 
-# View cached filings (CLI)
-python -m src.cli.view_cached_filings
+# Single test file
+rtk pytest tests/test_sec_client.py -v
 
-# GUI for historical processing
+# Cached filings viewer
+rtk python -m src.cli.view_cached_filings
+
+# Historical GUI
 python src/gui/filing_processor_gui.py
+
+# Local dashboard restart + browser open
+.\dashboard.bat
+.\dashboard.bat -Port 8503
+.\dashboard.bat -RebuildDb
+.\dashboard.bat -RebuildDb -FullRefresh -Workers 2
 ```
 
-## Configuration
+## Dashboard
 
-Credentials go in `config_secret.py` (gitignored). See `config_secret.template.py`.
+- `dashboard.bat` calls `scripts/restart_dashboard.ps1`.
+- It kills any old dashboard instance, clears the port, starts Streamlit, waits for `/_stcore/health`, then opens the browser.
+- If the SQLite DB is malformed, rebuild with `rtk python -m src.cli.process_historical_13f full --yes --save-db` or `./dashboard.bat -RebuildDb`.
+- Dashboard analytics now read from `src/core/data/13f_dashboard.duckdb` (DuckDB). CSV exports remain optional artifacts.
+- For local pre-deploy smoke check: verify SQLite integrity, then run `./dashboard.bat`.
 
-Required fields: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `SEC_USER_AGENT` (must be a real email — SEC requirement). Falls back to environment variables with the same names.
+## Config
 
-## Architecture and data flow
+- Secrets live in `config_secret.py` using `config_secret.template.py` as reference.
+- Required fields: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `SEC_USER_AGENT`.
+- `SEC_USER_AGENT` must be a real email to satisfy SEC requirements.
 
-**Real-time monitoring loop:**
-```
-SECClient.fetch_13f_feed()           — RSS from SEC EDGAR (feedparser)
-  ↓ RSS entries
-FilingProcessor.process_feed()       — orchestrates everything (src/cli/main.py)
-  ↓ CIK match via should_notify()
-HoldingsParser.parse_information_table()  — XML → HTML fallback
-  ↓ holdings list
-Storage.save_holdings()              — SQLite insert
-  ↓
-compute_portfolio_diff()             — compares vs previous quarter's accession
-  ↓
-TelegramNotifier.send_filing_alert() — HTML-formatted Telegram message
-  ↓
-save_message_to_viewer()             — writes to MESSAGE_LOG_FILE for GUI
-```
+## High-Value Files
 
-**Key modules:**
-- `src/core/sec_client.py` — `SECClient`: fetches RSS, extracts CIK/accession with regex (LRU-cached), filters via `should_notify()`
-- `src/core/parser.py` — `HoldingsParser`: 3-method search for Information Table URL; XML parse first, HTML fallback; priority-ordered header mapping to avoid ambiguous column names
-- `src/core/storage.py` — `Storage`: SQLite CRUD for 3 tables; `get_latest_accessions_for_fund()` and `get_holdings_by_accession()` power the diff engine
-- `src/core/notifier.py` — `TelegramNotifier`: Telegram API with retry; dates formatted in Italian locale
-- `src/core/diff.py` — `compute_portfolio_diff()`: compares holdings dicts keyed by CUSIP; threshold 10% for increased/decreased; `format_diff_for_telegram()` produces HTML with emoji indicators
-- `src/core/hedge_funds_config.py` — `HEDGE_FUNDS_CIK` dict: 53 funds in 3 categories (Value, Growth/Tech, Mega/Quant)
-- `src/utils/message_bridge.py` — `save_message_to_viewer()`: writes Telegram messages to JSON for the GUI viewer
-- `src/cli/telegram_commands.py` — daemon thread: processes `/start`, `/stop`, `/status` commands via Telegram; sets `pause_event` and `check_now_event` in the main loop
+- `src/cli/main.py`: real-time polling loop.
+- `src/cli/process_historical_13f.py`: historical catalog/holdings pipeline and dashboard DB refresh.
+- `src/core/sec_client.py`: RSS + filing URL / accession / CIK extraction.
+- `src/core/parser.py`: Information Table parsing; XML first, HTML fallback.
+- `src/core/storage.py`: SQLite storage and accession lookup helpers.
+- `src/core/diff.py`: portfolio diff helpers for Telegram and dashboard history views.
+- `src/web/dashboard.py`: Streamlit dashboard (`Overview`, `Fund Detail`, `Fund History`, `Portfolio Diff`, `Holdings Search`).
+- `src/core/hedge_funds_config.py`: tracked funds list.
 
-## Key design decisions
+## Rules
 
-- **Mark-before-notify**: filings are written to `seen_filings` immediately after parsing, before the Telegram send. A notification failure never causes a re-process on the next poll cycle.
-- **CIK-based filtering**: `should_notify()` extracts CIK from the filing URL (handles `/data/XXXXXX/` and `CIK=XXXXXX` patterns), strips leading zeros, and matches against `HEDGE_FUNDS_CIK`. Never match by fund name string.
-- **Parser fallback chain**: `parse_information_table` tries XML (`_parse_xml_format`) first, then HTML (`_parse_html_format`). The HTML path uses priority-ordered header matching to avoid ambiguous column names (e.g., matches "VOTING AUTH. - SOLE" before "SOLE").
-- **`paths.py` as single source of truth**: importing it auto-creates all required directories. Never hardcode paths elsewhere.
-- **Holdings not deduped on insert**: each polling cycle writes fresh rows. `accession_number` is stored to enable manual dedup queries via `get_holdings_by_accession()`.
-- **Threading for live control**: `pause_event` and `check_now_event` (threading.Event) let the Telegram command daemon pause/resume polling and force immediate checks without killing the process.
+- Match tracked funds by CIK only, never by fund name.
+- `HoldingsParser` tries XML first, then HTML fallback.
+- `paths.py` is the single source of truth for data paths and directory creation.
+- `seen_filings` is written before Telegram notification; send failures must not cause re-processing.
+- Dashboard comparisons are normalized positions, not raw rows.
+- Normalization key is CUSIP when present, otherwise `issuer_name|share_class|put_call`.
+- `compute_portfolio_diff()` stays Telegram-friendly; dashboard history uses `compute_detailed_portfolio_diff()` and `compute_quarterly_history_transitions()`.
 
-## Adding a new hedge fund
+## Data Notes
 
-Edit `src/core/hedge_funds_config.py` — add to `HEDGE_FUNDS_CIK`:
+- Main SQLite tables: `seen_filings`, `holdings`, `statistics`.
+- `holdings` stores `accession_number` so quarter snapshots and diffs can be rebuilt later.
+- Holdings are not deduped across polling cycles on insert.
+
+## Adding a Fund
+
+Add a zero-padded 10-digit CIK entry to `src/core/hedge_funds_config.py`:
+
 ```python
 '0001234567': 'Fund Name (Manager Name)',
 ```
-CIK must be zero-padded to 10 digits as it appears in SEC URLs.
-
-## SQLite schema
-
-| Table | Key columns |
-|---|---|
-| `seen_filings` | `entry_id` (PK), `filer_name`, `cik`, `filing_date`, `matched` |
-| `holdings` | `fund_cik`, `filing_date`, `cusip`, `issuer_name`, `value_usd`, `shares`, `accession_number` |
-| `statistics` | single row: `total_checked`, `matched`, `filtered` |
-
-Indexes: `(fund_cik, filing_date)`, `(cusip, filing_date)`, `(filing_date)` on `seen_filings`, `(accession_number)` on `holdings`.

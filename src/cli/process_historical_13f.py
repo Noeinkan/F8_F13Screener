@@ -21,7 +21,6 @@ import time
 import concurrent.futures
 import threading
 import statistics
-import sqlite3
 from collections import deque
 import os
 import csv
@@ -37,6 +36,8 @@ import shutil
 import multiprocessing
 from pathlib import Path
 
+import pandas as pd
+
 # Add project root to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
@@ -49,11 +50,11 @@ from src.core.paths import (
     PROCESSING_METRICS_FILE,
     PROCESSING_CHECKPOINT_FILE,
     FILING_CACHE_DIR,
-    HOLDINGS_DB_FILE,
+    DASHBOARD_DB_FILE,
 )
 from src.core.parser import HoldingsParser
 from src.core.sec_client import SECClient
-from src.core.storage import Storage
+from src.core.dashboard_storage import DashboardStorage
 
 class TokenBucketRateLimiter:
     """Token bucket rate limiter per gestire burst di richieste rispettando un limite massimo per secondo."""
@@ -253,7 +254,7 @@ def process_filing_holdings(
     filing_url: str,
     fund_name: str,
     filing_date: str,
-    storage: Optional[Storage] = None,
+    storage: Optional[DashboardStorage] = None,
     persist_csv: bool = True,
     persist_db: bool = False,
 ) -> bool:
@@ -286,7 +287,7 @@ def process_filing_holdings(
             ) or persisted
 
         if persist_db:
-            db_storage = storage or Storage(Path(HOLDINGS_DB_FILE))
+            db_storage = storage or DashboardStorage(Path(DASHBOARD_DB_FILE))
             saved_count = db_storage.save_holdings(
                 holdings,
                 fund_name,
@@ -671,12 +672,12 @@ def extract_holdings_from_catalog(
     if not incremental:
         print("🔄 Full refresh holdings: tracking e CSV storico ricreati da zero")
 
-    storage: Optional[Storage] = Storage(Path(HOLDINGS_DB_FILE)) if save_db else None
+    storage: Optional[DashboardStorage] = DashboardStorage(Path(DASHBOARD_DB_FILE)) if save_db else None
     if storage is not None:
         if not incremental:
             deleted_rows = storage.clear_holdings()
-            print(f"🧹 SQLite holdings azzerate: {deleted_rows:,} righe rimosse")
-        print(f"🗄️  Salvataggio SQLite attivo: {HOLDINGS_DB_FILE}")
+            print(f"🧹 Dashboard holdings azzerate: {deleted_rows:,} righe rimosse")
+        print(f"🗄️  Salvataggio dashboard DB attivo: {DASHBOARD_DB_FILE}")
     
     if len(filings_to_process) == 0:
         print("✅ Tutti i filing sono già stati processati!")
@@ -920,19 +921,19 @@ def process_full_pipeline(
 
 
 def export_dashboard_csvs(output_dir: str, scope: str = 'both') -> int:
-    """Export SQLite-backed CSV files for server-side use and dashboard downloads."""
-    db_path = Path(HOLDINGS_DB_FILE)
+    """Export dashboard CSV files from DuckDB-backed holdings."""
+    db_path = Path(DASHBOARD_DB_FILE)
     if not db_path.exists():
         print(f"❌ Database non trovato: {db_path}")
         print("   Esegui prima la modalità 'holdings' o 'full' con --save-db.\n")
         return 1
 
-    storage = Storage(db_path)
+    storage = DashboardStorage(db_path)
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
     print("="*80)
-    print("MODALITÀ EXPORT: CSV DAL DATABASE SQLITE")
+    print("MODALITÀ EXPORT: CSV DAL DATABASE DASHBOARD")
     print("="*80)
     print(f"🗄️  Database: {db_path}")
     print(f"📁 Output directory: {output_path}")
@@ -965,38 +966,101 @@ def export_dashboard_csvs(output_dir: str, scope: str = 'both') -> int:
     return 0
 
 
+def bootstrap_dashboard_db_from_csv(csv_path: str = HISTORICAL_HOLDINGS_CSV) -> int:
+    """Rebuild dashboard DuckDB from the local historical holdings CSV."""
+    input_path = Path(csv_path)
+    db_path = Path(DASHBOARD_DB_FILE)
+
+    if not input_path.exists():
+        print(f"❌ CSV storico non trovato: {input_path}")
+        print("   Esegui prima la modalità 'holdings' o 'full' per generarlo.\n")
+        return 1
+
+    print("="*80)
+    print("MODALITÀ BOOTSTRAP-DASHBOARD-DB")
+    print("="*80)
+    print(f"📄 Input CSV: {input_path}")
+    print(f"🗄️  Output DB dashboard: {db_path}")
+
+    df = pd.read_csv(input_path)
+    if df.empty:
+        print("⚠️  CSV vuoto: nessun dato da importare.\n")
+        return 1
+
+    rename_map = {
+        'Filing Date': 'filing_date',
+        'Fund Name': 'fund_name',
+        'Fund CIK': 'fund_cik',
+        'Accession Number': 'accession_number',
+        'Filing URL': 'filing_url',
+        'Name of Issuer': 'issuer_name',
+        'Title of Class': 'share_class',
+        'CUSIP': 'cusip',
+        'FIGI': 'figi',
+        'Value ($)': 'value_x1000',
+        'Shares/Principal Amount': 'shares_raw',
+        'SH/PRN': 'sh_prn',
+        'Put/Call': 'put_call',
+        'Investment Discretion': 'investment_discretion',
+        'Other Manager': 'other_manager',
+        'Other Managers (raw)': 'other_managers_raw',
+        'All Columns (raw)': 'all_columns_raw',
+        'Voting Authority - Sole': 'voting_authority_sole',
+        'Voting Authority - Shared': 'voting_authority_shared',
+        'Voting Authority - None': 'voting_authority_none',
+    }
+    df = df.rename(columns=rename_map)
+
+    required_cols = [
+        'filing_date', 'fund_name', 'fund_cik', 'accession_number', 'filing_url',
+        'issuer_name', 'share_class', 'cusip', 'figi', 'value_x1000', 'shares_raw',
+        'sh_prn', 'put_call', 'investment_discretion', 'other_manager',
+        'other_managers_raw', 'all_columns_raw', 'voting_authority_sole',
+        'voting_authority_shared', 'voting_authority_none',
+    ]
+
+    missing = [col for col in required_cols if col not in df.columns]
+    if missing:
+        print(f"❌ CSV incompatibile: colonne mancanti {missing}")
+        return 1
+
+    df['value_usd'] = pd.to_numeric(df['value_x1000'], errors='coerce')
+    df['shares'] = pd.to_numeric(df['shares_raw'], errors='coerce')
+    for col in ('voting_authority_sole', 'voting_authority_shared', 'voting_authority_none'):
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+
+    ordered_cols = [
+        'filing_date', 'fund_name', 'fund_cik', 'accession_number', 'filing_url',
+        'issuer_name', 'share_class', 'cusip', 'figi', 'value_x1000', 'value_usd',
+        'shares_raw', 'shares', 'sh_prn', 'put_call', 'investment_discretion',
+        'other_manager', 'other_managers_raw', 'all_columns_raw',
+        'voting_authority_sole', 'voting_authority_shared', 'voting_authority_none',
+    ]
+    df = cast(pd.DataFrame, df.loc[:, ordered_cols].copy())
+
+    storage = DashboardStorage(db_path)
+    inserted = storage.replace_holdings_from_dataframe(df)
+    health = storage.get_health_snapshot()
+
+    print(f"✅ Righe importate: {inserted:,}")
+    print(f"🏦 Fondi distinti: {health['distinct_funds']:,}")
+    print(f"📄 Accession distinti: {health['distinct_accessions']:,}")
+
+    if health['only_all_fund']:
+        print("❌ Bootstrap non valido: il DB contiene solo fund_name=ALL")
+        return 1
+
+    print("🎉 Bootstrap dashboard DB completato.\n")
+    return 0
+
+
 def get_missing_value_filings(limit: Optional[int] = None) -> List[Dict[str, str]]:
     """Return one row per accession whose saved holdings still have no market values."""
-    db_path = Path(HOLDINGS_DB_FILE)
+    db_path = Path(DASHBOARD_DB_FILE)
     if not db_path.exists():
         return []
-
-    query = """
-        SELECT
-            accession_number,
-            MAX(fund_name) AS fund_name,
-            MAX(filing_date) AS filing_date,
-            MAX(filing_url) AS filing_url,
-            COUNT(*) AS row_count
-        FROM holdings
-        WHERE TRIM(COALESCE(accession_number, '')) <> ''
-          AND TRIM(COALESCE(filing_url, '')) <> ''
-        GROUP BY accession_number
-        HAVING SUM(
-            CASE
-                WHEN value_usd IS NOT NULL OR TRIM(COALESCE(value_x1000, '')) <> '' THEN 1
-                ELSE 0
-            END
-        ) = 0
-        ORDER BY MAX(filing_date) DESC, MAX(fund_name)
-    """
-
-    with sqlite3.connect(db_path) as conn:
-        conn.row_factory = sqlite3.Row
-        rows = conn.execute(query).fetchall()
-
-    filings = [dict(row) for row in rows]
-    return filings[:limit] if limit is not None else filings
+    storage = DashboardStorage(db_path)
+    return storage.get_missing_value_filings(limit=limit)
 
 
 def backfill_missing_values_in_db(
@@ -1005,7 +1069,7 @@ def backfill_missing_values_in_db(
     limit: Optional[int] = None,
 ) -> int:
     """Re-parse existing accessions whose holdings were saved without value fields."""
-    db_path = Path(HOLDINGS_DB_FILE)
+    db_path = Path(DASHBOARD_DB_FILE)
     if not db_path.exists():
         print(f"❌ Database non trovato: {db_path}")
         return 1
@@ -1033,7 +1097,7 @@ def backfill_missing_values_in_db(
     else:
         print("✅ Modalità automatica: procedo senza conferma...")
 
-    storage = Storage(db_path)
+    storage = DashboardStorage(db_path)
     successi = 0
     falliti = 0
     lock = threading.Lock()
@@ -1110,7 +1174,8 @@ MODALITÀ DISPONIBILI:
   catalog   - Scarica catalogo filing da API SEC (veloce, ~5 min per {get_total_funds()} funds)
   holdings  - Estrae holdings dettagliate da filing nel catalogo (lento, ~1-2 ore)
   full      - Esegue catalog + holdings automaticamente (processo completo)
-    export    - Esporta CSV dal database SQLite usato dal dashboard
+        export    - Esporta CSV dal database DuckDB usato dal dashboard
+        bootstrap-dashboard-db - Ricostruisce il DB dashboard dal CSV storico locale
     backfill-values - Ricarica nel DB i filing già salvati senza colonna value
 
 ESEMPI:
@@ -1118,12 +1183,13 @@ ESEMPI:
   python process_historical_13f.py holdings
   python process_historical_13f.py full
     python process_historical_13f.py export --export-scope both
+        python process_historical_13f.py bootstrap-dashboard-db
     python process_historical_13f.py backfill-values --yes --workers 2
 
 OUTPUT:
   - historical_13f_catalog_5years.json  (modalità catalog/full)
   - 13f_holdings_5years.csv             (modalità holdings/full)
-    - 13f_holdings.db                     (opzionale, con --save-db per il dashboard)
+    - 13f_dashboard.duckdb                (opzionale, con --save-db per il dashboard)
     - f8_13f_all_holdings.csv             (modalità export)
     - f8_13f_latest_snapshot.csv          (modalità export)
 
@@ -1136,7 +1202,7 @@ NOTES:
     
     parser.add_argument(
         'mode',
-        choices=['catalog', 'holdings', 'full', 'benchmark', 'export', 'backfill-values'],
+        choices=['catalog', 'holdings', 'full', 'benchmark', 'export', 'bootstrap-dashboard-db', 'backfill-values'],
         help='Modalità di esecuzione'
     )
     
@@ -1176,7 +1242,7 @@ NOTES:
     parser.add_argument(
         '--save-db',
         action='store_true',
-        help='Salva holdings anche nel database SQLite usato dal dashboard'
+        help='Salva holdings anche nel database DuckDB usato dal dashboard'
     )
 
     parser.add_argument(
@@ -1303,6 +1369,8 @@ NOTES:
         )
     elif args.mode == 'export':
         raise SystemExit(export_dashboard_csvs(args.output_dir, scope=args.export_scope))
+    elif args.mode == 'bootstrap-dashboard-db':
+        raise SystemExit(bootstrap_dashboard_db_from_csv())
     elif args.mode == 'backfill-values':
         raise SystemExit(
             backfill_missing_values_in_db(

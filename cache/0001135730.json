@@ -1,6 +1,24 @@
 {
-  "last_updated": 1778449801.2313168,
+  "last_updated": 1779141582.880209,
   "filings": [
+    {
+      "cik": "0001135730",
+      "fund_name": "Coatue Management (Philippe Laffont)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0000919574-26-003501",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1135730/000091957426003501/0000919574-26-003501-index.htm"
+    },
+    {
+      "cik": "0001135730",
+      "fund_name": "Coatue Management (Philippe Laffont)",
+      "form": "13F-HR/A",
+      "filing_date": "2026-05-15",
+      "accession_number": "0000919574-26-003414",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1135730/000091957426003414/0000919574-26-003414-index.htm"
+    },
     {
       "cik": "0001135730",
       "fund_name": "Coatue Management (Philippe Laffont)",

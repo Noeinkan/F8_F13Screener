@@ -1,6 +1,14 @@
 """Tests for src/core/diff.py — pure functions, no I/O."""
 import pytest
-from src.core.diff import compute_portfolio_diff, _fmt_value, format_diff_for_telegram, MAX_ITEMS_PER_SECTION
+from src.core.diff import (
+    MAX_ITEMS_PER_SECTION,
+    _fmt_value,
+    build_position_key,
+    compute_detailed_portfolio_diff,
+    compute_portfolio_diff,
+    compute_quarterly_history_transitions,
+    format_diff_for_telegram,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -135,6 +143,114 @@ class TestComputePortfolioDiff:
         diff = compute_portfolio_diff(OLD, NEW)
         tesla = next(p for p in diff["closed_positions"] if p["cusip"] == "BBB")
         assert tesla["shares"] == 500_000
+
+
+class TestDetailedPortfolioDiff:
+
+    def test_value_deltas_are_included_for_changed_positions(self):
+        diff = compute_detailed_portfolio_diff(OLD, NEW)
+
+        apple = next(p for p in diff["increased"] if p["cusip"] == "AAA")
+        assert apple["share_change"] == 200_000
+        assert apple["old_value_usd"] == 100_000
+        assert apple["new_value_usd"] == 120_000
+        assert apple["value_change"] == 20_000
+        assert pytest.approx(apple["value_pct_change"], rel=1e-3) == 20.0
+
+    def test_blank_cusip_positions_can_still_be_compared(self):
+        blank_key = build_position_key("", "Example Corp", "COM", "")
+        old = {
+            blank_key: {
+                "cusip": "",
+                "issuer_name": "Example Corp",
+                "share_class": "COM",
+                "shares": 100,
+                "value_usd": 10,
+            }
+        }
+        new = {
+            blank_key: {
+                "cusip": "",
+                "issuer_name": "Example Corp",
+                "share_class": "COM",
+                "shares": 130,
+                "value_usd": 14,
+            }
+        }
+
+        diff = compute_detailed_portfolio_diff(old, new)
+
+        assert diff["new_positions"] == []
+        assert diff["closed_positions"] == []
+        assert len(diff["increased"]) == 1
+        assert diff["increased"][0]["position_key"] == blank_key
+
+
+class TestQuarterlyHistoryTransitions:
+
+    def test_consecutive_transitions_are_sorted_by_filing_date(self):
+        snapshots = [
+            {
+                "filing_date": "2025-12-31",
+                "accession_number": "2025Q4",
+                "positions": {
+                    "AAA": make_holding("Apple", 100, 10),
+                },
+            },
+            {
+                "filing_date": "2025-09-30",
+                "accession_number": "2025Q3",
+                "positions": {
+                    "AAA": make_holding("Apple", 80, 8),
+                    "BBB": make_holding("Tesla", 25, 5),
+                },
+            },
+            {
+                "filing_date": "2026-03-31",
+                "accession_number": "2026Q1",
+                "positions": {
+                    "AAA": make_holding("Apple", 120, 12),
+                    "CCC": make_holding("Nvidia", 50, 9),
+                },
+            },
+        ]
+
+        transitions = compute_quarterly_history_transitions(snapshots)
+
+        assert len(transitions) == 2
+        assert transitions[0]["from_accession_number"] == "2025Q3"
+        assert transitions[0]["to_accession_number"] == "2025Q4"
+        assert transitions[1]["from_accession_number"] == "2025Q4"
+        assert transitions[1]["to_accession_number"] == "2026Q1"
+
+    def test_transition_counts_reflect_each_category(self):
+        snapshots = [
+            {
+                "filing_date": "2025-12-31",
+                "accession_number": "2025Q4",
+                "positions": {
+                    "AAA": make_holding("Apple", 100, 10),
+                    "BBB": make_holding("Tesla", 100, 10),
+                    "CCC": make_holding("Google", 100, 10),
+                },
+            },
+            {
+                "filing_date": "2026-03-31",
+                "accession_number": "2026Q1",
+                "positions": {
+                    "AAA": make_holding("Apple", 130, 14),
+                    "CCC": make_holding("Google", 80, 8),
+                    "DDD": make_holding("Nvidia", 50, 9),
+                },
+            },
+        ]
+
+        transition = compute_quarterly_history_transitions(snapshots)[0]
+
+        assert transition["new_count"] == 1
+        assert transition["closed_count"] == 1
+        assert transition["increased_count"] == 1
+        assert transition["decreased_count"] == 1
 
 
 # ---------------------------------------------------------------------------

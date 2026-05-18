@@ -1,6 +1,15 @@
 {
-  "last_updated": 1778449784.8495312,
+  "last_updated": 1779141571.3317428,
   "filings": [
+    {
+      "cik": "0000949509",
+      "fund_name": "Oaktree Capital Management (Howard Marks)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0000949509-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000002/0000949509-26-000002-index.htm"
+    },
     {
       "cik": "0000949509",
       "fund_name": "Oaktree Capital Management (Howard Marks)",

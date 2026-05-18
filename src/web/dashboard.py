@@ -2,20 +2,32 @@
 F8 F13 Screener — Streamlit Dashboard
 Run locally:  streamlit run src/web/dashboard.py
 """
-import sqlite3
 import sys
+import textwrap
 from pathlib import Path
 
+import duckdb
 import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from src.core.paths import HOLDINGS_DB_FILE
+# Ensure `src.*` imports work whether Streamlit is launched from repo root or src/web.
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.core.diff import (
+    build_position_key,
+    compute_detailed_portfolio_diff,
+    compute_quarterly_history_transitions,
+)
+from src.core.dashboard_storage import DashboardStorage
+from src.core.paths import DASHBOARD_DB_FILE
 
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
-DB_PATH = HOLDINGS_DB_FILE
+DB_PATH = DASHBOARD_DB_FILE
 
 st.set_page_config(
     page_title="F8 13F Screener",
@@ -27,19 +39,77 @@ st.set_page_config(
 # ---------------------------------------------------------------------------
 # Data helpers
 # ---------------------------------------------------------------------------
+def show_db_recovery_help(error: Exception | None = None, integrity_result: str | None = None):
+    """Render actionable recovery steps when the dashboard DB is unreadable."""
+    st.error(f"Database dashboard non leggibile: {DB_PATH}")
+    if integrity_result:
+        st.caption(f"PRAGMA integrity_check: {integrity_result}")
+    if error is not None:
+        st.caption(f"Dettaglio errore: {error}")
+
+    st.info("""
+Per ripristinare in locale:
+1) Verifica integrita del DB.
+2) Ricostruisci il database dashboard con `--save-db`.
+3) Riavvia Streamlit.
+""")
+
+    db_path_raw = str(DB_PATH)
+    recovery_cmds = textwrap.dedent(
+        f"""
+        rtk python -c "import duckdb; c=duckdb.connect(r'{db_path_raw}'); print(c.execute('SELECT COUNT(*) FROM holdings').fetchone()[0])"
+        rtk python -m src.cli.process_historical_13f full --yes --save-db
+        rtk python -m streamlit run src/web/dashboard.py
+        """
+    ).strip()
+    st.code(recovery_cmds, language="bash")
+
+
 @st.cache_resource
-def get_connection():
+def get_storage() -> DashboardStorage:
     if not DB_PATH.exists():
         st.error(f"Database non trovato: {DB_PATH}")
         st.stop()
-    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
-    conn.row_factory = sqlite3.Row
-    return conn
+    try:
+        storage = DashboardStorage(DB_PATH)
+        health = storage.get_health_snapshot()
+        if health["total_rows"] > 0 and health["only_all_fund"]:
+            show_db_recovery_help(
+                error=RuntimeError(
+                    "Dataset degenerato: contiene solo fund_name=ALL. "
+                    "Ricostruisci il DB dashboard dalla pipeline storica."
+                )
+            )
+            st.stop()
+        return storage
+    except (duckdb.Error, OSError, RuntimeError) as exc:
+        show_db_recovery_help(error=exc)
+        st.stop()
+    raise RuntimeError("Dashboard storage initialization interrupted")
 
 
 def query(sql: str, params: tuple = ()) -> pd.DataFrame:
-    conn = get_connection()
-    return pd.read_sql_query(sql, conn, params=params)
+    storage = get_storage()
+    try:
+        return storage.query_df(sql, params)
+    except (duckdb.Error, pd.errors.DatabaseError) as exc:
+        show_db_recovery_help(error=exc)
+        st.stop()
+    raise RuntimeError("Dashboard query interrupted")
+
+
+def table_exists(table_name: str) -> bool:
+        result = query(
+                """
+                SELECT 1
+                FROM information_schema.tables
+                WHERE table_schema = current_schema()
+                    AND table_name = ?
+                LIMIT 1
+                """,
+                (table_name,),
+        )
+        return not result.empty
 
 
 def dataframe_to_csv_bytes(df: pd.DataFrame | pd.Series) -> bytes:
@@ -59,6 +129,44 @@ def fmt_value(val_thousands):
     if v >= 1e3:
         return f"${v/1e3:.0f}k"
     return f"${v:,.0f}"
+
+
+def fmt_quantity(value):
+    """Format share quantities while tolerating nulls and floats."""
+    if pd.isna(value):
+        return "-"
+    numeric = float(value)
+    if numeric.is_integer():
+        return f"{int(numeric):,}"
+    return f"{numeric:,.2f}"
+
+
+def fmt_signed_quantity(value):
+    if pd.isna(value):
+        return "-"
+    numeric = float(value)
+    sign = "+" if numeric > 0 else ""
+    if numeric.is_integer():
+        return f"{sign}{int(numeric):,}"
+    return f"{sign}{numeric:,.2f}"
+
+
+def fmt_signed_pct(value):
+    if value is None or pd.isna(value):
+        return "-"
+    return f"{value:+.1f}%"
+
+
+def fmt_signed_value(value_thousands):
+    if value_thousands is None or pd.isna(value_thousands):
+        return "-"
+    if value_thousands == 0:
+        return "$0"
+    sign = "+" if value_thousands > 0 else "-"
+    absolute_value = fmt_value(abs(value_thousands))
+    if absolute_value == "-":
+        absolute_value = "$0"
+    return f"{sign}{absolute_value}"
 
 
 FULL_HOLDINGS_EXPORT_SQL = """
@@ -163,12 +271,32 @@ NORMALIZED_DIFF_SQL = f"""
         MAX(TRIM(COALESCE(cusip, ''))) AS cusip,
         MIN(issuer_name) AS issuer_name,
         GROUP_CONCAT(DISTINCT NULLIF(TRIM(share_class), '')) AS share_class,
+        GROUP_CONCAT(DISTINCT NULLIF(TRIM(put_call), '')) AS put_call,
         SUM(shares) AS shares,
         SUM(value_usd) AS value_usd
     FROM holdings
     WHERE fund_name = ? AND accession_number = ?
     GROUP BY {POSITION_KEY_SQL}
     ORDER BY SUM(value_usd) DESC NULLS LAST, MIN(issuer_name)
+"""
+
+
+FUND_HISTORY_POSITIONS_SQL = f"""
+    SELECT
+        accession_number AS accession_number,
+        filing_date AS filing_date,
+        MAX(TRIM(COALESCE(cusip, ''))) AS cusip,
+        MIN(issuer_name) AS issuer_name,
+        GROUP_CONCAT(DISTINCT NULLIF(TRIM(share_class), '')) AS share_class,
+        GROUP_CONCAT(DISTINCT NULLIF(TRIM(put_call), '')) AS put_call,
+        SUM(shares) AS shares,
+        SUM(value_usd) AS value_usd,
+        COUNT(*) AS raw_lines
+    FROM holdings
+    WHERE fund_name = ?
+      AND TRIM(COALESCE(accession_number, '')) <> ''
+    GROUP BY accession_number, filing_date, {POSITION_KEY_SQL}
+    ORDER BY filing_date DESC, SUM(value_usd) DESC NULLS LAST, MIN(issuer_name)
 """
 
 
@@ -192,7 +320,7 @@ OVERVIEW_RECENT_ACTIVITY_SQL = """
         COUNT(DISTINCT accession_number) AS recent_filings,
         COUNT(DISTINCT fund_name) AS recent_funds
     FROM holdings, anchor
-    WHERE filing_date >= date(anchor.latest_filing_date, '-120 day')
+    WHERE CAST(filing_date AS DATE) >= CAST(anchor.latest_filing_date AS DATE) - INTERVAL 120 DAY
 """
 
 
@@ -328,13 +456,186 @@ TOP_HELD_SECURITIES_SQL = f"""
 """
 
 
+def load_accessions_for_fund(fund: str) -> pd.DataFrame:
+    return query(
+        """
+            SELECT DISTINCT accession_number, filing_date
+            FROM holdings
+            WHERE fund_name = ?
+              AND TRIM(COALESCE(accession_number, '')) <> ''
+            ORDER BY filing_date DESC, accession_number DESC
+        """,
+        (fund,),
+    )
+
+
+def load_normalized_positions_map(fund: str, accession_number: str) -> dict:
+    rows = query(NORMALIZED_DIFF_SQL, (fund, accession_number))
+    positions = {}
+    for row in rows.to_dict("records"):
+        position_key = build_position_key(
+            row.get("cusip"),
+            row.get("issuer_name"),
+            row.get("share_class"),
+            row.get("put_call"),
+        )
+        positions[position_key] = {
+            "cusip": row.get("cusip") or "",
+            "issuer_name": row.get("issuer_name"),
+            "share_class": row.get("share_class"),
+            "put_call": row.get("put_call"),
+            "shares": row.get("shares"),
+            "value_usd": row.get("value_usd"),
+        }
+    return positions
+
+
+def load_fund_history(fund: str) -> tuple[pd.DataFrame, list[dict]]:
+    rows = query(FUND_HISTORY_POSITIONS_SQL, (fund,))
+    if rows.empty:
+        return pd.DataFrame(), []
+
+    summary_rows = []
+    snapshots = []
+    for (filing_date, accession_number), group in rows.groupby(["filing_date", "accession_number"], sort=False):
+        positions = {}
+        for row in group.to_dict("records"):
+            position_key = build_position_key(
+                row.get("cusip"),
+                row.get("issuer_name"),
+                row.get("share_class"),
+                row.get("put_call"),
+            )
+            positions[position_key] = {
+                "cusip": row.get("cusip") or "",
+                "issuer_name": row.get("issuer_name"),
+                "share_class": row.get("share_class"),
+                "put_call": row.get("put_call"),
+                "shares": row.get("shares"),
+                "value_usd": row.get("value_usd"),
+            }
+
+        portfolio_value = (
+            group["value_usd"].fillna(0).sum()
+            if group["value_usd"].notna().any()
+            else None
+        )
+        label = f"{filing_date} ({accession_number})"
+        summary_rows.append({
+            "Filing Date": filing_date,
+            "Accession": accession_number,
+            "Label": label,
+            "Posizioni normalizzate": len(group),
+            "Raw 13F Lines": int(group["raw_lines"].fillna(0).sum()),
+            "Valore portfolio ($000s)": portfolio_value,
+        })
+        snapshots.append({
+            "filing_date": filing_date,
+            "accession_number": accession_number,
+            "label": label,
+            "positions": positions,
+        })
+
+    summary_df = pd.DataFrame(summary_rows).sort_values("Filing Date").reset_index(drop=True)
+    summary_df["Filing Date Dt"] = pd.to_datetime(summary_df["Filing Date"])
+    transitions = compute_quarterly_history_transitions(snapshots)
+    return summary_df, transitions
+
+
+def transition_label(transition: dict) -> str:
+    return (
+        f"{transition['from_filing_date']} → {transition['to_filing_date']}  "
+        f"({transition['from_accession_number']} → {transition['to_accession_number']})"
+    )
+
+
+def render_detailed_diff_sections(diff: dict):
+    if diff["new_positions"]:
+        st.subheader("Nuove posizioni")
+        new_df = pd.DataFrame(diff["new_positions"]).sort_values(
+            ["value_usd", "issuer_name"],
+            ascending=[False, True],
+            na_position="last",
+        )
+        new_df["Azioni"] = new_df["shares"].apply(fmt_quantity)
+        new_df["Valore"] = new_df["value_usd"].apply(fmt_value)
+        st.dataframe(
+            pd.DataFrame({
+                "Issuer": new_df["issuer_name"],
+                "CUSIP": new_df["cusip"],
+                "Classe": new_df["share_class"],
+                "Put/Call": new_df["put_call"],
+                "Azioni": new_df["Azioni"],
+                "Valore": new_df["Valore"],
+            }),
+            use_container_width=True,
+            hide_index=True,
+        )
+
+    if diff["closed_positions"]:
+        st.subheader("Posizioni chiuse")
+        closed_df = pd.DataFrame(diff["closed_positions"]).sort_values(
+            ["value_usd", "issuer_name"],
+            ascending=[False, True],
+            na_position="last",
+        )
+        closed_df["Azioni precedenti"] = closed_df["shares"].apply(fmt_quantity)
+        closed_df["Valore precedente"] = closed_df["value_usd"].apply(fmt_value)
+        st.dataframe(
+            pd.DataFrame({
+                "Issuer": closed_df["issuer_name"],
+                "CUSIP": closed_df["cusip"],
+                "Classe": closed_df["share_class"],
+                "Put/Call": closed_df["put_call"],
+                "Azioni precedenti": closed_df["Azioni precedenti"],
+                "Valore precedente": closed_df["Valore precedente"],
+            }),
+            use_container_width=True,
+            hide_index=True,
+        )
+
+    changes = diff["increased"] + diff["decreased"]
+    if changes:
+        st.subheader("Variazioni significative (≥10%)")
+        changes_df = pd.DataFrame(changes).sort_values("pct_change", ascending=False)
+        changes_df["Azioni prima"] = changes_df["old_shares"].apply(fmt_quantity)
+        changes_df["Azioni dopo"] = changes_df["new_shares"].apply(fmt_quantity)
+        changes_df["Δ Azioni"] = changes_df["share_change"].apply(fmt_signed_quantity)
+        changes_df["Δ %"] = changes_df["pct_change"].apply(fmt_signed_pct)
+        changes_df["Valore prima"] = changes_df["old_value_usd"].apply(fmt_value)
+        changes_df["Valore dopo"] = changes_df["new_value_usd"].apply(fmt_value)
+        changes_df["Δ Valore"] = changes_df["value_change"].apply(fmt_signed_value)
+        changes_df["Δ Valore %"] = changes_df["value_pct_change"].apply(fmt_signed_pct)
+        st.dataframe(
+            pd.DataFrame({
+                "Issuer": changes_df["issuer_name"],
+                "CUSIP": changes_df["cusip"],
+                "Classe": changes_df["share_class"],
+                "Put/Call": changes_df["put_call"],
+                "Azioni prima": changes_df["Azioni prima"],
+                "Azioni dopo": changes_df["Azioni dopo"],
+                "Δ Azioni": changes_df["Δ Azioni"],
+                "Δ %": changes_df["Δ %"],
+                "Valore prima": changes_df["Valore prima"],
+                "Valore dopo": changes_df["Valore dopo"],
+                "Δ Valore": changes_df["Δ Valore"],
+                "Δ Valore %": changes_df["Δ Valore %"],
+            }),
+            use_container_width=True,
+            hide_index=True,
+        )
+
+    if not any([diff["new_positions"], diff["closed_positions"], changes]):
+        st.success("Nessuna variazione significativa tra i due trimestri.")
+
+
 # ---------------------------------------------------------------------------
 # Sidebar navigation
 # ---------------------------------------------------------------------------
 st.sidebar.title("📊 F8 13F Screener")
 page = st.sidebar.radio(
     "Sezione",
-    ["Overview", "Fund Detail", "Portfolio Diff", "Holdings Search"],
+    ["Overview", "Fund Detail", "Fund History", "Portfolio Diff", "Holdings Search"],
 )
 st.sidebar.markdown("---")
 st.sidebar.caption(f"DB: `{DB_PATH}`")
@@ -385,16 +686,17 @@ if page == "Overview":
                 "I valori di portafoglio sono disponibili: classifica fondi e grafici ora usano l'ultimo filing valorizzato."
             )
 
-    stats = query("SELECT * FROM statistics WHERE id = 1")
-    if not stats.empty:
-        s = stats.iloc[0]
-        if any(int(s[col]) for col in ("total_checked", "matched", "filtered")):
-            st.caption(
-                "Feed monitor stats: "
-                f"checked {int(s['total_checked']):,} | "
-                f"matched {int(s['matched']):,} | "
-                f"filtered {int(s['filtered']):,}"
-            )
+    if table_exists("statistics"):
+        stats = query("SELECT * FROM statistics WHERE id = 1")
+        if not stats.empty:
+            s = stats.iloc[0]
+            if any(int(s[col]) for col in ("total_checked", "matched", "filtered")):
+                st.caption(
+                    "Feed monitor stats: "
+                    f"checked {int(s['total_checked']):,} | "
+                    f"matched {int(s['matched']):,} | "
+                    f"filtered {int(s['filtered']):,}"
+                )
 
     st.subheader("Ultimo filing per fondo")
     st.caption(
@@ -512,11 +814,7 @@ elif page == "Fund Detail":
 
     fund = st.selectbox("Seleziona fondo", funds["fund_name"].tolist())
 
-    accessions = query("""
-        SELECT DISTINCT accession_number, filing_date
-        FROM holdings WHERE fund_name = ?
-        ORDER BY filing_date DESC
-    """, (fund,))
+    accessions = load_accessions_for_fund(fund)
 
     label_map = {
         row["accession_number"]: f"{row['filing_date']}  ({row['accession_number']})"
@@ -586,7 +884,146 @@ elif page == "Fund Detail":
 
 
 # ---------------------------------------------------------------------------
-# Page 3 — Portfolio Diff
+# Page 3 — Fund History
+# ---------------------------------------------------------------------------
+elif page == "Fund History":
+    st.title("Fund History — Quarter over Quarter")
+
+    funds = query("SELECT DISTINCT fund_name FROM holdings ORDER BY fund_name")
+    if funds.empty:
+        st.info("Nessun dato nel database ancora.")
+        st.stop()
+
+    fund = st.selectbox("Seleziona fondo", funds["fund_name"].tolist(), key="fund_history_fund")
+    history_df, transitions = load_fund_history(fund)
+
+    if history_df.empty:
+        st.info("Nessuna history disponibile per questo fondo.")
+        st.stop()
+
+    latest_snapshot = history_df.iloc[-1]
+    has_portfolio_values = history_df["Valore portfolio ($000s)"].notna().any()
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Trimestri disponibili", f"{len(history_df):,}")
+    c2.metric("Ultimo filing", latest_snapshot["Filing Date"])
+    c3.metric("Posizioni attuali", f"{int(latest_snapshot['Posizioni normalizzate']):,}")
+    c4.metric(
+        "Valore ultimo filing",
+        fmt_value(latest_snapshot["Valore portfolio ($000s)"]) if has_portfolio_values else "-",
+    )
+
+    st.caption(
+        "Le categorie opened/closed/improved/decreased usano la variazione delle azioni. "
+        "I valori di portafoglio sono mostrati come contesto aggiuntivo quando presenti nel DB."
+    )
+
+    summary_export = history_df.copy()
+    if has_portfolio_values:
+        summary_export["Valore portfolio"] = summary_export["Valore portfolio ($000s)"].apply(fmt_value)
+
+    st.subheader("Timeline trimestri")
+    st.download_button(
+        "Scarica timeline fondo",
+        dataframe_to_csv_bytes(summary_export.drop(columns=["Filing Date Dt"])),
+        file_name=f"f8_13f_{fund}_history.csv".replace(" ", "_"),
+        mime="text/csv",
+    )
+
+    display_columns = [
+        "Filing Date",
+        "Accession",
+        "Posizioni normalizzate",
+        "Raw 13F Lines",
+    ]
+    if has_portfolio_values:
+        display_columns.append("Valore portfolio")
+    st.dataframe(summary_export[display_columns], use_container_width=True, hide_index=True)
+
+    charts_col1, charts_col2 = st.columns(2)
+    with charts_col1:
+        positions_fig = px.line(
+            history_df,
+            x="Filing Date Dt",
+            y="Posizioni normalizzate",
+            markers=True,
+            hover_name="Label",
+            title=f"Posizioni normalizzate per trimestre — {fund}",
+        )
+        positions_fig.update_xaxes(title="Filing date")
+        st.plotly_chart(positions_fig, use_container_width=True)
+
+    with charts_col2:
+        if has_portfolio_values:
+            value_fig = px.line(
+                history_df,
+                x="Filing Date Dt",
+                y="Valore portfolio ($000s)",
+                markers=True,
+                hover_name="Label",
+                title=f"Valore portfolio per trimestre — {fund}",
+            )
+            value_fig.update_xaxes(title="Filing date")
+            st.plotly_chart(value_fig, use_container_width=True)
+        else:
+            st.info("Valori di portafoglio non disponibili per questo fondo nel DB corrente.")
+
+    if not transitions:
+        st.info("Serve almeno un altro trimestre per calcolare i cambiamenti quarter over quarter.")
+        st.stop()
+
+    transition_counts_df = pd.DataFrame([
+        {
+            "Transition": f"{item['from_filing_date']} → {item['to_filing_date']}",
+            "Order": index,
+            "Nuove": item["new_count"],
+            "Chiuse": item["closed_count"],
+            "Aumentate": item["increased_count"],
+            "Diminuite": item["decreased_count"],
+        }
+        for index, item in enumerate(transitions)
+    ])
+    melted_counts = transition_counts_df.melt(
+        id_vars=["Transition", "Order"],
+        value_vars=["Nuove", "Chiuse", "Aumentate", "Diminuite"],
+        var_name="Categoria",
+        value_name="Posizioni",
+    )
+    melted_counts = melted_counts.sort_values(["Order", "Categoria"])
+    transition_fig = px.bar(
+        melted_counts,
+        x="Transition",
+        y="Posizioni",
+        color="Categoria",
+        barmode="group",
+        title=f"Cambiamenti tra trimestri — {fund}",
+    )
+    transition_fig.update_layout(xaxis_tickangle=-30)
+    st.plotly_chart(transition_fig, use_container_width=True)
+
+    latest_first_transitions = list(reversed(transitions))
+    selected_transition_index = st.selectbox(
+        "Drill-down transizione",
+        options=list(range(len(latest_first_transitions))),
+        index=0,
+        format_func=lambda index: transition_label(latest_first_transitions[index]),
+    )
+    selected_transition = latest_first_transitions[selected_transition_index]
+
+    d1, d2, d3, d4 = st.columns(4)
+    d1.metric("Nuove posizioni", selected_transition["new_count"])
+    d2.metric("Posizioni chiuse", selected_transition["closed_count"])
+    d3.metric("Aumentate", selected_transition["increased_count"])
+    d4.metric("Diminuite", selected_transition["decreased_count"])
+
+    st.subheader(
+        f"Dettaglio transizione: {selected_transition['from_filing_date']} → {selected_transition['to_filing_date']}"
+    )
+    render_detailed_diff_sections(selected_transition)
+
+
+# ---------------------------------------------------------------------------
+# Page 4 — Portfolio Diff
 # ---------------------------------------------------------------------------
 elif page == "Portfolio Diff":
     st.title("Portfolio Diff — Quarter over Quarter")
@@ -596,14 +1033,9 @@ elif page == "Portfolio Diff":
         st.info("Nessun dato nel database ancora.")
         st.stop()
 
-    fund = st.selectbox("Seleziona fondo", funds["fund_name"].tolist())
+    fund = st.selectbox("Seleziona fondo", funds["fund_name"].tolist(), key="portfolio_diff_fund")
 
-    accessions = query("""
-        SELECT DISTINCT accession_number, filing_date
-        FROM holdings WHERE fund_name = ?
-        ORDER BY filing_date DESC
-    """, (fund,))
-
+    accessions = load_accessions_for_fund(fund)
     if len(accessions) < 2:
         st.warning("Servono almeno 2 trimestri per calcolare il diff.")
         st.stop()
@@ -626,24 +1058,14 @@ elif page == "Portfolio Diff":
         st.warning("Seleziona due trimestri diversi.")
         st.stop()
 
-    def load_acc(acc):
-        rows = query(NORMALIZED_DIFF_SQL, (fund, acc))
-        return {
-            row["cusip"]: {
-                "issuer_name": row["issuer_name"],
-                "shares": row["shares"],
-                "value_usd": row["value_usd"],
-            }
-            for _, row in rows.iterrows() if row["cusip"]
-        }
+    old_map = load_normalized_positions_map(fund, acc_old)
+    new_map = load_normalized_positions_map(fund, acc_new)
+    diff = compute_detailed_portfolio_diff(old_map, new_map)
 
-    old_map = load_acc(acc_old)
-    new_map = load_acc(acc_new)
-
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-    from src.core.diff import compute_portfolio_diff
-
-    diff = compute_portfolio_diff(old_map, new_map)
+    st.caption(
+        "Confronto normalizzato per posizione. Anche i titoli senza CUSIP vengono confrontati "
+        "tramite chiave fallback issuer/class/put-call."
+    )
 
     # Summary metrics
     c1, c2, c3, c4 = st.columns(4)
@@ -651,56 +1073,11 @@ elif page == "Portfolio Diff":
     c2.metric("Posizioni chiuse", len(diff["closed_positions"]))
     c3.metric("Aumentate", len(diff["increased"]))
     c4.metric("Diminuite", len(diff["decreased"]))
-
-    if diff["new_positions"]:
-        st.subheader("📈 Nuove posizioni")
-        ndf = pd.DataFrame(diff["new_positions"])
-        ndf["Valore"] = ndf["value_usd"].apply(fmt_value)
-        ndf["Azioni"] = ndf["shares"].apply(lambda x: f"{x:,}" if pd.notna(x) and x else "-")
-        new_positions_df = pd.DataFrame({
-            "Issuer": ndf["issuer_name"],
-            "CUSIP": ndf["cusip"],
-            "Azioni": ndf["Azioni"],
-            "Valore": ndf["Valore"],
-        })
-        st.dataframe(new_positions_df, use_container_width=True, hide_index=True)
-
-    if diff["closed_positions"]:
-        st.subheader("📉 Posizioni chiuse")
-        cdf = pd.DataFrame(diff["closed_positions"])
-        cdf["Valore precedente"] = cdf["value_usd"].apply(fmt_value)
-        cdf["Azioni precedenti"] = cdf["shares"].apply(lambda x: f"{x:,}" if pd.notna(x) and x else "-")
-        closed_positions_df = pd.DataFrame({
-            "Issuer": cdf["issuer_name"],
-            "CUSIP": cdf["cusip"],
-            "Azioni precedenti": cdf["Azioni precedenti"],
-            "Valore precedente": cdf["Valore precedente"],
-        })
-        st.dataframe(closed_positions_df, use_container_width=True, hide_index=True)
-
-    changes = diff["increased"] + diff["decreased"]
-    if changes:
-        st.subheader("🔄 Variazioni significative (≥10%)")
-        chdf = pd.DataFrame(changes)
-        chdf["Δ%"] = chdf["pct_change"].apply(lambda x: f"+{x:.1f}%" if x > 0 else f"{x:.1f}%")
-        chdf["Azioni prima"] = chdf["old_shares"].apply(lambda x: f"{x:,}" if pd.notna(x) else "-")
-        chdf["Azioni dopo"] = chdf["new_shares"].apply(lambda x: f"{x:,}" if pd.notna(x) else "-")
-        chdf = chdf.sort_values("pct_change", ascending=False)
-        changes_df = pd.DataFrame({
-            "Issuer": chdf["issuer_name"],
-            "CUSIP": chdf["cusip"],
-            "Azioni prima": chdf["Azioni prima"],
-            "Azioni dopo": chdf["Azioni dopo"],
-            "Δ%": chdf["Δ%"],
-        })
-        st.dataframe(changes_df, use_container_width=True, hide_index=True)
-
-    if not any([diff["new_positions"], diff["closed_positions"], changes]):
-        st.success("Nessuna variazione significativa tra i due trimestri.")
+    render_detailed_diff_sections(diff)
 
 
 # ---------------------------------------------------------------------------
-# Page 4 — Holdings Search
+# Page 5 — Holdings Search
 # ---------------------------------------------------------------------------
 elif page == "Holdings Search":
     st.title("Holdings Search")

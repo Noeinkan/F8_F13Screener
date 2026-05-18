@@ -1,6 +1,15 @@
 {
-  "last_updated": 1778449800.4998353,
+  "last_updated": 1779141582.4439158,
   "filings": [
+    {
+      "cik": "0001592413",
+      "fund_name": "Strategy Capital",
+      "form": "13F-HR",
+      "filing_date": "2026-05-14",
+      "accession_number": "0001104659-26-060537",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1592413/000110465926060537/0001104659-26-060537-index.htm"
+    },
     {
       "cik": "0001592413",
       "fund_name": "Strategy Capital",

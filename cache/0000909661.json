@@ -1,6 +1,24 @@
 {
-  "last_updated": 1778449815.9236987,
+  "last_updated": 1779141592.7764401,
   "filings": [
+    {
+      "cik": "0000909661",
+      "fund_name": "Farallon Capital Management (Thomas Steyer)",
+      "form": "13F-HR/A",
+      "filing_date": "2026-05-15",
+      "accession_number": "0000908834-26-000241",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/909661/000090883426000241/0000908834-26-000241-index.htm"
+    },
+    {
+      "cik": "0000909661",
+      "fund_name": "Farallon Capital Management (Thomas Steyer)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0000908834-26-000240",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/909661/000090883426000240/0000908834-26-000240-index.htm"
+    },
     {
       "cik": "0000909661",
       "fund_name": "Farallon Capital Management (Thomas Steyer)",

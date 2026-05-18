@@ -1,6 +1,15 @@
 {
-  "last_updated": 1778449802.5407693,
+  "last_updated": 1779141583.8717685,
   "filings": [
+    {
+      "cik": "0001389234",
+      "fund_name": "Symmetry Peak Management (Quint Slattery)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0000919574-26-003381",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1389234/000091957426003381/0000919574-26-003381-index.htm"
+    },
     {
       "cik": "0001389234",
       "fund_name": "Symmetry Peak Management (Quint Slattery)",

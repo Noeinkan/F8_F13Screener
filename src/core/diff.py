@@ -1,11 +1,172 @@
 """
 Portfolio diff engine: compares two quarters of holdings for the same fund.
 """
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 
 MIN_CHANGE_PCT = 10.0  # only report changes >= this threshold
 MAX_ITEMS_PER_SECTION = 5  # keep Telegram messages readable
+
+
+def build_position_key(
+    cusip: Optional[str],
+    issuer_name: Optional[str] = None,
+    share_class: Optional[str] = None,
+    put_call: Optional[str] = None,
+) -> str:
+    """Return a stable key for a normalized 13F position."""
+    normalized_cusip = (cusip or '').strip()
+    if normalized_cusip:
+        return normalized_cusip
+
+    fallback_parts = [
+        (issuer_name or '').strip(),
+        (share_class or '').strip(),
+        (put_call or '').strip(),
+    ]
+    fallback_key = '|'.join(fallback_parts).strip('|')
+    return fallback_key or 'UNKNOWN_POSITION'
+
+
+def _identity_from_holding(position_key: str, holding: Dict[str, Any]) -> Dict[str, Any]:
+    normalized_cusip = (holding.get('cusip') or '').strip()
+    if not normalized_cusip and '|' not in position_key and position_key != 'UNKNOWN_POSITION':
+        normalized_cusip = position_key
+
+    return {
+        'position_key': position_key,
+        'cusip': normalized_cusip,
+        'issuer_name': holding.get('issuer_name') or position_key,
+        'share_class': holding.get('share_class'),
+        'put_call': holding.get('put_call'),
+    }
+
+
+def _value_pct_change(old_value: Optional[float], new_value: Optional[float]) -> Optional[float]:
+    if old_value in (None, 0):
+        return None
+    return ((new_value or 0) - old_value) / old_value * 100
+
+
+def compute_detailed_portfolio_diff(
+    old: Dict[str, Dict[str, Any]],
+    new: Dict[str, Dict[str, Any]],
+    min_change_pct: float = MIN_CHANGE_PCT,
+) -> Dict[str, List[Dict[str, Any]]]:
+    """
+    Compare two normalized position maps.
+
+    Keys can be CUSIPs or any stable normalized position identifier.
+    Each holding can optionally contain: issuer_name, shares, value_usd, share_class, put_call, cusip.
+    """
+    old_keys = set(old.keys())
+    new_keys = set(new.keys())
+
+    new_positions: List[Dict[str, Any]] = []
+    for position_key in sorted(new_keys - old_keys):
+        holding = new[position_key]
+        new_positions.append({
+            **_identity_from_holding(position_key, holding),
+            'shares': holding.get('shares'),
+            'value_usd': holding.get('value_usd'),
+        })
+
+    closed_positions: List[Dict[str, Any]] = []
+    for position_key in sorted(old_keys - new_keys):
+        holding = old[position_key]
+        closed_positions.append({
+            **_identity_from_holding(position_key, holding),
+            'shares': holding.get('shares'),
+            'value_usd': holding.get('value_usd'),
+        })
+
+    increased: List[Dict[str, Any]] = []
+    decreased: List[Dict[str, Any]] = []
+    for position_key in old_keys & new_keys:
+        old_holding = old[position_key]
+        new_holding = new[position_key]
+        old_shares = old_holding.get('shares') or 0
+        new_shares = new_holding.get('shares') or 0
+
+        if old_shares == 0:
+            continue
+
+        pct_change = (new_shares - old_shares) / old_shares * 100
+        if abs(pct_change) < min_change_pct:
+            continue
+
+        old_value_usd = old_holding.get('value_usd')
+        new_value_usd = new_holding.get('value_usd')
+        entry = {
+            **_identity_from_holding(position_key, new_holding if new_holding.get('issuer_name') else old_holding),
+            'old_shares': old_shares,
+            'new_shares': new_shares,
+            'share_change': new_shares - old_shares,
+            'pct_change': pct_change,
+            'old_value_usd': old_value_usd,
+            'new_value_usd': new_value_usd,
+            'value_change': (
+                None
+                if old_value_usd is None and new_value_usd is None
+                else (new_value_usd or 0) - (old_value_usd or 0)
+            ),
+            'value_pct_change': _value_pct_change(old_value_usd, new_value_usd),
+        }
+
+        if pct_change > 0:
+            increased.append(entry)
+        else:
+            decreased.append(entry)
+
+    increased.sort(key=lambda item: item['pct_change'], reverse=True)
+    decreased.sort(key=lambda item: item['pct_change'])
+
+    return {
+        'new_positions': new_positions,
+        'closed_positions': closed_positions,
+        'increased': increased,
+        'decreased': decreased,
+    }
+
+
+def compute_quarterly_history_transitions(
+    snapshots: List[Dict[str, Any]],
+    min_change_pct: float = MIN_CHANGE_PCT,
+) -> List[Dict[str, Any]]:
+    """Compare consecutive quarter snapshots in filing-date order."""
+    ordered_snapshots = sorted(
+        snapshots,
+        key=lambda item: (
+            item.get('filing_date') or '',
+            item.get('accession_number') or '',
+        ),
+    )
+
+    transitions: List[Dict[str, Any]] = []
+    for previous, current in zip(ordered_snapshots, ordered_snapshots[1:]):
+        diff = compute_detailed_portfolio_diff(
+            previous.get('positions', {}),
+            current.get('positions', {}),
+            min_change_pct=min_change_pct,
+        )
+        transitions.append({
+            'from_filing_date': previous.get('filing_date'),
+            'to_filing_date': current.get('filing_date'),
+            'from_accession_number': previous.get('accession_number'),
+            'to_accession_number': current.get('accession_number'),
+            'from_label': previous.get('label') or previous.get('filing_date') or previous.get('accession_number'),
+            'to_label': current.get('label') or current.get('filing_date') or current.get('accession_number'),
+            'new_positions': diff['new_positions'],
+            'closed_positions': diff['closed_positions'],
+            'increased': diff['increased'],
+            'decreased': diff['decreased'],
+            'new_count': len(diff['new_positions']),
+            'closed_count': len(diff['closed_positions']),
+            'increased_count': len(diff['increased']),
+            'decreased_count': len(diff['decreased']),
+        })
+
+    return transitions
 
 
 def compute_portfolio_diff(
@@ -18,59 +179,47 @@ def compute_portfolio_diff(
     Each value dict must contain: issuer_name, shares, value_usd.
     Returns a dict with: new_positions, closed_positions, increased, decreased.
     """
-    old_cusips = set(old.keys())
-    new_cusips = set(new.keys())
-
-    new_positions: List[Dict] = []
-    for cusip in sorted(new_cusips - old_cusips):
-        h = new[cusip]
-        new_positions.append({
-            'cusip': cusip,
-            'issuer_name': h.get('issuer_name') or cusip,
-            'shares': h.get('shares'),
-            'value_usd': h.get('value_usd'),
-        })
-
-    closed_positions: List[Dict] = []
-    for cusip in sorted(old_cusips - new_cusips):
-        h = old[cusip]
-        closed_positions.append({
-            'cusip': cusip,
-            'issuer_name': h.get('issuer_name') or cusip,
-            'shares': h.get('shares'),
-            'value_usd': h.get('value_usd'),
-        })
-
-    increased: List[Dict] = []
-    decreased: List[Dict] = []
-    for cusip in old_cusips & new_cusips:
-        old_shares = old[cusip].get('shares') or 0
-        new_shares = new[cusip].get('shares') or 0
-        if old_shares == 0:
-            continue
-        pct = (new_shares - old_shares) / old_shares * 100
-        if abs(pct) < MIN_CHANGE_PCT:
-            continue
-        entry = {
-            'cusip': cusip,
-            'issuer_name': new[cusip].get('issuer_name') or cusip,
-            'old_shares': old_shares,
-            'new_shares': new_shares,
-            'pct_change': pct,
-        }
-        if pct > 0:
-            increased.append(entry)
-        else:
-            decreased.append(entry)
-
-    increased.sort(key=lambda x: x['pct_change'], reverse=True)
-    decreased.sort(key=lambda x: x['pct_change'])
+    detailed = compute_detailed_portfolio_diff(old, new, min_change_pct=MIN_CHANGE_PCT)
 
     return {
-        'new_positions': new_positions,
-        'closed_positions': closed_positions,
-        'increased': increased,
-        'decreased': decreased,
+        'new_positions': [
+            {
+                'cusip': entry['cusip'] or entry['position_key'],
+                'issuer_name': entry['issuer_name'],
+                'shares': entry['shares'],
+                'value_usd': entry['value_usd'],
+            }
+            for entry in detailed['new_positions']
+        ],
+        'closed_positions': [
+            {
+                'cusip': entry['cusip'] or entry['position_key'],
+                'issuer_name': entry['issuer_name'],
+                'shares': entry['shares'],
+                'value_usd': entry['value_usd'],
+            }
+            for entry in detailed['closed_positions']
+        ],
+        'increased': [
+            {
+                'cusip': entry['cusip'] or entry['position_key'],
+                'issuer_name': entry['issuer_name'],
+                'old_shares': entry['old_shares'],
+                'new_shares': entry['new_shares'],
+                'pct_change': entry['pct_change'],
+            }
+            for entry in detailed['increased']
+        ],
+        'decreased': [
+            {
+                'cusip': entry['cusip'] or entry['position_key'],
+                'issuer_name': entry['issuer_name'],
+                'old_shares': entry['old_shares'],
+                'new_shares': entry['new_shares'],
+                'pct_change': entry['pct_change'],
+            }
+            for entry in detailed['decreased']
+        ],
     }
 
 

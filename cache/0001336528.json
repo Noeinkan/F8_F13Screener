@@ -1,6 +1,15 @@
 {
-  "last_updated": 1778449781.4767907,
+  "last_updated": 1779141568.726175,
   "filings": [
+    {
+      "cik": "0001336528",
+      "fund_name": "Pershing Square Capital (Bill Ackman)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001172661-26-002336",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/0001172661-26-002336-index.htm"
+    },
     {
       "cik": "0001336528",
       "fund_name": "Pershing Square Capital (Bill Ackman)",

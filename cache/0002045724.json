@@ -1,6 +1,15 @@
 {
-  "last_updated": 1778449809.3054767,
+  "last_updated": 1779141588.472764,
   "filings": [
+    {
+      "cik": "0002045724",
+      "fund_name": "Situational Awareness LP (Leopold Aschenbrenner)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-18",
+      "accession_number": "0002045724-26-000008",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/2045724/000204572426000008/0002045724-26-000008-index.htm"
+    },
     {
       "cik": "0002045724",
       "fund_name": "Situational Awareness LP (Leopold Aschenbrenner)",

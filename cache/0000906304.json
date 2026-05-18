@@ -1,6 +1,15 @@
 {
-  "last_updated": 1778449787.416656,
+  "last_updated": 1779141572.9762547,
   "filings": [
+    {
+      "cik": "0000906304",
+      "fund_name": "Royce Investment Partners (Chuck Royce)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-12",
+      "accession_number": "0000906304-26-000094",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/906304/000090630426000094/0000906304-26-000094-index.htm"
+    },
     {
       "cik": "0000906304",
       "fund_name": "Royce Investment Partners (Chuck Royce)",

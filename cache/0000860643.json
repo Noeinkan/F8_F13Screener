@@ -1,6 +1,15 @@
 {
-  "last_updated": 1778449786.692881,
+  "last_updated": 1779141572.5377374,
   "filings": [
+    {
+      "cik": "0000860643",
+      "fund_name": "Gardner Russo & Gardner (Tom Russo)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-13",
+      "accession_number": "0000860643-26-000003",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/860643/000086064326000003/0000860643-26-000003-index.htm"
+    },
     {
       "cik": "0000860643",
       "fund_name": "Gardner Russo & Gardner (Tom Russo)",

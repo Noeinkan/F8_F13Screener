@@ -1,6 +1,15 @@
 {
-  "last_updated": 1778449796.0134213,
+  "last_updated": 1779141579.2231307,
   "filings": [
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001193125-26-226661",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/0001193125-26-226661-index.htm"
+    },
     {
       "cik": "0001067983",
       "fund_name": "Berkshire Hathaway (Warren Buffett)",

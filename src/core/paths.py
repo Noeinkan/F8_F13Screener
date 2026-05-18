@@ -40,6 +40,7 @@ LAST_CHECK_FILE = str(REALTIME_DATA_DIR / "last_13f_check_v2.json")
 REALTIME_HOLDINGS_CSV = str(REALTIME_DATA_DIR / "13f_holdings_tracker.csv")
 REALTIME_LOG_FILE = str(LOGS_DIR / "13f_alerts.log")
 HOLDINGS_DB_FILE = DATA_DIR / "13f_holdings.db"
+DASHBOARD_DB_FILE = DATA_DIR / "13f_dashboard.duckdb"
 
 # Historical processing files
 CATALOG_FILE = str(

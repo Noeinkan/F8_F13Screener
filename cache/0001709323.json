@@ -1,6 +1,15 @@
 {
-  "last_updated": 1778449790.0711973,
+  "last_updated": 1779141575.2892776,
   "filings": [
+    {
+      "cik": "0001709323",
+      "fund_name": "Himalaya Capital (Li Lu)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0002043585-26-000013",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1709323/000204358526000013/0002043585-26-000013-index.htm"
+    },
     {
       "cik": "0001709323",
       "fund_name": "Himalaya Capital (Li Lu)",

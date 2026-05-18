@@ -1,6 +1,15 @@
 {
-  "last_updated": 1778449811.242503,
+  "last_updated": 1779141589.7420235,
   "filings": [
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0000919574-26-003439",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000091957426003439/0000919574-26-003439-index.htm"
+    },
     {
       "cik": "0001061165",
       "fund_name": "Lone Pine Capital (Stephen Mandel)",

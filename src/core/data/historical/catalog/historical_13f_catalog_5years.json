@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-05-10T22:52:03.814385",
-  "total_filings": 1445,
-  "new_filings": 1445,
-  "skipped_filings": 0,
+  "generated_at": "2026-05-18T22:59:54.455397",
+  "total_filings": 1491,
+  "new_filings": 46,
+  "skipped_filings": 1445,
   "total_funds": 55,
   "cutoff_date": "2020-01-01",
-  "incremental_mode": false,
+  "incremental_mode": true,
   "filings": [
     {
       "cik": "0001061768",
@@ -13011,6 +13011,420 @@
       "accession_number": "0000950123-20-002339",
       "primary_document": "xslForm13F_X01/primary_doc.xml",
       "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000095012320002339/0000950123-20-002339-index.htm"
+    },
+    {
+      "cik": "0001061768",
+      "fund_name": "Baupost Group (Seth Klarman)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-14",
+      "accession_number": "0001061768-26-000007",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000007/0001061768-26-000007-index.htm"
+    },
+    {
+      "cik": "0001656456",
+      "fund_name": "Appaloosa Management (David Tepper)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001656456-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000002/0001656456-26-000002-index.htm"
+    },
+    {
+      "cik": "0001336528",
+      "fund_name": "Pershing Square Capital (Bill Ackman)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001172661-26-002336",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/0001172661-26-002336-index.htm"
+    },
+    {
+      "cik": "0001056831",
+      "fund_name": "Fairholme Capital (Bruce Berkowitz)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0000919574-26-003485",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1056831/000091957426003485/0000919574-26-003485-index.htm"
+    },
+    {
+      "cik": "0001099281",
+      "fund_name": "Third Avenue Management",
+      "form": "13F-HR",
+      "filing_date": "2026-05-13",
+      "accession_number": "0001099281-26-000005",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1099281/000109928126000005/0001099281-26-000005-index.htm"
+    },
+    {
+      "cik": "0000949509",
+      "fund_name": "Oaktree Capital Management (Howard Marks)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0000949509-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000002/0000949509-26-000002-index.htm"
+    },
+    {
+      "cik": "0001549575",
+      "fund_name": "Pabrai Investment Funds (Mohnish Pabrai)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-14",
+      "accession_number": "0001549575-26-000009",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1549575/000154957526000009/0001549575-26-000009-index.htm"
+    },
+    {
+      "cik": "0000860643",
+      "fund_name": "Gardner Russo & Gardner (Tom Russo)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-13",
+      "accession_number": "0000860643-26-000003",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/860643/000086064326000003/0000860643-26-000003-index.htm"
+    },
+    {
+      "cik": "0000906304",
+      "fund_name": "Royce Investment Partners (Chuck Royce)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-12",
+      "accession_number": "0000906304-26-000094",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/906304/000090630426000094/0000906304-26-000094-index.htm"
+    },
+    {
+      "cik": "0000807985",
+      "fund_name": "Southeastern Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001398344-26-009296",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/807985/000139834426009296/0001398344-26-009296-index.htm"
+    },
+    {
+      "cik": "0001040273",
+      "fund_name": "Third Point LLC (Dan Loeb)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001040273-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000002/0001040273-26-000002-index.htm"
+    },
+    {
+      "cik": "0001709323",
+      "fund_name": "Himalaya Capital (Li Lu)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0002043585-26-000013",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1709323/000204358526000013/0002043585-26-000013-index.htm"
+    },
+    {
+      "cik": "0001112520",
+      "fund_name": "Akre Capital Management (Chuck Akre)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-14",
+      "accession_number": "0001112520-26-000009",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1112520/000111252026000009/0001112520-26-000009-index.htm"
+    },
+    {
+      "cik": "0001641864",
+      "fund_name": "Giverny Capital",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001641864-26-000004",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1641864/000164186426000004/0001641864-26-000004-index.htm"
+    },
+    {
+      "cik": "0001056823",
+      "fund_name": "Horizon Kinetics",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001398344-26-009239",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1056823/000139834426009239/0001398344-26-009239-index.htm"
+    },
+    {
+      "cik": "0000921669",
+      "fund_name": "Icahn Capital (Carl Icahn)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001539497-26-001469",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/921669/000153949726001469/0001539497-26-001469-index.htm"
+    },
+    {
+      "cik": "0001067983",
+      "fund_name": "Berkshire Hathaway (Warren Buffett)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001193125-26-226661",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/0001193125-26-226661-index.htm"
+    },
+    {
+      "cik": "0001840735",
+      "fund_name": "Greenoaks Capital Partners",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001840735-26-000011",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1840735/000184073526000011/0001840735-26-000011-index.htm"
+    },
+    {
+      "cik": "0001697591",
+      "fund_name": "CAS Investment Partners (Clifford Sosin)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001697591-26-000003",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1697591/000169759126000003/0001697591-26-000003-index.htm"
+    },
+    {
+      "cik": "0001766596",
+      "fund_name": "RV Capital AG (Rob Vinall)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-11",
+      "accession_number": "0001766596-26-000005",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1766596/000176659626000005/0001766596-26-000005-index.htm"
+    },
+    {
+      "cik": "0001536411",
+      "fund_name": "Duquesne Family Office (Stanley Druckenmiller)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001536411-26-000004",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000004/0001536411-26-000004-index.htm"
+    },
+    {
+      "cik": "0001387322",
+      "fund_name": "Whale Rock Capital Management (Alex Sacerdote)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001172661-26-002159",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1387322/000117266126002159/0001172661-26-002159-index.htm"
+    },
+    {
+      "cik": "0001592413",
+      "fund_name": "Strategy Capital",
+      "form": "13F-HR",
+      "filing_date": "2026-05-14",
+      "accession_number": "0001104659-26-060537",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1592413/000110465926060537/0001104659-26-060537-index.htm"
+    },
+    {
+      "cik": "0001135730",
+      "fund_name": "Coatue Management (Philippe Laffont)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0000919574-26-003501",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1135730/000091957426003501/0000919574-26-003501-index.htm"
+    },
+    {
+      "cik": "0001135730",
+      "fund_name": "Coatue Management (Philippe Laffont)",
+      "form": "13F-HR/A",
+      "filing_date": "2026-05-15",
+      "accession_number": "0000919574-26-003414",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1135730/000091957426003414/0000919574-26-003414-index.htm"
+    },
+    {
+      "cik": "0001891904",
+      "fund_name": "Octahedron Capital Management",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001891904-26-000003",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1891904/000189190426000003/0001891904-26-000003-index.htm"
+    },
+    {
+      "cik": "0001389234",
+      "fund_name": "Symmetry Peak Management (Quint Slattery)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0000919574-26-003381",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1389234/000091957426003381/0000919574-26-003381-index.htm"
+    },
+    {
+      "cik": "0001050464",
+      "fund_name": "Peconic Partners (William Harnisch)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001050464-26-000004",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1050464/000105046426000004/0001050464-26-000004-index.htm"
+    },
+    {
+      "cik": "0001104329",
+      "fund_name": "Crosslink Capital (Seymour Kaufman)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001104329-26-000008",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1104329/000110432926000008/0001104329-26-000008-index.htm"
+    },
+    {
+      "cik": "0001103887",
+      "fund_name": "Nwi Management (Hari Hariharan)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001103887-26-000003",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1103887/000110388726000003/0001103887-26-000003-index.htm"
+    },
+    {
+      "cik": "0001037389",
+      "fund_name": "Renaissance Technologies (Jim Simons)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-14",
+      "accession_number": "0001037389-26-000033",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000033/0001037389-26-000033-index.htm"
+    },
+    {
+      "cik": "0001167483",
+      "fund_name": "Tiger Global Management (Chase Coleman)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0000919574-26-003362",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426003362/0000919574-26-003362-index.htm"
+    },
+    {
+      "cik": "0002045724",
+      "fund_name": "Situational Awareness LP (Leopold Aschenbrenner)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-18",
+      "accession_number": "0002045724-26-000008",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/2045724/000204572426000008/0002045724-26-000008-index.htm"
+    },
+    {
+      "cik": "0001963565",
+      "fund_name": "Value Aligned Research Advisors (Ben Hoskin & David Field)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-18",
+      "accession_number": "0001963565-26-000003",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1963565/000196356526000003/0001963565-26-000003-index.htm"
+    },
+    {
+      "cik": "0001541617",
+      "fund_name": "Altimeter Capital Management (Brad Gerstner)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001541617-26-000006",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1541617/000154161726000006/0001541617-26-000006-index.htm"
+    },
+    {
+      "cik": "0001061165",
+      "fund_name": "Lone Pine Capital (Stephen Mandel)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0000919574-26-003439",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1061165/000091957426003439/0000919574-26-003439-index.htm"
+    },
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001104659-26-062477",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926062477/0001104659-26-062477-index.htm"
+    },
+    {
+      "cik": "0001350694",
+      "fund_name": "Bridgewater Associates (Ray Dalio)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001350694-26-000002",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000002/0001350694-26-000002-index.htm"
+    },
+    {
+      "cik": "0001167557",
+      "fund_name": "AQR Capital Management (Cliff Asness)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001167557-26-000115",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1167557/000116755726000115/0001167557-26-000115-index.htm"
+    },
+    {
+      "cik": "0001791786",
+      "fund_name": "Elliott Investment Management (Paul Singer)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001013594-26-000613",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000613/0001013594-26-000613-index.htm"
+    },
+    {
+      "cik": "0000909661",
+      "fund_name": "Farallon Capital Management (Thomas Steyer)",
+      "form": "13F-HR/A",
+      "filing_date": "2026-05-15",
+      "accession_number": "0000908834-26-000241",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/909661/000090883426000241/0000908834-26-000241-index.htm"
+    },
+    {
+      "cik": "0000909661",
+      "fund_name": "Farallon Capital Management (Thomas Steyer)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0000908834-26-000240",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/909661/000090883426000240/0000908834-26-000240-index.htm"
+    },
+    {
+      "cik": "0001426859",
+      "fund_name": "Ruffer Investment Co.",
+      "form": "13F-HR",
+      "filing_date": "2026-05-13",
+      "accession_number": "0001426859-26-000005",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1426859/000142685926000005/0001426859-26-000005-index.htm"
+    },
+    {
+      "cik": "0001603466",
+      "fund_name": "Point72 Asset Management (Steve Cohen)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0000919574-26-003476",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1603466/000091957426003476/0000919574-26-003476-index.htm"
+    },
+    {
+      "cik": "0001273087",
+      "fund_name": "Millennium Management (Israel Englander)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001273087-26-000004",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000004/0001273087-26-000004-index.htm"
+    },
+    {
+      "cik": "0001218710",
+      "fund_name": "Balyasny Asset Management",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001193125-26-226359",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1218710/000119312526226359/0001193125-26-226359-index.htm"
     }
   ]
 }

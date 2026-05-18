@@ -1,6 +1,15 @@
 {
-  "last_updated": 1778449803.2819798,
+  "last_updated": 1779141584.4026597,
   "filings": [
+    {
+      "cik": "0001050464",
+      "fund_name": "Peconic Partners (William Harnisch)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001050464-26-000004",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1050464/000105046426000004/0001050464-26-000004-index.htm"
+    },
     {
       "cik": "0001050464",
       "fund_name": "Peconic Partners (William Harnisch)",

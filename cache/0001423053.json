@@ -1,6 +1,15 @@
 {
-  "last_updated": 1778449811.9091573,
+  "last_updated": 1779141590.1739542,
   "filings": [
+    {
+      "cik": "0001423053",
+      "fund_name": "Citadel (Kenneth Griffin)",
+      "form": "13F-HR",
+      "filing_date": "2026-05-15",
+      "accession_number": "0001104659-26-062477",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926062477/0001104659-26-062477-index.htm"
+    },
     {
       "cik": "0001423053",
       "fund_name": "Citadel (Kenneth Griffin)",

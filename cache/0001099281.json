@@ -1,6 +1,15 @@
 {
-  "last_updated": 1778449784.2618632,
+  "last_updated": 1779141570.8588934,
   "filings": [
+    {
+      "cik": "0001099281",
+      "fund_name": "Third Avenue Management",
+      "form": "13F-HR",
+      "filing_date": "2026-05-13",
+      "accession_number": "0001099281-26-000005",
+      "primary_document": "xslForm13F_X02/primary_doc.xml",
+      "filing_url": "https://www.sec.gov/Archives/edgar/data/1099281/000109928126000005/0001099281-26-000005-index.htm"
+    },
     {
       "cik": "0001099281",
       "fund_name": "Third Avenue Management",
