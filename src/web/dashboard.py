@@ -5,6 +5,7 @@ Run locally:  streamlit run src/web/dashboard.py
 import sys
 import textwrap
 from pathlib import Path
+from typing import TypeVar
 
 import duckdb
 import pandas as pd
@@ -36,6 +37,9 @@ st.set_page_config(
 )
 
 
+SelectionT = TypeVar("SelectionT")
+
+
 # ---------------------------------------------------------------------------
 # Data helpers
 # ---------------------------------------------------------------------------
@@ -63,6 +67,13 @@ Per ripristinare in locale:
         """
     ).strip()
     st.code(recovery_cmds, language="bash")
+
+
+def require_selection(value: SelectionT | None, empty_message: str) -> SelectionT:
+    if value is None:
+        st.info(empty_message)
+        st.stop()
+    return value
 
 
 @st.cache_resource
@@ -815,16 +826,28 @@ elif page == "Fund Detail":
         st.info("Nessun dato nel database ancora.")
         st.stop()
 
-    fund = st.selectbox("Seleziona fondo", funds["fund_name"].tolist())
+    fund = require_selection(
+        st.selectbox("Seleziona fondo", funds["fund_name"].tolist()),
+        "Seleziona un fondo per continuare.",
+    )
 
     accessions = load_accessions_for_fund(fund)
+    if accessions.empty:
+        st.info("Nessun trimestre disponibile per questo fondo.")
+        st.stop()
 
     label_map = {
         row["accession_number"]: f"{row['filing_date']}  ({row['accession_number']})"
         for _, row in accessions.iterrows()
     }
-    selected_acc = st.selectbox("Trimestre (accession)", list(label_map.keys()),
-                                format_func=lambda k: label_map[k])
+    selected_acc = require_selection(
+        st.selectbox(
+            "Trimestre (accession)",
+            list(label_map.keys()),
+            format_func=lambda k: label_map[k],
+        ),
+        "Seleziona un trimestre per continuare.",
+    )
 
     raw_df = query(RAW_ACCESSION_HOLDINGS_SQL, (fund, selected_acc))
     normalized_df = query(NORMALIZED_ACCESSION_HOLDINGS_SQL, (fund, selected_acc))
@@ -897,7 +920,10 @@ elif page == "Fund History":
         st.info("Nessun dato nel database ancora.")
         st.stop()
 
-    fund = st.selectbox("Seleziona fondo", funds["fund_name"].tolist(), key="fund_history_fund")
+    fund = require_selection(
+        st.selectbox("Seleziona fondo", funds["fund_name"].tolist(), key="fund_history_fund"),
+        "Seleziona un fondo per visualizzare la history.",
+    )
     history_df, transitions = load_fund_history(fund)
 
     if history_df.empty:
@@ -1036,7 +1062,10 @@ elif page == "Portfolio Diff":
         st.info("Nessun dato nel database ancora.")
         st.stop()
 
-    fund = st.selectbox("Seleziona fondo", funds["fund_name"].tolist(), key="portfolio_diff_fund")
+    fund = require_selection(
+        st.selectbox("Seleziona fondo", funds["fund_name"].tolist(), key="portfolio_diff_fund"),
+        "Seleziona un fondo per calcolare il diff.",
+    )
 
     accessions = load_accessions_for_fund(fund)
     if len(accessions) < 2:
@@ -1051,11 +1080,15 @@ elif page == "Portfolio Diff":
 
     col1, col2 = st.columns(2)
     with col1:
-        acc_new = st.selectbox("Trimestre NUOVO", acc_list,
-                               format_func=lambda k: label_map[k], index=0)
+        acc_new = require_selection(
+            st.selectbox("Trimestre NUOVO", acc_list, format_func=lambda k: label_map[k], index=0),
+            "Seleziona il trimestre nuovo.",
+        )
     with col2:
-        acc_old = st.selectbox("Trimestre PRECEDENTE", acc_list,
-                               format_func=lambda k: label_map[k], index=1)
+        acc_old = require_selection(
+            st.selectbox("Trimestre PRECEDENTE", acc_list, format_func=lambda k: label_map[k], index=1),
+            "Seleziona il trimestre precedente.",
+        )
 
     if acc_new == acc_old:
         st.warning("Seleziona due trimestri diversi.")
