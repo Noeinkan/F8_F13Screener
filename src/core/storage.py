@@ -15,13 +15,15 @@ logger = logging.getLogger(__name__)
 class Storage:
     """SQLite-based storage for 13F filings and holdings"""
 
+    _REQUIRED_TABLES = frozenset({'seen_filings', 'holdings', 'statistics'})
+
     def __init__(self, db_path: Path):
         self.db_path = db_path
         self._init_database()
 
     def _init_database(self):
         """Initialize database schema"""
-        with self._get_connection() as conn:
+        with self._get_connection(ensure_schema=False) as conn:
             cursor = conn.cursor()
 
             # Table for tracking seen filings
@@ -127,6 +129,18 @@ class Storage:
             conn.commit()
             logger.info("Database initialized successfully")
 
+    def _has_required_schema(self, conn: sqlite3.Connection) -> bool:
+        """Return True when the SQLite file exposes the tables the app requires."""
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
+            existing_tables = {row['name'] for row in cursor.fetchall()}
+        except sqlite3.Error as e:
+            logger.warning(f"Impossibile verificare schema SQLite in {self.db_path}: {e}")
+            return False
+
+        return self._REQUIRED_TABLES.issubset(existing_tables)
+
     def _ensure_table_columns(self, cursor, table_name: str, columns: Dict[str, str]):
         """Add newly required columns to existing SQLite tables."""
         cursor.execute(f"PRAGMA table_info({table_name})")
@@ -139,11 +153,20 @@ class Storage:
                 )
 
     @contextmanager
-    def _get_connection(self):
+    def _get_connection(self, ensure_schema: bool = True):
         """Context manager for database connections"""
         conn = sqlite3.connect(self.db_path, timeout=30)
         conn.row_factory = sqlite3.Row
         try:
+            if ensure_schema and not self._has_required_schema(conn):
+                logger.warning(
+                    "Schema SQLite incompleto in %s. Reinizializzo il database prima di proseguire.",
+                    self.db_path,
+                )
+                conn.close()
+                self._init_database()
+                conn = sqlite3.connect(self.db_path, timeout=30)
+                conn.row_factory = sqlite3.Row
             yield conn
         finally:
             conn.close()

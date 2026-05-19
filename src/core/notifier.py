@@ -21,6 +21,7 @@ class TelegramNotifier:
         self.max_retries = max_retries
         self.retry_delay = retry_delay
         self.telegram_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
+        self._disabled_due_to_unauthorized = False
 
     def send_message(self, message: str) -> bool:
         """
@@ -32,6 +33,9 @@ class TelegramNotifier:
         Returns:
             True if message sent successfully, False otherwise
         """
+        if self._disabled_due_to_unauthorized:
+            return False
+
         payload = {
             'chat_id': self.chat_id,
             'text': message,
@@ -47,6 +51,13 @@ class TelegramNotifier:
                     # Save message for viewer
                     save_message_to_viewer(message)
                     return True
+                if response.status_code == 401:
+                    self._disabled_due_to_unauthorized = True
+                    logger.warning(
+                        "Errore Telegram permanente: token bot non valido (HTTP 401). "
+                        "Invio notifiche disabilitato per questo processo finche la configurazione non viene corretta."
+                    )
+                    return False
                 else:
                     logger.warning(f"Errore Telegram (tentativo {attempt+1}/{self.max_retries}): {response.status_code}")
             except requests.exceptions.RequestException as e:

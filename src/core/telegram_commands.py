@@ -22,6 +22,10 @@ class _ConflictError(Exception):
     """Raised when Telegram returns 409 (another getUpdates session is active)."""
 
 
+class _UnauthorizedError(Exception):
+    """Raised when Telegram returns 401 (invalid or revoked bot token)."""
+
+
 class TelegramCommandHandler:
     """
     Long-polls Telegram getUpdates and dispatches /start, /stop, /status.
@@ -71,13 +75,25 @@ class TelegramCommandHandler:
             resp = requests.post(f'{self._base_url}/deleteWebhook', timeout=10)
             if resp.status_code == 200:
                 logger.info('Webhook eliminato, getUpdates attivo')
+            elif resp.status_code == 401:
+                raise _UnauthorizedError()
             else:
                 logger.warning(f'deleteWebhook HTTP {resp.status_code}')
+        except _UnauthorizedError:
+            raise
         except requests.exceptions.RequestException as e:
             logger.warning(f'deleteWebhook failed: {e}')
 
     def _poll_loop(self) -> None:
-        self._delete_webhook()
+        try:
+            self._delete_webhook()
+        except _UnauthorizedError:
+            logger.warning(
+                'Telegram bot non autorizzato (HTTP 401). '
+                'Comandi Telegram disabilitati su questo processo.'
+            )
+            return
+
         _409_warned = False
         while True:
             try:
@@ -86,6 +102,12 @@ class TelegramCommandHandler:
                 for update in updates:
                     self._offset = update['update_id'] + 1
                     self._dispatch(update)
+            except _UnauthorizedError:
+                logger.warning(
+                    'getUpdates HTTP 401 — token bot Telegram non valido. '
+                    'Comandi Telegram disabilitati su questo processo.'
+                )
+                return
             except _ConflictError:
                 if not _409_warned:
                     logger.warning(
@@ -111,10 +133,12 @@ class TelegramCommandHandler:
             if resp.status_code == 200:
                 data = resp.json()
                 return data.get('result', [])
+            if resp.status_code == 401:
+                raise _UnauthorizedError()
             if resp.status_code == 409:
                 raise _ConflictError()
             logger.warning(f'getUpdates HTTP {resp.status_code}')
-        except _ConflictError:
+        except (_ConflictError, _UnauthorizedError):
             raise
         except requests.exceptions.RequestException as e:
             logger.warning(f'getUpdates request failed: {e}')
