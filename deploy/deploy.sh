@@ -58,7 +58,13 @@ done
 if [ "$SKIP_TESTS" = false ]; then
     echo "→ Running local tests before deploy..."
 
-    if [ -x "venv/bin/python" ]; then
+    if [ -x ".venv/Scripts/python.exe" ]; then
+        TEST_PYTHON=".venv/Scripts/python.exe"
+    elif [ -x "venv/Scripts/python.exe" ]; then
+        TEST_PYTHON="venv/Scripts/python.exe"
+    elif [ -x ".venv/bin/python" ]; then
+        TEST_PYTHON=".venv/bin/python"
+    elif [ -x "venv/bin/python" ]; then
         TEST_PYTHON="venv/bin/python"
     elif command -v python3 >/dev/null 2>&1; then
         TEST_PYTHON="python3"
