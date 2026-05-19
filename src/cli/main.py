@@ -172,10 +172,20 @@ class FilingProcessor:
         if not accession_number or accession_number == 'N/A':
             return False
 
-        return (
-            not self.storage.has_holdings_for_accession(accession_number)
-            or not self.dashboard_storage.has_holdings_for_accession(accession_number)
-        )
+        sqlite_has_holdings = self.storage.has_holdings_for_accession(accession_number)
+        if not sqlite_has_holdings:
+            return True
+
+        try:
+            return not self.dashboard_storage.has_holdings_for_accession(accession_number)
+        except Exception as e:
+            self.logger.warning(
+                "DuckDB dashboard temporaneamente non accessibile per %s: %s. "
+                "Backfill dashboard rinviato al prossimo ciclo utile.",
+                accession_number,
+                e,
+            )
+            return False
 
     def process_filings_cycle(self):
         """Primary filings cycle: submissions endpoint first, Atom feed fallback second."""
@@ -556,17 +566,26 @@ class FilingProcessor:
                 acceptance_datetime=acceptance_datetime or filing_date,
             )
 
-            dashboard_saved_count = self.dashboard_storage.save_holdings(
-                holdings,
-                fund_name,
-                cik,
-                filing_date,
-                accession_number,
-                filing_url,
-                acceptance_datetime=acceptance_datetime or filing_date,
-            )
+            dashboard_saved_count = 0
+            try:
+                dashboard_saved_count = self.dashboard_storage.save_holdings(
+                    holdings,
+                    fund_name,
+                    cik,
+                    filing_date,
+                    accession_number,
+                    filing_url,
+                    acceptance_datetime=acceptance_datetime or filing_date,
+                )
+            except Exception as e:
+                self.logger.warning(
+                    "Salvataggio DuckDB dashboard fallito per %s: %s. "
+                    "Le holdings restano salvate in SQLite e verranno riallineate piu tardi.",
+                    accession_number,
+                    e,
+                )
 
-            if saved_count == 0 or dashboard_saved_count == 0:
+            if saved_count == 0:
                 return False, None
 
             # Compute diff against previous quarter if available

@@ -14,33 +14,6 @@ from src.core.paths import (
 )
 
 
-def _env_int(name: str, default: int) -> int:
-    raw = os.getenv(name)
-    if raw is None or raw == '':
-        return default
-    try:
-        return int(raw)
-    except ValueError:
-        return default
-
-
-def _env_float(name: str, default: float) -> float:
-    raw = os.getenv(name)
-    if raw is None or raw == '':
-        return default
-    try:
-        return float(raw)
-    except ValueError:
-        return default
-
-
-def _env_bool(name: str, default: bool) -> bool:
-    raw = os.getenv(name)
-    if raw is None or raw == '':
-        return default
-    return raw.strip().lower() in {'1', 'true', 'yes', 'on'}
-
-
 @dataclass
 class Config:
     """Application configuration"""
@@ -56,12 +29,7 @@ class Config:
     rss_url: str = 'https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=13F-HR&count=100&output=atom'
 
     # Polling intervals (seconds)
-    poll_interval: int = 120  # 2 minutes: near real-time submissions polling
-
-    # SEC submissions watcher tuning
-    submissions_recent_limit: int = 10
-    submissions_request_delay_seconds: float = 1.0
-    enable_atom_fallback: bool = True
+    poll_interval: int = 900  # 15 minutes for production
 
     # Retry configuration
     max_retries: int = 3
@@ -76,6 +44,11 @@ class Config:
 
     # Feature flags
     auto_launch_viewer: bool = True
+
+    # Submissions watcher
+    submissions_recent_limit: int = 10
+    submissions_request_delay_seconds: float = 1.0
+    enable_atom_fallback: bool = True
 
     # Hedge funds filter
     hedge_funds_cik: Dict[str, str] = field(default_factory=dict)
@@ -111,18 +84,35 @@ class Config:
             from hedge_funds_config import HEDGE_FUNDS_CIK
             hedge_funds = HEDGE_FUNDS_CIK
 
+        def _env_bool(key: str, default: bool) -> bool:
+            val = os.getenv(key)
+            if val is None:
+                return default
+            return val.strip().lower() not in ('0', 'false', 'no', '')
+
+        def _env_int(key: str, default: int) -> int:
+            val = os.getenv(key)
+            try:
+                return int(val) if val is not None else default
+            except ValueError:
+                return default
+
+        def _env_float(key: str, default: float) -> float:
+            val = os.getenv(key)
+            try:
+                return float(val) if val is not None else default
+            except ValueError:
+                return default
+
         return cls(
             telegram_bot_token=bot_token,
             telegram_chat_id=chat_id,
             sec_user_agent=user_agent or 'YourName yourname@email.com',
             poll_interval=_env_int('F13F_POLL_INTERVAL_SECONDS', 120),
-            submissions_recent_limit=_env_int('F13F_SUBMISSIONS_RECENT_LIMIT', 10),
-            submissions_request_delay_seconds=_env_float(
-                'F13F_SUBMISSIONS_REQUEST_DELAY_SECONDS',
-                1.0,
-            ),
-            enable_atom_fallback=_env_bool('F13F_ENABLE_ATOM_FALLBACK', True),
             auto_launch_viewer=_env_bool('F13F_AUTO_LAUNCH_VIEWER', True),
+            submissions_recent_limit=_env_int('F13F_SUBMISSIONS_RECENT_LIMIT', 10),
+            submissions_request_delay_seconds=_env_float('F13F_SUBMISSIONS_DELAY', 1.0),
+            enable_atom_fallback=_env_bool('F13F_ENABLE_ATOM_FALLBACK', True),
             hedge_funds_cik=hedge_funds
         )
 
