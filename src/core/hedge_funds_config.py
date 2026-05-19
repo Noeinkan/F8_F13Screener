@@ -49,7 +49,6 @@ HEDGE_FUNDS_CIK = {
     '0001891904': 'Octahedron Capital Management',
     '0001389234': 'Symmetry Peak Management (Quint Slattery)',
     '0001050464': 'Peconic Partners (William Harnisch)',
-    '0001589624': '3G Capital Partners (Jorge Paulo Lemann)',
     '0001172661': 'Jericho Capital Asset Management (Josh Resnick)',
     '0001104329': 'Crosslink Capital (Seymour Kaufman)',
     '0001103887': 'Nwi Management (Hari Hariharan)',

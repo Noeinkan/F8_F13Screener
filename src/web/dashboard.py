@@ -3,6 +3,7 @@ F8 F13 Screener — Streamlit Dashboard
 Run locally:  streamlit run src/web/dashboard.py
 """
 import json
+import os
 import sys
 import textwrap
 from pathlib import Path
@@ -23,6 +24,7 @@ from src.core.diff import (
     compute_detailed_portfolio_diff,
     compute_quarterly_history_transitions,
 )
+from src.core.dashboard_snapshot import resolve_dashboard_snapshot
 from src.core.dashboard_storage import DashboardStorage
 from src.core.hedge_funds_config import HEDGE_FUNDS_CIK
 from src.core.paths import DASHBOARD_DB_FILE
@@ -43,6 +45,9 @@ SelectionT = TypeVar("SelectionT")
 TRACKED_FUND_NAMES = sorted(HEDGE_FUNDS_CIK.values())
 FUND_NAME_TO_CIK = {name: cik for cik, name in HEDGE_FUNDS_CIK.items()}
 CACHE_DIR = PROJECT_ROOT / "cache"
+DASHBOARD_SNAPSHOT_PATH = (
+    CACHE_DIR / "dashboard" / f"13f_dashboard.{os.getpid()}.snapshot.duckdb"
+)
 
 
 # ---------------------------------------------------------------------------
@@ -81,23 +86,33 @@ def require_selection(value: SelectionT | None, empty_message: str) -> Selection
     return value
 
 
-@st.cache_resource
-def get_storage() -> DashboardStorage:
-    if not DB_PATH.exists():
-        st.error(f"Database non trovato: {DB_PATH}")
-        st.stop()
+@st.cache_data(ttl=2, show_spinner=False)
+def get_dashboard_db_state() -> tuple[str, int, str | None]:
+    resolved_path, warning = resolve_dashboard_snapshot(DB_PATH, DASHBOARD_SNAPSHOT_PATH)
+    return str(resolved_path), resolved_path.stat().st_mtime_ns, warning
+
+
+@st.cache_resource(show_spinner=False)
+def get_storage(db_path_raw: str, _snapshot_version: int) -> DashboardStorage:
+    db_path = Path(db_path_raw)
+    if not db_path.exists():
+        raise FileNotFoundError(f"Database non trovato: {db_path}")
+
+    storage = DashboardStorage(db_path)
+    health = storage.get_health_snapshot()
+    if health["total_rows"] > 0 and health["only_all_fund"]:
+        raise RuntimeError(
+            "Dataset degenerato: contiene solo fund_name=ALL. "
+            "Ricostruisci il DB dashboard dalla pipeline storica."
+        )
+    return storage
+
+
+def initialize_dashboard_storage() -> tuple[DashboardStorage, Path, str | None]:
     try:
-        storage = DashboardStorage(DB_PATH)
-        health = storage.get_health_snapshot()
-        if health["total_rows"] > 0 and health["only_all_fund"]:
-            show_db_recovery_help(
-                error=RuntimeError(
-                    "Dataset degenerato: contiene solo fund_name=ALL. "
-                    "Ricostruisci il DB dashboard dalla pipeline storica."
-                )
-            )
-            st.stop()
-        return storage
+        db_path_raw, snapshot_version, warning = get_dashboard_db_state()
+        storage = get_storage(db_path_raw, snapshot_version)
+        return storage, Path(db_path_raw), warning
     except (duckdb.Error, OSError, RuntimeError) as exc:
         show_db_recovery_help(error=exc)
         st.stop()
@@ -105,9 +120,8 @@ def get_storage() -> DashboardStorage:
 
 
 def query(sql: str, params: tuple = ()) -> pd.DataFrame:
-    storage = get_storage()
     try:
-        return storage.query_df(sql, params)
+        return DASHBOARD_STORAGE.query_df(sql, params)
     except (duckdb.Error, pd.errors.DatabaseError) as exc:
         show_db_recovery_help(error=exc)
         st.stop()
@@ -233,6 +247,9 @@ def fmt_signed_value(value_thousands):
     if absolute_value == "-":
         absolute_value = "$0"
     return f"{sign}{absolute_value}"
+
+
+DASHBOARD_STORAGE, DASHBOARD_READER_PATH, DASHBOARD_SNAPSHOT_WARNING = initialize_dashboard_storage()
 
 
 FULL_HOLDINGS_EXPORT_SQL = """
@@ -615,6 +632,92 @@ def load_fund_history(fund: str) -> tuple[pd.DataFrame, list[dict]]:
     return summary_df, transitions
 
 
+def build_transition_summary_df(transitions: list[dict]) -> pd.DataFrame:
+    if not transitions:
+        return pd.DataFrame()
+
+    summary_df = pd.DataFrame([
+        {
+            "Transition": f"{item['from_filing_date']} → {item['to_filing_date']}",
+            "Order": index,
+            "To Filing Date": item["to_filing_date"],
+            "Nuove": item["new_count"],
+            "Chiuse": item["closed_count"],
+            "Aumentate": item["increased_count"],
+            "Diminuite": item["decreased_count"],
+        }
+        for index, item in enumerate(transitions)
+    ])
+    summary_df["To Filing Date Dt"] = pd.to_datetime(summary_df["To Filing Date"])
+    summary_df["Posizioni modificate"] = summary_df[
+        ["Nuove", "Chiuse", "Aumentate", "Diminuite"]
+    ].sum(axis=1)
+    return summary_df
+
+
+def render_portfolio_timeline_charts(history_df: pd.DataFrame, fund: str):
+    has_portfolio_values = history_df["Valore portfolio ($000s)"].notna().any()
+
+    charts_col1, charts_col2 = st.columns(2)
+    with charts_col1:
+        positions_fig = px.line(
+            history_df,
+            x="Filing Date Dt",
+            y="Posizioni normalizzate",
+            markers=True,
+            hover_name="Label",
+            title=f"Posizioni normalizzate per trimestre — {fund}",
+        )
+        positions_fig.update_xaxes(title="Filing date")
+        positions_fig.update_yaxes(title="Posizioni normalizzate")
+        st.plotly_chart(positions_fig, use_container_width=True)
+
+    with charts_col2:
+        if has_portfolio_values:
+            value_fig = px.line(
+                history_df,
+                x="Filing Date Dt",
+                y="Valore portfolio ($000s)",
+                markers=True,
+                hover_name="Label",
+                title=f"Valore portfolio per trimestre — {fund}",
+            )
+            value_fig.update_xaxes(title="Filing date")
+            value_fig.update_yaxes(title="Valore ($000s)")
+            st.plotly_chart(value_fig, use_container_width=True)
+        else:
+            st.info("Valori di portafoglio non disponibili per questo fondo nel DB corrente.")
+
+
+def render_transition_counts_chart(
+    transitions: list[dict],
+    fund: str,
+    *,
+    title: str | None = None,
+):
+    transition_counts_df = build_transition_summary_df(transitions)
+    if transition_counts_df.empty:
+        return
+
+    melted_counts = transition_counts_df.melt(
+        id_vars=["Transition", "Order"],
+        value_vars=["Nuove", "Chiuse", "Aumentate", "Diminuite"],
+        var_name="Categoria",
+        value_name="Posizioni",
+    )
+    melted_counts = melted_counts.sort_values(["Order", "Categoria"])
+    transition_fig = px.bar(
+        melted_counts,
+        x="Transition",
+        y="Posizioni",
+        color="Categoria",
+        barmode="group",
+        title=title or f"Cambiamenti tra trimestri — {fund}",
+    )
+    transition_fig.update_layout(xaxis_tickangle=-30)
+    st.plotly_chart(transition_fig, use_container_width=True)
+
+
 def transition_label(transition: dict) -> str:
     return (
         f"{transition['from_filing_date']} → {transition['to_filing_date']}  "
@@ -711,9 +814,13 @@ page = st.sidebar.radio(
     ["Overview", "Fund Detail", "Fund History", "Portfolio Diff", "Holdings Search"],
 )
 st.sidebar.markdown("---")
-st.sidebar.caption(f"DB: `{DB_PATH}`")
+st.sidebar.caption(f"DB live: `{DB_PATH}`")
+st.sidebar.caption(f"Lettura: `{DASHBOARD_READER_PATH}`")
+if DASHBOARD_SNAPSHOT_WARNING:
+    st.sidebar.warning(DASHBOARD_SNAPSHOT_WARNING)
 if st.sidebar.button("🔄 Aggiorna dati"):
     st.cache_data.clear()
+    st.cache_resource.clear()
     st.rerun()
 
 
@@ -1041,66 +1148,13 @@ elif page == "Fund History":
         display_columns.append("Valore portfolio")
     st.dataframe(summary_export[display_columns], use_container_width=True, hide_index=True)
 
-    charts_col1, charts_col2 = st.columns(2)
-    with charts_col1:
-        positions_fig = px.line(
-            history_df,
-            x="Filing Date Dt",
-            y="Posizioni normalizzate",
-            markers=True,
-            hover_name="Label",
-            title=f"Posizioni normalizzate per trimestre — {fund}",
-        )
-        positions_fig.update_xaxes(title="Filing date")
-        st.plotly_chart(positions_fig, use_container_width=True)
-
-    with charts_col2:
-        if has_portfolio_values:
-            value_fig = px.line(
-                history_df,
-                x="Filing Date Dt",
-                y="Valore portfolio ($000s)",
-                markers=True,
-                hover_name="Label",
-                title=f"Valore portfolio per trimestre — {fund}",
-            )
-            value_fig.update_xaxes(title="Filing date")
-            st.plotly_chart(value_fig, use_container_width=True)
-        else:
-            st.info("Valori di portafoglio non disponibili per questo fondo nel DB corrente.")
+    render_portfolio_timeline_charts(history_df, fund)
 
     if not transitions:
         st.info("Serve almeno un altro trimestre per calcolare i cambiamenti quarter over quarter.")
         st.stop()
 
-    transition_counts_df = pd.DataFrame([
-        {
-            "Transition": f"{item['from_filing_date']} → {item['to_filing_date']}",
-            "Order": index,
-            "Nuove": item["new_count"],
-            "Chiuse": item["closed_count"],
-            "Aumentate": item["increased_count"],
-            "Diminuite": item["decreased_count"],
-        }
-        for index, item in enumerate(transitions)
-    ])
-    melted_counts = transition_counts_df.melt(
-        id_vars=["Transition", "Order"],
-        value_vars=["Nuove", "Chiuse", "Aumentate", "Diminuite"],
-        var_name="Categoria",
-        value_name="Posizioni",
-    )
-    melted_counts = melted_counts.sort_values(["Order", "Categoria"])
-    transition_fig = px.bar(
-        melted_counts,
-        x="Transition",
-        y="Posizioni",
-        color="Categoria",
-        barmode="group",
-        title=f"Cambiamenti tra trimestri — {fund}",
-    )
-    transition_fig.update_layout(xaxis_tickangle=-30)
-    st.plotly_chart(transition_fig, use_container_width=True)
+    render_transition_counts_chart(transitions, fund)
 
     latest_first_transitions = list(reversed(transitions))
     selected_transition_index = st.selectbox(
@@ -1175,11 +1229,26 @@ elif page == "Portfolio Diff":
     old_map = load_normalized_positions_map(fund, acc_old)
     new_map = load_normalized_positions_map(fund, acc_new)
     diff = compute_detailed_portfolio_diff(old_map, new_map)
+    history_df, transitions = load_fund_history(fund)
 
     st.caption(
         "Confronto normalizzato per posizione. Anche i titoli senza CUSIP vengono confrontati "
         "tramite chiave fallback issuer/class/put-call."
     )
+
+    if not history_df.empty:
+        st.subheader("Trend storico del fondo")
+        st.caption(
+            "Queste grafiche usano tutti i filing disponibili nel DB per il fondo selezionato, "
+            "cosi il confronto tra i due trimestri resta leggibile nel contesto storico."
+        )
+        render_portfolio_timeline_charts(history_df, fund)
+        if transitions:
+            render_transition_counts_chart(
+                transitions,
+                fund,
+                title=f"Variazioni dei portafogli nel tempo — {fund}",
+            )
 
     # Summary metrics
     c1, c2, c3, c4 = st.columns(4)
