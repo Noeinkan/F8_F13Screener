@@ -1,4 +1,6 @@
 """Tests for src/core/diff.py — pure functions, no I/O."""
+import math
+
 import pytest
 from src.core.diff import (
     MAX_ITEMS_PER_SECTION,
@@ -146,6 +148,76 @@ class TestComputePortfolioDiff:
 
 
 class TestDetailedPortfolioDiff:
+
+    def test_cusip_key_keeps_equity_and_options_separate(self):
+        equity_key = build_position_key("037833100", "Apple Inc", "COM", "")
+        call_key = build_position_key("037833100", "Apple Inc", "COM", "CALL")
+        put_key = build_position_key("037833100", "Apple Inc", "COM", "PUT")
+
+        assert len({equity_key, call_key, put_key}) == 3
+
+    def test_position_key_treats_nan_components_as_blank(self):
+        key = build_position_key("037833100", "Apple Inc", math.nan, math.nan)
+
+        assert key == "037833100||"
+
+    def test_position_key_falls_back_when_cusip_is_nan(self):
+        key = build_position_key(math.nan, "Apple Inc", "COM", math.nan)
+
+        assert key == "Apple Inc|COM"
+
+    def test_same_cusip_equity_and_call_remain_distinct_positions(self):
+        equity_key = build_position_key("037833100", "Apple Inc", "COM", "")
+        call_key = build_position_key("037833100", "Apple Inc", "COM", "CALL")
+
+        old = {}
+        old[equity_key] = {
+            "cusip": "037833100",
+            "issuer_name": "Apple Inc",
+            "share_class": "COM",
+            "put_call": "",
+            "shares": 100,
+            "value_usd": 10,
+        }
+        old[call_key] = {
+            "cusip": "037833100",
+            "issuer_name": "Apple Inc",
+            "share_class": "COM",
+            "put_call": "CALL",
+            "shares": 40,
+            "value_usd": 4,
+        }
+
+        new = {}
+        new[equity_key] = {
+            "cusip": "037833100",
+            "issuer_name": "Apple Inc",
+            "share_class": "COM",
+            "put_call": "",
+            "shares": 130,
+            "value_usd": 13,
+        }
+        new[call_key] = {
+            "cusip": "037833100",
+            "issuer_name": "Apple Inc",
+            "share_class": "COM",
+            "put_call": "CALL",
+            "shares": 10,
+            "value_usd": 1,
+        }
+
+        assert len(old) == 2
+        assert len(new) == 2
+
+        diff = compute_detailed_portfolio_diff(old, new, min_change_pct=0)
+
+        assert len(diff["increased"]) == 1
+        assert diff["increased"][0]["put_call"] in (None, "")
+        assert diff["increased"][0]["share_change"] == 30
+
+        assert len(diff["decreased"]) == 1
+        assert diff["decreased"][0]["put_call"] == "CALL"
+        assert diff["decreased"][0]["share_change"] == -30
 
     def test_value_deltas_are_included_for_changed_positions(self):
         diff = compute_detailed_portfolio_diff(OLD, NEW)

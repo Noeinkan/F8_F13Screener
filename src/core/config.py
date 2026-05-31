@@ -111,10 +111,7 @@ class Config:
             poll_interval=_env_int('F13F_POLL_INTERVAL_SECONDS', 120),
             auto_launch_viewer=_env_bool('F13F_AUTO_LAUNCH_VIEWER', True),
             submissions_recent_limit=_env_int('F13F_SUBMISSIONS_RECENT_LIMIT', 10),
-            submissions_request_delay_seconds=_env_float(
-                'F13F_SUBMISSIONS_REQUEST_DELAY_SECONDS',
-                _env_float('F13F_SUBMISSIONS_DELAY', 1.0),
-            ),
+            submissions_request_delay_seconds=_env_float('F13F_SUBMISSIONS_DELAY', 1.0),
             enable_atom_fallback=_env_bool('F13F_ENABLE_ATOM_FALLBACK', True),
             hedge_funds_cik=hedge_funds
         )

@@ -13,7 +13,13 @@ SEC 13F screener: poll SEC EDGAR RSS, filter tracked hedge funds by CIK, parse I
 rtk pip install -r requirements.txt
 
 # Main poller
-rtk python -m src.cli.main
+rtk python -m src.main alerts
+
+# Dashboard (canonical)
+rtk python -m src.main dashboard
+rtk python -m src.main dashboard -Port 8503
+rtk python -m src.main dashboard -RebuildDb
+rtk python -m src.main dashboard -RebuildDb -FullRefresh -Workers 2
 
 # Historical refresh + dashboard DB
 rtk python -m src.cli.process_historical_13f full --yes --save-db
@@ -33,7 +39,7 @@ rtk python -m src.cli.view_cached_filings
 # Historical GUI
 python src/gui/filing_processor_gui.py
 
-# Local dashboard restart + browser open
+# Local dashboard restart + browser open (wrapper)
 .\dashboard.bat
 .\dashboard.bat -Port 8503
 .\dashboard.bat -RebuildDb
@@ -42,11 +48,12 @@ python src/gui/filing_processor_gui.py
 
 ## Dashboard
 
-- `dashboard.bat` calls `scripts/restart_dashboard.ps1`.
+- `python -m src.main dashboard` is the canonical local launch command.
+- `dashboard.bat` is a thin wrapper around `python -m src.main dashboard`.
 - It kills any old dashboard instance, clears the port, starts Streamlit, waits for `/_stcore/health`, then opens the browser.
-- If the SQLite DB is malformed, rebuild with `rtk python -m src.cli.process_historical_13f full --yes --save-db` or `./dashboard.bat -RebuildDb`.
+- If the SQLite DB is malformed, rebuild with `rtk python -m src.cli.process_historical_13f full --yes --save-db` or `rtk python -m src.main dashboard -RebuildDb`.
 - Dashboard analytics now read from `src/core/data/13f_dashboard.duckdb` (DuckDB). CSV exports remain optional artifacts.
-- For local pre-deploy smoke check: verify SQLite integrity, then run `./dashboard.bat`.
+- For local pre-deploy smoke check: verify SQLite integrity, then run `rtk python -m src.main dashboard`.
 
 ## Config
 

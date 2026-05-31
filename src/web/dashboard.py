@@ -307,7 +307,10 @@ LATEST_SNAPSHOT_EXPORT_SQL = """
 
 POSITION_KEY_SQL = """
     CASE
-        WHEN TRIM(COALESCE(cusip, '')) <> '' THEN TRIM(cusip)
+        WHEN TRIM(COALESCE(cusip, '')) <> '' THEN
+             TRIM(COALESCE(cusip, '')) || '|' ||
+             TRIM(COALESCE(share_class, '')) || '|' ||
+             TRIM(COALESCE(put_call, ''))
         ELSE TRIM(COALESCE(issuer_name, '')) || '|' ||
              TRIM(COALESCE(share_class, '')) || '|' ||
              TRIM(COALESCE(put_call, ''))
@@ -630,6 +633,306 @@ def load_fund_history(fund: str) -> tuple[pd.DataFrame, list[dict]]:
     summary_df["Filing Date Dt"] = pd.to_datetime(summary_df["Filing Date"])
     transitions = compute_quarterly_history_transitions(snapshots)
     return summary_df, transitions
+
+
+def normalize_text_cell(value: object) -> str:
+    if value is None or pd.isna(value):
+        return ""
+
+    normalized = str(value).strip()
+    return "" if normalized.lower() == "nan" else normalized
+
+
+def instrument_type_label(put_call: str | None) -> str:
+    normalized = normalize_text_cell(put_call).upper()
+    return normalized or "Equity"
+
+
+def instrument_share_class_label(share_class: str | None) -> str:
+    normalized = normalize_text_cell(share_class)
+    return normalized or "-"
+
+
+def build_instrument_label(
+    issuer_name: str | None,
+    share_class: str | None,
+    put_call: str | None,
+    cusip: str | None,
+) -> str:
+    parts = [
+        normalize_text_cell(issuer_name) or "Unknown issuer",
+        instrument_share_class_label(share_class),
+        instrument_type_label(put_call),
+    ]
+    normalized_cusip = normalize_text_cell(cusip)
+    if normalized_cusip:
+        parts.append(normalized_cusip)
+    return " | ".join(parts)
+
+
+def load_fund_instrument_history(fund: str) -> pd.DataFrame:
+    rows = query(FUND_HISTORY_POSITIONS_SQL, (fund,))
+    if rows.empty:
+        return pd.DataFrame()
+
+    instrument_df = rows.rename(columns={
+        "accession_number": "Accession",
+        "filing_date": "Filing Date",
+        "cusip": "CUSIP",
+        "issuer_name": "Issuer",
+        "share_class": "Classe",
+        "put_call": "Put/Call",
+        "shares": "Azioni",
+        "value_usd": "Valore ($000s)",
+        "raw_lines": "Raw 13F Lines",
+    }).copy()
+    instrument_df["Filing Date Dt"] = pd.to_datetime(instrument_df["Filing Date"])
+    instrument_df["Position Key"] = instrument_df.apply(
+        lambda row: build_position_key(
+            row.get("CUSIP"),
+            row.get("Issuer"),
+            row.get("Classe"),
+            row.get("Put/Call"),
+        ),
+        axis=1,
+    )
+    instrument_df["Instrument Type"] = instrument_df["Put/Call"].apply(instrument_type_label)
+    instrument_df["Instrument Label"] = instrument_df.apply(
+        lambda row: build_instrument_label(
+            row.get("Issuer"),
+            row.get("Classe"),
+            row.get("Put/Call"),
+            row.get("CUSIP"),
+        ),
+        axis=1,
+    )
+    instrument_df["Label"] = instrument_df.apply(
+        lambda row: f"{row['Filing Date']} ({row['Accession']})",
+        axis=1,
+    )
+    return instrument_df.sort_values(["Filing Date Dt", "Instrument Label"]).reset_index(drop=True)
+
+
+def build_instrument_option_summary(instrument_history_df: pd.DataFrame) -> pd.DataFrame:
+    if instrument_history_df.empty:
+        return pd.DataFrame()
+
+    latest_filing_dt = instrument_history_df["Filing Date Dt"].max()
+    option_summary_df = (
+        instrument_history_df
+        .sort_values(
+            ["Filing Date Dt", "Valore ($000s)", "Azioni", "Instrument Label"],
+            ascending=[False, False, False, True],
+            na_position="last",
+        )
+        .groupby("Position Key", as_index=False)
+        .first()
+    )
+    option_summary_df["Present In Latest Filing"] = option_summary_df["Filing Date Dt"].eq(latest_filing_dt)
+    return option_summary_df.sort_values(
+        ["Present In Latest Filing", "Valore ($000s)", "Azioni", "Instrument Label"],
+        ascending=[False, False, False, True],
+        na_position="last",
+    ).reset_index(drop=True)
+
+
+def build_instrument_timeseries(
+    history_df: pd.DataFrame,
+    instrument_history_df: pd.DataFrame,
+    position_key: str,
+) -> pd.DataFrame:
+    selected_rows = instrument_history_df.loc[
+        instrument_history_df["Position Key"] == position_key
+    ].copy()
+    if selected_rows.empty:
+        return pd.DataFrame()
+
+    base_df = history_df[["Filing Date", "Filing Date Dt", "Accession", "Label"]].copy()
+    selected_metadata = selected_rows.sort_values("Filing Date Dt").iloc[-1]
+    selected_rows = selected_rows[
+        [
+            "Filing Date",
+            "Accession",
+            "Issuer",
+            "CUSIP",
+            "Classe",
+            "Put/Call",
+            "Instrument Type",
+            "Instrument Label",
+            "Azioni",
+            "Valore ($000s)",
+        ]
+    ]
+
+    timeseries_df = base_df.merge(
+        selected_rows,
+        on=["Filing Date", "Accession"],
+        how="left",
+    )
+    for column in ["Issuer", "CUSIP", "Classe", "Put/Call", "Instrument Type", "Instrument Label"]:
+        timeseries_df[column] = timeseries_df[column].fillna(selected_metadata[column])
+
+    timeseries_df["Presente"] = timeseries_df["Azioni"].notna()
+    timeseries_df["Stato posizione"] = timeseries_df["Presente"].map({True: "Presente", False: "Assente"})
+    timeseries_df["Azioni Filled"] = timeseries_df["Azioni"].fillna(0)
+    timeseries_df["Azioni precedenti"] = timeseries_df["Azioni Filled"].shift(1)
+    timeseries_df["Filing precedente"] = timeseries_df["Filing Date"].shift(1)
+    timeseries_df["Δ Azioni"] = timeseries_df["Azioni Filled"].diff()
+    timeseries_df["Δ %"] = timeseries_df.apply(
+        lambda row: (
+            None
+            if pd.isna(row["Azioni precedenti"]) or row["Azioni precedenti"] == 0
+            else (row["Δ Azioni"] / row["Azioni precedenti"]) * 100
+        ),
+        axis=1,
+    )
+    return timeseries_df
+
+
+def render_instrument_history_explorer(
+    history_df: pd.DataFrame,
+    instrument_history_df: pd.DataFrame,
+    fund: str,
+):
+    if history_df.empty or instrument_history_df.empty:
+        return
+
+    option_summary_df = build_instrument_option_summary(instrument_history_df)
+    if option_summary_df.empty:
+        return
+
+    st.subheader("Storico per singolo titolo")
+    st.caption(
+        "Seleziona uno strumento normalizzato del fondo. Equity, CALL e PUT dello stesso sottostante "
+        "restano separati, cosi puoi vedere davvero se il fondo sta aumentando o riducendo le shares "
+        "di quella specifica esposizione."
+    )
+
+    option_labels = option_summary_df.set_index("Position Key")["Instrument Label"].to_dict()
+    selected_position_key = require_selection(
+        st.selectbox(
+            "Seleziona strumento storico",
+            option_summary_df["Position Key"].tolist(),
+            format_func=lambda key: option_labels[key],
+            key="portfolio_diff_instrument",
+        ),
+        "Seleziona uno strumento per visualizzare lo storico delle shares.",
+    )
+
+    timeseries_df = build_instrument_timeseries(history_df, instrument_history_df, selected_position_key)
+    if timeseries_df.empty:
+        st.info("Nessuna serie storica disponibile per lo strumento selezionato.")
+        return
+
+    selected_label = option_labels[selected_position_key]
+    latest_row = timeseries_df.iloc[-1]
+    previous_row = timeseries_df.iloc[-2] if len(timeseries_df) > 1 else None
+    visible_rows = timeseries_df.loc[timeseries_df["Presente"]]
+    first_seen = visible_rows["Filing Date"].iloc[0] if not visible_rows.empty else "-"
+    last_seen = visible_rows["Filing Date"].iloc[-1] if not visible_rows.empty else "-"
+
+    st.caption(
+        "Stato ultimo filing: presente."
+        if bool(latest_row["Presente"])
+        else "Stato ultimo filing: assente. La serie mostra un gap quando il titolo non compare nel filing."
+    )
+
+    c1, c2, c3, c4, c5, c6 = st.columns(6)
+    c1.metric("Azioni ultimo filing", fmt_quantity(latest_row["Azioni Filled"]))
+    c2.metric(
+        "Azioni filing precedente",
+        fmt_quantity(previous_row["Azioni Filled"]) if previous_row is not None else "-",
+    )
+    c3.metric("Δ Azioni ultimo filing", fmt_signed_quantity(latest_row["Δ Azioni"]))
+    c4.metric("Δ % ultimo filing", fmt_signed_pct(latest_row["Δ %"]))
+    c5.metric("Prima comparsa", first_seen)
+    c6.metric("Ultima comparsa", last_seen)
+
+    chart_col1, chart_col2 = st.columns(2)
+    with chart_col1:
+        shares_fig = px.line(
+            timeseries_df,
+            x="Filing Date Dt",
+            y="Azioni",
+            markers=True,
+            hover_name="Instrument Label",
+            hover_data={
+                "Filing Date": True,
+                "Accession": True,
+                "Stato posizione": True,
+                "Azioni": True,
+                "Valore ($000s)": True,
+                "Classe": True,
+                "Put/Call": True,
+                "Instrument Type": True,
+                "Filing Date Dt": False,
+                "Label": False,
+                "Azioni Filled": False,
+                "Azioni precedenti": False,
+                "Filing precedente": False,
+                "Δ Azioni": False,
+                "Δ %": False,
+                "Issuer": False,
+                "CUSIP": False,
+                "Instrument Label": False,
+            },
+            title=f"Shares nel tempo — {selected_label}",
+        )
+        shares_fig.update_traces(connectgaps=False)
+        shares_fig.update_xaxes(title="Filing date")
+        shares_fig.update_yaxes(title="Shares")
+        st.plotly_chart(shares_fig, use_container_width=True)
+
+    with chart_col2:
+        delta_df = timeseries_df.loc[timeseries_df["Filing precedente"].notna()].copy()
+        delta_df["Transition"] = delta_df["Filing precedente"] + " → " + delta_df["Filing Date"]
+        delta_df["Direzione"] = delta_df["Δ Azioni"].apply(
+            lambda value: "Aumento" if value > 0 else "Riduzione" if value < 0 else "Invariato"
+        )
+        delta_fig = px.bar(
+            delta_df,
+            x="Transition",
+            y="Δ Azioni",
+            color="Direzione",
+            hover_name="Instrument Label",
+            hover_data={
+                "Filing Date": True,
+                "Accession": True,
+                "Azioni Filled": True,
+                "Azioni precedenti": True,
+                "Δ %": True,
+                "Transition": False,
+                "Instrument Label": False,
+            },
+            title=f"Δ shares quarter over quarter — {selected_label}",
+        )
+        delta_fig.update_layout(xaxis_tickangle=-30)
+        delta_fig.update_xaxes(title="Transition")
+        delta_fig.update_yaxes(title="Δ Shares")
+        st.plotly_chart(delta_fig, use_container_width=True)
+
+    detail_df = timeseries_df.copy()
+    detail_df["Azioni"] = detail_df["Azioni"].apply(fmt_quantity)
+    detail_df["Valore ($000s)"] = detail_df["Valore ($000s)"].apply(fmt_value)
+    detail_df["Δ Azioni"] = detail_df["Δ Azioni"].apply(fmt_signed_quantity)
+    detail_df["Δ %"] = detail_df["Δ %"].apply(fmt_signed_pct)
+    st.dataframe(
+        detail_df[
+            [
+                "Filing Date",
+                "Accession",
+                "Stato posizione",
+                "Azioni",
+                "Δ Azioni",
+                "Δ %",
+                "Valore ($000s)",
+                "Classe",
+                "Put/Call",
+            ]
+        ],
+        use_container_width=True,
+        hide_index=True,
+    )
 
 
 def build_transition_summary_df(transitions: list[dict]) -> pd.DataFrame:
@@ -1230,10 +1533,12 @@ elif page == "Portfolio Diff":
     new_map = load_normalized_positions_map(fund, acc_new)
     diff = compute_detailed_portfolio_diff(old_map, new_map)
     history_df, transitions = load_fund_history(fund)
+    instrument_history_df = load_fund_instrument_history(fund)
 
     st.caption(
-        "Confronto normalizzato per posizione. Anche i titoli senza CUSIP vengono confrontati "
-        "tramite chiave fallback issuer/class/put-call."
+        "Confronto normalizzato per posizione. Le common shares, le CALL e le PUT restano separate "
+        "anche quando condividono lo stesso CUSIP del sottostante; i titoli senza CUSIP usano il fallback "
+        "issuer/class/put-call."
     )
 
     if not history_df.empty:
@@ -1249,6 +1554,7 @@ elif page == "Portfolio Diff":
                 fund,
                 title=f"Variazioni dei portafogli nel tempo — {fund}",
             )
+        render_instrument_history_explorer(history_df, instrument_history_df, fund)
 
     # Summary metrics
     c1, c2, c3, c4 = st.columns(4)

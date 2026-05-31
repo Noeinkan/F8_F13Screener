@@ -1,6 +1,7 @@
 """Tests for src/core/storage.py — uses a temporary SQLite file per test."""
 import pytest
 from datetime import datetime, timedelta
+from src.core.diff import build_position_key
 from src.core.storage import Storage
 
 
@@ -13,16 +14,23 @@ def db(tmp_path):
     return Storage(tmp_path / "test.db")
 
 
-def _make_holding(issuer="Apple Inc", cusip="037833100", shares=1000, value=5000):
+def _make_holding(
+    issuer="Apple Inc",
+    cusip="037833100",
+    shares=1000,
+    value=5000,
+    share_class="COM",
+    put_call="",
+):
     return {
         "issuer_name": issuer,
-        "share_class": "COM",
+        "share_class": share_class,
         "cusip": cusip,
         "figi": "",
         "value": value,
         "shares": shares,
         "sh_prn": "SH",
-        "put_call": "",
+        "put_call": put_call,
         "investment_discretion": "SOLE",
         "other_manager": "",
         "voting_authority_sole": shares,
@@ -71,9 +79,10 @@ class TestHoldings:
         holdings = [_make_holding("Apple Inc", "037833100", 1000, 5000)]
         db.save_holdings(holdings, "Berkshire", "1067983", "2026-05-01", "ACC-001", "https://sec.gov/x")
         result = db.get_holdings_by_accession("ACC-001")
-        assert "037833100" in result
-        assert result["037833100"]["issuer_name"] == "Apple Inc"
-        assert result["037833100"]["shares"] == 1000
+        position_key = build_position_key("037833100", "Apple Inc", "COM", "")
+        assert position_key in result
+        assert result[position_key]["issuer_name"] == "Apple Inc"
+        assert result[position_key]["shares"] == 1000
 
     def test_multiple_holdings_saved(self, db):
         holdings = [
@@ -98,13 +107,46 @@ class TestHoldings:
         h = _make_holding("No CUSIP Fund", None, 100, 1000)
         db.save_holdings([h], "Fund", "123", "2026-05-01", "ACC-002", "https://sec.gov/x")
         result = db.get_holdings_by_accession("ACC-002")
-        assert None not in result
+        fallback_key = build_position_key("", "No CUSIP Fund", "COM", "")
+        assert fallback_key in result
+        assert result[fallback_key]["shares"] == 100
 
     def test_filing_date_with_timestamp_cleaned(self, db):
         holdings = [_make_holding()]
         db.save_holdings(holdings, "Fund", "123", "2026-05-01T12:00:00", "ACC-003", "https://sec.gov/x")
         result = db.get_holdings_by_accession("ACC-003")
         assert len(result) == 1  # should not crash or skip
+
+    def test_same_cusip_equity_and_call_are_separate_positions(self, db):
+        holdings = [
+            _make_holding("Apple Inc", "037833100", 1000, 5000, share_class="COM", put_call=""),
+            _make_holding("Apple Inc", "037833100", 200, 800, share_class="COM", put_call="CALL"),
+        ]
+
+        db.save_holdings(holdings, "Fund", "123", "2026-05-01", "ACC-OPT", "https://sec.gov/x")
+        result = db.get_holdings_by_accession("ACC-OPT")
+
+        equity_key = build_position_key("037833100", "Apple Inc", "COM", "")
+        call_key = build_position_key("037833100", "Apple Inc", "COM", "CALL")
+
+        assert len(result) == 2
+        assert result[equity_key]["shares"] == 1000
+        assert result[call_key]["shares"] == 200
+        assert result[call_key]["put_call"] == "CALL"
+
+    def test_duplicate_lines_same_normalized_position_are_aggregated(self, db):
+        holdings = [
+            _make_holding("Apple Inc", "037833100", 1000, 5000),
+            _make_holding("Apple Inc", "037833100", 500, 2500),
+        ]
+
+        db.save_holdings(holdings, "Fund", "123", "2026-05-01", "ACC-AGG", "https://sec.gov/x")
+        result = db.get_holdings_by_accession("ACC-AGG")
+
+        equity_key = build_position_key("037833100", "Apple Inc", "COM", "")
+        assert len(result) == 1
+        assert result[equity_key]["shares"] == 1500
+        assert result[equity_key]["value_usd"] == 7500
 
     def test_save_holdings_replaces_existing_accession(self, db):
         first = [_make_holding("Apple Inc", "037833100", 1000, 5000)]
@@ -114,8 +156,10 @@ class TestHoldings:
         db.save_holdings(second, "Fund", "123", "2026-05-01", "ACC-004", "https://sec.gov/x")
 
         result = db.get_holdings_by_accession("ACC-004")
-        assert "037833100" not in result
-        assert "594918104" in result
+        apple_key = build_position_key("037833100", "Apple Inc", "COM", "")
+        microsoft_key = build_position_key("594918104", "Microsoft Corp", "COM", "")
+        assert apple_key not in result
+        assert microsoft_key in result
         assert len(result) == 1
 
     def test_export_csv_includes_raw_parser_fields(self, db, tmp_path):

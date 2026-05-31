@@ -8,6 +8,20 @@ MIN_CHANGE_PCT = 10.0  # only report changes >= this threshold
 MAX_ITEMS_PER_SECTION = 5  # keep Telegram messages readable
 
 
+def _normalize_position_key_part(part: Any) -> str:
+    if part is None:
+        return ''
+    if isinstance(part, float) and part != part:
+        return ''
+
+    normalized = str(part).strip()
+    return '' if normalized.lower() == 'nan' else normalized
+
+
+def _compose_position_key(*parts: Optional[str]) -> str:
+    return '|'.join(_normalize_position_key_part(part) for part in parts)
+
+
 def build_position_key(
     cusip: Optional[str],
     issuer_name: Optional[str] = None,
@@ -15,16 +29,11 @@ def build_position_key(
     put_call: Optional[str] = None,
 ) -> str:
     """Return a stable key for a normalized 13F position."""
-    normalized_cusip = (cusip or '').strip()
+    normalized_cusip = _normalize_position_key_part(cusip)
     if normalized_cusip:
-        return normalized_cusip
+        return _compose_position_key(normalized_cusip, share_class, put_call)
 
-    fallback_parts = [
-        (issuer_name or '').strip(),
-        (share_class or '').strip(),
-        (put_call or '').strip(),
-    ]
-    fallback_key = '|'.join(fallback_parts).strip('|')
+    fallback_key = _compose_position_key(issuer_name, share_class, put_call).strip('|')
     return fallback_key or 'UNKNOWN_POSITION'
 
 

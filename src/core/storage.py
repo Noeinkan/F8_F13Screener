@@ -9,6 +9,8 @@ from typing import List, Dict, Set, Optional
 from datetime import datetime, timedelta
 from contextlib import contextmanager
 
+from src.core.diff import build_position_key
+
 logger = logging.getLogger(__name__)
 
 
@@ -525,24 +527,43 @@ class Storage:
             return [dict(row) for row in cursor.fetchall()]
 
     def get_holdings_by_accession(self, accession_number: str) -> Dict[str, Dict]:
-        """Return holdings as dict keyed by CUSIP for a given accession number."""
+        """Return normalized holdings keyed by position identity for an accession."""
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT cusip, issuer_name, shares, value_usd, share_class
+                SELECT cusip, issuer_name, shares, value_usd, share_class, put_call
                 FROM holdings
                 WHERE accession_number = ?
             """, (accession_number,))
             result = {}
             for row in cursor.fetchall():
-                cusip = row['cusip']
-                if cusip:
-                    result[cusip] = {
+                position_key = build_position_key(
+                    row['cusip'],
+                    row['issuer_name'],
+                    row['share_class'],
+                    row['put_call'],
+                )
+                if position_key == 'UNKNOWN_POSITION':
+                    continue
+
+                shares = row['shares'] or 0
+                value_usd = row['value_usd']
+
+                if position_key not in result:
+                    result[position_key] = {
+                        'cusip': row['cusip'] or '',
                         'issuer_name': row['issuer_name'],
-                        'shares': row['shares'],
-                        'value_usd': row['value_usd'],
+                        'shares': shares,
+                        'value_usd': value_usd,
                         'share_class': row['share_class'],
+                        'put_call': row['put_call'],
                     }
+                    continue
+
+                result[position_key]['shares'] = (result[position_key]['shares'] or 0) + shares
+                if value_usd is not None:
+                    existing_value = result[position_key]['value_usd'] or 0
+                    result[position_key]['value_usd'] = existing_value + value_usd
             return result
 
     def has_holdings_for_accession(self, accession_number: str) -> bool:
