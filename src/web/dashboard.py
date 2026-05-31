@@ -55,17 +55,17 @@ DASHBOARD_SNAPSHOT_PATH = (
 # ---------------------------------------------------------------------------
 def show_db_recovery_help(error: Exception | None = None, integrity_result: str | None = None):
     """Render actionable recovery steps when the dashboard DB is unreadable."""
-    st.error(f"Database dashboard non leggibile: {DB_PATH}")
+    st.error(f"Dashboard database is unreadable: {DB_PATH}")
     if integrity_result:
         st.caption(f"PRAGMA integrity_check: {integrity_result}")
     if error is not None:
-        st.caption(f"Dettaglio errore: {error}")
+        st.caption(f"Error details: {error}")
 
     st.info("""
-Per ripristinare in locale:
-1) Verifica integrita del DB.
-2) Ricostruisci il database dashboard con `--save-db`.
-3) Riavvia Streamlit.
+To recover locally:
+1) Verify DB integrity.
+2) Rebuild the dashboard database with `--save-db`.
+3) Restart Streamlit.
 """)
 
     db_path_raw = str(DB_PATH)
@@ -96,14 +96,14 @@ def get_dashboard_db_state() -> tuple[str, int, str | None]:
 def get_storage(db_path_raw: str, _snapshot_version: int) -> DashboardStorage:
     db_path = Path(db_path_raw)
     if not db_path.exists():
-        raise FileNotFoundError(f"Database non trovato: {db_path}")
+        raise FileNotFoundError(f"Database not found: {db_path}")
 
     storage = DashboardStorage(db_path)
     health = storage.get_health_snapshot()
     if health["total_rows"] > 0 and health["only_all_fund"]:
         raise RuntimeError(
-            "Dataset degenerato: contiene solo fund_name=ALL. "
-            "Ricostruisci il DB dashboard dalla pipeline storica."
+            "Degenerate dataset: contains only fund_name=ALL. "
+            "Rebuild the dashboard DB from the historical pipeline."
         )
     return storage
 
@@ -322,9 +322,9 @@ RAW_ACCESSION_HOLDINGS_SQL = """
     SELECT
         issuer_name AS "Issuer",
         TRIM(COALESCE(cusip, '')) AS "CUSIP",
-        share_class AS "Classe",
-        shares AS "Azioni",
-        value_usd AS "Valore ($000s)",
+        share_class AS "Class",
+        shares AS "Shares",
+        value_usd AS "Value ($000s)",
         put_call AS "Put/Call",
         investment_discretion AS "Investment Discretion",
         other_manager AS "Other Manager"
@@ -338,9 +338,9 @@ NORMALIZED_ACCESSION_HOLDINGS_SQL = f"""
     SELECT
         MIN(issuer_name) AS "Issuer",
         MAX(TRIM(COALESCE(cusip, ''))) AS "CUSIP",
-        GROUP_CONCAT(DISTINCT NULLIF(TRIM(share_class), '')) AS "Classe",
-        SUM(shares) AS "Azioni",
-        SUM(value_usd) AS "Valore ($000s)",
+        GROUP_CONCAT(DISTINCT NULLIF(TRIM(share_class), '')) AS "Class",
+        SUM(shares) AS "Shares",
+        SUM(value_usd) AS "Value ($000s)",
         GROUP_CONCAT(DISTINCT NULLIF(TRIM(put_call), '')) AS "Put/Call",
         GROUP_CONCAT(DISTINCT NULLIF(TRIM(investment_discretion), '')) AS "Investment Discretion",
         GROUP_CONCAT(DISTINCT NULLIF(TRIM(other_manager), '')) AS "Other Manager",
@@ -451,11 +451,11 @@ LATEST_FUND_OVERVIEW_SQL = f"""
     )
     SELECT
         ls.fund_name AS "Fund",
-        qt.quarters_tracked AS "Trimestri",
-        ls.filing_date AS "Ultimo Filing",
+        qt.quarters_tracked AS "Quarters",
+        ls.filing_date AS "Latest Filing",
         ls.raw_lines AS "Raw 13F Lines",
-        ls.normalized_positions AS "Posizioni normalizzate",
-        ls.cusips AS "CUSIP distinti",
+        ls.normalized_positions AS "Normalized Positions",
+        ls.cusips AS "Distinct CUSIPs",
         ls.value_sum AS value_sum,
         ls.accession_number AS accession_number
     FROM latest_stats ls
@@ -483,8 +483,8 @@ RECENT_FILINGS_OVERVIEW_SQL = f"""
         filing_date AS "Filing Date",
         accession_number AS "Accession",
         raw_lines AS "Raw 13F Lines",
-        normalized_positions AS "Posizioni normalizzate",
-        cusips AS "CUSIP distinti"
+        normalized_positions AS "Normalized Positions",
+        cusips AS "Distinct CUSIPs"
     FROM filing_stats
     ORDER BY filing_date DESC, raw_lines DESC, fund_name
     LIMIT 20
@@ -493,9 +493,9 @@ RECENT_FILINGS_OVERVIEW_SQL = f"""
 
 FILINGS_TIMELINE_SQL = """
     SELECT
-        substr(filing_date, 1, 7) AS "Mese",
-        COUNT(DISTINCT accession_number) AS "Filing",
-        COUNT(DISTINCT fund_name) AS "Fondi"
+        substr(filing_date, 1, 7) AS "Month",
+        COUNT(DISTINCT accession_number) AS "Filings",
+        COUNT(DISTINCT fund_name) AS "Funds"
     FROM holdings
     GROUP BY substr(filing_date, 1, 7)
     ORDER BY substr(filing_date, 1, 7)
@@ -534,7 +534,7 @@ TOP_HELD_SECURITIES_SQL = f"""
     SELECT
         MIN(issuer_name) AS "Issuer",
         NULLIF(MAX(cusip), '') AS "CUSIP",
-        COUNT(*) AS "Fondi che la detengono"
+        COUNT(*) AS "Funds Holding It"
     FROM latest_positions
     GROUP BY position_key
     ORDER BY COUNT(*) DESC, MIN(issuer_name)
@@ -618,9 +618,9 @@ def load_fund_history(fund: str) -> tuple[pd.DataFrame, list[dict]]:
             "Filing Date": filing_date,
             "Accession": accession_number,
             "Label": label,
-            "Posizioni normalizzate": len(group),
+            "Normalized Positions": len(group),
             "Raw 13F Lines": int(group["raw_lines"].fillna(0).sum()),
-            "Valore portfolio ($000s)": portfolio_value,
+            "Portfolio Value ($000s)": portfolio_value,
         })
         snapshots.append({
             "filing_date": filing_date,
@@ -680,10 +680,10 @@ def load_fund_instrument_history(fund: str) -> pd.DataFrame:
         "filing_date": "Filing Date",
         "cusip": "CUSIP",
         "issuer_name": "Issuer",
-        "share_class": "Classe",
+        "share_class": "Class",
         "put_call": "Put/Call",
-        "shares": "Azioni",
-        "value_usd": "Valore ($000s)",
+        "shares": "Shares",
+        "value_usd": "Value ($000s)",
         "raw_lines": "Raw 13F Lines",
     }).copy()
     instrument_df["Filing Date Dt"] = pd.to_datetime(instrument_df["Filing Date"])
@@ -691,7 +691,7 @@ def load_fund_instrument_history(fund: str) -> pd.DataFrame:
         lambda row: build_position_key(
             row.get("CUSIP"),
             row.get("Issuer"),
-            row.get("Classe"),
+            row.get("Class"),
             row.get("Put/Call"),
         ),
         axis=1,
@@ -700,7 +700,7 @@ def load_fund_instrument_history(fund: str) -> pd.DataFrame:
     instrument_df["Instrument Label"] = instrument_df.apply(
         lambda row: build_instrument_label(
             row.get("Issuer"),
-            row.get("Classe"),
+            row.get("Class"),
             row.get("Put/Call"),
             row.get("CUSIP"),
         ),
@@ -721,7 +721,7 @@ def build_instrument_option_summary(instrument_history_df: pd.DataFrame) -> pd.D
     option_summary_df = (
         instrument_history_df
         .sort_values(
-            ["Filing Date Dt", "Valore ($000s)", "Azioni", "Instrument Label"],
+            ["Filing Date Dt", "Value ($000s)", "Shares", "Instrument Label"],
             ascending=[False, False, False, True],
             na_position="last",
         )
@@ -730,7 +730,7 @@ def build_instrument_option_summary(instrument_history_df: pd.DataFrame) -> pd.D
     )
     option_summary_df["Present In Latest Filing"] = option_summary_df["Filing Date Dt"].eq(latest_filing_dt)
     return option_summary_df.sort_values(
-        ["Present In Latest Filing", "Valore ($000s)", "Azioni", "Instrument Label"],
+        ["Present In Latest Filing", "Value ($000s)", "Shares", "Instrument Label"],
         ascending=[False, False, False, True],
         na_position="last",
     ).reset_index(drop=True)
@@ -755,12 +755,12 @@ def build_instrument_timeseries(
             "Accession",
             "Issuer",
             "CUSIP",
-            "Classe",
+            "Class",
             "Put/Call",
             "Instrument Type",
             "Instrument Label",
-            "Azioni",
-            "Valore ($000s)",
+            "Shares",
+            "Value ($000s)",
         ]
     ]
 
@@ -769,20 +769,20 @@ def build_instrument_timeseries(
         on=["Filing Date", "Accession"],
         how="left",
     )
-    for column in ["Issuer", "CUSIP", "Classe", "Put/Call", "Instrument Type", "Instrument Label"]:
+    for column in ["Issuer", "CUSIP", "Class", "Put/Call", "Instrument Type", "Instrument Label"]:
         timeseries_df[column] = timeseries_df[column].fillna(selected_metadata[column])
 
-    timeseries_df["Presente"] = timeseries_df["Azioni"].notna()
-    timeseries_df["Stato posizione"] = timeseries_df["Presente"].map({True: "Presente", False: "Assente"})
-    timeseries_df["Azioni Filled"] = timeseries_df["Azioni"].fillna(0)
-    timeseries_df["Azioni precedenti"] = timeseries_df["Azioni Filled"].shift(1)
-    timeseries_df["Filing precedente"] = timeseries_df["Filing Date"].shift(1)
-    timeseries_df["Δ Azioni"] = timeseries_df["Azioni Filled"].diff()
+    timeseries_df["Present"] = timeseries_df["Shares"].notna()
+    timeseries_df["Position Status"] = timeseries_df["Present"].map({True: "Present", False: "Missing"})
+    timeseries_df["Shares Filled"] = timeseries_df["Shares"].fillna(0)
+    timeseries_df["Previous Shares"] = timeseries_df["Shares Filled"].shift(1)
+    timeseries_df["Previous Filing"] = timeseries_df["Filing Date"].shift(1)
+    timeseries_df["Δ Shares"] = timeseries_df["Shares Filled"].diff()
     timeseries_df["Δ %"] = timeseries_df.apply(
         lambda row: (
             None
-            if pd.isna(row["Azioni precedenti"]) or row["Azioni precedenti"] == 0
-            else (row["Δ Azioni"] / row["Azioni precedenti"]) * 100
+            if pd.isna(row["Previous Shares"]) or row["Previous Shares"] == 0
+            else (row["Δ Shares"] / row["Previous Shares"]) * 100
         ),
         axis=1,
     )
@@ -801,82 +801,82 @@ def render_instrument_history_explorer(
     if option_summary_df.empty:
         return
 
-    st.subheader("Storico per singolo titolo")
+    st.subheader("Single Position History")
     st.caption(
-        "Seleziona uno strumento normalizzato del fondo. Equity, CALL e PUT dello stesso sottostante "
-        "restano separati, cosi puoi vedere davvero se il fondo sta aumentando o riducendo le shares "
-        "di quella specifica esposizione."
+        "Select one normalized position from the fund. Equity, CALL, and PUT on the same underlying "
+        "remain separate, so you can clearly see whether the fund is increasing or reducing shares "
+        "for that specific exposure."
     )
 
     option_labels = option_summary_df.set_index("Position Key")["Instrument Label"].to_dict()
     selected_position_key = require_selection(
         st.selectbox(
-            "Seleziona strumento storico",
+            "Select position",
             option_summary_df["Position Key"].tolist(),
             format_func=lambda key: option_labels[key],
             key="portfolio_diff_instrument",
         ),
-        "Seleziona uno strumento per visualizzare lo storico delle shares.",
+        "Select a position to view share history.",
     )
 
     timeseries_df = build_instrument_timeseries(history_df, instrument_history_df, selected_position_key)
     if timeseries_df.empty:
-        st.info("Nessuna serie storica disponibile per lo strumento selezionato.")
+        st.info("No historical series available for the selected position.")
         return
 
     selected_label = option_labels[selected_position_key]
     latest_row = timeseries_df.iloc[-1]
     previous_row = timeseries_df.iloc[-2] if len(timeseries_df) > 1 else None
-    visible_rows = timeseries_df.loc[timeseries_df["Presente"]]
+    visible_rows = timeseries_df.loc[timeseries_df["Present"]]
     first_seen = visible_rows["Filing Date"].iloc[0] if not visible_rows.empty else "-"
     last_seen = visible_rows["Filing Date"].iloc[-1] if not visible_rows.empty else "-"
 
     st.caption(
-        "Stato ultimo filing: presente."
-        if bool(latest_row["Presente"])
-        else "Stato ultimo filing: assente. La serie mostra un gap quando il titolo non compare nel filing."
+        "Latest filing status: present."
+        if bool(latest_row["Present"])
+        else "Latest filing status: missing. The series shows a gap when the instrument is not present in the filing."
     )
 
     c1, c2, c3, c4, c5, c6 = st.columns(6)
-    c1.metric("Azioni ultimo filing", fmt_quantity(latest_row["Azioni Filled"]))
+    c1.metric("Shares in latest filing", fmt_quantity(latest_row["Shares Filled"]))
     c2.metric(
-        "Azioni filing precedente",
-        fmt_quantity(previous_row["Azioni Filled"]) if previous_row is not None else "-",
+        "Shares in previous filing",
+        fmt_quantity(previous_row["Shares Filled"]) if previous_row is not None else "-",
     )
-    c3.metric("Δ Azioni ultimo filing", fmt_signed_quantity(latest_row["Δ Azioni"]))
-    c4.metric("Δ % ultimo filing", fmt_signed_pct(latest_row["Δ %"]))
-    c5.metric("Prima comparsa", first_seen)
-    c6.metric("Ultima comparsa", last_seen)
+    c3.metric("Δ Shares in latest filing", fmt_signed_quantity(latest_row["Δ Shares"]))
+    c4.metric("Δ % in latest filing", fmt_signed_pct(latest_row["Δ %"]))
+    c5.metric("First appearance", first_seen)
+    c6.metric("Last appearance", last_seen)
 
     chart_col1, chart_col2 = st.columns(2)
     with chart_col1:
         shares_fig = px.line(
             timeseries_df,
             x="Filing Date Dt",
-            y="Azioni",
+            y="Shares",
             markers=True,
             hover_name="Instrument Label",
             hover_data={
                 "Filing Date": True,
                 "Accession": True,
-                "Stato posizione": True,
-                "Azioni": True,
-                "Valore ($000s)": True,
-                "Classe": True,
+                "Position Status": True,
+                "Shares": True,
+                "Value ($000s)": True,
+                "Class": True,
                 "Put/Call": True,
                 "Instrument Type": True,
                 "Filing Date Dt": False,
                 "Label": False,
-                "Azioni Filled": False,
-                "Azioni precedenti": False,
-                "Filing precedente": False,
-                "Δ Azioni": False,
+                "Shares Filled": False,
+                "Previous Shares": False,
+                "Previous Filing": False,
+                "Δ Shares": False,
                 "Δ %": False,
                 "Issuer": False,
                 "CUSIP": False,
                 "Instrument Label": False,
             },
-            title=f"Shares nel tempo — {selected_label}",
+            title=f"Shares over time — {selected_label}",
         )
         shares_fig.update_traces(connectgaps=False)
         shares_fig.update_xaxes(title="Filing date")
@@ -884,22 +884,22 @@ def render_instrument_history_explorer(
         st.plotly_chart(shares_fig, use_container_width=True)
 
     with chart_col2:
-        delta_df = timeseries_df.loc[timeseries_df["Filing precedente"].notna()].copy()
-        delta_df["Transition"] = delta_df["Filing precedente"] + " → " + delta_df["Filing Date"]
-        delta_df["Direzione"] = delta_df["Δ Azioni"].apply(
-            lambda value: "Aumento" if value > 0 else "Riduzione" if value < 0 else "Invariato"
+        delta_df = timeseries_df.loc[timeseries_df["Previous Filing"].notna()].copy()
+        delta_df["Transition"] = delta_df["Previous Filing"] + " → " + delta_df["Filing Date"]
+        delta_df["Direction"] = delta_df["Δ Shares"].apply(
+            lambda value: "Increase" if value > 0 else "Decrease" if value < 0 else "Unchanged"
         )
         delta_fig = px.bar(
             delta_df,
             x="Transition",
-            y="Δ Azioni",
-            color="Direzione",
+            y="Δ Shares",
+            color="Direction",
             hover_name="Instrument Label",
             hover_data={
                 "Filing Date": True,
                 "Accession": True,
-                "Azioni Filled": True,
-                "Azioni precedenti": True,
+                "Shares Filled": True,
+                "Previous Shares": True,
                 "Δ %": True,
                 "Transition": False,
                 "Instrument Label": False,
@@ -912,21 +912,21 @@ def render_instrument_history_explorer(
         st.plotly_chart(delta_fig, use_container_width=True)
 
     detail_df = timeseries_df.copy()
-    detail_df["Azioni"] = detail_df["Azioni"].apply(fmt_quantity)
-    detail_df["Valore ($000s)"] = detail_df["Valore ($000s)"].apply(fmt_value)
-    detail_df["Δ Azioni"] = detail_df["Δ Azioni"].apply(fmt_signed_quantity)
+    detail_df["Shares"] = detail_df["Shares"].apply(fmt_quantity)
+    detail_df["Value ($000s)"] = detail_df["Value ($000s)"].apply(fmt_value)
+    detail_df["Δ Shares"] = detail_df["Δ Shares"].apply(fmt_signed_quantity)
     detail_df["Δ %"] = detail_df["Δ %"].apply(fmt_signed_pct)
     st.dataframe(
         detail_df[
             [
                 "Filing Date",
                 "Accession",
-                "Stato posizione",
-                "Azioni",
-                "Δ Azioni",
+                "Position Status",
+                "Shares",
+                "Δ Shares",
                 "Δ %",
-                "Valore ($000s)",
-                "Classe",
+                "Value ($000s)",
+                "Class",
                 "Put/Call",
             ]
         ],
@@ -944,35 +944,35 @@ def build_transition_summary_df(transitions: list[dict]) -> pd.DataFrame:
             "Transition": f"{item['from_filing_date']} → {item['to_filing_date']}",
             "Order": index,
             "To Filing Date": item["to_filing_date"],
-            "Nuove": item["new_count"],
-            "Chiuse": item["closed_count"],
-            "Aumentate": item["increased_count"],
-            "Diminuite": item["decreased_count"],
+            "New": item["new_count"],
+            "Closed": item["closed_count"],
+            "Increased": item["increased_count"],
+            "Decreased": item["decreased_count"],
         }
         for index, item in enumerate(transitions)
     ])
     summary_df["To Filing Date Dt"] = pd.to_datetime(summary_df["To Filing Date"])
-    summary_df["Posizioni modificate"] = summary_df[
-        ["Nuove", "Chiuse", "Aumentate", "Diminuite"]
+    summary_df["Changed Positions"] = summary_df[
+        ["New", "Closed", "Increased", "Decreased"]
     ].sum(axis=1)
     return summary_df
 
 
 def render_portfolio_timeline_charts(history_df: pd.DataFrame, fund: str):
-    has_portfolio_values = history_df["Valore portfolio ($000s)"].notna().any()
+    has_portfolio_values = history_df["Portfolio Value ($000s)"].notna().any()
 
     charts_col1, charts_col2 = st.columns(2)
     with charts_col1:
         positions_fig = px.line(
             history_df,
             x="Filing Date Dt",
-            y="Posizioni normalizzate",
+            y="Normalized Positions",
             markers=True,
             hover_name="Label",
-            title=f"Posizioni normalizzate per trimestre — {fund}",
+            title=f"Normalized positions by quarter — {fund}",
         )
         positions_fig.update_xaxes(title="Filing date")
-        positions_fig.update_yaxes(title="Posizioni normalizzate")
+        positions_fig.update_yaxes(title="Normalized positions")
         st.plotly_chart(positions_fig, use_container_width=True)
 
     with charts_col2:
@@ -980,16 +980,16 @@ def render_portfolio_timeline_charts(history_df: pd.DataFrame, fund: str):
             value_fig = px.line(
                 history_df,
                 x="Filing Date Dt",
-                y="Valore portfolio ($000s)",
+                y="Portfolio Value ($000s)",
                 markers=True,
                 hover_name="Label",
-                title=f"Valore portfolio per trimestre — {fund}",
+                title=f"Portfolio value by quarter — {fund}",
             )
             value_fig.update_xaxes(title="Filing date")
-            value_fig.update_yaxes(title="Valore ($000s)")
+            value_fig.update_yaxes(title="Value ($000s)")
             st.plotly_chart(value_fig, use_container_width=True)
         else:
-            st.info("Valori di portafoglio non disponibili per questo fondo nel DB corrente.")
+            st.info("Portfolio values are not available for this fund in the current DB.")
 
 
 def render_transition_counts_chart(
@@ -1004,18 +1004,18 @@ def render_transition_counts_chart(
 
     melted_counts = transition_counts_df.melt(
         id_vars=["Transition", "Order"],
-        value_vars=["Nuove", "Chiuse", "Aumentate", "Diminuite"],
-        var_name="Categoria",
-        value_name="Posizioni",
+        value_vars=["New", "Closed", "Increased", "Decreased"],
+        var_name="Category",
+        value_name="Positions",
     )
-    melted_counts = melted_counts.sort_values(["Order", "Categoria"])
+    melted_counts = melted_counts.sort_values(["Order", "Category"])
     transition_fig = px.bar(
         melted_counts,
         x="Transition",
-        y="Posizioni",
-        color="Categoria",
+        y="Positions",
+        color="Category",
         barmode="group",
-        title=title or f"Cambiamenti tra trimestri — {fund}",
+        title=title or f"Quarter-over-quarter changes — {fund}",
     )
     transition_fig.update_layout(xaxis_tickangle=-30)
     st.plotly_chart(transition_fig, use_container_width=True)
@@ -1030,44 +1030,44 @@ def transition_label(transition: dict) -> str:
 
 def render_detailed_diff_sections(diff: dict):
     if diff["new_positions"]:
-        st.subheader("Nuove posizioni")
+        st.subheader("New positions")
         new_df = pd.DataFrame(diff["new_positions"]).sort_values(
             ["value_usd", "issuer_name"],
             ascending=[False, True],
             na_position="last",
         )
-        new_df["Azioni"] = new_df["shares"].apply(fmt_quantity)
-        new_df["Valore"] = new_df["value_usd"].apply(fmt_value)
+        new_df["Shares"] = new_df["shares"].apply(fmt_quantity)
+        new_df["Value"] = new_df["value_usd"].apply(fmt_value)
         st.dataframe(
             pd.DataFrame({
                 "Issuer": new_df["issuer_name"],
                 "CUSIP": new_df["cusip"],
-                "Classe": new_df["share_class"],
+                "Class": new_df["share_class"],
                 "Put/Call": new_df["put_call"],
-                "Azioni": new_df["Azioni"],
-                "Valore": new_df["Valore"],
+                "Shares": new_df["Shares"],
+                "Value": new_df["Value"],
             }),
             use_container_width=True,
             hide_index=True,
         )
 
     if diff["closed_positions"]:
-        st.subheader("Posizioni chiuse")
+        st.subheader("Closed positions")
         closed_df = pd.DataFrame(diff["closed_positions"]).sort_values(
             ["value_usd", "issuer_name"],
             ascending=[False, True],
             na_position="last",
         )
-        closed_df["Azioni precedenti"] = closed_df["shares"].apply(fmt_quantity)
-        closed_df["Valore precedente"] = closed_df["value_usd"].apply(fmt_value)
+        closed_df["Previous Shares"] = closed_df["shares"].apply(fmt_quantity)
+        closed_df["Previous Value"] = closed_df["value_usd"].apply(fmt_value)
         st.dataframe(
             pd.DataFrame({
                 "Issuer": closed_df["issuer_name"],
                 "CUSIP": closed_df["cusip"],
-                "Classe": closed_df["share_class"],
+                "Class": closed_df["share_class"],
                 "Put/Call": closed_df["put_call"],
-                "Azioni precedenti": closed_df["Azioni precedenti"],
-                "Valore precedente": closed_df["Valore precedente"],
+                "Previous Shares": closed_df["Previous Shares"],
+                "Previous Value": closed_df["Previous Value"],
             }),
             use_container_width=True,
             hide_index=True,
@@ -1075,37 +1075,37 @@ def render_detailed_diff_sections(diff: dict):
 
     changes = diff["increased"] + diff["decreased"]
     if changes:
-        st.subheader("Variazioni significative (≥10%)")
+        st.subheader("Significant changes (≥10%)")
         changes_df = pd.DataFrame(changes).sort_values("pct_change", ascending=False)
-        changes_df["Azioni prima"] = changes_df["old_shares"].apply(fmt_quantity)
-        changes_df["Azioni dopo"] = changes_df["new_shares"].apply(fmt_quantity)
-        changes_df["Δ Azioni"] = changes_df["share_change"].apply(fmt_signed_quantity)
+        changes_df["Shares Before"] = changes_df["old_shares"].apply(fmt_quantity)
+        changes_df["Shares After"] = changes_df["new_shares"].apply(fmt_quantity)
+        changes_df["Δ Shares"] = changes_df["share_change"].apply(fmt_signed_quantity)
         changes_df["Δ %"] = changes_df["pct_change"].apply(fmt_signed_pct)
-        changes_df["Valore prima"] = changes_df["old_value_usd"].apply(fmt_value)
-        changes_df["Valore dopo"] = changes_df["new_value_usd"].apply(fmt_value)
-        changes_df["Δ Valore"] = changes_df["value_change"].apply(fmt_signed_value)
-        changes_df["Δ Valore %"] = changes_df["value_pct_change"].apply(fmt_signed_pct)
+        changes_df["Value Before"] = changes_df["old_value_usd"].apply(fmt_value)
+        changes_df["Value After"] = changes_df["new_value_usd"].apply(fmt_value)
+        changes_df["Δ Value"] = changes_df["value_change"].apply(fmt_signed_value)
+        changes_df["Δ Value %"] = changes_df["value_pct_change"].apply(fmt_signed_pct)
         st.dataframe(
             pd.DataFrame({
                 "Issuer": changes_df["issuer_name"],
                 "CUSIP": changes_df["cusip"],
-                "Classe": changes_df["share_class"],
+                "Class": changes_df["share_class"],
                 "Put/Call": changes_df["put_call"],
-                "Azioni prima": changes_df["Azioni prima"],
-                "Azioni dopo": changes_df["Azioni dopo"],
-                "Δ Azioni": changes_df["Δ Azioni"],
+                "Shares Before": changes_df["Shares Before"],
+                "Shares After": changes_df["Shares After"],
+                "Δ Shares": changes_df["Δ Shares"],
                 "Δ %": changes_df["Δ %"],
-                "Valore prima": changes_df["Valore prima"],
-                "Valore dopo": changes_df["Valore dopo"],
-                "Δ Valore": changes_df["Δ Valore"],
-                "Δ Valore %": changes_df["Δ Valore %"],
+                "Value Before": changes_df["Value Before"],
+                "Value After": changes_df["Value After"],
+                "Δ Value": changes_df["Δ Value"],
+                "Δ Value %": changes_df["Δ Value %"],
             }),
             use_container_width=True,
             hide_index=True,
         )
 
     if not any([diff["new_positions"], diff["closed_positions"], changes]):
-        st.success("Nessuna variazione significativa tra i due trimestri.")
+        st.success("No significant changes between the two quarters.")
 
 
 # ---------------------------------------------------------------------------
@@ -1113,15 +1113,16 @@ def render_detailed_diff_sections(diff: dict):
 # ---------------------------------------------------------------------------
 st.sidebar.title("📊 F8 13F Screener")
 page = st.sidebar.radio(
-    "Sezione",
+    "Section",
     ["Overview", "Fund Detail", "Fund History", "Portfolio Diff", "Holdings Search"],
+    key="sidebar_page",
 )
 st.sidebar.markdown("---")
 st.sidebar.caption(f"DB live: `{DB_PATH}`")
-st.sidebar.caption(f"Lettura: `{DASHBOARD_READER_PATH}`")
+st.sidebar.caption(f"Read path: `{DASHBOARD_READER_PATH}`")
 if DASHBOARD_SNAPSHOT_WARNING:
     st.sidebar.warning(DASHBOARD_SNAPSHOT_WARNING)
-if st.sidebar.button("🔄 Aggiorna dati"):
+if st.sidebar.button("🔄 Refresh data"):
     st.cache_data.clear()
     st.cache_resource.clear()
     st.rerun()
@@ -1131,7 +1132,7 @@ if st.sidebar.button("🔄 Aggiorna dati"):
 # Page 1 — Overview
 # ---------------------------------------------------------------------------
 if page == "Overview":
-    st.title("Overview — Stato del database 13F")
+    st.title("Overview — 13F database status")
 
     dataset = query(OVERVIEW_SUMMARY_SQL)
     recent_activity = query(OVERVIEW_RECENT_ACTIVITY_SQL)
@@ -1142,31 +1143,31 @@ if page == "Overview":
         recent = recent_activity.iloc[0] if not recent_activity.empty else None
         has_portfolio_values = int(d["value_rows"] or 0) > 0
         c1, c2, c3, c4, c5 = st.columns(5)
-        c1.metric("Righe holdings", f"{int(d['positions']):,}")
-        c2.metric("Filing 13F", f"{int(d['filings']):,}")
-        c3.metric("Fondi coperti", f"{int(d['funds']):,}")
-        c4.metric("Ultimo filing", d["latest_filing_date"] or "-")
+        c1.metric("Holding rows", f"{int(d['positions']):,}")
+        c2.metric("13F filings", f"{int(d['filings']):,}")
+        c3.metric("Covered funds", f"{int(d['funds']):,}")
+        c4.metric("Latest filing", d["latest_filing_date"] or "-")
         c5.metric(
-            "Filing ultimi ~120gg",
+            "Filings in last ~120 days",
             f"{int(recent['recent_filings']):,}" if recent is not None else "-",
         )
 
         if recent is not None:
             st.caption(
-                f"Fondi con almeno un filing negli ultimi ~120 giorni: "
+                f"Funds with at least one filing in the last ~120 days: "
                 f"{int(recent['recent_funds']):,}"
             )
 
         if not has_portfolio_values:
             st.warning(
-                "Nel database corrente i valori di portafoglio non sono presenti "
-                "(`value_usd` / `value_x1000` sono vuoti). "
-                "Questa overview mostra quindi segnali utili basati su filing, "
-                "copertura e posizioni normalizzate, che sono i dati realmente disponibili."
+                "Portfolio values are not available in the current database "
+                "(`value_usd` / `value_x1000` are empty). "
+                "This overview therefore shows useful signals based on filings, "
+                "coverage, and normalized positions, which are the available data."
             )
         else:
             st.success(
-                "I valori di portafoglio sono disponibili: classifica fondi e grafici ora usano l'ultimo filing valorizzato."
+                "Portfolio values are available: fund rankings and charts now use the latest valued filing."
             )
 
     if table_exists("statistics"):
@@ -1181,15 +1182,15 @@ if page == "Overview":
                     f"filtered {int(s['filtered']):,}"
                 )
 
-    st.subheader("Ultimo filing per fondo")
+    st.subheader("Latest filing per fund")
     st.caption(
-        "Per ogni fondo mostriamo solo l'ultimo filing disponibile, con conteggio raw e "
-        "conteggio normalizzato per CUSIP."
+        "For each fund, we show only the latest available filing, with raw row count and "
+        "CUSIP-normalized count."
     )
     df = query(LATEST_FUND_OVERVIEW_SQL)
 
     if df.empty:
-        st.info("Nessun dato nel database ancora.")
+        st.info("No data in the database yet.")
     else:
         full_export = query(FULL_HOLDINGS_EXPORT_SQL)
         latest_snapshot = query(LATEST_SNAPSHOT_EXPORT_SQL)
@@ -1199,14 +1200,14 @@ if page == "Overview":
 
         d1, d2 = st.columns(2)
         d1.download_button(
-            "Scarica CSV completo holdings",
+            "Download full holdings CSV",
             dataframe_to_csv_bytes(full_export),
             file_name="f8_13f_all_holdings.csv",
             mime="text/csv",
             use_container_width=True,
         )
         d2.download_button(
-            "Scarica ultimo snapshot per fondo",
+            "Download latest snapshot per fund",
             dataframe_to_csv_bytes(latest_snapshot),
             file_name="f8_13f_latest_snapshot.csv",
             mime="text/csv",
@@ -1214,7 +1215,7 @@ if page == "Overview":
         )
 
         filter_text = st.text_input(
-            "Filtra fondo",
+            "Filter fund",
             placeholder="es. AQR, Berkshire, Appaloosa",
         )
         filtered_df = df.copy()
@@ -1224,23 +1225,33 @@ if page == "Overview":
             ].copy()
 
         if has_portfolio_values:
-            filtered_df["Valore portfolio"] = filtered_df["value_sum"].apply(fmt_value)
+            filtered_df["Portfolio Value"] = filtered_df["value_sum"].apply(fmt_value)
 
         display_columns = [
             "Fund",
-            "Trimestri",
-            "Ultimo Filing",
+            "Quarters",
+            "Latest Filing",
             "Raw 13F Lines",
-            "Posizioni normalizzate",
-            "CUSIP distinti",
+            "Normalized Positions",
+            "Distinct CUSIPs",
         ]
         if has_portfolio_values:
-            display_columns.append("Valore portfolio")
-        st.dataframe(
+            display_columns.append("Portfolio Value")
+        selection_event = st.dataframe(
             filtered_df[display_columns],
             use_container_width=True,
             hide_index=True,
+            on_select="rerun",
+            selection_mode="single-row",
         )
+        selected_rows = selection_event.get("selection", {}).get("rows", []) if selection_event else []
+        if selected_rows:
+            selected_idx = selected_rows[0]
+            if selected_idx < len(filtered_df):
+                selected_fund = filtered_df.iloc[selected_idx]["Fund"]
+                st.session_state["fund_detail_selected_fund"] = selected_fund
+                st.session_state["sidebar_page"] = "Fund Detail"
+                st.rerun()
 
         chart_col1, chart_col2 = st.columns(2)
         with chart_col1:
@@ -1249,16 +1260,16 @@ if page == "Overview":
                     df.sort_values("value_sum", ascending=False).head(20),
                     x="Fund",
                     y="value_sum",
-                    labels={"value_sum": "Valore ($000s)", "Fund": ""},
-                    title="Top 20 fondi per valore ultimo filing",
+                    labels={"value_sum": "Value ($000s)", "Fund": ""},
+                    title="Top 20 funds by latest filing value",
                 )
             else:
                 fig = px.bar(
                     df.head(20),
                     x="Fund",
-                    y="Posizioni normalizzate",
-                    labels={"Posizioni normalizzate": "Posizioni", "Fund": ""},
-                    title="Top 20 fondi per posizioni normalizzate",
+                    y="Normalized Positions",
+                    labels={"Normalized Positions": "Positions", "Fund": ""},
+                    title="Top 20 funds by normalized positions",
                 )
             fig.update_layout(xaxis_tickangle=-40)
             st.plotly_chart(fig, use_container_width=True)
@@ -1267,20 +1278,20 @@ if page == "Overview":
             if not timeline_df.empty:
                 fig = px.line(
                     timeline_df.tail(24),
-                    x="Mese",
-                    y="Filing",
+                    x="Month",
+                    y="Filings",
                     markers=True,
-                    title="Filing archiviati per mese",
+                    title="Filings stored per month",
                 )
                 st.plotly_chart(fig, use_container_width=True)
 
         insights_col1, insights_col2 = st.columns(2)
         with insights_col1:
-            st.subheader("Filing piu recenti")
+            st.subheader("Most recent filings")
             st.dataframe(recent_filings, use_container_width=True, hide_index=True)
 
         with insights_col2:
-            st.subheader("Titoli piu diffusi oggi")
+            st.subheader("Most common holdings today")
             st.dataframe(common_holdings, use_container_width=True, hide_index=True)
 
 
@@ -1292,23 +1303,26 @@ elif page == "Fund Detail":
 
     funds = get_fund_options()
     if not funds:
-        st.info("Nessun dato nel database ancora.")
+        st.info("No data in the database yet.")
         st.stop()
 
+    if st.session_state.get("fund_detail_selected_fund") not in funds:
+        st.session_state["fund_detail_selected_fund"] = funds[0]
+
     fund = require_selection(
-        st.selectbox("Seleziona fondo", funds),
-        "Seleziona un fondo per continuare.",
+        st.selectbox("Select fund", funds, key="fund_detail_selected_fund"),
+        "Select a fund to continue.",
     )
 
     if not fund_has_db_holdings(fund):
         st.warning(
-            "Questo fondo è selezionabile dalla configurazione, ma il DB holdings non contiene ancora "
-            "righe per questo fondo. La lista trimestri arriva dalla cache locale."
+            "This fund is selectable from configuration, but the holdings DB does not contain rows "
+            "for this fund yet. The quarter list comes from local cache."
         )
 
     accessions = load_accessions_for_fund(fund)
     if accessions.empty:
-        st.info("Nessun trimestre disponibile per questo fondo.")
+        st.info("No quarter available for this fund.")
         st.stop()
 
     label_map = {
@@ -1317,52 +1331,52 @@ elif page == "Fund Detail":
     }
     selected_acc = require_selection(
         st.selectbox(
-            "Trimestre (accession)",
+            "Quarter (accession)",
             list(label_map.keys()),
             format_func=lambda k: label_map[k],
         ),
-        "Seleziona un trimestre per continuare.",
+        "Select a quarter to continue.",
     )
 
     raw_df = query(RAW_ACCESSION_HOLDINGS_SQL, (fund, selected_acc))
     normalized_df = query(NORMALIZED_ACCESSION_HOLDINGS_SQL, (fund, selected_acc))
 
     if raw_df.empty:
-        st.info("Nessuna holding trovata per questo trimestre.")
+        st.info("No holdings found for this quarter.")
         st.stop()
 
     c1, c2, c3 = st.columns(3)
     c1.metric("Raw 13F lines", f"{len(raw_df):,}")
-    c2.metric("Posizioni normalizzate", f"{len(normalized_df):,}")
+    c2.metric("Normalized positions", f"{len(normalized_df):,}")
     compression_ratio = 1 - (len(normalized_df) / len(raw_df))
-    c3.metric("Compressione", f"{compression_ratio:.1%}")
+    c3.metric("Compression", f"{compression_ratio:.1%}")
 
     view_mode = st.radio(
-        "Vista holdings",
-        ["Normalizzata per CUSIP", "Raw 13F lines"],
+        "Holdings view",
+        ["Normalized by CUSIP", "Raw 13F lines"],
         horizontal=True,
     )
     st.caption(
-        "La vista normalizzata aggrega le righe 13F con lo stesso CUSIP, "
-        "sommando azioni e valore. E' la vista corretta per fondi come AQR."
+        "The normalized view aggregates 13F rows with the same CUSIP, "
+        "summing shares and value. This is the correct view for funds like AQR."
     )
 
-    display_df = normalized_df.copy() if view_mode == "Normalizzata per CUSIP" else raw_df.copy()
+    display_df = normalized_df.copy() if view_mode == "Normalized by CUSIP" else raw_df.copy()
 
     st.subheader(f"Top 10 holdings — {fund}")
     top10 = display_df.head(10)
     fig = px.bar(
         top10,
         x="Issuer",
-        y="Valore ($000s)",
-        title=f"Top 10 per valore — {fund}",
+        y="Value ($000s)",
+        title=f"Top 10 by value — {fund}",
     )
     fig.update_layout(xaxis_tickangle=-30)
     st.plotly_chart(fig, use_container_width=True)
 
-    view_label = "posizioni normalizzate" if view_mode == "Normalizzata per CUSIP" else "righe raw 13F"
-    st.subheader(f"Tutte le {view_label} ({len(display_df):,})")
-    search = st.text_input("Filtra per nome o CUSIP")
+    view_label = "normalized positions" if view_mode == "Normalized by CUSIP" else "raw 13F lines"
+    st.subheader(f"All {view_label} ({len(display_df):,})")
+    search = st.text_input("Filter by name or CUSIP")
     filtered_df = display_df.copy()
     if search:
         mask = (
@@ -1372,11 +1386,11 @@ elif page == "Fund Detail":
         filtered_df = filtered_df.loc[mask].copy()
 
     st.download_button(
-        "Scarica CSV del trimestre selezionato",
+        "Download CSV for selected quarter",
         dataframe_to_csv_bytes(filtered_df),
         file_name=(
             f"f8_13f_{selected_acc}_normalized.csv"
-            if view_mode == "Normalizzata per CUSIP"
+            if view_mode == "Normalized by CUSIP"
             else f"f8_13f_{selected_acc}_raw.csv"
         ),
         mime="text/csv",
@@ -1392,50 +1406,50 @@ elif page == "Fund History":
 
     funds = get_fund_options()
     if not funds:
-        st.info("Nessun dato nel database ancora.")
+        st.info("No data in the database yet.")
         st.stop()
 
     fund = require_selection(
-        st.selectbox("Seleziona fondo", funds, key="fund_history_fund"),
-        "Seleziona un fondo per visualizzare la history.",
+        st.selectbox("Select fund", funds, key="fund_history_fund"),
+        "Select a fund to view history.",
     )
 
     if not fund_has_db_holdings(fund):
         st.warning(
-            "Questo fondo è selezionabile dalla configurazione, ma il DB holdings non contiene ancora "
-            "righe per questo fondo."
+            "This fund is selectable from configuration, but the holdings DB does not contain rows "
+            "for this fund yet."
         )
 
     history_df, transitions = load_fund_history(fund)
 
     if history_df.empty:
-        st.info("Nessuna history disponibile per questo fondo.")
+        st.info("No history available for this fund.")
         st.stop()
 
     latest_snapshot = history_df.iloc[-1]
-    has_portfolio_values = history_df["Valore portfolio ($000s)"].notna().any()
+    has_portfolio_values = history_df["Portfolio Value ($000s)"].notna().any()
 
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Trimestri disponibili", f"{len(history_df):,}")
-    c2.metric("Ultimo filing", latest_snapshot["Filing Date"])
-    c3.metric("Posizioni attuali", f"{int(latest_snapshot['Posizioni normalizzate']):,}")
+    c1.metric("Available quarters", f"{len(history_df):,}")
+    c2.metric("Latest filing", latest_snapshot["Filing Date"])
+    c3.metric("Current positions", f"{int(latest_snapshot['Normalized Positions']):,}")
     c4.metric(
-        "Valore ultimo filing",
-        fmt_value(latest_snapshot["Valore portfolio ($000s)"]) if has_portfolio_values else "-",
+        "Latest filing value",
+        fmt_value(latest_snapshot["Portfolio Value ($000s)"]) if has_portfolio_values else "-",
     )
 
     st.caption(
-        "Le categorie opened/closed/improved/decreased usano la variazione delle azioni. "
-        "I valori di portafoglio sono mostrati come contesto aggiuntivo quando presenti nel DB."
+        "The opened/closed/improved/decreased categories use share changes. "
+        "Portfolio values are shown as additional context when present in the DB."
     )
 
     summary_export = history_df.copy()
     if has_portfolio_values:
-        summary_export["Valore portfolio"] = summary_export["Valore portfolio ($000s)"].apply(fmt_value)
+        summary_export["Portfolio Value"] = summary_export["Portfolio Value ($000s)"].apply(fmt_value)
 
-    st.subheader("Timeline trimestri")
+    st.subheader("Quarter timeline")
     st.download_button(
-        "Scarica timeline fondo",
+        "Download fund timeline",
         dataframe_to_csv_bytes(summary_export.drop(columns=["Filing Date Dt"])),
         file_name=f"f8_13f_{fund}_history.csv".replace(" ", "_"),
         mime="text/csv",
@@ -1444,24 +1458,24 @@ elif page == "Fund History":
     display_columns = [
         "Filing Date",
         "Accession",
-        "Posizioni normalizzate",
+        "Normalized Positions",
         "Raw 13F Lines",
     ]
     if has_portfolio_values:
-        display_columns.append("Valore portfolio")
+        display_columns.append("Portfolio Value")
     st.dataframe(summary_export[display_columns], use_container_width=True, hide_index=True)
 
     render_portfolio_timeline_charts(history_df, fund)
 
     if not transitions:
-        st.info("Serve almeno un altro trimestre per calcolare i cambiamenti quarter over quarter.")
+        st.info("At least one more quarter is needed to calculate quarter-over-quarter changes.")
         st.stop()
 
     render_transition_counts_chart(transitions, fund)
 
     latest_first_transitions = list(reversed(transitions))
     selected_transition_index = st.selectbox(
-        "Drill-down transizione",
+        "Transition drill-down",
         options=list(range(len(latest_first_transitions))),
         index=0,
         format_func=lambda index: transition_label(latest_first_transitions[index]),
@@ -1469,13 +1483,13 @@ elif page == "Fund History":
     selected_transition = latest_first_transitions[selected_transition_index]
 
     d1, d2, d3, d4 = st.columns(4)
-    d1.metric("Nuove posizioni", selected_transition["new_count"])
-    d2.metric("Posizioni chiuse", selected_transition["closed_count"])
-    d3.metric("Aumentate", selected_transition["increased_count"])
-    d4.metric("Diminuite", selected_transition["decreased_count"])
+    d1.metric("New positions", selected_transition["new_count"])
+    d2.metric("Closed positions", selected_transition["closed_count"])
+    d3.metric("Increased", selected_transition["increased_count"])
+    d4.metric("Decreased", selected_transition["decreased_count"])
 
     st.subheader(
-        f"Dettaglio transizione: {selected_transition['from_filing_date']} → {selected_transition['to_filing_date']}"
+        f"Transition details: {selected_transition['from_filing_date']} → {selected_transition['to_filing_date']}"
     )
     render_detailed_diff_sections(selected_transition)
 
@@ -1488,23 +1502,23 @@ elif page == "Portfolio Diff":
 
     funds = get_fund_options()
     if not funds:
-        st.info("Nessun dato nel database ancora.")
+        st.info("No data in the database yet.")
         st.stop()
 
     fund = require_selection(
-        st.selectbox("Seleziona fondo", funds, key="portfolio_diff_fund"),
-        "Seleziona un fondo per calcolare il diff.",
+        st.selectbox("Select fund", funds, key="portfolio_diff_fund"),
+        "Select a fund to calculate the diff.",
     )
 
     if not fund_has_db_holdings(fund):
         st.warning(
-            "Questo fondo è selezionabile dalla configurazione, ma il DB holdings non contiene ancora "
-            "righe per questo fondo."
+            "This fund is selectable from configuration, but the holdings DB does not contain rows "
+            "for this fund yet."
         )
 
     accessions = load_accessions_for_fund(fund)
     if len(accessions) < 2:
-        st.warning("Servono almeno 2 trimestri per calcolare il diff.")
+        st.warning("At least 2 quarters are required to compute the diff.")
         st.stop()
 
     label_map = {
@@ -1516,17 +1530,17 @@ elif page == "Portfolio Diff":
     col1, col2 = st.columns(2)
     with col1:
         acc_new = require_selection(
-            st.selectbox("Trimestre NUOVO", acc_list, format_func=lambda k: label_map[k], index=0),
-            "Seleziona il trimestre nuovo.",
+            st.selectbox("NEW quarter", acc_list, format_func=lambda k: label_map[k], index=0),
+            "Select the new quarter.",
         )
     with col2:
         acc_old = require_selection(
-            st.selectbox("Trimestre PRECEDENTE", acc_list, format_func=lambda k: label_map[k], index=1),
-            "Seleziona il trimestre precedente.",
+            st.selectbox("PREVIOUS quarter", acc_list, format_func=lambda k: label_map[k], index=1),
+            "Select the previous quarter.",
         )
 
     if acc_new == acc_old:
-        st.warning("Seleziona due trimestri diversi.")
+        st.warning("Select two different quarters.")
         st.stop()
 
     old_map = load_normalized_positions_map(fund, acc_old)
@@ -1536,32 +1550,32 @@ elif page == "Portfolio Diff":
     instrument_history_df = load_fund_instrument_history(fund)
 
     st.caption(
-        "Confronto normalizzato per posizione. Le common shares, le CALL e le PUT restano separate "
-        "anche quando condividono lo stesso CUSIP del sottostante; i titoli senza CUSIP usano il fallback "
+        "Normalized comparison by position. Common shares, CALLs, and PUTs remain separate "
+        "even when they share the same underlying CUSIP; positions without CUSIP use the fallback "
         "issuer/class/put-call."
     )
 
     if not history_df.empty:
-        st.subheader("Trend storico del fondo")
+        st.subheader("Fund historical trend")
         st.caption(
-            "Queste grafiche usano tutti i filing disponibili nel DB per il fondo selezionato, "
-            "cosi il confronto tra i due trimestri resta leggibile nel contesto storico."
+            "These charts use all filings available in the DB for the selected fund, "
+            "so the comparison between the two quarters remains readable in historical context."
         )
         render_portfolio_timeline_charts(history_df, fund)
         if transitions:
             render_transition_counts_chart(
                 transitions,
                 fund,
-                title=f"Variazioni dei portafogli nel tempo — {fund}",
+                title=f"Portfolio changes over time — {fund}",
             )
         render_instrument_history_explorer(history_df, instrument_history_df, fund)
 
     # Summary metrics
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Nuove posizioni", len(diff["new_positions"]))
-    c2.metric("Posizioni chiuse", len(diff["closed_positions"]))
-    c3.metric("Aumentate", len(diff["increased"]))
-    c4.metric("Diminuite", len(diff["decreased"]))
+    c1.metric("New positions", len(diff["new_positions"]))
+    c2.metric("Closed positions", len(diff["closed_positions"]))
+    c3.metric("Increased", len(diff["increased"]))
+    c4.metric("Decreased", len(diff["decreased"]))
     render_detailed_diff_sections(diff)
 
 
@@ -1571,10 +1585,10 @@ elif page == "Portfolio Diff":
 elif page == "Holdings Search":
     st.title("Holdings Search")
 
-    query_text = st.text_input("Cerca per nome issuer o CUSIP", placeholder="es. Apple, 037833100")
+    query_text = st.text_input("Search by issuer name or CUSIP", placeholder="e.g. Apple, 037833100")
 
     if not query_text:
-        st.info("Inserisci un termine di ricerca per iniziare.")
+        st.info("Enter a search term to begin.")
         st.stop()
 
     df = query("""
@@ -1583,8 +1597,8 @@ elif page == "Holdings Search":
             cusip       AS "CUSIP",
             fund_name   AS "Fund",
             filing_date AS "Filing Date",
-            shares      AS "Azioni",
-            value_usd   AS "Valore ($000s)",
+            shares      AS "Shares",
+            value_usd   AS "Value ($000s)",
             accession_number AS "Accession"
         FROM holdings
         WHERE issuer_name LIKE ? OR cusip LIKE ?
@@ -1592,30 +1606,30 @@ elif page == "Holdings Search":
     """, (f"%{query_text}%", f"%{query_text}%"))
 
     if df.empty:
-        st.warning(f"Nessun risultato per '{query_text}'")
+        st.warning(f"No results for '{query_text}'")
         st.stop()
 
-    st.success(f"{len(df)} risultati trovati")
-    df["Valore"] = df["Valore ($000s)"].apply(fmt_value)
-    df["Azioni"] = df["Azioni"].apply(lambda x: f"{int(x):,}" if pd.notna(x) and x else "-")
+    st.success(f"{len(df)} results found")
+    df["Value"] = df["Value ($000s)"].apply(fmt_value)
+    df["Shares"] = df["Shares"].apply(lambda x: f"{int(x):,}" if pd.notna(x) and x else "-")
 
     st.download_button(
-        "Scarica risultati CSV",
+        "Download CSV results",
         dataframe_to_csv_bytes(df),
         file_name="f8_13f_search_results.csv",
         mime="text/csv",
     )
     st.dataframe(
-        df[["Issuer", "CUSIP", "Fund", "Filing Date", "Azioni", "Valore"]],
+        df[["Issuer", "CUSIP", "Fund", "Filing Date", "Shares", "Value"]],
         use_container_width=True,
         hide_index=True,
     )
 
     # Show which funds currently hold this asset (latest filing per fund)
-    st.subheader("Chi la detiene oggi (ultimo filing per fondo)")
+    st.subheader("Who holds it today (latest filing per fund)")
     latest = query("""
         SELECT h.fund_name AS "Fund", h.filing_date AS "Filing Date",
-               h.shares AS "Azioni", h.value_usd AS "Valore ($000s)"
+               h.shares AS "Shares", h.value_usd AS "Value ($000s)"
         FROM holdings h
         INNER JOIN (
             SELECT fund_name, MAX(filing_date) AS max_date
@@ -1628,7 +1642,7 @@ elif page == "Holdings Search":
     """, (f"%{query_text}%", f"%{query_text}%", f"%{query_text}%", f"%{query_text}%"))
 
     if not latest.empty:
-        latest["Valore"] = latest["Valore ($000s)"].apply(fmt_value)
-        latest["Azioni"] = latest["Azioni"].apply(lambda x: f"{int(x):,}" if pd.notna(x) and x else "-")
-        st.dataframe(latest[["Fund", "Filing Date", "Azioni", "Valore"]],
+        latest["Value"] = latest["Value ($000s)"].apply(fmt_value)
+        latest["Shares"] = latest["Shares"].apply(lambda x: f"{int(x):,}" if pd.notna(x) and x else "-")
+        st.dataframe(latest[["Fund", "Filing Date", "Shares", "Value"]],
                      use_container_width=True, hide_index=True)
