@@ -127,12 +127,12 @@ def test_select_filings_falls_back_to_tracking_without_canonical_storage():
 
 def test_build_holdings_consistency_report_flags_missing_canonical_accessions():
     catalog_filings = [
-        {"cik": "2045724", "accession_number": "ACC-CANONICAL"},
-        {"cik": "2045724", "accession_number": "ACC-CATALOG-MISSING"},
-        {"cik": "0000000002", "accession_number": "ACC-OTHER-FUND"},
+        {"cik": "2045724", "fund_name": "Test Fund", "accession_number": "ACC-CANONICAL"},
+        {"cik": "2045724", "fund_name": "Test Fund", "accession_number": "ACC-CATALOG-MISSING"},
+        {"cik": "0000000002", "fund_name": "Other Fund", "accession_number": "ACC-OTHER-FUND"},
     ]
     cache_filings = [
-        {"cik": "0002045724", "accession_number": "ACC-CACHE-MISSING"},
+        {"cik": "0002045724", "fund_name": "Test Fund", "accession_number": "ACC-CACHE-MISSING"},
     ]
     processed = {"ACC-CANONICAL", "ACC-CATALOG-MISSING", "ACC-OTHER-FUND"}
     canonical_counts = {
@@ -155,3 +155,8 @@ def test_build_holdings_consistency_report_flags_missing_canonical_accessions():
     assert report["catalog_but_missing_canonical"] == ["ACC-CATALOG-MISSING"]
     assert report["cache_but_missing_canonical"] == ["ACC-CACHE-MISSING"]
     assert report["tracked_but_missing_canonical"] == ["ACC-CATALOG-MISSING"]
+    assert report["missing_canonical_by_fund"] == [{
+        "cik": "0002045724",
+        "fund_name": "Test Fund",
+        "missing_count": 2,
+    }]

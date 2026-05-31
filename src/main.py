@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import platform
 import subprocess
 import sys
 from pathlib import Path
@@ -14,7 +13,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 def _run_dashboard(raw_args: list[str]) -> int:
     """Launch the Streamlit dashboard using the existing restart script on Windows."""
-    if platform.system().lower() == "windows":
+    if sys.platform == "win32":
         script = REPO_ROOT / "scripts" / "restart_dashboard.ps1"
         command = [
             "powershell.exe",
