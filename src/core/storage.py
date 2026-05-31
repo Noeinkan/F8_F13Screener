@@ -5,7 +5,7 @@ import sqlite3
 import json
 import logging
 from pathlib import Path
-from typing import List, Dict, Set, Optional
+from typing import List, Dict, Set, Optional, Iterator
 from datetime import datetime, timedelta
 from contextlib import contextmanager
 
@@ -155,7 +155,7 @@ class Storage:
                 )
 
     @contextmanager
-    def _get_connection(self, ensure_schema: bool = True):
+    def _get_connection(self, ensure_schema: bool = True) -> Iterator[sqlite3.Connection]:
         """Context manager for database connections"""
         conn = sqlite3.connect(self.db_path, timeout=30)
         conn.row_factory = sqlite3.Row

@@ -2,6 +2,8 @@
 
 Compact working notes for this repo.
 
+See [PROJECT_INDEX.md](PROJECT_INDEX.md) first for the shortest route to the current repo map.
+
 ## Project
 
 SEC 13F screener: poll SEC EDGAR RSS, filter tracked hedge funds by CIK, parse Information Table XML/HTML, store holdings in SQLite, send Telegram alerts, and compare quarter-over-quarter portfolios.

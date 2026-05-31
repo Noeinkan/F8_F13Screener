@@ -1,5 +1,7 @@
 # F8 13F Screener
 
+For a compact repo map, see [PROJECT_INDEX.md](PROJECT_INDEX.md).
+
 SEC 13F screener that:
 
 - monitors SEC filings for tracked hedge funds (CIK-based matching),
