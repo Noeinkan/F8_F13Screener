@@ -60,3 +60,4 @@ cache/dashboard/*.duckdb
 Thumbs.db
 src/core/data/*.db
 src/core/data/*.duckdb
+src/core/data/historical/tracking/*.json
