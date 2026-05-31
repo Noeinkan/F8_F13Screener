@@ -30,6 +30,7 @@ def render_overview_page(
     dataset = query(OVERVIEW_SUMMARY_SQL)
     recent_activity = query(OVERVIEW_RECENT_ACTIVITY_SQL)
     has_portfolio_values = False
+    export_token = "empty"
 
     if not dataset.empty:
         d = dataset.iloc[0]
@@ -63,6 +64,15 @@ def render_overview_page(
                 "Portfolio values are available: fund rankings and charts now use the latest valued filing."
             )
 
+        export_token = f"{int(d['positions'])}:{d['latest_filing_date']}"
+
+    if st.session_state.get("overview_export_token") != export_token:
+        st.session_state["overview_export_token"] = export_token
+        st.session_state.pop("overview_full_export_bytes", None)
+        st.session_state.pop("overview_full_export_rows", None)
+        st.session_state.pop("overview_latest_export_bytes", None)
+        st.session_state.pop("overview_latest_export_rows", None)
+
     if table_exists("statistics"):
         stats = query("SELECT * FROM statistics WHERE id = 1")
         if not stats.empty:
@@ -85,27 +95,51 @@ def render_overview_page(
     if df.empty:
         st.info("No data in the database yet.")
     else:
-        full_export = query(FULL_HOLDINGS_EXPORT_SQL)
-        latest_snapshot = query(LATEST_SNAPSHOT_EXPORT_SQL)
         recent_filings = query(RECENT_FILINGS_OVERVIEW_SQL)
         timeline_df = query(FILINGS_TIMELINE_SQL)
         common_holdings = query(TOP_HELD_SECURITIES_SQL)
 
-        d1, d2 = st.columns(2)
-        d1.download_button(
-            "Download full holdings CSV",
-            dataframe_to_csv_bytes(full_export),
-            file_name="f8_13f_all_holdings.csv",
-            mime="text/csv",
-            use_container_width=True,
-        )
-        d2.download_button(
-            "Download latest snapshot per fund",
-            dataframe_to_csv_bytes(latest_snapshot),
-            file_name="f8_13f_latest_snapshot.csv",
-            mime="text/csv",
-            use_container_width=True,
-        )
+        export_col1, export_col2 = st.columns(2)
+
+        with export_col1:
+            if st.button("Prepare full holdings CSV", use_container_width=True):
+                with st.spinner("Preparing full holdings export..."):
+                    full_export = query(FULL_HOLDINGS_EXPORT_SQL)
+                    st.session_state["overview_full_export_rows"] = len(full_export)
+                    st.session_state["overview_full_export_bytes"] = dataframe_to_csv_bytes(full_export)
+
+            full_export_bytes = st.session_state.get("overview_full_export_bytes")
+            full_export_rows = st.session_state.get("overview_full_export_rows")
+            if full_export_bytes:
+                st.download_button(
+                    "Download full holdings CSV",
+                    full_export_bytes,
+                    file_name="f8_13f_all_holdings.csv",
+                    mime="text/csv",
+                    use_container_width=True,
+                )
+                if full_export_rows is not None:
+                    st.caption(f"Prepared rows: {int(full_export_rows):,}")
+
+        with export_col2:
+            if st.button("Prepare latest snapshot CSV", use_container_width=True):
+                with st.spinner("Preparing latest snapshot export..."):
+                    latest_snapshot = query(LATEST_SNAPSHOT_EXPORT_SQL)
+                    st.session_state["overview_latest_export_rows"] = len(latest_snapshot)
+                    st.session_state["overview_latest_export_bytes"] = dataframe_to_csv_bytes(latest_snapshot)
+
+            latest_export_bytes = st.session_state.get("overview_latest_export_bytes")
+            latest_export_rows = st.session_state.get("overview_latest_export_rows")
+            if latest_export_bytes:
+                st.download_button(
+                    "Download latest snapshot per fund",
+                    latest_export_bytes,
+                    file_name="f8_13f_latest_snapshot.csv",
+                    mime="text/csv",
+                    use_container_width=True,
+                )
+                if latest_export_rows is not None:
+                    st.caption(f"Prepared rows: {int(latest_export_rows):,}")
 
         filter_text = st.text_input(
             "Filter fund",
