@@ -25,11 +25,9 @@ from src.web.data_service import (
     query,
     table_exists,
 )
-from src.web.pages.fund_detail import render_fund_detail_page
-from src.web.pages.fund_history import render_fund_history_page
+from src.web.pages.fund_analysis import render_fund_analysis_page
 from src.web.pages.holdings_search import render_holdings_search_page
 from src.web.pages.overview import render_overview_page
-from src.web.pages.portfolio_diff import render_portfolio_diff_page
 
 st.set_page_config(
     page_title="F8 13F Screener",
@@ -52,34 +50,16 @@ def render_overview():
     render_overview_page(query, table_exists)
 
 
-def render_fund_detail():
-    render_fund_detail_page(
+def render_fund_analysis():
+    render_fund_analysis_page(
         get_fund_options,
         require_selection,
         fund_has_db_holdings,
         load_accessions_for_fund,
-        query,
-    )
-
-
-def render_fund_history():
-    render_fund_history_page(
-        get_fund_options,
-        require_selection,
-        fund_has_db_holdings,
         load_fund_history,
-    )
-
-
-def render_portfolio_diff():
-    render_portfolio_diff_page(
-        get_fund_options,
-        require_selection,
-        fund_has_db_holdings,
-        load_accessions_for_fund,
         load_normalized_positions_map,
-        load_fund_history,
         load_fund_instrument_history,
+        query,
     )
 
 
@@ -89,9 +69,7 @@ def render_holdings_search():
 
 PAGE_RENDERERS = {
     "Overview": render_overview,
-    "Fund Detail": render_fund_detail,
-    "Fund History": render_fund_history,
-    "Portfolio Diff": render_portfolio_diff,
+    "Fund Analysis": render_fund_analysis,
     "Holdings Search": render_holdings_search,
 }
 
@@ -100,6 +78,9 @@ PAGE_RENDERERS = {
 # Sidebar navigation
 # ---------------------------------------------------------------------------
 st.sidebar.title("📊 F8 13F Screener")
+pending_page = st.session_state.pop("pending_sidebar_page", None)
+if pending_page in PAGE_RENDERERS:
+    st.session_state["sidebar_page"] = pending_page
 page = st.sidebar.radio(
     "Section",
     list(PAGE_RENDERERS),

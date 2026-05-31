@@ -76,6 +76,13 @@ class TestComputePortfolioDiff:
         assert diff["increased"] == []
         assert diff["decreased"] == []
 
+    def test_zero_threshold_reports_below_threshold_changes(self):
+        old = {"X": make_holding("Stock", 1000)}
+        new = {"X": make_holding("Stock", 1050)}
+        diff = compute_detailed_portfolio_diff(old, new, min_change_pct=0)
+        assert len(diff["increased"]) == 1
+        assert diff["increased"][0]["pct_change"] == 5.0
+
     def test_exactly_at_threshold_included(self):
         old = {"X": make_holding("Stock", 1000)}
         new = {"X": make_holding("Stock", 1100)}  # exactly +10%

@@ -17,6 +17,8 @@ from src.web.sql_queries import (
     RECENT_FILINGS_OVERVIEW_SQL,
     TOP_HELD_SECURITIES_SQL,
 )
+from src.web.table_config import COMPACT_TABLE_HEIGHT, DEFAULT_TABLE_HEIGHT, common_holdings_column_config, fund_overview_column_config, recent_filings_column_config
+from src.web.ui_components import render_dataframe
 
 
 def render_overview_page(
@@ -76,7 +78,7 @@ def render_overview_page(
     st.subheader("Latest filing per fund")
     st.caption(
         "For each fund, we show only the latest available filing, with raw row count and "
-        "CUSIP-normalized count."
+        "CUSIP-normalized count. Select a row to open the fund workspace."
     )
     df = query(LATEST_FUND_OVERVIEW_SQL)
 
@@ -132,6 +134,8 @@ def render_overview_page(
             filtered_df[display_columns],
             use_container_width=True,
             hide_index=True,
+            height=DEFAULT_TABLE_HEIGHT,
+            column_config=fund_overview_column_config(),
             on_select="rerun",
             selection_mode="single-row",
         )
@@ -140,8 +144,8 @@ def render_overview_page(
             selected_idx = selected_rows[0]
             if selected_idx < len(filtered_df):
                 selected_fund = filtered_df.iloc[selected_idx]["Fund"]
-                st.session_state["fund_detail_selected_fund"] = selected_fund
-                st.session_state["sidebar_page"] = "Fund Detail"
+                st.session_state["fund_analysis_selected_fund"] = selected_fund
+                st.session_state["pending_sidebar_page"] = "Fund Analysis"
                 st.rerun()
 
         chart_col1, chart_col2 = st.columns(2)
@@ -179,8 +183,16 @@ def render_overview_page(
         insights_col1, insights_col2 = st.columns(2)
         with insights_col1:
             st.subheader("Most recent filings")
-            st.dataframe(recent_filings, use_container_width=True, hide_index=True)
+            render_dataframe(
+                recent_filings,
+                column_config=recent_filings_column_config(),
+                height=COMPACT_TABLE_HEIGHT,
+            )
 
         with insights_col2:
             st.subheader("Most common holdings today")
-            st.dataframe(common_holdings, use_container_width=True, hide_index=True)
+            render_dataframe(
+                common_holdings,
+                column_config=common_holdings_column_config(),
+                height=COMPACT_TABLE_HEIGHT,
+            )

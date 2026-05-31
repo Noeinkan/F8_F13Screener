@@ -94,6 +94,7 @@ class DashboardStorage:
             return 0
 
         filing_date_clean = filing_date.split("T")[0] if "T" in filing_date else filing_date
+        fund_cik_clean = fund_cik.zfill(10) if fund_cik and fund_cik.isdigit() else fund_cik
 
         rows = []
         for holding in holdings:
@@ -102,7 +103,7 @@ class DashboardStorage:
                     None,
                     filing_date_clean,
                     fund_name,
-                    fund_cik,
+                    fund_cik_clean,
                     accession_number,
                     filing_url,
                     acceptance_datetime,
@@ -127,21 +128,27 @@ class DashboardStorage:
             )
 
         with self._get_connection() as conn:
-            if accession_number:
-                conn.execute("DELETE FROM holdings WHERE accession_number = ?", [accession_number])
-            conn.executemany(
-                """
-                INSERT INTO holdings (
-                    id, filing_date, fund_name, fund_cik, accession_number, filing_url,
-                    acceptance_datetime,
-                    issuer_name, share_class, cusip, figi, value_x1000, value_usd,
-                    shares_raw, shares, sh_prn, put_call, investment_discretion,
-                    other_manager, other_managers_raw, all_columns_raw,
-                    voting_authority_sole, voting_authority_shared, voting_authority_none
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                rows,
-            )
+            conn.execute("BEGIN TRANSACTION")
+            try:
+                if accession_number:
+                    conn.execute("DELETE FROM holdings WHERE accession_number = ?", [accession_number])
+                conn.executemany(
+                    """
+                    INSERT INTO holdings (
+                        id, filing_date, fund_name, fund_cik, accession_number, filing_url,
+                        acceptance_datetime,
+                        issuer_name, share_class, cusip, figi, value_x1000, value_usd,
+                        shares_raw, shares, sh_prn, put_call, investment_discretion,
+                        other_manager, other_managers_raw, all_columns_raw,
+                        voting_authority_sole, voting_authority_shared, voting_authority_none
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    rows,
+                )
+                conn.execute("COMMIT")
+            except Exception:
+                conn.execute("ROLLBACK")
+                raise
 
         logger.info("Saved %s holdings rows into dashboard DB", len(rows))
         return len(rows)
@@ -165,6 +172,24 @@ class DashboardStorage:
                 [accession_number],
             ).fetchone()
             return row is not None
+
+    def get_accession_row_counts(self, accession_numbers: List[str]) -> Dict[str, int]:
+        accession_numbers = sorted({accession for accession in accession_numbers if accession})
+        if not accession_numbers:
+            return {}
+
+        with self._get_connection() as conn:
+            placeholders = ", ".join(["?"] * len(accession_numbers))
+            rows = conn.execute(
+                f"""
+                SELECT accession_number, COUNT(*) AS row_count
+                FROM holdings
+                WHERE accession_number IN ({placeholders})
+                GROUP BY accession_number
+                """,
+                accession_numbers,
+            ).fetchall()
+            return {str(accession_number): int(row_count) for accession_number, row_count in rows}
 
     def replace_holdings_from_dataframe(self, holdings_df: pd.DataFrame) -> int:
         if holdings_df.empty:

@@ -55,6 +55,7 @@ python -m src.main dashboard -RebuildDb -FullRefresh -Workers 2
 Legacy wrapper (still supported):
 
 ```powershell
+bash deploy.sh
 .\dashboard.bat
 ```
 

@@ -22,6 +22,27 @@ def fmt_value(val_thousands):
     return f"${v:,.0f}"
 
 
+def fmt_eu_date(value):
+    """Format ISO-like dates as DD/MM/YYYY for dashboard labels."""
+    if value is None or pd.isna(value):
+        return "-"
+    parsed = pd.to_datetime(value, errors="coerce")
+    if pd.isna(parsed):
+        return str(value)
+    return parsed.strftime("%d/%m/%Y")
+
+
+def fmt_accession_label(filing_date, accession_number):
+    return f"{fmt_eu_date(filing_date)} | Accession: {accession_number}"
+
+
+def fmt_transition_label(from_filing_date, to_filing_date, from_accession_number, to_accession_number):
+    return (
+        f"{fmt_eu_date(from_filing_date)} -> {fmt_eu_date(to_filing_date)} | "
+        f"{from_accession_number} -> {to_accession_number}"
+    )
+
+
 def fmt_quantity(value):
     """Format share quantities while tolerating nulls and floats."""
     if pd.isna(value):

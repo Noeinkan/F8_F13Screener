@@ -101,6 +101,8 @@ def compute_detailed_portfolio_diff(
             continue
 
         pct_change = (new_shares - old_shares) / old_shares * 100
+        if pct_change == 0:
+            continue
         if abs(pct_change) < min_change_pct:
             continue
 

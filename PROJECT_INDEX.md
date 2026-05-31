@@ -19,6 +19,7 @@ SEC 13F screener for tracked hedge funds. It polls SEC EDGAR, parses Information
 - [src/cli/process_historical_13f.py](src/cli/process_historical_13f.py): historical refresh and dashboard DB rebuild.
 - [src/web/dashboard.py](src/web/dashboard.py): Streamlit dashboard.
 - [dashboard.bat](dashboard.bat): Windows launcher wrapper.
+- [deploy.sh](deploy.sh): root Bash wrapper that forwards to the real deploy script.
 
 ## High-Value Modules
 

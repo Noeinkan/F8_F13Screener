@@ -44,7 +44,7 @@ def render_instrument_history_explorer(
             "Select position",
             option_summary_df["Position Key"].tolist(),
             format_func=lambda key: option_labels[key],
-            key="portfolio_diff_instrument",
+            key="fund_analysis_instrument",
         ),
         "Select a position to view share history.",
     )

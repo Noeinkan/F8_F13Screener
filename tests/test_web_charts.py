@@ -1,5 +1,7 @@
 """Tests for dashboard chart data preparation."""
 
+import math
+
 from src.web.charts import BUY_NODE, SELL_NODE, build_shares_flow_sankey_data
 
 
@@ -14,6 +16,7 @@ def _link_rows(sankey_data):
             "movement": customdata[0],
             "identifier": customdata[1],
             "delta": customdata[4],
+            "value_delta": customdata[5],
         }
         for source, target, value, customdata in zip(
             links["source"],
@@ -39,6 +42,7 @@ def test_shares_flow_sankey_maps_buys_and_sells_by_share_delta():
                 "old_shares": 100_000,
                 "new_shares": 150_000,
                 "share_change": 50_000,
+                "value_change": 250,
             },
         ],
         "decreased": [
@@ -61,6 +65,7 @@ def test_shares_flow_sankey_maps_buys_and_sells_by_share_delta():
         "movement": "Increased",
         "identifier": "AAA",
         "delta": "+50,000",
+        "value_delta": "+$250k",
     } in rows
     assert {
         "source": "Microsoft",
@@ -69,6 +74,7 @@ def test_shares_flow_sankey_maps_buys_and_sells_by_share_delta():
         "movement": "Decreased",
         "identifier": "MSFT",
         "delta": "-10,000",
+        "value_delta": "-",
     } in rows
     assert {
         "source": BUY_NODE,
@@ -77,6 +83,7 @@ def test_shares_flow_sankey_maps_buys_and_sells_by_share_delta():
         "movement": "New position",
         "identifier": "DDD",
         "delta": "+100,000",
+        "value_delta": "-",
     } in rows
     assert {
         "source": "Tesla",
@@ -85,6 +92,7 @@ def test_shares_flow_sankey_maps_buys_and_sells_by_share_delta():
         "movement": "Closed position",
         "identifier": "BBB",
         "delta": "-40,000",
+        "value_delta": "-",
     } in rows
 
 
@@ -112,3 +120,26 @@ def test_shares_flow_sankey_limits_to_top_n_by_absolute_delta():
     assert sankey_data["movements"][-1]["delta_shares"] == 6.0
     assert "Stock 5" not in sankey_data["node"]["label"]
     assert "Stock 6" in sankey_data["node"]["label"]
+
+
+def test_shares_flow_sankey_ignores_nan_label_components():
+    diff = {
+        "new_positions": [],
+        "closed_positions": [],
+        "increased": [
+            {
+                "issuer_name": "Apple",
+                "cusip": "AAA",
+                "share_class": "COM",
+                "put_call": math.nan,
+                "old_shares": 100,
+                "new_shares": 150,
+                "share_change": 50,
+            },
+        ],
+        "decreased": [],
+    }
+
+    sankey_data = build_shares_flow_sankey_data(diff)
+
+    assert "Apple (COM)" in sankey_data["node"]["label"]

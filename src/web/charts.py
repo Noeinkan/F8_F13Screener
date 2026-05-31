@@ -5,7 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-from src.web.formatting import fmt_quantity, fmt_signed_quantity
+from src.web.formatting import fmt_quantity, fmt_signed_quantity, fmt_signed_value
 
 
 BUY_NODE = "Bought shares"
@@ -19,10 +19,16 @@ def _numeric_or_zero(value) -> float:
     return float(value)
 
 
+def _label_part(value) -> str:
+    if value is None or pd.isna(value):
+        return ""
+    return str(value).strip()
+
+
 def _position_label(entry: dict) -> str:
     issuer_name = entry.get("issuer_name") or entry.get("position_key") or "Unknown position"
-    put_call = entry.get("put_call")
-    share_class = entry.get("share_class")
+    put_call = _label_part(entry.get("put_call"))
+    share_class = _label_part(entry.get("share_class"))
     suffix_parts = [part for part in (share_class, put_call) if part]
     if suffix_parts:
         return f"{issuer_name} ({' '.join(suffix_parts)})"
@@ -51,6 +57,7 @@ def build_shares_flow_sankey_data(diff: dict, top_n: int = DEFAULT_SHARES_FLOW_T
             "delta_shares": delta_shares,
             "old_shares": entry.get("old_shares"),
             "new_shares": entry.get("new_shares"),
+            "value_change": entry.get("value_change"),
             "link_color": "rgba(44, 160, 44, 0.45)",
         })
 
@@ -68,6 +75,7 @@ def build_shares_flow_sankey_data(diff: dict, top_n: int = DEFAULT_SHARES_FLOW_T
             "delta_shares": delta_shares,
             "old_shares": entry.get("old_shares"),
             "new_shares": entry.get("new_shares"),
+            "value_change": entry.get("value_change"),
             "link_color": "rgba(214, 39, 40, 0.45)",
         })
 
@@ -85,6 +93,7 @@ def build_shares_flow_sankey_data(diff: dict, top_n: int = DEFAULT_SHARES_FLOW_T
             "delta_shares": shares,
             "old_shares": 0,
             "new_shares": shares,
+            "value_change": entry.get("value_usd"),
             "link_color": "rgba(44, 160, 44, 0.38)",
         })
 
@@ -102,6 +111,7 @@ def build_shares_flow_sankey_data(diff: dict, top_n: int = DEFAULT_SHARES_FLOW_T
             "delta_shares": -shares,
             "old_shares": shares,
             "new_shares": 0,
+            "value_change": -_numeric_or_zero(entry.get("value_usd")) if entry.get("value_usd") is not None else None,
             "link_color": "rgba(214, 39, 40, 0.38)",
         })
 
@@ -139,6 +149,7 @@ def build_shares_flow_sankey_data(diff: dict, top_n: int = DEFAULT_SHARES_FLOW_T
             fmt_quantity(movement["old_shares"]),
             fmt_quantity(movement["new_shares"]),
             fmt_signed_quantity(movement["delta_shares"]),
+            fmt_signed_value(movement.get("value_change")),
         ])
 
     node_colors = [
@@ -184,7 +195,12 @@ def build_transition_summary_df(transitions: list[dict]) -> pd.DataFrame:
     return summary_df
 
 
-def render_portfolio_timeline_charts(history_df: pd.DataFrame, fund: str):
+def render_portfolio_timeline_charts(
+    history_df: pd.DataFrame,
+    fund: str,
+    *,
+    key_prefix: str = "portfolio_timeline",
+):
     has_portfolio_values = history_df["Portfolio Value ($000s)"].notna().any()
 
     charts_col1, charts_col2 = st.columns(2)
@@ -199,7 +215,11 @@ def render_portfolio_timeline_charts(history_df: pd.DataFrame, fund: str):
         )
         positions_fig.update_xaxes(title="Filing date")
         positions_fig.update_yaxes(title="Normalized positions")
-        st.plotly_chart(positions_fig, use_container_width=True)
+        st.plotly_chart(
+            positions_fig,
+            use_container_width=True,
+            key=f"{key_prefix}_positions",
+        )
 
     with charts_col2:
         if has_portfolio_values:
@@ -213,7 +233,11 @@ def render_portfolio_timeline_charts(history_df: pd.DataFrame, fund: str):
             )
             value_fig.update_xaxes(title="Filing date")
             value_fig.update_yaxes(title="Value ($000s)")
-            st.plotly_chart(value_fig, use_container_width=True)
+            st.plotly_chart(
+                value_fig,
+                use_container_width=True,
+                key=f"{key_prefix}_value",
+            )
         else:
             st.info("Portfolio values are not available for this fund in the current DB.")
 
@@ -223,6 +247,7 @@ def render_transition_counts_chart(
     fund: str,
     *,
     title: str | None = None,
+    key: str = "transition_counts",
 ):
     transition_counts_df = build_transition_summary_df(transitions)
     if transition_counts_df.empty:
@@ -244,7 +269,7 @@ def render_transition_counts_chart(
         title=title or f"Quarter-over-quarter changes — {fund}",
     )
     transition_fig.update_layout(xaxis_tickangle=-30)
-    st.plotly_chart(transition_fig, use_container_width=True)
+    st.plotly_chart(transition_fig, use_container_width=True, key=key)
 
 
 def render_shares_flow_sankey(
@@ -281,6 +306,7 @@ def render_shares_flow_sankey(
                         "Old shares: %{customdata[2]}<br>"
                         "New shares: %{customdata[3]}<br>"
                         "Delta shares: %{customdata[4]}<br>"
+                        "Delta value: %{customdata[5]}<br>"
                         "Flow width: %{value:,.0f} shares<extra></extra>"
                     ),
                 },

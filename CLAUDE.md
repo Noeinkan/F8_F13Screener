@@ -71,7 +71,7 @@ python src/gui/filing_processor_gui.py
 - `src/core/parser.py`: Information Table parsing; XML first, HTML fallback.
 - `src/core/storage.py`: SQLite storage and accession lookup helpers.
 - `src/core/diff.py`: portfolio diff helpers for Telegram and dashboard history views.
-- `src/web/dashboard.py`: Streamlit dashboard (`Overview`, `Fund Detail`, `Fund History`, `Portfolio Diff`, `Holdings Search`).
+- `src/web/dashboard.py`: Streamlit dashboard (`Overview`, `Fund Analysis`, `Holdings Search`).
 - `src/core/hedge_funds_config.py`: tracked funds list.
 
 ## Rules

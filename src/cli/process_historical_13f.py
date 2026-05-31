@@ -348,6 +348,89 @@ def save_processed_filings(processed_set: set) -> None:
     except Exception as e:
         print(f"⚠️  Errore salvataggio tracking: {e}")
 
+
+def select_filings_missing_canonical_holdings(
+    all_filings: List[Dict],
+    processed_filings: set,
+    storage: Optional[DashboardStorage] = None,
+) -> tuple[List[Dict], List[str]]:
+    """Return filings to process, using DuckDB holdings as canonical when available."""
+    if storage is None:
+        return [f for f in all_filings if f['accession_number'] not in processed_filings], []
+
+    accession_numbers = [f.get('accession_number', '') for f in all_filings]
+    canonical_counts = storage.get_accession_row_counts(accession_numbers)
+    canonical_accessions = {
+        accession_number
+        for accession_number, row_count in canonical_counts.items()
+        if row_count > 0
+    }
+    catalog_accessions = {accession for accession in accession_numbers if accession}
+    tracked_but_missing_canonical = sorted(
+        accession
+        for accession in processed_filings.intersection(catalog_accessions)
+        if accession not in canonical_accessions
+    )
+
+    return [
+        f
+        for f in all_filings
+        if f.get('accession_number', '') not in canonical_accessions
+    ], tracked_but_missing_canonical
+
+
+def build_holdings_consistency_report(
+    catalog_filings: List[Dict],
+    processed_filings: set,
+    canonical_row_counts: Dict[str, int],
+    cache_filings: Optional[List[Dict]] = None,
+    fund_cik: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Compare discovery metadata and tracking against canonical DuckDB holdings."""
+    normalized_fund_cik = fund_cik.zfill(10) if fund_cik and fund_cik.isdigit() else fund_cik
+
+    def matches_fund(filing: Dict) -> bool:
+        if not normalized_fund_cik:
+            return True
+        cik = str(filing.get('cik', '')).zfill(10)
+        return cik == normalized_fund_cik
+
+    scoped_catalog_filings = [filing for filing in catalog_filings if matches_fund(filing)]
+    scoped_cache_filings = [filing for filing in (cache_filings or []) if matches_fund(filing)]
+    catalog_accessions = {
+        filing.get('accession_number', '')
+        for filing in scoped_catalog_filings
+        if filing.get('accession_number')
+    }
+    cache_accessions = {
+        filing.get('accession_number', '')
+        for filing in scoped_cache_filings
+        if filing.get('accession_number')
+    }
+    discovery_accessions = catalog_accessions.union(cache_accessions)
+    canonical_accessions = {
+        accession
+        for accession, row_count in canonical_row_counts.items()
+        if accession in discovery_accessions and row_count > 0
+    }
+    tracked_accessions = processed_filings.intersection(discovery_accessions)
+
+    return {
+        'fund_cik': normalized_fund_cik,
+        'catalog_accessions': sorted(catalog_accessions),
+        'cache_accessions': sorted(cache_accessions),
+        'discovery_accessions': sorted(discovery_accessions),
+        'tracked_accessions': sorted(tracked_accessions),
+        'canonical_accessions': sorted(canonical_accessions),
+        'catalog_but_missing_canonical': sorted(catalog_accessions - canonical_accessions),
+        'cache_but_missing_canonical': sorted(cache_accessions - canonical_accessions),
+        'tracked_but_missing_canonical': sorted(tracked_accessions - canonical_accessions),
+        'canonical_row_counts': {
+            accession: canonical_row_counts.get(accession, 0)
+            for accession in sorted(discovery_accessions)
+        },
+    }
+
 def load_existing_catalog() -> List[Dict]:
     """
     Carica il catalogo esistente se presente.
@@ -658,9 +741,20 @@ def extract_holdings_from_catalog(
     else:
         reset_holdings_outputs()
         processed_filings = set()
+
+    storage: Optional[DashboardStorage] = DashboardStorage(Path(DASHBOARD_DB_FILE)) if save_db else None
+    if storage is not None:
+        if not incremental:
+            deleted_rows = storage.clear_holdings()
+            print(f"🧹 Dashboard holdings azzerate: {deleted_rows:,} righe rimosse")
+        print(f"🗄️  Salvataggio dashboard DB attivo: {DASHBOARD_DB_FILE}")
     
-    # Filtra solo filing non ancora processati
-    filings_to_process = [f for f in all_filings if f['accession_number'] not in processed_filings]
+    # Filtra i filing mancanti. Con --save-db il DuckDB dashboard è la fonte canonica.
+    filings_to_process, tracked_but_missing_canonical = select_filings_missing_canonical_holdings(
+        all_filings,
+        processed_filings,
+        storage,
+    )
     already_processed = len(all_filings) - len(filings_to_process)
     
     print(f"\n📊 Filing nel catalogo: {len(all_filings)}")
@@ -672,12 +766,14 @@ def extract_holdings_from_catalog(
     if not incremental:
         print("🔄 Full refresh holdings: tracking e CSV storico ricreati da zero")
 
-    storage: Optional[DashboardStorage] = DashboardStorage(Path(DASHBOARD_DB_FILE)) if save_db else None
-    if storage is not None:
-        if not incremental:
-            deleted_rows = storage.clear_holdings()
-            print(f"🧹 Dashboard holdings azzerate: {deleted_rows:,} righe rimosse")
-        print(f"🗄️  Salvataggio dashboard DB attivo: {DASHBOARD_DB_FILE}")
+    if tracked_but_missing_canonical:
+        print(
+            "⚠️  Tracking incoerente: "
+            f"{len(tracked_but_missing_canonical)} accession risultano processati ma mancano nel DuckDB canonico."
+        )
+        preview = ", ".join(tracked_but_missing_canonical[:10])
+        suffix = "..." if len(tracked_but_missing_canonical) > 10 else ""
+        print(f"   Verranno reprocessati: {preview}{suffix}")
     
     if len(filings_to_process) == 0:
         print("✅ Tutti i filing sono già stati processati!")
@@ -1054,6 +1150,111 @@ def bootstrap_dashboard_db_from_csv(csv_path: str = HISTORICAL_HOLDINGS_CSV) -> 
     return 0
 
 
+def diagnose_holdings_consistency(
+    catalog_file: str = CATALOG_FILE,
+    fund_cik: Optional[str] = None,
+    show_accessions: bool = False,
+) -> int:
+    """Compare filing discovery metadata, tracking and canonical DuckDB holdings."""
+    catalog_path = Path(catalog_file)
+    db_path = Path(DASHBOARD_DB_FILE)
+
+    if not catalog_path.exists():
+        print(f"❌ Catalogo non trovato: {catalog_path}")
+        return 1
+    if not db_path.exists():
+        print(f"❌ Database dashboard non trovato: {db_path}")
+        return 1
+
+    with catalog_path.open('r', encoding='utf-8') as f:
+        catalog_data = json.load(f)
+    catalog_filings = catalog_data.get('filings', [])
+    processed_filings = load_processed_filings()
+
+    cache_filings: List[Dict] = []
+    normalized_fund_cik = fund_cik.zfill(10) if fund_cik and fund_cik.isdigit() else fund_cik
+    if normalized_fund_cik:
+        cache_files = [
+            Path(FILING_CACHE_DIR) / f"{normalized_fund_cik}.json",
+            Path("cache") / f"{normalized_fund_cik}.json",
+        ]
+        seen_cache_files = set()
+        for cache_file in cache_files:
+            if cache_file in seen_cache_files or not cache_file.exists():
+                continue
+            seen_cache_files.add(cache_file)
+            try:
+                with cache_file.open('r', encoding='utf-8') as f:
+                    cache_data = json.load(f)
+                if isinstance(cache_data, dict):
+                    cache_filings.extend(cache_data.get('filings', []))
+            except (OSError, json.JSONDecodeError) as exc:
+                print(f"⚠️  Cache non leggibile {cache_file}: {exc}")
+
+    scoped_accessions = {
+        filing.get('accession_number', '')
+        for filing in catalog_filings + cache_filings
+        if filing.get('accession_number')
+        and (not normalized_fund_cik or str(filing.get('cik', '')).zfill(10) == normalized_fund_cik)
+    }
+    storage = DashboardStorage(db_path)
+    canonical_counts = storage.get_accession_row_counts(list(scoped_accessions))
+    report = build_holdings_consistency_report(
+        catalog_filings,
+        processed_filings,
+        canonical_counts,
+        cache_filings=cache_filings,
+        fund_cik=normalized_fund_cik,
+    )
+
+    print("="*80)
+    print("MODALITÀ DIAGNOSE-CONSISTENCY")
+    print("="*80)
+    print(f"📄 Catalogo: {catalog_path}")
+    print(f"🗄️  DuckDB canonico: {db_path}")
+    if normalized_fund_cik:
+        print(f"🏦 Fund CIK: {normalized_fund_cik}")
+
+    print("\n📊 Copertura accession")
+    print(f"   Catalogo:                 {len(report['catalog_accessions']):,}")
+    print(f"   Cache locale:             {len(report['cache_accessions']):,}")
+    print(f"   Discovery totale:         {len(report['discovery_accessions']):,}")
+    print(f"   Tracking processati:      {len(report['tracked_accessions']):,}")
+    print(f"   DuckDB con holdings:      {len(report['canonical_accessions']):,}")
+    print(f"   Catalogo senza DuckDB:    {len(report['catalog_but_missing_canonical']):,}")
+    print(f"   Cache senza DuckDB:       {len(report['cache_but_missing_canonical']):,}")
+    print(f"   Tracking senza DuckDB:    {len(report['tracked_but_missing_canonical']):,}")
+
+    if show_accessions:
+        for key in (
+            'catalog_but_missing_canonical',
+            'cache_but_missing_canonical',
+            'tracked_but_missing_canonical',
+        ):
+            values = report[key]
+            print(f"\n{key} ({len(values)}):")
+            if values:
+                for accession in values:
+                    print(f"  - {accession}")
+            else:
+                print("  - none")
+
+    has_mismatch = any(
+        report[key]
+        for key in (
+            'catalog_but_missing_canonical',
+            'cache_but_missing_canonical',
+            'tracked_but_missing_canonical',
+        )
+    )
+    if has_mismatch:
+        print("\n⚠️  Inconsistenze rilevate. Esegui holdings/full con --save-db per riparare il DuckDB canonico.")
+        return 1
+
+    print("\n✅ Nessuna inconsistenza rilevata per lo scope richiesto.\n")
+    return 0
+
+
 def get_missing_value_filings(limit: Optional[int] = None) -> List[Dict[str, str]]:
     """Return one row per accession whose saved holdings still have no market values."""
     db_path = Path(DASHBOARD_DB_FILE)
@@ -1177,6 +1378,7 @@ MODALITÀ DISPONIBILI:
         export    - Esporta CSV dal database DuckDB usato dal dashboard
         bootstrap-dashboard-db - Ricostruisce il DB dashboard dal CSV storico locale
     backfill-values - Ricarica nel DB i filing già salvati senza colonna value
+    diagnose-consistency - Confronta catalogo/cache/tracking con DuckDB canonico
 
 ESEMPI:
   python process_historical_13f.py catalog
@@ -1185,6 +1387,7 @@ ESEMPI:
     python process_historical_13f.py export --export-scope both
         python process_historical_13f.py bootstrap-dashboard-db
     python process_historical_13f.py backfill-values --yes --workers 2
+        python process_historical_13f.py diagnose-consistency --fund-cik 0002045724 --show-accessions
 
 OUTPUT:
   - historical_13f_catalog_5years.json  (modalità catalog/full)
@@ -1202,7 +1405,7 @@ NOTES:
     
     parser.add_argument(
         'mode',
-        choices=['catalog', 'holdings', 'full', 'benchmark', 'export', 'bootstrap-dashboard-db', 'backfill-values'],
+        choices=['catalog', 'holdings', 'full', 'benchmark', 'export', 'bootstrap-dashboard-db', 'backfill-values', 'diagnose-consistency'],
         help='Modalità di esecuzione'
     )
     
@@ -1263,6 +1466,18 @@ NOTES:
         type=int,
         default=None,
         help='Limita il numero di filing da processare nella modalità backfill-values'
+    )
+
+    parser.add_argument(
+        '--fund-cik',
+        default=None,
+        help='Limita diagnose-consistency a un CIK specifico'
+    )
+
+    parser.add_argument(
+        '--show-accessions',
+        action='store_true',
+        help='Mostra le liste accession nelle diagnostiche'
     )
     
     parser.add_argument(
@@ -1377,6 +1592,14 @@ NOTES:
                 workers=args.workers,
                 auto_confirm=args.yes,
                 limit=args.limit,
+            )
+        )
+    elif args.mode == 'diagnose-consistency':
+        raise SystemExit(
+            diagnose_holdings_consistency(
+                catalog_file=args.catalog_file,
+                fund_cik=args.fund_cik,
+                show_accessions=args.show_accessions,
             )
         )
     elif args.mode == 'benchmark':

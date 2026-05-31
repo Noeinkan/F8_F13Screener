@@ -264,7 +264,7 @@ def load_fund_history(fund: str) -> tuple[pd.DataFrame, list[dict]]:
 
     summary_df = pd.DataFrame(summary_rows).sort_values("Filing Date").reset_index(drop=True)
     summary_df["Filing Date Dt"] = pd.to_datetime(summary_df["Filing Date"])
-    transitions = compute_quarterly_history_transitions(snapshots)
+    transitions = compute_quarterly_history_transitions(snapshots, min_change_pct=0)
     return summary_df, transitions
 
 
