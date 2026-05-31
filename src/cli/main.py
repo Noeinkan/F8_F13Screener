@@ -172,12 +172,8 @@ class FilingProcessor:
         if not accession_number or accession_number == 'N/A':
             return False
 
-        sqlite_has_holdings = self.storage.has_holdings_for_accession(accession_number)
-        if not sqlite_has_holdings:
-            return True
-
         try:
-            return not self.dashboard_storage.has_holdings_for_accession(accession_number)
+            duckdb_has_holdings = self.dashboard_storage.has_holdings_for_accession(accession_number)
         except Exception as e:
             self.logger.warning(
                 "DuckDB dashboard temporaneamente non accessibile per %s: %s. "
@@ -186,6 +182,24 @@ class FilingProcessor:
                 e,
             )
             return False
+
+        # Canonical rule: if DuckDB already has holdings, no backfill is required.
+        if duckdb_has_holdings:
+            return False
+
+        # SQLite can still be present as compatibility storage, but does not change canonical backfill need.
+        try:
+            sqlite_has_holdings = self.storage.has_holdings_for_accession(accession_number)
+        except Exception:
+            sqlite_has_holdings = False
+
+        if sqlite_has_holdings:
+            self.logger.info(
+                "Accession %s presente in SQLite ma assente in DuckDB canonico: backfill richiesto.",
+                accession_number,
+            )
+
+        return True
 
     def process_filings_cycle(self):
         """Primary filings cycle: submissions endpoint first, Atom feed fallback second."""
@@ -555,16 +569,25 @@ class FilingProcessor:
                 self.logger.warning(f"Impossibile recuperare holdings precedenti per diff: {e}")
                 old_holdings_map = {}
 
-            # Save to database
-            saved_count = self.storage.save_holdings(
-                holdings,
-                fund_name,
-                cik,
-                filing_date,
-                accession_number,
-                filing_url,
-                acceptance_datetime=acceptance_datetime or filing_date,
-            )
+            # Save to SQLite as compatibility storage; DuckDB success remains canonical.
+            saved_count = 0
+            try:
+                saved_count = self.storage.save_holdings(
+                    holdings,
+                    fund_name,
+                    cik,
+                    filing_date,
+                    accession_number,
+                    filing_url,
+                    acceptance_datetime=acceptance_datetime or filing_date,
+                )
+            except Exception as e:
+                self.logger.warning(
+                    "Salvataggio SQLite holdings non riuscito per %s: %s. "
+                    "Continuo con DuckDB canonico.",
+                    accession_number,
+                    e,
+                )
 
             dashboard_saved_count = 0
             try:
@@ -578,15 +601,28 @@ class FilingProcessor:
                     acceptance_datetime=acceptance_datetime or filing_date,
                 )
             except Exception as e:
-                self.logger.warning(
+                self.logger.error(
                     "Salvataggio DuckDB dashboard fallito per %s: %s. "
-                    "Le holdings restano salvate in SQLite e verranno riallineate piu tardi.",
+                    "DuckDB holdings e la fonte canonica; il filing resta seen ma le holdings non sono complete.",
                     accession_number,
                     e,
                 )
+                return False, None
+
+            if dashboard_saved_count == 0:
+                self.logger.error(
+                    "Salvataggio DuckDB dashboard vuoto per %s. "
+                    "DuckDB holdings e la fonte canonica; il filing resta seen ma le holdings non sono complete.",
+                    accession_number,
+                )
+                return False, None
 
             if saved_count == 0:
-                return False, None
+                self.logger.warning(
+                    "Salvataggio SQLite holdings assente/vuoto per %s. "
+                    "DuckDB canonico salvato correttamente; proseguo.",
+                    accession_number,
+                )
 
             # Compute diff against previous quarter if available
             if old_holdings_map:
@@ -679,14 +715,6 @@ def main():
 
     # Create processor
     processor = FilingProcessor(config)
-
-    # Optional: Export existing holdings to CSV for backward compatibility
-    csv_path = Path(config.base_dir) / '13f_holdings_tracker.csv'
-    try:
-        processor.storage.export_holdings_to_csv(csv_path)
-        logger.info(f"Holdings esportati in CSV: {csv_path}")
-    except Exception as e:
-        logger.warning(f"Impossibile esportare CSV: {e}")
 
     # Shared state for command handler
     pause_event = threading.Event()       # set = polling paused

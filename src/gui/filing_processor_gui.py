@@ -15,7 +15,7 @@ from datetime import datetime
 from src.core.hedge_funds_config import get_total_funds
 from src.core.paths import (
     CATALOG_FILE,
-    HISTORICAL_HOLDINGS_CSV,
+    DASHBOARD_DB_FILE,
     PROCESSED_TRACKING_FILE,
     PROCESSING_METRICS_FILE,
 )
@@ -30,6 +30,7 @@ class FilingProcessorGUI:
         # Variabili
         self.mode_var = tk.StringVar(value="catalog")
         self.full_refresh_var = tk.BooleanVar(value=False)
+        self.save_csv_var = tk.BooleanVar(value=False)
         self.is_running = False
         self.process = None
         
@@ -140,6 +141,15 @@ class FilingProcessorGUI:
                                 text="   ↳ Scarica tutto da zero (ignora tracking)",
                                 font=('Segoe UI', 8), foreground='#666')
         refresh_info.pack(anchor=tk.W, padx=(20, 0))
+
+        csv_cb = ttk.Checkbutton(options_frame, text="📄 Salva CSV storico (opzionale)",
+                     variable=self.save_csv_var)
+        csv_cb.pack(anchor=tk.W, pady=(8, 0))
+
+        csv_info = ttk.Label(options_frame,
+                     text="   ↳ DuckDB è canonico; abilita solo se ti serve un CSV locale immediato.",
+                     font=('Segoe UI', 8), foreground='#666')
+        csv_info.pack(anchor=tk.W, padx=(20, 0))
         
         # ===== PARAMETRI OTTIMIZZAZIONE =====
         optimization_frame = tk.LabelFrame(controls_frame, text=" 🚀 Parametri Ottimizzazione ", 
@@ -320,6 +330,7 @@ class FilingProcessorGUI:
         self.start_date_var.set("2020-01-01")
         self.end_date_var.set(datetime.now().strftime('%Y-%m-%d'))
         self.quiet_var.set(False)
+        self.save_csv_var.set(False)
         self.update_stats()
     
     def update_stats(self):
@@ -342,12 +353,12 @@ class FilingProcessorGUI:
         else:
             stats.append("📄 Catalogo: Non ancora creato")
         
-        # Holdings CSV
-        if os.path.exists(HISTORICAL_HOLDINGS_CSV):
-            size_mb = os.path.getsize(HISTORICAL_HOLDINGS_CSV) / (1024*1024)
-            stats.append(f"📊 Holdings CSV: {size_mb:.1f} MB")
+        # DuckDB canonico
+        if os.path.exists(DASHBOARD_DB_FILE):
+            size_mb = os.path.getsize(DASHBOARD_DB_FILE) / (1024*1024)
+            stats.append(f"🗄️ DuckDB canonico: {size_mb:.1f} MB")
         else:
-            stats.append("📊 Holdings CSV: Non ancora creato")
+            stats.append("🗄️ DuckDB canonico: Non ancora creato")
         
         # Tracking
         if os.path.exists(PROCESSED_TRACKING_FILE):
@@ -364,6 +375,7 @@ class FilingProcessorGUI:
         stats.append(f"  🚀 Rate: {self.rate_var.get()}/sec (cap: {self.capacity_var.get()})")
         stats.append(f"  👥 Workers: {self.workers_var.get()} ({'Processi' if self.use_processes_var.get() else 'Thread'})")
         stats.append(f"  💾 Save Interval: {self.save_interval_var.get()}")
+        stats.append(f"  📄 CSV storico: {'Sì' if self.save_csv_var.get() else 'No'}")
         stats.append(f"  📅 Range: {self.start_date_var.get()} → {self.end_date_var.get()}")
         stats.append(f"  🔇 Quiet: {'Sì' if self.quiet_var.get() else 'No'}")
         
@@ -505,6 +517,7 @@ class FilingProcessorGUI:
         self.log(f"🚀 Rate Limit: {self.rate_var.get()}/sec (capacity: {self.capacity_var.get()})", "info")
         self.log(f"👥 Workers: {self.workers_var.get()} ({'Processi' if self.use_processes_var.get() else 'Thread'})", "info")
         self.log(f"💾 Save Interval: {self.save_interval_var.get()} fondi", "info")
+        self.log(f"📄 CSV storico: {'Sì (--save-csv)' if self.save_csv_var.get() else 'No (DuckDB only)'}", "info")
         self.log(f"📅 Date Range: {self.start_date_var.get()} → {self.end_date_var.get()}", "info")
         self.log(f"🔇 Quiet Mode: {'Sì' if self.quiet_var.get() else 'No'}", "info")
         self.log("")
@@ -526,6 +539,8 @@ class FilingProcessorGUI:
             # Aggiungi --yes per modalità che richiedono conferma
             if mode in ['full', 'holdings']:
                 cmd.append("--yes")
+                if self.save_csv_var.get():
+                    cmd.append("--save-csv")
             
             # Parametri ottimizzazione
             cmd.extend(["--rate", str(self.rate_var.get())])

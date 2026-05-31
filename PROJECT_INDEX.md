@@ -49,6 +49,14 @@ SEC 13F screener for tracked hedge funds. It polls SEC EDGAR, parses Information
 - `cache/dashboard/`: per-process dashboard snapshots and fallback cache.
 - `src/core/data/`: dashboard and holdings databases used by the app.
 
+## Data Lineage / Source Of Truth
+
+- DuckDB `holdings` in `src/core/data/13f_dashboard.duckdb` is canonical for parsed 13F holdings.
+- SEC submissions, local SEC cache files, and the historical catalog are discovery metadata.
+- CSV exports and dashboard snapshots are derived artifacts and can be rebuilt from canonical holdings.
+- `processed_filings_tracking.json` is audit/optimization state only; it must not be treated as proof that holdings were saved.
+- SQLite remains valid for realtime alert state such as `seen_filings`; its holdings table is compatibility storage, not the dashboard source of truth.
+
 ## Rules That Matter
 
 - Match tracked funds by CIK only, never by fund name.
@@ -64,8 +72,8 @@ SEC 13F screener for tracked hedge funds. It polls SEC EDGAR, parses Information
 ```powershell
 python -m src.main dashboard
 python -m src.main alerts
-python -m src.cli.process_historical_13f full --yes --save-db
-python -m src.cli.process_historical_13f bootstrap-dashboard-db
+python -m src.cli.process_historical_13f full --yes
+python -m src.cli.process_historical_13f export --export-scope both
 rtk pytest tests/ -v
 ```
 
@@ -89,7 +97,8 @@ rtk pytest tests/ -v
 ## Troubleshooting Shortcuts
 
 - If `run .\dashboard.bat` fails, do not use `run`; use `dashboard.bat` or `python -m src.main dashboard`.
-- If the dashboard DB is stale or malformed, rebuild with `python -m src.cli.process_historical_13f full --yes --save-db` or `python -m src.main dashboard -RebuildDb`.
+- If the dashboard DB is stale or malformed, rebuild with `python -m src.cli.process_historical_13f full --yes` or `python -m src.main dashboard -RebuildDb`.
+- If `diagnose-consistency` reports a small nonzero mismatch count, run `python -m src.cli.process_historical_13f holdings --yes` and re-run diagnostics; if mismatch volume is large, treat it as a data-repair backlog instead of unbounded same-session cleanup.
 - If SEC parsing changes, start with [src/core/parser.py](src/core/parser.py) and [tests/test_parse_information_table.py](tests/test_parse_information_table.py).
 
 ## Adding A New Fund

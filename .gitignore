@@ -31,6 +31,12 @@ data/realtime/*.csv
 data/exports/*.csv
 data/historical/holdings/*.csv
 data/historical/catalog/*.json
+src/core/data/historical/holdings/*.csv
+src/core/data/exports/*.csv
+
+# Generated tracker CSVs (legacy + realtime snapshots)
+src/core/*holdings_tracker.csv
+src/core/data/realtime/*holdings_tracker.csv
 
 # Logs
 logs/*.log

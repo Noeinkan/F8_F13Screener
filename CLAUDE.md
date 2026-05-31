@@ -6,7 +6,7 @@ See [PROJECT_INDEX.md](PROJECT_INDEX.md) first for the shortest route to the cur
 
 ## Project
 
-SEC 13F screener: poll SEC EDGAR RSS, filter tracked hedge funds by CIK, parse Information Table XML/HTML, store holdings in SQLite, send Telegram alerts, and compare quarter-over-quarter portfolios.
+SEC 13F screener: poll SEC EDGAR RSS, filter tracked hedge funds by CIK, parse Information Table XML/HTML, store parsed holdings in canonical DuckDB (with SQLite runtime compatibility state), send Telegram alerts, and compare quarter-over-quarter portfolios.
 
 ## Commands
 
@@ -24,10 +24,10 @@ rtk python -m src.main dashboard -RebuildDb
 rtk python -m src.main dashboard -RebuildDb -FullRefresh -Workers 2
 
 # Historical refresh + dashboard DB
-rtk python -m src.cli.process_historical_13f full --yes --save-db
+rtk python -m src.cli.process_historical_13f full --yes
 
-# Fast local rebuild of dashboard DB from historical CSV (no SEC re-fetch)
-rtk python -m src.cli.process_historical_13f bootstrap-dashboard-db
+# Optional CSV export from canonical DuckDB
+rtk python -m src.cli.process_historical_13f export --export-scope both
 
 # Tests
 rtk pytest tests/ -v
@@ -53,7 +53,7 @@ python src/gui/filing_processor_gui.py
 - `python -m src.main dashboard` is the canonical local launch command.
 - `dashboard.bat` is a thin wrapper around `python -m src.main dashboard`.
 - It kills any old dashboard instance, clears the port, starts Streamlit, waits for `/_stcore/health`, then opens the browser.
-- If the SQLite DB is malformed, rebuild with `rtk python -m src.cli.process_historical_13f full --yes --save-db` or `rtk python -m src.main dashboard -RebuildDb`.
+- If the SQLite DB is malformed, rebuild with `rtk python -m src.cli.process_historical_13f full --yes` or `rtk python -m src.main dashboard -RebuildDb`.
 - Dashboard analytics now read from `src/core/data/13f_dashboard.duckdb` (DuckDB). CSV exports remain optional artifacts.
 - For local pre-deploy smoke check: verify SQLite integrity, then run `rtk python -m src.main dashboard`.
 
@@ -86,9 +86,12 @@ python src/gui/filing_processor_gui.py
 
 ## Data Notes
 
-- Main SQLite tables: `seen_filings`, `holdings`, `statistics`.
-- `holdings` stores `accession_number` so quarter snapshots and diffs can be rebuilt later.
-- Holdings are not deduped across polling cycles on insert.
+- DuckDB `src/core/data/13f_dashboard.duckdb`, table `holdings`, is the canonical store for parsed holdings.
+- SEC submissions/cache and historical catalog files are discovery metadata, not holdings truth.
+- CSV exports and dashboard snapshots are derived/rebuildable artifacts.
+- `processed_filings_tracking.json` is audit/optimization state only; DuckDB row coverage decides whether holdings exist.
+- SQLite tables such as `seen_filings` and `statistics` remain realtime alert state; SQLite `holdings` is compatibility storage, not dashboard truth.
+- If `diagnose-consistency` reports a small mismatch set, run `rtk python -m src.cli.process_historical_13f holdings --yes` and re-check; if mismatches are broad, open a separate repair backlog.
 
 ## Adding a Fund
 

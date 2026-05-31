@@ -40,8 +40,8 @@ python -m src.main dashboard
 # Realtime alert poller
 python -m src.main alerts
 
-# Historical processing
-python -m src.cli.process_historical_13f full --yes --save-db
+# Historical processing (DuckDB canonico)
+python -m src.cli.process_historical_13f full --yes
 ```
 
 Dashboard options:
@@ -74,13 +74,13 @@ When you run `python -m src.main dashboard` on Windows, it delegates to the rest
 Refresh dashboard data from SEC:
 
 ```powershell
-python -m src.cli.process_historical_13f full --yes --save-db
+python -m src.cli.process_historical_13f full --yes
 ```
 
-Fast dashboard DB rebuild from cached historical data:
+Optional historical CSV export from DuckDB:
 
 ```powershell
-python -m src.cli.process_historical_13f bootstrap-dashboard-db
+python -m src.cli.process_historical_13f export --export-scope both
 ```
 
 Run tests:
@@ -131,7 +131,7 @@ If dashboard fails to load in time:
 If dashboard data looks stale or malformed:
 
 - rebuild with `python -m src.main dashboard -RebuildDb`, or
-- run full historical refresh with `python -m src.cli.process_historical_13f full --yes --save-db`.
+- run full historical refresh with `python -m src.cli.process_historical_13f full --yes`.
 
 ## Project Layout (High Value)
 

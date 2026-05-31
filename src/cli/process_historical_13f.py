@@ -36,7 +36,6 @@ import shutil
 import multiprocessing
 from pathlib import Path
 
-import pandas as pd
 
 # Add project root to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
@@ -244,8 +243,8 @@ def save_holdings_to_csv(holdings: List[Dict], fund_name: str, filing_date: str,
         return False
 
 def reset_holdings_outputs() -> None:
-    """Remove historical holdings artifacts so a full refresh can rebuild them."""
-    for file_path in (HISTORICAL_HOLDINGS_CSV, PROCESSED_TRACKING_FILE):
+    """Remove tracking state; CSV removal is optional and explicit."""
+    for file_path in (PROCESSED_TRACKING_FILE,):
         if os.path.exists(file_path):
             os.remove(file_path)
 
@@ -255,8 +254,8 @@ def process_filing_holdings(
     fund_name: str,
     filing_date: str,
     storage: Optional[DashboardStorage] = None,
-    persist_csv: bool = True,
-    persist_db: bool = False,
+    persist_csv: bool = False,
+    persist_db: bool = True,
 ) -> bool:
     """Process a filing: download, parse and save holdings"""
     try:
@@ -310,18 +309,7 @@ def load_processed_filings() -> set:
     """
     Carica il tracking dei filing già processati.
     Ritorna un set di accession numbers.
-    
-    Se il CSV non esiste ma il tracking sì, resetta il tracking
-    per forzare la ricreazione del CSV da zero.
     """
-    # Se il CSV non esiste, ignora il tracking esistente
-    if not os.path.exists(HISTORICAL_HOLDINGS_CSV):
-        if os.path.exists(PROCESSED_TRACKING_FILE):
-            print(f"⚠️  CSV non trovato ma tracking esiste - verrà resettato")
-            print(f"   CSV atteso: {HISTORICAL_HOLDINGS_CSV}")
-            print(f"   Il CSV verrà ricreato da zero\n")
-        return set()
-    
     if not os.path.exists(PROCESSED_TRACKING_FILE):
         return set()
     
@@ -414,6 +402,34 @@ def build_holdings_consistency_report(
         if accession in discovery_accessions and row_count > 0
     }
     tracked_accessions = processed_filings.intersection(discovery_accessions)
+    discovery_by_accession = {
+        filing.get('accession_number'): filing
+        for filing in scoped_cache_filings
+        if filing.get('accession_number')
+    }
+    discovery_by_accession.update({
+        filing.get('accession_number'): filing
+        for filing in scoped_catalog_filings
+        if filing.get('accession_number')
+    })
+    missing_by_fund: Dict[tuple, Dict[str, Any]] = {}
+    for accession in discovery_accessions - canonical_accessions:
+        filing = discovery_by_accession.get(accession, {})
+        filing_cik = str(filing.get('cik', '')).zfill(10) if filing.get('cik') else ''
+        filing_fund_name = (
+            filing.get('fund_name')
+            or filing.get('manager_name')
+            or filing.get('filer_name')
+            or 'Unknown fund'
+        )
+        key = (filing_cik, filing_fund_name)
+        if key not in missing_by_fund:
+            missing_by_fund[key] = {
+                'cik': filing_cik,
+                'fund_name': filing_fund_name,
+                'missing_count': 0,
+            }
+        missing_by_fund[key]['missing_count'] += 1
 
     return {
         'fund_cik': normalized_fund_cik,
@@ -425,6 +441,10 @@ def build_holdings_consistency_report(
         'catalog_but_missing_canonical': sorted(catalog_accessions - canonical_accessions),
         'cache_but_missing_canonical': sorted(cache_accessions - canonical_accessions),
         'tracked_but_missing_canonical': sorted(tracked_accessions - canonical_accessions),
+        'missing_canonical_by_fund': sorted(
+            missing_by_fund.values(),
+            key=lambda row: (-row['missing_count'], row['fund_name'], row['cik']),
+        ),
         'canonical_row_counts': {
             accession: canonical_row_counts.get(accession, 0)
             for accession in sorted(discovery_accessions)
@@ -715,7 +735,8 @@ def extract_holdings_from_catalog(
     use_processes: bool = False,
     save_interval: int = 5,
     incremental: bool = True,
-    save_db: bool = False,
+    save_db: bool = True,
+    save_csv: bool = False,
 ) -> None:
     """
     MODALITÀ 2: Estrae holdings dettagliate da un catalogo esistente
@@ -740,6 +761,8 @@ def extract_holdings_from_catalog(
         processed_filings = load_processed_filings()
     else:
         reset_holdings_outputs()
+        if save_csv and os.path.exists(HISTORICAL_HOLDINGS_CSV):
+            os.remove(HISTORICAL_HOLDINGS_CSV)
         processed_filings = set()
 
     storage: Optional[DashboardStorage] = DashboardStorage(Path(DASHBOARD_DB_FILE)) if save_db else None
@@ -749,7 +772,7 @@ def extract_holdings_from_catalog(
             print(f"🧹 Dashboard holdings azzerate: {deleted_rows:,} righe rimosse")
         print(f"🗄️  Salvataggio dashboard DB attivo: {DASHBOARD_DB_FILE}")
     
-    # Filtra i filing mancanti. Con --save-db il DuckDB dashboard è la fonte canonica.
+    # Filtra i filing mancanti rispetto al DuckDB canonico.
     filings_to_process, tracked_but_missing_canonical = select_filings_missing_canonical_holdings(
         all_filings,
         processed_filings,
@@ -764,7 +787,10 @@ def extract_holdings_from_catalog(
     print(f"📅 Periodo: dal {catalog_data.get('cutoff_date', 'N/A')}\n")
 
     if not incremental:
-        print("🔄 Full refresh holdings: tracking e CSV storico ricreati da zero")
+        if save_csv:
+            print("🔄 Full refresh holdings: tracking e CSV storico ricreati da zero")
+        else:
+            print("🔄 Full refresh holdings: tracking ricreato da zero (CSV storico disabilitato)")
 
     if tracked_but_missing_canonical:
         print(
@@ -849,7 +875,7 @@ def extract_holdings_from_catalog(
                 fund_name,
                 filing_date,
                 storage=storage,
-                persist_csv=True,
+                persist_csv=save_csv,
                 persist_db=save_db,
             )
             t1 = time.time()
@@ -928,7 +954,7 @@ def extract_holdings_from_catalog(
     print(f"💾 Tracking salvato in: {PROCESSED_TRACKING_FILE}")
     print("="*80)
     
-    if successi > 0:
+    if successi > 0 and save_csv:
         if os.path.exists(HISTORICAL_HOLDINGS_CSV):
             print(f"\n✅ CSV tracker aggiornato: {HISTORICAL_HOLDINGS_CSV}")
             print(f"   📊 Puoi aprirlo con Excel o Python/Pandas per analizzarlo")
@@ -948,7 +974,8 @@ def process_full_pipeline(
     quiet: bool = False,
     auto_confirm: bool = False,
     incremental: bool = True,
-    save_db: bool = False,
+    save_db: bool = True,
+    save_csv: bool = False,
 ):
     """
     MODALITÀ 3: Esegue tutto il pipeline (catalog + holdings)
@@ -1009,6 +1036,7 @@ def process_full_pipeline(
         save_interval=save_interval,
         incremental=incremental,
         save_db=save_db,
+        save_csv=save_csv,
     )
     
     print("\n" + "="*80)
@@ -1021,7 +1049,7 @@ def export_dashboard_csvs(output_dir: str, scope: str = 'both') -> int:
     db_path = Path(DASHBOARD_DB_FILE)
     if not db_path.exists():
         print(f"❌ Database non trovato: {db_path}")
-        print("   Esegui prima la modalità 'holdings' o 'full' con --save-db.\n")
+        print("   Esegui prima la modalità 'holdings' o 'full'.\n")
         return 1
 
     storage = DashboardStorage(db_path)
@@ -1063,91 +1091,11 @@ def export_dashboard_csvs(output_dir: str, scope: str = 'both') -> int:
 
 
 def bootstrap_dashboard_db_from_csv(csv_path: str = HISTORICAL_HOLDINGS_CSV) -> int:
-    """Rebuild dashboard DuckDB from the local historical holdings CSV."""
-    input_path = Path(csv_path)
-    db_path = Path(DASHBOARD_DB_FILE)
-
-    if not input_path.exists():
-        print(f"❌ CSV storico non trovato: {input_path}")
-        print("   Esegui prima la modalità 'holdings' o 'full' per generarlo.\n")
-        return 1
-
-    print("="*80)
-    print("MODALITÀ BOOTSTRAP-DASHBOARD-DB")
-    print("="*80)
-    print(f"📄 Input CSV: {input_path}")
-    print(f"🗄️  Output DB dashboard: {db_path}")
-
-    df = pd.read_csv(input_path)
-    if df.empty:
-        print("⚠️  CSV vuoto: nessun dato da importare.\n")
-        return 1
-
-    rename_map = {
-        'Filing Date': 'filing_date',
-        'Fund Name': 'fund_name',
-        'Fund CIK': 'fund_cik',
-        'Accession Number': 'accession_number',
-        'Filing URL': 'filing_url',
-        'Name of Issuer': 'issuer_name',
-        'Title of Class': 'share_class',
-        'CUSIP': 'cusip',
-        'FIGI': 'figi',
-        'Value ($)': 'value_x1000',
-        'Shares/Principal Amount': 'shares_raw',
-        'SH/PRN': 'sh_prn',
-        'Put/Call': 'put_call',
-        'Investment Discretion': 'investment_discretion',
-        'Other Manager': 'other_manager',
-        'Other Managers (raw)': 'other_managers_raw',
-        'All Columns (raw)': 'all_columns_raw',
-        'Voting Authority - Sole': 'voting_authority_sole',
-        'Voting Authority - Shared': 'voting_authority_shared',
-        'Voting Authority - None': 'voting_authority_none',
-    }
-    df = df.rename(columns=rename_map)
-
-    required_cols = [
-        'filing_date', 'fund_name', 'fund_cik', 'accession_number', 'filing_url',
-        'issuer_name', 'share_class', 'cusip', 'figi', 'value_x1000', 'shares_raw',
-        'sh_prn', 'put_call', 'investment_discretion', 'other_manager',
-        'other_managers_raw', 'all_columns_raw', 'voting_authority_sole',
-        'voting_authority_shared', 'voting_authority_none',
-    ]
-
-    missing = [col for col in required_cols if col not in df.columns]
-    if missing:
-        print(f"❌ CSV incompatibile: colonne mancanti {missing}")
-        return 1
-
-    df['value_usd'] = pd.to_numeric(df['value_x1000'], errors='coerce')
-    df['shares'] = pd.to_numeric(df['shares_raw'], errors='coerce')
-    for col in ('voting_authority_sole', 'voting_authority_shared', 'voting_authority_none'):
-        df[col] = pd.to_numeric(df[col], errors='coerce')
-
-    ordered_cols = [
-        'filing_date', 'fund_name', 'fund_cik', 'accession_number', 'filing_url',
-        'issuer_name', 'share_class', 'cusip', 'figi', 'value_x1000', 'value_usd',
-        'shares_raw', 'shares', 'sh_prn', 'put_call', 'investment_discretion',
-        'other_manager', 'other_managers_raw', 'all_columns_raw',
-        'voting_authority_sole', 'voting_authority_shared', 'voting_authority_none',
-    ]
-    df = cast(pd.DataFrame, df[ordered_cols].copy())
-
-    storage = DashboardStorage(db_path)
-    inserted = storage.replace_holdings_from_dataframe(df)
-    health = storage.get_health_snapshot()
-
-    print(f"✅ Righe importate: {inserted:,}")
-    print(f"🏦 Fondi distinti: {health['distinct_funds']:,}")
-    print(f"📄 Accession distinti: {health['distinct_accessions']:,}")
-
-    if health['only_all_fund']:
-        print("❌ Bootstrap non valido: il DB contiene solo fund_name=ALL")
-        return 1
-
-    print("🎉 Bootstrap dashboard DB completato.\n")
-    return 0
+    """Deprecated: historical CSV bootstrap is no longer part of the canonical flow."""
+    _ = csv_path
+    print("⚠️  bootstrap-dashboard-db è deprecato e non più supportato.")
+    print("   DuckDB è la fonte canonica: usa holdings/full per popolare il DB e export per CSV derivati.\n")
+    return 2
 
 
 def diagnose_holdings_consistency(
@@ -1224,6 +1172,11 @@ def diagnose_holdings_consistency(
     print(f"   Catalogo senza DuckDB:    {len(report['catalog_but_missing_canonical']):,}")
     print(f"   Cache senza DuckDB:       {len(report['cache_but_missing_canonical']):,}")
     print(f"   Tracking senza DuckDB:    {len(report['tracked_but_missing_canonical']):,}")
+
+    if report['missing_canonical_by_fund']:
+        print("\n🏦 Top fund con accession scoperte ma assenti da DuckDB")
+        for item in report['missing_canonical_by_fund'][:25]:
+            print(f"   {item['missing_count']:>4} | {item['cik']} | {item['fund_name']}")
 
     if show_accessions:
         for key in (
@@ -1373,10 +1326,10 @@ FONTE DATI:
 
 MODALITÀ DISPONIBILI:
   catalog   - Scarica catalogo filing da API SEC (veloce, ~5 min per {get_total_funds()} funds)
-  holdings  - Estrae holdings dettagliate da filing nel catalogo (lento, ~1-2 ore)
-  full      - Esegue catalog + holdings automaticamente (processo completo)
+    holdings  - Estrae holdings dettagliate e salva su DuckDB canonico (CSV opzionale)
+    full      - Esegue catalog + holdings su DuckDB canonico (processo completo)
         export    - Esporta CSV dal database DuckDB usato dal dashboard
-        bootstrap-dashboard-db - Ricostruisce il DB dashboard dal CSV storico locale
+                bootstrap-dashboard-db - DEPRECATO
     backfill-values - Ricarica nel DB i filing già salvati senza colonna value
     diagnose-consistency - Confronta catalogo/cache/tracking con DuckDB canonico
 
@@ -1384,15 +1337,15 @@ ESEMPI:
   python process_historical_13f.py catalog
   python process_historical_13f.py holdings
   python process_historical_13f.py full
+    python process_historical_13f.py holdings --save-csv
     python process_historical_13f.py export --export-scope both
-        python process_historical_13f.py bootstrap-dashboard-db
     python process_historical_13f.py backfill-values --yes --workers 2
         python process_historical_13f.py diagnose-consistency --fund-cik 0002045724 --show-accessions
 
 OUTPUT:
   - historical_13f_catalog_5years.json  (modalità catalog/full)
-  - 13f_holdings_5years.csv             (modalità holdings/full)
-    - 13f_dashboard.duckdb                (opzionale, con --save-db per il dashboard)
+    - 13f_dashboard.duckdb                (modalità holdings/full)
+    - 13f_holdings_5years.csv             (opzionale, con --save-csv)
     - f8_13f_all_holdings.csv             (modalità export)
     - f8_13f_latest_snapshot.csv          (modalità export)
 
@@ -1400,6 +1353,7 @@ NOTES:
   Lo script usa SOLO hedge_funds_config.py come fonte.
   Non dipende da Telegram o altri file esterni.
   Scarica automaticamente tutti i filing disponibili negli ultimi 5 anni.
+    Il tracking processati dipende solo da processed_filings_tracking.json, non dal CSV storico.
         """
     )
     
@@ -1445,7 +1399,13 @@ NOTES:
     parser.add_argument(
         '--save-db',
         action='store_true',
-        help='Salva holdings anche nel database DuckDB usato dal dashboard'
+        help=argparse.SUPPRESS
+    )
+
+    parser.add_argument(
+        '--save-csv',
+        action='store_true',
+        help='Salva opzionalmente anche il CSV storico durante holdings/full'
     )
 
     parser.add_argument(
@@ -1542,7 +1502,14 @@ NOTES:
     print(f"🏢 Hedge funds: {get_total_funds()} (da hedge_funds_config.py)")
     print(f"⚙️  Modalità: {args.mode.upper()}")
     print(f"🌐 Fonte: SEC EDGAR API + HTML parsing")
-    print(f"🗄️  Seed dashboard DB: {'SI' if args.save_db else 'NO'}")
+    if args.mode in ('holdings', 'full', 'backfill-values'):
+        print("🗄️  Salvataggio DuckDB canonico: SI (default)")
+    if args.save_csv:
+        print("📄 CSV storico: ATTIVO (--save-csv)")
+    else:
+        print("📄 CSV storico: DISATTIVO (usa export per CSV derivati)")
+    if args.save_db:
+        print("ℹ️  --save-db è obsoleto: DuckDB è già il default canonico.")
     
     if args.full_refresh:
         print(f"🔄 FULL REFRESH: Scarica tutto da zero (ignora tracking)")
@@ -1567,7 +1534,8 @@ NOTES:
             use_processes=args.use_processes,
             save_interval=args.save_interval,
             incremental=not args.full_refresh,
-            save_db=args.save_db,
+            save_db=True,
+            save_csv=args.save_csv,
         )
     
     elif args.mode == 'full':
@@ -1580,7 +1548,8 @@ NOTES:
             quiet=args.quiet,
             auto_confirm=args.yes,
             incremental=not args.full_refresh,
-            save_db=args.save_db,
+            save_db=True,
+            save_csv=args.save_csv,
         )
     elif args.mode == 'export':
         raise SystemExit(export_dashboard_csvs(args.output_dir, scope=args.export_scope))
