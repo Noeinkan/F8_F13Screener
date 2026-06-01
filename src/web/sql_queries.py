@@ -144,6 +144,26 @@ FUND_HISTORY_POSITIONS_SQL = f"""
 """
 
 
+CONSENSUS_NORMALIZED_POSITIONS_SQL = f"""
+    SELECT
+        fund_name,
+        accession_number,
+        filing_date,
+        {POSITION_KEY_SQL} AS position_key,
+        MAX(TRIM(COALESCE(cusip, ''))) AS cusip,
+        MIN(issuer_name) AS issuer_name,
+        GROUP_CONCAT(DISTINCT NULLIF(TRIM(share_class), '')) AS share_class,
+        GROUP_CONCAT(DISTINCT NULLIF(TRIM(put_call), '')) AS put_call,
+        SUM(shares) AS shares,
+        SUM(value_usd) AS value_usd,
+        COUNT(*) AS raw_lines
+    FROM holdings
+    WHERE TRIM(COALESCE(accession_number, '')) <> ''
+    GROUP BY fund_name, accession_number, filing_date, {POSITION_KEY_SQL}
+    ORDER BY filing_date DESC, fund_name, SUM(value_usd) DESC NULLS LAST, MIN(issuer_name)
+"""
+
+
 OVERVIEW_SUMMARY_SQL = """
     SELECT
         COUNT(*) AS positions,
@@ -282,7 +302,8 @@ TOP_HELD_SECURITIES_SQL = f"""
             h.fund_name,
             {POSITION_KEY_SQL} AS position_key,
             MAX(TRIM(COALESCE(h.cusip, ''))) AS cusip,
-            MIN(h.issuer_name) AS issuer_name
+            MIN(h.issuer_name) AS issuer_name,
+            GROUP_CONCAT(DISTINCT NULLIF(TRIM(h.put_call), '')) AS put_call
         FROM holdings h
         INNER JOIN latest_accession la
             ON h.fund_name = la.fund_name
@@ -292,6 +313,7 @@ TOP_HELD_SECURITIES_SQL = f"""
     SELECT
         MIN(issuer_name) AS "Issuer",
         NULLIF(MAX(cusip), '') AS "CUSIP",
+        GROUP_CONCAT(DISTINCT NULLIF(TRIM(put_call), '')) AS "Put/Call",
         COUNT(*) AS "Funds Holding It"
     FROM latest_positions
     GROUP BY position_key

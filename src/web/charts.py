@@ -1,16 +1,50 @@
 """Streamlit chart renderers for dashboard pages."""
 
+import math
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-from src.web.formatting import fmt_quantity, fmt_signed_quantity, fmt_signed_value
+from src.web.formatting import fmt_quantity, fmt_signed_quantity, fmt_signed_value_dollars
+from src.web.value_units import infer_value_multiplier_from_frame
 
 
 BUY_NODE = "Bought shares"
 SELL_NODE = "Sold shares"
 DEFAULT_SHARES_FLOW_TOP_N = 20
+SHARES_FLOW_SCALE_MODES = ("linear", "sqrt", "log")
+MOVEMENT_STYLE = {
+    "New position": {
+        "legend": "New positions",
+        "marker_color": "#38bdf8",
+        "marker_symbol": "diamond",
+        "line_color": "rgba(56, 189, 248, 0.48)",
+        "line_dash": "solid",
+    },
+    "Closed position": {
+        "legend": "Closed positions",
+        "marker_color": "#ef4444",
+        "marker_symbol": "x",
+        "line_color": "rgba(239, 68, 68, 0.50)",
+        "line_dash": "dash",
+    },
+    "Increased": {
+        "legend": "Increased",
+        "marker_color": "#22c55e",
+        "marker_symbol": "circle",
+        "line_color": "rgba(34, 197, 94, 0.44)",
+        "line_dash": "solid",
+    },
+    "Decreased": {
+        "legend": "Decreased",
+        "marker_color": "#f59e0b",
+        "marker_symbol": "triangle-down",
+        "line_color": "rgba(245, 158, 11, 0.48)",
+        "line_dash": "dot",
+    },
+}
 
 
 def _numeric_or_zero(value) -> float:
@@ -39,14 +73,76 @@ def _position_identifier(entry: dict) -> str:
     return entry.get("cusip") or entry.get("position_key") or "-"
 
 
-def build_shares_flow_sankey_data(diff: dict, top_n: int = DEFAULT_SHARES_FLOW_TOP_N) -> dict:
+def _movement_style(movement: str) -> dict[str, str]:
+    return MOVEMENT_STYLE.get(movement, MOVEMENT_STYLE["Increased"])
+
+
+def _limit_movements_by_side(
+    movements: list[dict],
+    *,
+    top_n_buys: int,
+    top_n_sells: int,
+) -> list[dict]:
+    buys = [movement for movement in movements if movement["side"] == "buy"]
+    sells = [movement for movement in movements if movement["side"] == "sell"]
+
+    def sort_key(item: dict) -> tuple[float, str]:
+        return (abs(item["delta_shares"]), item["label"])
+
+    return (
+        sorted(buys, key=sort_key, reverse=True)[:top_n_buys]
+        + sorted(sells, key=sort_key, reverse=True)[:top_n_sells]
+    )
+
+
+def scale_shares_flow_values(
+    values: list[float],
+    *,
+    scale_mode: str = "linear",
+    min_visible_pct: float = 0.0,
+) -> list[float]:
+    """Return display-only Sankey link weights; raw share values stay in hover data."""
+    normalized_mode = scale_mode.lower()
+    if normalized_mode not in SHARES_FLOW_SCALE_MODES:
+        normalized_mode = "linear"
+
+    if normalized_mode == "sqrt":
+        scaled_values = [math.sqrt(value) for value in values]
+    elif normalized_mode == "log":
+        scaled_values = [math.log1p(value) for value in values]
+    else:
+        scaled_values = list(values)
+
+    if not scaled_values or min_visible_pct <= 0:
+        return scaled_values
+
+    max_value = max(scaled_values)
+    if max_value <= 0:
+        return scaled_values
+
+    floor_value = max_value * (min_visible_pct / 100)
+    return [max(value, floor_value) if value > 0 else value for value in scaled_values]
+
+
+def build_shares_flow_sankey_data(
+    diff: dict,
+    top_n: int = DEFAULT_SHARES_FLOW_TOP_N,
+    *,
+    top_n_buys: int | None = None,
+    top_n_sells: int | None = None,
+) -> dict:
     """Build Plotly Sankey data for shares bought/sold between two quarters."""
     movements: list[dict] = []
+    multiplier_probe_rows: list[dict] = []
+    buy_limit = top_n if top_n_buys is None else top_n_buys
+    sell_limit = top_n if top_n_sells is None else top_n_sells
 
     for entry in diff.get("increased", []):
         delta_shares = _numeric_or_zero(entry.get("share_change"))
         if delta_shares <= 0:
             continue
+        multiplier_probe_rows.append({"shares": entry.get("old_shares"), "value": entry.get("old_value_usd")})
+        multiplier_probe_rows.append({"shares": entry.get("new_shares"), "value": entry.get("new_value_usd")})
         movements.append({
             "label": _position_label(entry),
             "identifier": _position_identifier(entry),
@@ -58,6 +154,7 @@ def build_shares_flow_sankey_data(diff: dict, top_n: int = DEFAULT_SHARES_FLOW_T
             "old_shares": entry.get("old_shares"),
             "new_shares": entry.get("new_shares"),
             "value_change": entry.get("value_change"),
+            "side": "buy",
             "link_color": "rgba(44, 160, 44, 0.45)",
         })
 
@@ -65,6 +162,8 @@ def build_shares_flow_sankey_data(diff: dict, top_n: int = DEFAULT_SHARES_FLOW_T
         delta_shares = _numeric_or_zero(entry.get("share_change"))
         if delta_shares >= 0:
             continue
+        multiplier_probe_rows.append({"shares": entry.get("old_shares"), "value": entry.get("old_value_usd")})
+        multiplier_probe_rows.append({"shares": entry.get("new_shares"), "value": entry.get("new_value_usd")})
         movements.append({
             "label": _position_label(entry),
             "identifier": _position_identifier(entry),
@@ -76,6 +175,7 @@ def build_shares_flow_sankey_data(diff: dict, top_n: int = DEFAULT_SHARES_FLOW_T
             "old_shares": entry.get("old_shares"),
             "new_shares": entry.get("new_shares"),
             "value_change": entry.get("value_change"),
+            "side": "sell",
             "link_color": "rgba(214, 39, 40, 0.45)",
         })
 
@@ -83,6 +183,7 @@ def build_shares_flow_sankey_data(diff: dict, top_n: int = DEFAULT_SHARES_FLOW_T
         shares = _numeric_or_zero(entry.get("shares"))
         if shares <= 0:
             continue
+        multiplier_probe_rows.append({"shares": entry.get("shares"), "value": entry.get("value_usd")})
         movements.append({
             "label": _position_label(entry),
             "identifier": _position_identifier(entry),
@@ -94,6 +195,7 @@ def build_shares_flow_sankey_data(diff: dict, top_n: int = DEFAULT_SHARES_FLOW_T
             "old_shares": 0,
             "new_shares": shares,
             "value_change": entry.get("value_usd"),
+            "side": "buy",
             "link_color": "rgba(44, 160, 44, 0.38)",
         })
 
@@ -101,6 +203,7 @@ def build_shares_flow_sankey_data(diff: dict, top_n: int = DEFAULT_SHARES_FLOW_T
         shares = _numeric_or_zero(entry.get("shares"))
         if shares <= 0:
             continue
+        multiplier_probe_rows.append({"shares": entry.get("shares"), "value": entry.get("value_usd")})
         movements.append({
             "label": _position_label(entry),
             "identifier": _position_identifier(entry),
@@ -112,14 +215,15 @@ def build_shares_flow_sankey_data(diff: dict, top_n: int = DEFAULT_SHARES_FLOW_T
             "old_shares": shares,
             "new_shares": 0,
             "value_change": -_numeric_or_zero(entry.get("value_usd")) if entry.get("value_usd") is not None else None,
+            "side": "sell",
             "link_color": "rgba(214, 39, 40, 0.38)",
         })
 
-    movements = sorted(
+    movements = _limit_movements_by_side(
         movements,
-        key=lambda item: (abs(item["delta_shares"]), item["label"]),
-        reverse=True,
-    )[:top_n]
+        top_n_buys=buy_limit,
+        top_n_sells=sell_limit,
+    )
 
     node_labels: list[str] = []
     node_indexes: dict[str, int] = {}
@@ -138,18 +242,25 @@ def build_shares_flow_sankey_data(diff: dict, top_n: int = DEFAULT_SHARES_FLOW_T
     values = []
     colors = []
     customdata = []
+    multiplier_probe_df = pd.DataFrame(multiplier_probe_rows)
+    value_multiplier = infer_value_multiplier_from_frame(
+        multiplier_probe_df,
+        value_col="value",
+        shares_col="shares",
+    )
     for movement in movements:
         sources.append(node_index(movement["source_label"]))
         targets.append(node_index(movement["target_label"]))
         values.append(movement["value"])
         colors.append(movement["link_color"])
+        value_change = movement.get("value_change")
         customdata.append([
             movement["movement"],
             movement["identifier"],
             fmt_quantity(movement["old_shares"]),
             fmt_quantity(movement["new_shares"]),
             fmt_signed_quantity(movement["delta_shares"]),
-            fmt_signed_value(movement.get("value_change")),
+            fmt_signed_value_dollars(None if value_change is None else _numeric_or_zero(value_change) * value_multiplier),
         ])
 
     node_colors = [
@@ -169,7 +280,40 @@ def build_shares_flow_sankey_data(diff: dict, top_n: int = DEFAULT_SHARES_FLOW_T
             "customdata": customdata,
         },
         "movements": movements,
+        "value_multiplier": value_multiplier if movements else 1,
     }
+
+
+def build_shares_change_lane_data(
+    diff: dict,
+    top_n: int = DEFAULT_SHARES_FLOW_TOP_N,
+    *,
+    top_n_buys: int | None = None,
+    top_n_sells: int | None = None,
+) -> pd.DataFrame:
+    sankey_data = build_shares_flow_sankey_data(
+        diff,
+        top_n=top_n,
+        top_n_buys=top_n_buys,
+        top_n_sells=top_n_sells,
+    )
+    rows = [
+        {
+            "Position": movement["label"],
+            "Movement": movement["movement"],
+            "Movement Label": _movement_style(movement["movement"])["legend"],
+            "Marker Color": _movement_style(movement["movement"])["marker_color"],
+            "Marker Symbol": _movement_style(movement["movement"])["marker_symbol"],
+            "Line Color": _movement_style(movement["movement"])["line_color"],
+            "Line Dash": _movement_style(movement["movement"])["line_dash"],
+            "Previous Shares": _numeric_or_zero(movement.get("old_shares")),
+            "New Shares": _numeric_or_zero(movement.get("new_shares")),
+            "Delta Shares": movement["delta_shares"],
+            "Sort Value": abs(movement["delta_shares"]),
+        }
+        for movement in sankey_data["movements"]
+    ]
+    return pd.DataFrame(rows)
 
 
 def build_transition_summary_df(transitions: list[dict]) -> pd.DataFrame:
@@ -201,7 +345,8 @@ def render_portfolio_timeline_charts(
     *,
     key_prefix: str = "portfolio_timeline",
 ):
-    has_portfolio_values = history_df["Portfolio Value ($000s)"].notna().any()
+    value_col = "Portfolio Value (USD)" if "Portfolio Value (USD)" in history_df.columns else "Portfolio Value ($000s)"
+    has_portfolio_values = history_df[value_col].notna().any()
 
     charts_col1, charts_col2 = st.columns(2)
     with charts_col1:
@@ -226,13 +371,13 @@ def render_portfolio_timeline_charts(
             value_fig = px.line(
                 history_df,
                 x="Filing Date Dt",
-                y="Portfolio Value ($000s)",
+                y=value_col,
                 markers=True,
                 hover_name="Label",
                 title=f"Portfolio value by quarter — {fund}",
             )
             value_fig.update_xaxes(title="Filing date")
-            value_fig.update_yaxes(title="Value ($000s)")
+            value_fig.update_yaxes(title="Value (USD)")
             st.plotly_chart(
                 value_fig,
                 use_container_width=True,
@@ -277,11 +422,36 @@ def render_shares_flow_sankey(
     fund: str,
     *,
     top_n: int = DEFAULT_SHARES_FLOW_TOP_N,
+    top_n_buys: int | None = None,
+    top_n_sells: int | None = None,
+    scale_mode: str = "linear",
+    min_visible_pct: float = 0.0,
 ):
-    sankey_data = build_shares_flow_sankey_data(diff, top_n=top_n)
+    sankey_data = build_shares_flow_sankey_data(
+        diff,
+        top_n=top_n,
+        top_n_buys=top_n_buys,
+        top_n_sells=top_n_sells,
+    )
     if not sankey_data["movements"]:
         st.info("No non-zero share movements are available for the selected quarters.")
         return
+
+    display_values = scale_shares_flow_values(
+        sankey_data["link"]["value"],
+        scale_mode=scale_mode,
+        min_visible_pct=min_visible_pct,
+    )
+    normalized_scale_mode = scale_mode.lower()
+    if normalized_scale_mode not in SHARES_FLOW_SCALE_MODES:
+        normalized_scale_mode = "linear"
+
+    st.caption(
+        f"Line thickness uses {normalized_scale_mode} display scaling"
+        f" with a {min_visible_pct:g}% visibility floor. "
+        "Hover labels show raw share deltas and auto-normalized delta values "
+        f"(value multiplier x{sankey_data['value_multiplier']})."
+    )
 
     sankey_fig = go.Figure(
         data=[
@@ -297,7 +467,7 @@ def render_shares_flow_sankey(
                 link={
                     "source": sankey_data["link"]["source"],
                     "target": sankey_data["link"]["target"],
-                    "value": sankey_data["link"]["value"],
+                    "value": display_values,
                     "color": sankey_data["link"]["color"],
                     "customdata": sankey_data["link"]["customdata"],
                     "hovertemplate": (
@@ -307,7 +477,7 @@ def render_shares_flow_sankey(
                         "New shares: %{customdata[3]}<br>"
                         "Delta shares: %{customdata[4]}<br>"
                         "Delta value: %{customdata[5]}<br>"
-                        "Flow width: %{value:,.0f} shares<extra></extra>"
+                        "Displayed thickness: %{value:,.2f}<extra></extra>"
                     ),
                 },
             )
@@ -319,4 +489,125 @@ def render_shares_flow_sankey(
         height=620,
         margin={"l": 8, "r": 8, "t": 56, "b": 8},
     )
-    st.plotly_chart(sankey_fig, use_container_width=True)
+    sankey_key = (
+        f"shares_flow_sankey_{fund}_{top_n_buys}_{top_n_sells}_"
+        f"{normalized_scale_mode}_{min_visible_pct:g}_{len(display_values)}_"
+        f"{sum(display_values):.6g}"
+    )
+    st.plotly_chart(sankey_fig, use_container_width=True, key=sankey_key)
+
+
+def render_shares_change_lanes(
+    diff: dict,
+    fund: str,
+    *,
+    top_n: int = DEFAULT_SHARES_FLOW_TOP_N,
+    top_n_buys: int | None = None,
+    top_n_sells: int | None = None,
+):
+    lanes_df = build_shares_change_lane_data(
+        diff,
+        top_n=top_n,
+        top_n_buys=top_n_buys,
+        top_n_sells=top_n_sells,
+    )
+    if lanes_df.empty:
+        return
+
+    lanes_df = lanes_df.sort_values(["Sort Value", "Position"], ascending=[True, False])
+    fig = go.Figure()
+    for _, row in lanes_df.iterrows():
+        fig.add_trace(
+            go.Scatter(
+                x=[row["Previous Shares"], row["New Shares"]],
+                y=[row["Position"], row["Position"]],
+                mode="lines",
+                line={"color": row["Line Color"], "width": 5, "dash": row["Line Dash"]},
+                hoverinfo="skip",
+                showlegend=False,
+            )
+        )
+
+    fig.add_trace(
+        go.Scatter(
+            name="Previous quarter",
+            y=lanes_df["Position"],
+            x=lanes_df["Previous Shares"],
+            mode="markers",
+            marker={
+                "color": "rgba(14, 18, 26, 0.85)",
+                "line": {"color": "rgba(155, 165, 180, 0.95)", "width": 2},
+                "size": 11,
+                "symbol": "circle-open",
+            },
+            customdata=lanes_df[["Movement", "Delta Shares", "New Shares"]],
+            hovertemplate=(
+                "Position: %{y}<br>"
+                "Movement: %{customdata[0]}<br>"
+                "Previous shares: %{x:,.0f}<br>"
+                "New shares: %{customdata[2]:,.0f}<br>"
+                "Delta shares: %{customdata[1]:+,.0f}<extra></extra>"
+            ),
+        )
+    )
+    for movement, style in MOVEMENT_STYLE.items():
+        movement_df = lanes_df[lanes_df["Movement"] == movement]
+        if movement_df.empty:
+            continue
+        fig.add_trace(
+            go.Scatter(
+                name=style["legend"],
+                y=movement_df["Position"],
+                x=movement_df["New Shares"],
+                mode="markers+text",
+                marker={
+                    "color": style["marker_color"],
+                    "size": 13,
+                    "symbol": style["marker_symbol"],
+                    "line": {"color": "rgba(255, 255, 255, 0.55)", "width": 1},
+                },
+                text=[fmt_signed_quantity(delta) for delta in movement_df["Delta Shares"]],
+                textposition="middle right",
+                textfont={"size": 10, "color": "rgba(220, 225, 232, 0.92)"},
+                customdata=movement_df[["Movement", "Delta Shares", "Previous Shares"]],
+                hovertemplate=(
+                    "Position: %{y}<br>"
+                    "Movement: %{customdata[0]}<br>"
+                    "Previous shares: %{customdata[2]:,.0f}<br>"
+                    "New shares: %{x:,.0f}<br>"
+                    "Delta shares: %{customdata[1]:+,.0f}<extra></extra>"
+                ),
+            )
+        )
+    fig.update_layout(
+        title=f"Previous to new shares by position - {fund}",
+        font={"size": 12},
+        height=max(460, min(980, 150 + len(lanes_df) * 28)),
+        margin={"l": 8, "r": 96, "t": 64, "b": 42},
+        xaxis_title="Shares",
+        yaxis_title="",
+        hovermode="closest",
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
+        legend={"orientation": "h", "yanchor": "bottom", "y": 1.02, "xanchor": "right", "x": 1},
+    )
+    fig.update_xaxes(
+        rangemode="tozero",
+        gridcolor="rgba(130, 140, 155, 0.18)",
+        zeroline=True,
+        zerolinecolor="rgba(180, 190, 205, 0.45)",
+    )
+    fig.update_yaxes(
+        categoryorder="array",
+        categoryarray=lanes_df["Position"].tolist(),
+        gridcolor="rgba(130, 140, 155, 0.10)",
+    )
+    st.caption(
+        "Dumbbell view: open grey dots are previous-quarter shares; current-quarter markers distinguish "
+        "new positions, closed positions, increases, and decreases. Labels show raw share delta."
+    )
+    lanes_key = (
+        f"shares_change_lanes_{fund}_{top_n_buys}_{top_n_sells}_"
+        f"{len(lanes_df)}_{lanes_df['Sort Value'].sum():.6g}"
+    )
+    st.plotly_chart(fig, use_container_width=True, key=lanes_key)

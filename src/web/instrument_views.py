@@ -10,11 +10,13 @@ from src.web.formatting import (
     fmt_quantity,
     fmt_signed_pct,
     fmt_signed_quantity,
-    fmt_value,
+    fmt_value_dollars,
 )
 from src.web.instrument_transforms import (
+    add_instrument_type_column,
     build_instrument_option_summary,
     build_instrument_timeseries,
+    style_instrument_type_column,
 )
 
 
@@ -66,6 +68,10 @@ def render_instrument_history_explorer(
         if bool(latest_row["Present"])
         else "Latest filing status: missing. The series shows a gap when the instrument is not present in the filing."
     )
+    if "Value Multiplier" in timeseries_df.columns and not timeseries_df["Value Multiplier"].dropna().empty:
+        unique_multipliers = sorted({int(value) for value in timeseries_df["Value Multiplier"].dropna().tolist()})
+        multipliers_text = ", ".join(f"x{value}" for value in unique_multipliers)
+        st.caption(f"Value series is auto-normalized by accession (multipliers: {multipliers_text}).")
 
     c1, c2, c3, c4, c5, c6 = st.columns(6)
     c1.metric("Shares in latest filing", fmt_quantity(latest_row["Shares Filled"]))
@@ -91,7 +97,7 @@ def render_instrument_history_explorer(
                 "Accession": True,
                 "Position Status": True,
                 "Shares": True,
-                "Value ($000s)": True,
+                "Value (USD)": True,
                 "Class": True,
                 "Put/Call": True,
                 "Instrument Type": True,
@@ -143,23 +149,26 @@ def render_instrument_history_explorer(
 
     detail_df = timeseries_df.copy()
     detail_df["Shares"] = detail_df["Shares"].apply(fmt_quantity)
-    detail_df["Value ($000s)"] = detail_df["Value ($000s)"].apply(fmt_value)
+    detail_df["Value (USD)"] = detail_df["Value (USD)"].apply(fmt_value_dollars)
     detail_df["Δ Shares"] = detail_df["Δ Shares"].apply(fmt_signed_quantity)
     detail_df["Δ %"] = detail_df["Δ %"].apply(fmt_signed_pct)
+    detail_df = add_instrument_type_column(detail_df)
+    detail_display_df = detail_df[
+        [
+            "Filing Date",
+            "Accession",
+            "Position Status",
+            "Type",
+            "Shares",
+            "Δ Shares",
+            "Δ %",
+            "Value (USD)",
+            "Class",
+            "Put/Call",
+        ]
+    ]
     st.dataframe(
-        detail_df[
-            [
-                "Filing Date",
-                "Accession",
-                "Position Status",
-                "Shares",
-                "Δ Shares",
-                "Δ %",
-                "Value ($000s)",
-                "Class",
-                "Put/Call",
-            ]
-        ],
+        style_instrument_type_column(detail_display_df),
         use_container_width=True,
         hide_index=True,
     )

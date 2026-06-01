@@ -3,10 +3,13 @@
 import pandas as pd
 
 from src.web.instrument_transforms import (
+    add_instrument_type_column,
     build_fund_instrument_history,
     build_instrument_label,
     build_instrument_option_summary,
     build_instrument_timeseries,
+    instrument_display_type_label,
+    instrument_type_cell_styles,
     instrument_type_label,
 )
 
@@ -19,6 +22,44 @@ def test_build_instrument_label_separates_equity_and_options():
     assert build_instrument_label("Apple Inc", "COM", "CALL", "037833100") == (
         "Apple Inc | COM | CALL | 037833100"
     )
+
+
+def test_instrument_display_type_labels_purchase_put_and_call():
+    assert instrument_display_type_label(None) == "Purchase"
+    assert instrument_display_type_label("") == "Purchase"
+    assert instrument_display_type_label(" put ") == "Put"
+    assert instrument_display_type_label("CALL") == "Call"
+    assert instrument_display_type_label("PUT,CALL") == "Mixed"
+
+
+def test_add_instrument_type_column_inserts_after_ticker_and_is_idempotent():
+    rows = pd.DataFrame({
+        "Ticker": ["AAPL", "TSLA", "NVDA"],
+        "Issuer": ["Apple Inc", "Tesla Inc", "Nvidia Corporation"],
+        "Put/Call": [None, "CALL", "PUT"],
+    })
+
+    result = add_instrument_type_column(rows)
+    assert result.columns.tolist() == ["Ticker", "Type", "Issuer", "Put/Call"]
+    assert result["Type"].tolist() == ["Purchase", "Call", "Put"]
+
+    result = add_instrument_type_column(result.assign(**{"Put/Call": ["PUT", None, "CALL"]}))
+    assert result.columns.tolist() == ["Ticker", "Type", "Issuer", "Put/Call"]
+    assert result["Type"].tolist() == ["Put", "Purchase", "Call"]
+
+
+def test_instrument_type_cell_styles_only_type_column():
+    row = pd.Series({"Ticker": "NVDA", "Type": "Put", "Issuer": "Nvidia Corporation"})
+
+    styles = instrument_type_cell_styles(row)
+
+    assert styles[0] == ""
+    assert "rgba(248, 81, 73" in styles[1]
+    assert "font-weight: 700" in styles[1]
+    assert styles[2] == ""
+
+    sell_styles = instrument_type_cell_styles(pd.Series({"Ticker": "HLT", "Type": "Sell"}))
+    assert "rgba(248, 81, 73" in sell_styles[1]
 
 
 def test_build_fund_instrument_history_adds_dashboard_columns():

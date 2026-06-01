@@ -25,6 +25,7 @@ from src.web.data_service import (
     query,
     table_exists,
 )
+from src.web.pages.consensus_trends import render_consensus_trends_page
 from src.web.pages.fund_analysis import render_fund_analysis_page
 from src.web.pages.holdings_search import render_holdings_search_page
 from src.web.pages.overview import render_overview_page
@@ -63,6 +64,10 @@ def render_fund_analysis():
     )
 
 
+def render_consensus_trends():
+    render_consensus_trends_page(query, get_fund_options)
+
+
 def render_holdings_search():
     render_holdings_search_page(query)
 
@@ -70,6 +75,7 @@ def render_holdings_search():
 PAGE_RENDERERS = {
     "Overview": render_overview,
     "Fund Analysis": render_fund_analysis,
+    "Consensus Trends": render_consensus_trends,
     "Holdings Search": render_holdings_search,
 }
 

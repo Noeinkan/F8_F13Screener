@@ -79,3 +79,30 @@ def fmt_signed_value(value_thousands):
     if absolute_value == "-":
         absolute_value = "$0"
     return f"{sign}{absolute_value}"
+
+
+def fmt_value_dollars(value_dollars):
+    """Format raw USD values into readable string."""
+    if pd.isna(value_dollars) or value_dollars == 0:
+        return "-"
+    v = float(value_dollars)
+    if v >= 1e9:
+        return f"${v/1e9:.2f}B"
+    if v >= 1e6:
+        return f"${v/1e6:.1f}M"
+    if v >= 1e3:
+        return f"${v/1e3:.0f}k"
+    return f"${v:,.0f}"
+
+
+def fmt_signed_value_dollars(value_dollars):
+    """Format signed raw USD values into readable string."""
+    if value_dollars is None or pd.isna(value_dollars):
+        return "-"
+    if value_dollars == 0:
+        return "$0"
+    sign = "+" if value_dollars > 0 else "-"
+    absolute_value = fmt_value_dollars(abs(value_dollars))
+    if absolute_value == "-":
+        absolute_value = "$0"
+    return f"{sign}{absolute_value}"

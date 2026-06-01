@@ -4,7 +4,7 @@ from src.web.diff_views import _build_changes_table
 
 
 def test_build_changes_table_prioritizes_delta_columns_and_sorts_by_magnitude():
-    display_df = _build_changes_table([
+    display_df, _value_multiplier = _build_changes_table([
         {
             "issuer_name": "Small Increase",
             "cusip": "AAA",
@@ -35,7 +35,9 @@ def test_build_changes_table_prioritizes_delta_columns_and_sorts_by_magnitude():
         },
     ])
 
-    assert display_df.columns.tolist()[:6] == [
+    assert display_df.columns.tolist()[:8] == [
+        "Ticker",
+        "Type",
         "Issuer",
         "Direction",
         "Delta %",
@@ -43,6 +45,7 @@ def test_build_changes_table_prioritizes_delta_columns_and_sorts_by_magnitude():
         "Delta Value %",
         "Delta Value",
     ]
+    assert display_df["Type"].tolist() == ["Sell", "Purchase"]
     assert display_df.iloc[0]["Issuer"] == "Large Decrease"
     assert display_df.iloc[0]["Direction"] == "Decrease"
     assert display_df.iloc[1]["Direction"] == "Increase"

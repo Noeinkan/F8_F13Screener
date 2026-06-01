@@ -6,9 +6,12 @@ import re
 import pandas as pd
 import streamlit as st
 
-from src.web.formatting import dataframe_to_csv_bytes, fmt_value
+from src.web.formatting import dataframe_to_csv_bytes, fmt_value_dollars
+from src.web.instrument_transforms import add_instrument_type_column, style_instrument_type_column
 from src.web.table_config import DEFAULT_TABLE_HEIGHT, holdings_column_config
+from src.web.tickers import add_ticker_column
 from src.web.ui_components import render_dataframe, safe_file_token
+from src.web.value_units import apply_value_multiplier_by_group, infer_value_multiplier_by_group, summarize_multipliers
 
 
 MAX_SEARCH_DISPLAY_ROWS = 1_000
@@ -66,6 +69,7 @@ def render_holdings_search_page(query: Callable[[str, tuple], pd.DataFrame]):
             cusip       AS "CUSIP",
             fund_name   AS "Fund",
             filing_date AS "Filing Date",
+            put_call   AS "Put/Call",
             shares      AS "Shares",
             value_usd   AS "Value ($000s)",
             accession_number AS "Accession"
@@ -78,12 +82,37 @@ def render_holdings_search_page(query: Callable[[str, tuple], pd.DataFrame]):
         st.warning(f"No results for '{query_text}'")
         st.stop()
 
+    df = add_instrument_type_column(add_ticker_column(df))
+
     latest_dates = df.groupby("Fund", dropna=False)["Filing Date"].transform("max")
     latest = df.loc[
         df["Filing Date"].eq(latest_dates),
-        ["Fund", "Filing Date", "Shares", "Value ($000s)"],
+        ["Ticker", "Type", "Issuer", "Fund", "Filing Date", "Put/Call", "Shares", "Value ($000s)", "Accession"],
     ].copy()
     latest = latest.sort_values("Value ($000s)", ascending=False, na_position="last")
+
+    multiplier_map = infer_value_multiplier_by_group(
+        df.rename(columns={"Accession": "accession_number", "Value ($000s)": "value_usd"}),
+        group_col="accession_number",
+        value_col="value_usd",
+        shares_col="Shares",
+    )
+    df["Value (USD)"] = apply_value_multiplier_by_group(
+        df.rename(columns={"Accession": "accession_number", "Value ($000s)": "value_usd"}),
+        group_col="accession_number",
+        value_col="value_usd",
+        multiplier_map=multiplier_map,
+    )
+    latest["Value (USD)"] = apply_value_multiplier_by_group(
+        latest.rename(columns={"Accession": "accession_number", "Value ($000s)": "value_usd"}),
+        group_col="accession_number",
+        value_col="value_usd",
+        multiplier_map=multiplier_map,
+    )
+    st.caption(
+        "Value displays are auto-normalized by accession using implied per-share prices "
+        f"(multipliers: {summarize_multipliers(multiplier_map.values())})."
+    )
 
     funds_count = df["Fund"].nunique(dropna=True)
     issuers_count = df["Issuer"].nunique(dropna=True)
@@ -93,7 +122,7 @@ def render_holdings_search_page(query: Callable[[str, tuple], pd.DataFrame]):
     m2.metric("Funds", f"{funds_count:,}")
     m3.metric("Latest filing", latest_filing or "-")
 
-    df["Value"] = df["Value ($000s)"].apply(fmt_value)
+    df["Value"] = df["Value (USD)"].apply(fmt_value_dollars)
     df["Shares"] = df["Shares"].apply(lambda value: f"{int(value):,}" if pd.notna(value) and value else "-")
 
     st.download_button(
@@ -104,18 +133,19 @@ def render_holdings_search_page(query: Callable[[str, tuple], pd.DataFrame]):
     )
     st.subheader("Who holds it today (latest filing per fund)")
     if not latest.empty:
-        latest["Value"] = latest["Value ($000s)"].apply(fmt_value)
+        latest["Value"] = latest["Value (USD)"].apply(fmt_value_dollars)
         latest["Shares"] = latest["Shares"].apply(
             lambda value: f"{int(value):,}" if pd.notna(value) and value else "-"
         )
+        latest_display_df = latest[["Ticker", "Type", "Issuer", "Fund", "Filing Date", "Put/Call", "Shares", "Value"]]
         render_dataframe(
-            latest[["Fund", "Filing Date", "Shares", "Value"]],
+            style_instrument_type_column(latest_display_df),
             column_config=holdings_column_config(),
             height=DEFAULT_TABLE_HEIGHT,
         )
 
     st.subheader("All matching rows")
-    display_df = df[["Issuer", "CUSIP", "Fund", "Filing Date", "Shares", "Value"]].head(MAX_SEARCH_DISPLAY_ROWS)
+    display_df = df[["Ticker", "Type", "Issuer", "CUSIP", "Fund", "Filing Date", "Put/Call", "Shares", "Value"]].head(MAX_SEARCH_DISPLAY_ROWS)
     if len(df) > MAX_SEARCH_DISPLAY_ROWS:
         st.caption(f"Showing first {MAX_SEARCH_DISPLAY_ROWS:,} rows. Download the CSV for all {len(df):,} matches.")
-    render_dataframe(display_df, column_config=holdings_column_config(), height=DEFAULT_TABLE_HEIGHT)
+    render_dataframe(style_instrument_type_column(display_df), column_config=holdings_column_config(), height=DEFAULT_TABLE_HEIGHT)

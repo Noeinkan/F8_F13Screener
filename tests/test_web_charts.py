@@ -2,7 +2,13 @@
 
 import math
 
-from src.web.charts import BUY_NODE, SELL_NODE, build_shares_flow_sankey_data
+from src.web.charts import (
+    BUY_NODE,
+    SELL_NODE,
+    build_shares_change_lane_data,
+    build_shares_flow_sankey_data,
+    scale_shares_flow_values,
+)
 
 
 def _link_rows(sankey_data):
@@ -120,6 +126,112 @@ def test_shares_flow_sankey_limits_to_top_n_by_absolute_delta():
     assert sankey_data["movements"][-1]["delta_shares"] == 6.0
     assert "Stock 5" not in sankey_data["node"]["label"]
     assert "Stock 6" in sankey_data["node"]["label"]
+
+
+def test_shares_flow_sankey_limits_buys_and_sells_independently():
+    diff = {
+        "new_positions": [],
+        "closed_positions": [],
+        "increased": [
+            {
+                "issuer_name": f"Buy {index}",
+                "cusip": f"BUY{index}",
+                "old_shares": 1_000,
+                "new_shares": 1_000 + index,
+                "share_change": index,
+            }
+            for index in range(1, 6)
+        ],
+        "decreased": [
+            {
+                "issuer_name": f"Sell {index}",
+                "cusip": f"SELL{index}",
+                "old_shares": 1_000,
+                "new_shares": 1_000 - index,
+                "share_change": -index,
+            }
+            for index in range(1, 6)
+        ],
+    }
+
+    sankey_data = build_shares_flow_sankey_data(diff, top_n_buys=2, top_n_sells=3)
+
+    assert len(sankey_data["movements"]) == 5
+    assert [movement["label"] for movement in sankey_data["movements"]] == [
+        "Buy 5",
+        "Buy 4",
+        "Sell 5",
+        "Sell 4",
+        "Sell 3",
+    ]
+    assert "Buy 3" not in sankey_data["node"]["label"]
+    assert "Sell 3" in sankey_data["node"]["label"]
+
+
+def test_shares_flow_scale_modes_are_display_only():
+    values = [100.0, 10_000.0]
+
+    assert scale_shares_flow_values(values, scale_mode="linear") == values
+    assert scale_shares_flow_values(values, scale_mode="sqrt") == [10.0, 100.0]
+    assert scale_shares_flow_values(values, scale_mode="log") == [math.log1p(100.0), math.log1p(10_000.0)]
+    assert scale_shares_flow_values(values, scale_mode="sqrt", min_visible_pct=20) == [20.0, 100.0]
+
+
+def test_shares_change_lanes_show_new_and_closed_position_endpoints():
+    diff = {
+        "new_positions": [
+            {"issuer_name": "Newco", "cusip": "NEW", "shares": 25_000},
+        ],
+        "closed_positions": [
+            {"issuer_name": "Oldco", "cusip": "OLD", "shares": 10_000},
+        ],
+        "increased": [],
+        "decreased": [],
+    }
+
+    lanes_df = build_shares_change_lane_data(diff)
+    rows = lanes_df.set_index("Position").to_dict("index")
+
+    assert rows["Newco"]["Previous Shares"] == 0.0
+    assert rows["Newco"]["New Shares"] == 25_000.0
+    assert rows["Oldco"]["Previous Shares"] == 10_000.0
+    assert rows["Oldco"]["New Shares"] == 0.0
+
+
+def test_shares_change_lanes_encode_each_movement_distinctly():
+    diff = {
+        "new_positions": [
+            {"issuer_name": "Newco", "cusip": "NEW", "shares": 25_000},
+        ],
+        "closed_positions": [
+            {"issuer_name": "Oldco", "cusip": "OLD", "shares": 10_000},
+        ],
+        "increased": [
+            {
+                "issuer_name": "Upco",
+                "cusip": "UP",
+                "old_shares": 4_000,
+                "new_shares": 8_000,
+                "share_change": 4_000,
+            },
+        ],
+        "decreased": [
+            {
+                "issuer_name": "Downco",
+                "cusip": "DOWN",
+                "old_shares": 9_000,
+                "new_shares": 6_000,
+                "share_change": -3_000,
+            },
+        ],
+    }
+
+    lanes_df = build_shares_change_lane_data(diff)
+    styles = lanes_df.set_index("Movement")[["Marker Color", "Marker Symbol", "Line Dash"]].to_dict("index")
+
+    assert set(styles) == {"New position", "Closed position", "Increased", "Decreased"}
+    assert len({style["Marker Color"] for style in styles.values()}) == 4
+    assert len({style["Marker Symbol"] for style in styles.values()}) == 4
 
 
 def test_shares_flow_sankey_ignores_nan_label_components():

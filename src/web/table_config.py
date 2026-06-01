@@ -12,6 +12,8 @@ LARGE_TABLE_HEIGHT = 520
 
 def holdings_column_config() -> dict:
     return {
+        "Ticker": st.column_config.TextColumn("Ticker", width="small"),
+        "Type": st.column_config.TextColumn("Type", width="small"),
         "Issuer": st.column_config.TextColumn("Issuer", width="large"),
         "CUSIP": st.column_config.TextColumn("CUSIP", width="small"),
         "Class": st.column_config.TextColumn("Class", width="small"),
@@ -37,6 +39,8 @@ def timeline_column_config() -> dict:
 
 def diff_column_config() -> dict:
     return {
+        "Ticker": st.column_config.TextColumn("Ticker", width="small"),
+        "Type": st.column_config.TextColumn("Type", width="small"),
         "Issuer": st.column_config.TextColumn("Issuer", width="large"),
         "Direction": st.column_config.TextColumn("Direction", width="small"),
         "Delta %": st.column_config.TextColumn("Delta %", width="small"),
@@ -77,8 +81,11 @@ def recent_filings_column_config() -> dict:
 
 def common_holdings_column_config() -> dict:
     return {
+        "Ticker": st.column_config.TextColumn("Ticker", width="small"),
+        "Type": st.column_config.TextColumn("Type", width="small"),
         "Issuer": st.column_config.TextColumn("Issuer", width="large"),
         "CUSIP": st.column_config.TextColumn("CUSIP", width="small"),
+        "Put/Call": st.column_config.TextColumn("Put/Call", width="small"),
         "Funds": st.column_config.NumberColumn("Funds", width="small", format="%d"),
         "Total Shares": st.column_config.NumberColumn("Total Shares", width="small", format="%d"),
         "Total Value ($000s)": st.column_config.NumberColumn("Total Value ($000s)", width="small", format="%d"),

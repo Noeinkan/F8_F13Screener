@@ -20,6 +20,7 @@ from src.core.hedge_funds_config import HEDGE_FUNDS_CIK
 from src.core.paths import DASHBOARD_DB_FILE
 from src.web.instrument_transforms import build_fund_instrument_history
 from src.web.sql_queries import FUND_HISTORY_POSITIONS_SQL, NORMALIZED_DIFF_SQL
+from src.web.value_units import infer_value_multiplier_from_frame
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -246,6 +247,12 @@ def load_fund_history(fund: str) -> tuple[pd.DataFrame, list[dict]]:
             if group["value_usd"].notna().any()
             else None
         )
+        value_multiplier = infer_value_multiplier_from_frame(
+            group,
+            value_col="value_usd",
+            shares_col="shares",
+        )
+        portfolio_value_usd = None if portfolio_value is None else float(portfolio_value) * value_multiplier
         label = f"{filing_date} ({accession_number})"
         summary_rows.append({
             "Filing Date": filing_date,
@@ -254,6 +261,8 @@ def load_fund_history(fund: str) -> tuple[pd.DataFrame, list[dict]]:
             "Normalized Positions": len(group),
             "Raw 13F Lines": int(group["raw_lines"].fillna(0).sum()),
             "Portfolio Value ($000s)": portfolio_value,
+            "Portfolio Value (USD)": portfolio_value_usd,
+            "Value Multiplier": value_multiplier,
         })
         snapshots.append({
             "filing_date": filing_date,

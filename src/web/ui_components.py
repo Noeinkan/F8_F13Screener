@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from typing import Any
 
 import pandas as pd
 import streamlit as st
@@ -28,7 +29,7 @@ def render_page_index(items: list[tuple[str, str]]) -> None:
 
 
 def render_dataframe(
-    df: pd.DataFrame,
+    df: pd.DataFrame | Any,
     *,
     height: int = DEFAULT_TABLE_HEIGHT,
     column_config: dict | None = None,

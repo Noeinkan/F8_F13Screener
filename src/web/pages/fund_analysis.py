@@ -10,6 +10,7 @@ import streamlit as st
 from src.core.diff import compute_detailed_portfolio_diff
 from src.web.charts import (
     render_portfolio_timeline_charts,
+    render_shares_change_lanes,
     render_shares_flow_sankey,
     render_transition_counts_chart,
 )
@@ -18,14 +19,16 @@ from src.web.fund_selection import initialize_default_fund_selection
 from src.web.formatting import (
     dataframe_to_csv_bytes,
     fmt_accession_label,
-    fmt_signed_value,
+    fmt_signed_value_dollars,
     fmt_transition_label,
-    fmt_value,
+    fmt_value_dollars,
 )
-from src.web.instrument_views import render_instrument_history_explorer
+from src.web.instrument_transforms import add_instrument_type_column, style_instrument_type_column
 from src.web.sql_queries import NORMALIZED_ACCESSION_HOLDINGS_SQL, RAW_ACCESSION_HOLDINGS_SQL
 from src.web.table_config import COMPACT_TABLE_HEIGHT, DEFAULT_TABLE_HEIGHT, holdings_column_config, timeline_column_config
+from src.web.tickers import add_ticker_column
 from src.web.ui_components import render_dataframe, render_page_index, render_section, safe_file_token
+from src.web.value_units import apply_value_multiplier, infer_value_multiplier_from_frame
 
 
 def _build_accession_label_map(accessions: pd.DataFrame) -> dict[str, str]:
@@ -84,6 +87,10 @@ def _render_snapshot_mode(
         st.caption("Normalized aggregates rows with the same CUSIP and is best for portfolio analysis.")
 
     display_df = normalized_df.copy() if view_mode == "Normalized by CUSIP" else raw_df.copy()
+    display_df = add_ticker_column(display_df)
+    value_multiplier = infer_value_multiplier_from_frame(display_df, value_col="Value ($000s)", shares_col="Shares")
+    display_df["Value (USD)"] = apply_value_multiplier(display_df["Value ($000s)"], value_multiplier)
+    st.caption(f"Value scale for this filing is auto-normalized (multiplier x{value_multiplier}).")
 
     c1, c2, c3 = st.columns(3)
     c1.metric("Raw 13F lines", f"{len(raw_df):,}")
@@ -96,35 +103,43 @@ def _render_snapshot_mode(
         fig = px.bar(
             top_holdings,
             x="Issuer",
-            y="Value ($000s)",
+            y="Value (USD)",
             title=f"Top {top_n} by value - {fund}",
         )
         fig.update_layout(xaxis_tickangle=-30, height=360, margin={"l": 8, "r": 8, "t": 52, "b": 96})
         st.plotly_chart(fig, use_container_width=True)
 
     view_label = "normalized positions" if view_mode == "Normalized by CUSIP" else "raw 13F lines"
-    st.subheader(f"All {view_label} ({len(display_df):,})")
-    search_col, export_col = st.columns([3, 1])
-    with search_col:
-        search = st.text_input("Filter by name or CUSIP", key="fund_analysis_snapshot_filter")
-    filtered_df = display_df.copy()
-    if search:
-        mask = (
-            filtered_df["Issuer"].str.contains(search, case=False, na=False)
-            | filtered_df["CUSIP"].str.contains(search, case=False, na=False)
-        )
-        filtered_df = filtered_df.loc[mask].copy()
+    with st.expander(f"All {view_label} ({len(display_df):,})", expanded=True):
+        search_col, export_col = st.columns([3, 1])
+        with search_col:
+            search = st.text_input("Filter by ticker, name, or CUSIP", key="fund_analysis_snapshot_filter")
+        filtered_df = display_df.copy()
+        if search:
+            mask = (
+                filtered_df["Ticker"].str.contains(search, case=False, na=False)
+                | filtered_df["Issuer"].str.contains(search, case=False, na=False)
+                | filtered_df["CUSIP"].str.contains(search, case=False, na=False)
+            )
+            filtered_df = filtered_df.loc[mask].copy()
+        filtered_df["Value"] = filtered_df["Value (USD)"].apply(fmt_value_dollars)
+        filtered_df = add_instrument_type_column(filtered_df)
 
-    with export_col:
-        view_token = "normalized" if view_mode == "Normalized by CUSIP" else "raw"
-        st.download_button(
-            "Download CSV",
-            dataframe_to_csv_bytes(filtered_df),
-            file_name=f"f8_13f_{safe_file_token(fund)}_{selected_acc}_{view_token}.csv",
-            mime="text/csv",
-            key="fund_analysis_snapshot_download",
+        with export_col:
+            view_token = "normalized" if view_mode == "Normalized by CUSIP" else "raw"
+            st.download_button(
+                "Download CSV",
+                dataframe_to_csv_bytes(filtered_df),
+                file_name=f"f8_13f_{safe_file_token(fund)}_{selected_acc}_{view_token}.csv",
+                mime="text/csv",
+                key="fund_analysis_snapshot_download",
+            )
+        table_df = filtered_df.drop(columns=["Value ($000s)", "Value (USD)"], errors="ignore")
+        render_dataframe(
+            style_instrument_type_column(table_df),
+            column_config=holdings_column_config(),
+            height=DEFAULT_TABLE_HEIGHT,
         )
-    render_dataframe(filtered_df, column_config=holdings_column_config(), height=DEFAULT_TABLE_HEIGHT)
 
 
 def _render_timeline_mode(fund: str, history_df: pd.DataFrame, transitions: list[dict]) -> None:
@@ -133,15 +148,16 @@ def _render_timeline_mode(fund: str, history_df: pd.DataFrame, transitions: list
         return
 
     latest_snapshot = history_df.iloc[-1]
-    has_portfolio_values = history_df["Portfolio Value ($000s)"].notna().any()
+    value_col = "Portfolio Value (USD)" if "Portfolio Value (USD)" in history_df.columns else "Portfolio Value ($000s)"
+    has_portfolio_values = history_df[value_col].notna().any()
 
     previous_snapshot = history_df.iloc[-2] if len(history_df) > 1 else None
     positions_delta = None
     value_delta = None
     if previous_snapshot is not None:
         positions_delta = int(latest_snapshot["Normalized Positions"] - previous_snapshot["Normalized Positions"])
-        if has_portfolio_values and pd.notna(latest_snapshot["Portfolio Value ($000s)"]) and pd.notna(previous_snapshot["Portfolio Value ($000s)"]):
-            value_delta = latest_snapshot["Portfolio Value ($000s)"] - previous_snapshot["Portfolio Value ($000s)"]
+        if has_portfolio_values and pd.notna(latest_snapshot[value_col]) and pd.notna(previous_snapshot[value_col]):
+            value_delta = latest_snapshot[value_col] - previous_snapshot[value_col]
 
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Available quarters", f"{len(history_df):,}")
@@ -153,9 +169,14 @@ def _render_timeline_mode(fund: str, history_df: pd.DataFrame, transitions: list
     )
     c4.metric(
         "Latest filing value",
-        fmt_value(latest_snapshot["Portfolio Value ($000s)"]) if has_portfolio_values else "-",
-        delta=fmt_signed_value(value_delta) if value_delta is not None else None,
+        fmt_value_dollars(latest_snapshot[value_col]) if has_portfolio_values else "-",
+        delta=fmt_signed_value_dollars(value_delta) if value_delta is not None else None,
     )
+
+    if "Value Multiplier" in history_df.columns and not history_df["Value Multiplier"].dropna().empty:
+        unique_multipliers = sorted({int(value) for value in history_df["Value Multiplier"].dropna().tolist()})
+        multipliers_text = ", ".join(f"x{value}" for value in unique_multipliers)
+        st.caption(f"Historical portfolio values are normalized by filing (multipliers: {multipliers_text}).")
 
     st.caption(
         "The opened/closed/improved/decreased categories use share changes. "
@@ -164,69 +185,68 @@ def _render_timeline_mode(fund: str, history_df: pd.DataFrame, transitions: list
 
     summary_export = history_df.copy()
     if has_portfolio_values:
-        summary_export["Portfolio Value"] = summary_export["Portfolio Value ($000s)"].apply(fmt_value)
+        summary_export["Portfolio Value"] = summary_export[value_col].apply(fmt_value_dollars)
 
-    st.subheader("Quarter timeline")
-    st.download_button(
-        "Download fund timeline",
-        dataframe_to_csv_bytes(summary_export.drop(columns=["Filing Date Dt"])),
-        file_name=f"f8_13f_{fund}_history.csv".replace(" ", "_"),
-        mime="text/csv",
-        key="fund_analysis_timeline_download",
-    )
+    with st.expander("Quarter timeline", expanded=True):
+        st.download_button(
+            "Download fund timeline",
+            dataframe_to_csv_bytes(summary_export.drop(columns=["Filing Date Dt"])),
+            file_name=f"f8_13f_{fund}_history.csv".replace(" ", "_"),
+            mime="text/csv",
+            key="fund_analysis_timeline_download",
+        )
 
-    display_columns = [
-        "Filing Date",
-        "Accession",
-        "Normalized Positions",
-        "Raw 13F Lines",
-    ]
-    if has_portfolio_values:
-        display_columns.append("Portfolio Value")
-    render_dataframe(
-        summary_export[display_columns],
-        column_config=timeline_column_config(),
-        height=COMPACT_TABLE_HEIGHT,
-    )
+        display_columns = [
+            "Filing Date",
+            "Accession",
+            "Normalized Positions",
+            "Raw 13F Lines",
+        ]
+        if has_portfolio_values:
+            display_columns.append("Portfolio Value")
+        render_dataframe(
+            summary_export[display_columns],
+            column_config=timeline_column_config(),
+            height=COMPACT_TABLE_HEIGHT,
+        )
 
-    render_portfolio_timeline_charts(history_df, fund, key_prefix="fund_analysis_timeline")
+        render_portfolio_timeline_charts(history_df, fund, key_prefix="fund_analysis_timeline")
 
     if not transitions:
         st.info("At least one more quarter is needed to calculate quarter-over-quarter changes.")
         return
 
-    render_transition_counts_chart(transitions, fund, key="fund_analysis_timeline_transitions")
+    with st.expander("Quarter-over-quarter changes", expanded=True):
+        render_transition_counts_chart(transitions, fund, key="fund_analysis_timeline_transitions")
 
-    latest_first_transitions = list(reversed(transitions))
-    selected_transition_index = st.selectbox(
-        "Transition drill-down",
-        options=list(range(len(latest_first_transitions))),
-        index=0,
-        format_func=lambda index: _transition_label(latest_first_transitions[index]),
-        key="fund_analysis_timeline_transition",
-    )
-    selected_transition = latest_first_transitions[selected_transition_index]
+        latest_first_transitions = list(reversed(transitions))
+        selected_transition_index = st.selectbox(
+            "Transition drill-down",
+            options=list(range(len(latest_first_transitions))),
+            index=0,
+            format_func=lambda index: _transition_label(latest_first_transitions[index]),
+            key="fund_analysis_timeline_transition",
+        )
+        selected_transition = latest_first_transitions[selected_transition_index]
 
-    d1, d2, d3, d4 = st.columns(4)
-    d1.metric("New positions", selected_transition["new_count"])
-    d2.metric("Closed positions", selected_transition["closed_count"])
-    d3.metric("Increased", selected_transition["increased_count"])
-    d4.metric("Decreased", selected_transition["decreased_count"])
+        d1, d2, d3, d4 = st.columns(4)
+        d1.metric("New positions", selected_transition["new_count"])
+        d2.metric("Closed positions", selected_transition["closed_count"])
+        d3.metric("Increased", selected_transition["increased_count"])
+        d4.metric("Decreased", selected_transition["decreased_count"])
 
-    st.subheader(
-        f"Transition details: {selected_transition['from_filing_date']} -> {selected_transition['to_filing_date']}"
-    )
-    render_detailed_diff_sections(selected_transition, dense=True)
+    with st.expander(
+        f"Transition detail tables: {selected_transition['from_filing_date']} -> {selected_transition['to_filing_date']}",
+        expanded=True,
+    ):
+        render_detailed_diff_sections(selected_transition, dense=True)
 
 
 def _render_compare_mode(
     fund: str,
     require_selection: Callable[[Any | None, str], Any],
     accessions: pd.DataFrame,
-    history_df: pd.DataFrame,
-    transitions: list[dict],
     load_normalized_positions_map: Callable[[str, str], dict],
-    load_fund_instrument_history: Callable[[str], pd.DataFrame],
 ) -> None:
     if len(accessions) < 2:
         st.warning("At least 2 quarters are required to compute the diff.")
@@ -292,33 +312,44 @@ def _render_compare_mode(
     c2.metric("Closed positions", len(diff["closed_positions"]))
     c3.metric("Increased", len(diff["increased"]))
     c4.metric("Decreased", len(diff["decreased"]))
-    st.subheader("Shares Flow Sankey")
-    st.caption(
-        "Delta Shares = NEW quarter shares - PREVIOUS quarter shares. "
-        "Line thickness represents share count, not market value."
-    )
-    top_n_flows = st.slider("Show top N flows", min_value=5, max_value=50, value=20, step=5, key="fund_analysis_compare_top_n")
-    render_shares_flow_sankey(diff, fund, top_n=top_n_flows)
-
-    if not history_df.empty:
-        st.subheader("Fund historical trend")
+    with st.expander("Shares Flow Sankey", expanded=True):
         st.caption(
-            "These charts use all filings available in the DB for the selected fund, "
-            "so the comparison between the two quarters remains readable in historical context."
+            "Delta Shares = NEW quarter shares - PREVIOUS quarter shares. "
+            "Hover labels always show raw share deltas; thickness can be display-scaled for readability."
         )
-        render_portfolio_timeline_charts(history_df, fund, key_prefix="fund_analysis_compare")
-        if transitions:
-            render_transition_counts_chart(
-                transitions,
-                fund,
-                title=f"Portfolio changes over time - {fund}",
-                key="fund_analysis_compare_transitions",
+        sankey_controls = st.columns(4)
+        with sankey_controls[0]:
+            top_n_buy_flows = st.slider("Top N buy flows", min_value=5, max_value=50, value=20, step=5, key="fund_analysis_compare_top_n_buys")
+        with sankey_controls[1]:
+            top_n_sell_flows = st.slider("Top N sell flows", min_value=5, max_value=50, value=20, step=5, key="fund_analysis_compare_top_n_sells")
+        with sankey_controls[2]:
+            scale_mode = st.selectbox(
+                "Thickness scale",
+                ["sqrt", "linear", "log"],
+                format_func=lambda value: {"sqrt": "Sqrt", "linear": "Linear", "log": "Log"}[value],
+                key="fund_analysis_compare_sankey_scale",
             )
-        with st.expander("Instrument history explorer", expanded=False):
-            instrument_history_df = load_fund_instrument_history(fund)
-            render_instrument_history_explorer(history_df, instrument_history_df, fund, require_selection)
+        with sankey_controls[3]:
+            min_visible_pct = st.slider("Min visible thickness", min_value=0, max_value=10, value=0, step=1, format="%d%%", key="fund_analysis_compare_min_visible_pct")
+        render_shares_flow_sankey(
+            diff,
+            fund,
+            top_n_buys=top_n_buy_flows,
+            top_n_sells=top_n_sell_flows,
+            scale_mode=scale_mode,
+            min_visible_pct=float(min_visible_pct),
+        )
 
-    render_detailed_diff_sections(diff, dense=True)
+    with st.expander("Position size before/after", expanded=True):
+        render_shares_change_lanes(
+            diff,
+            fund,
+            top_n_buys=top_n_buy_flows,
+            top_n_sells=top_n_sell_flows,
+        )
+
+    with st.expander("Detailed change tables", expanded=True):
+        render_detailed_diff_sections(diff, dense=True)
 
 
 def render_fund_analysis_page(
@@ -382,8 +413,5 @@ def render_fund_analysis_page(
         fund,
         require_selection,
         accessions,
-        history_df,
-        transitions,
         load_normalized_positions_map,
-        load_fund_instrument_history,
     )

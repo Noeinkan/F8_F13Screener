@@ -6,7 +6,8 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from src.web.formatting import dataframe_to_csv_bytes, fmt_value
+from src.web.formatting import dataframe_to_csv_bytes, fmt_value_dollars
+from src.web.instrument_transforms import add_instrument_type_column, style_instrument_type_column
 from src.web.sql_queries import (
     FILINGS_TIMELINE_SQL,
     FULL_HOLDINGS_EXPORT_SQL,
@@ -18,11 +19,46 @@ from src.web.sql_queries import (
     TOP_HELD_SECURITIES_SQL,
 )
 from src.web.table_config import COMPACT_TABLE_HEIGHT, DEFAULT_TABLE_HEIGHT, common_holdings_column_config, fund_overview_column_config, recent_filings_column_config
+from src.web.tickers import add_ticker_column
 from src.web.ui_components import render_dataframe
+from src.web.value_units import apply_value_multiplier_by_group, infer_value_multiplier_by_group, summarize_multipliers
+
+
+def _load_accession_multiplier_map(
+    query: Callable[..., pd.DataFrame],
+    accession_numbers: list[str],
+) -> dict[str, int]:
+    unique_accessions = [str(item) for item in accession_numbers if item]
+    if not unique_accessions:
+        return {}
+
+    placeholders = ", ".join(["?"] * len(unique_accessions))
+    rows = query(
+        f"""
+        SELECT
+            accession_number,
+            shares,
+            value_usd
+        FROM holdings
+        WHERE accession_number IN ({placeholders})
+          AND shares IS NOT NULL
+          AND value_usd IS NOT NULL
+        """,
+        tuple(unique_accessions),
+    )
+    if rows.empty:
+        return {}
+
+    return infer_value_multiplier_by_group(
+        rows,
+        group_col="accession_number",
+        value_col="value_usd",
+        shares_col="shares",
+    )
 
 
 def render_overview_page(
-    query: Callable[[str, tuple], pd.DataFrame],
+    query: Callable[..., pd.DataFrame],
     table_exists: Callable[[str], bool],
 ):
     st.title("Overview — 13F database status")
@@ -97,7 +133,7 @@ def render_overview_page(
     else:
         recent_filings = query(RECENT_FILINGS_OVERVIEW_SQL)
         timeline_df = query(FILINGS_TIMELINE_SQL)
-        common_holdings = query(TOP_HELD_SECURITIES_SQL)
+        common_holdings = add_instrument_type_column(add_ticker_column(query(TOP_HELD_SECURITIES_SQL)))
 
         export_col1, export_col2 = st.columns(2)
 
@@ -152,7 +188,21 @@ def render_overview_page(
             ].copy()
 
         if has_portfolio_values:
-            filtered_df["Portfolio Value"] = filtered_df["value_sum"].apply(fmt_value)
+            accession_multiplier_map = _load_accession_multiplier_map(
+                query,
+                filtered_df["accession_number"].dropna().astype(str).tolist(),
+            )
+            filtered_df["value_sum_usd"] = apply_value_multiplier_by_group(
+                filtered_df,
+                group_col="accession_number",
+                value_col="value_sum",
+                multiplier_map=accession_multiplier_map,
+            )
+            filtered_df["Portfolio Value"] = filtered_df["value_sum_usd"].apply(fmt_value_dollars)
+            st.caption(
+                "Portfolio values are auto-normalized by filing accession using implied per-share prices "
+                f"(multipliers: {summarize_multipliers(accession_multiplier_map.values())})."
+            )
 
         display_columns = [
             "Fund",
@@ -185,11 +235,12 @@ def render_overview_page(
         chart_col1, chart_col2 = st.columns(2)
         with chart_col1:
             if has_portfolio_values:
+                chart_df = filtered_df.sort_values("value_sum_usd", ascending=False).head(20)
                 fig = px.bar(
-                    df.sort_values("value_sum", ascending=False).head(20),
+                    chart_df,
                     x="Fund",
-                    y="value_sum",
-                    labels={"value_sum": "Value ($000s)", "Fund": ""},
+                    y="value_sum_usd",
+                    labels={"value_sum_usd": "Value (USD)", "Fund": ""},
                     title="Top 20 funds by latest filing value",
                 )
             else:
@@ -226,7 +277,7 @@ def render_overview_page(
         with insights_col2:
             st.subheader("Most common holdings today")
             render_dataframe(
-                common_holdings,
+                style_instrument_type_column(common_holdings),
                 column_config=common_holdings_column_config(),
                 height=COMPACT_TABLE_HEIGHT,
             )
