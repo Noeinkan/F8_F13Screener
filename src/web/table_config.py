@@ -14,15 +14,18 @@ def holdings_column_config() -> dict:
     return {
         "Ticker": st.column_config.TextColumn("Ticker", width="small"),
         "Type": st.column_config.TextColumn("Type", width="small"),
+        "Assumed Transaction Date": st.column_config.TextColumn("Assumed Transaction Date", width="small"),
+        "Filing Date": st.column_config.TextColumn("Filing Date", width="small"),
         "Issuer": st.column_config.TextColumn("Issuer", width="large"),
         "CUSIP": st.column_config.TextColumn("CUSIP", width="small"),
         "Class": st.column_config.TextColumn("Class", width="small"),
         "Put/Call": st.column_config.TextColumn("Put/Call", width="small"),
         "Shares": st.column_config.TextColumn("Shares", width="small"),
         "Value": st.column_config.TextColumn("Value", width="small"),
+        "Implied Filing Price": st.column_config.NumberColumn("Implied Filing Price", width="small", format="$%.2f"),
+        "Estimated Contracts": st.column_config.NumberColumn("Estimated Contracts", width="small", format="%d"),
         "Value ($000s)": st.column_config.NumberColumn("Value ($000s)", width="small", format="%d"),
         "Accession": st.column_config.TextColumn("Accession", width="medium"),
-        "Filing Date": st.column_config.TextColumn("Filing Date", width="small"),
         "Fund": st.column_config.TextColumn("Fund", width="large"),
     }
 

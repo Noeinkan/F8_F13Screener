@@ -19,6 +19,8 @@ from src.web.fund_selection import initialize_default_fund_selection
 from src.web.formatting import (
     dataframe_to_csv_bytes,
     fmt_accession_label,
+    fmt_eu_date,
+    fmt_quantity,
     fmt_signed_value_dollars,
     fmt_transition_label,
     fmt_value_dollars,
@@ -44,6 +46,161 @@ def _transition_label(transition: dict) -> str:
         transition["to_filing_date"],
         transition["from_accession_number"],
         transition["to_accession_number"],
+    )
+
+
+def _fmt_price(value: float | None) -> str:
+    if value is None or pd.isna(value):
+        return "-"
+    return f"${float(value):,.2f}"
+
+
+def _option_kind(value: Any) -> str:
+    return str(value or "").strip().upper()
+
+
+def _infer_assumed_transaction_date(value: Any) -> str:
+    parsed = pd.to_datetime(value, errors="coerce")
+    if pd.isna(parsed):
+        return ""
+
+    year = int(parsed.year)
+    month = int(parsed.month)
+    day = int(parsed.day)
+    quarter_end_days = {3: 31, 6: 30, 9: 30, 12: 31}
+    if month in quarter_end_days and day == quarter_end_days[month]:
+        return parsed.strftime("%Y-%m-%d")
+    if month <= 3:
+        return f"{year - 1}-12-31"
+    if month <= 6:
+        return f"{year}-03-31"
+    if month <= 9:
+        return f"{year}-06-30"
+    return f"{year}-09-30"
+
+
+def _add_position_insight_columns(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty:
+        return df
+
+    shares = pd.to_numeric(df["Shares"], errors="coerce")
+    values = pd.to_numeric(df["Value (USD)"], errors="coerce")
+    option_kinds = df["Put/Call"].apply(_option_kind)
+    is_option = option_kinds.isin(["PUT", "CALL"])
+
+    df["Assumed Transaction Date"] = df["Filing Date"].apply(_infer_assumed_transaction_date)
+    df["Implied Filing Price"] = values.div(shares.where(shares != 0))
+    df["Estimated Contracts"] = (shares / 100).where(is_option)
+    df["_Insight Key"] = df.apply(
+        lambda row: str(row.get("CUSIP") or "").strip()
+        or "|".join(str(row.get(part) or "").strip() for part in ["Issuer", "Class", "Put/Call"]),
+        axis=1,
+    )
+    return df
+
+
+def _render_position_insight(source_df: pd.DataFrame) -> None:
+    if source_df.empty:
+        st.info("No positions match the current filter.")
+        return
+
+    candidate_df = source_df[source_df["_Insight Key"].astype(str).str.strip() != ""].copy()
+    if candidate_df.empty:
+        st.info("No position keys are available for insight extraction.")
+        return
+
+    candidate_order = (
+        candidate_df.groupby("_Insight Key", dropna=False)["Value (USD)"]
+        .sum()
+        .sort_values(ascending=False)
+        .index
+        .tolist()
+    )
+    labels = {}
+    for insight_key in candidate_order:
+        group = candidate_df[candidate_df["_Insight Key"] == insight_key]
+        top_row = group.sort_values("Value (USD)", ascending=False).iloc[0]
+        ticker = str(top_row.get("Ticker") or "").strip()
+        issuer = str(top_row.get("Issuer") or "").strip()
+        cusip = str(top_row.get("CUSIP") or "").strip()
+        label_parts = [part for part in [ticker, issuer, cusip] if part]
+        labels[insight_key] = " | ".join(label_parts) or str(insight_key)
+
+    selected_key = st.selectbox(
+        "Position insight",
+        candidate_order,
+        format_func=lambda key: labels.get(key, str(key)),
+        key="fund_analysis_snapshot_position_insight",
+    )
+    selected_df = candidate_df[candidate_df["_Insight Key"] == selected_key].copy()
+    shares = pd.to_numeric(selected_df["Shares"], errors="coerce")
+    values = pd.to_numeric(selected_df["Value (USD)"], errors="coerce")
+    option_kinds = selected_df["Put/Call"].apply(_option_kind)
+    option_mask = option_kinds.isin(["PUT", "CALL"])
+    common_mask = ~option_mask
+    implied_prices = pd.to_numeric(selected_df["Implied Filing Price"], errors="coerce").dropna()
+
+    transaction_dates = sorted({fmt_eu_date(value) for value in selected_df.get("Assumed Transaction Date", pd.Series(dtype=object)).dropna() if value})
+    transaction_date_label = ", ".join(transaction_dates) if transaction_dates else "-"
+    price_label = _fmt_price(implied_prices.median() if not implied_prices.empty else None)
+
+    metric_cols = st.columns(4)
+    metric_cols[0].metric("Assumed transaction date", transaction_date_label)
+    metric_cols[1].metric("Implied filing price", price_label)
+    metric_cols[2].metric("Reported value", fmt_value_dollars(values.fillna(0).sum()))
+    metric_cols[3].metric("Underlying shares", fmt_quantity(shares.fillna(0).sum()))
+    st.caption(
+        "Assumed transaction date is inferred as the 13F report-period quarter end from the SEC filing date; "
+        "13F filings do not provide per-position trade dates."
+    )
+
+    if option_mask.any():
+        option_df = selected_df[option_mask].copy()
+        option_values = pd.to_numeric(option_df["Value (USD)"], errors="coerce").fillna(0)
+        option_shares = pd.to_numeric(option_df["Shares"], errors="coerce").fillna(0)
+        option_contracts = pd.to_numeric(option_df["Estimated Contracts"], errors="coerce").fillna(0)
+        by_kind = option_df.assign(_value=option_values, _contracts=option_contracts).groupby(option_df["Put/Call"].apply(_option_kind)).agg(
+            notional=("_value", "sum"),
+            contracts=("_contracts", "sum"),
+        )
+        option_parts = [
+            f"{kind}: {fmt_value_dollars(row['notional'])} notional, {fmt_quantity(row['contracts'])} contracts"
+            for kind, row in by_kind.iterrows()
+        ]
+        st.caption("Option rows: " + "; ".join(option_parts))
+        st.caption(
+            "13F option rows are treated as underlying notional exposure. The reported value is not the option premium paid."
+        )
+
+        if common_mask.any():
+            common_value = values[common_mask].fillna(0).sum()
+            common_shares = shares[common_mask].fillna(0).sum()
+            option_value = option_values.sum()
+            structure_ratio = option_value / common_value if common_value else None
+            ratio_text = f"; option/common reported value ratio: {structure_ratio:,.1f}x" if structure_ratio else ""
+            st.caption(
+                "Same-CUSIP common share stub: "
+                f"{fmt_quantity(common_shares)} shares, {fmt_value_dollars(common_value)} reported value{ratio_text}."
+            )
+
+    detail_cols = [
+        "Ticker",
+        "Type",
+        "Assumed Transaction Date",
+        "Filing Date",
+        "Issuer",
+        "CUSIP",
+        "Class",
+        "Shares",
+        "Put/Call",
+        "Value",
+        "Implied Filing Price",
+        "Estimated Contracts",
+    ]
+    render_dataframe(
+        style_instrument_type_column(selected_df[[col for col in detail_cols if col in selected_df.columns]]),
+        column_config=holdings_column_config(),
+        height=COMPACT_TABLE_HEIGHT,
     )
 
 
@@ -90,6 +247,7 @@ def _render_snapshot_mode(
     display_df = add_ticker_column(display_df)
     value_multiplier = infer_value_multiplier_from_frame(display_df, value_col="Value ($000s)", shares_col="Shares")
     display_df["Value (USD)"] = apply_value_multiplier(display_df["Value ($000s)"], value_multiplier)
+    display_df = _add_position_insight_columns(display_df)
     st.caption(f"Value scale for this filing is auto-normalized (multiplier x{value_multiplier}).")
 
     c1, c2, c3 = st.columns(3)
@@ -125,16 +283,21 @@ def _render_snapshot_mode(
         filtered_df["Value"] = filtered_df["Value (USD)"].apply(fmt_value_dollars)
         filtered_df = add_instrument_type_column(filtered_df)
 
+        with st.expander("Position insight", expanded=bool(search)):
+            _render_position_insight(filtered_df)
+
+        export_df = filtered_df.drop(columns=["_Insight Key"], errors="ignore")
+
         with export_col:
             view_token = "normalized" if view_mode == "Normalized by CUSIP" else "raw"
             st.download_button(
                 "Download CSV",
-                dataframe_to_csv_bytes(filtered_df),
+                dataframe_to_csv_bytes(export_df),
                 file_name=f"f8_13f_{safe_file_token(fund)}_{selected_acc}_{view_token}.csv",
                 mime="text/csv",
                 key="fund_analysis_snapshot_download",
             )
-        table_df = filtered_df.drop(columns=["Value ($000s)", "Value (USD)"], errors="ignore")
+        table_df = filtered_df.drop(columns=["Value ($000s)", "Value (USD)", "_Insight Key"], errors="ignore")
         render_dataframe(
             style_instrument_type_column(table_df),
             column_config=holdings_column_config(),
@@ -179,8 +342,7 @@ def _render_timeline_mode(fund: str, history_df: pd.DataFrame, transitions: list
         st.caption(f"Historical portfolio values are normalized by filing (multipliers: {multipliers_text}).")
 
     st.caption(
-        "The opened/closed/improved/decreased categories use share changes. "
-        "Portfolio values are shown as additional context when present in the DB."
+        "Timeline is the quarter-level history view. Use Compare for position-level change tables and exports."
     )
 
     summary_export = history_df.copy()
@@ -216,7 +378,7 @@ def _render_timeline_mode(fund: str, history_df: pd.DataFrame, transitions: list
         st.info("At least one more quarter is needed to calculate quarter-over-quarter changes.")
         return
 
-    with st.expander("Quarter-over-quarter changes", expanded=True):
+    with st.expander("Quarter-over-quarter activity", expanded=True):
         render_transition_counts_chart(transitions, fund, key="fund_analysis_timeline_transitions")
 
         latest_first_transitions = list(reversed(transitions))
@@ -234,12 +396,14 @@ def _render_timeline_mode(fund: str, history_df: pd.DataFrame, transitions: list
         d2.metric("Closed positions", selected_transition["closed_count"])
         d3.metric("Increased", selected_transition["increased_count"])
         d4.metric("Decreased", selected_transition["decreased_count"])
-
-    with st.expander(
-        f"Transition detail tables: {selected_transition['from_filing_date']} -> {selected_transition['to_filing_date']}",
-        expanded=True,
-    ):
-        render_detailed_diff_sections(selected_transition, dense=True)
+        if st.button("Inspect selected transition in Compare", key="fund_analysis_timeline_send_to_compare"):
+            st.session_state["fund_analysis_compare_preset"] = "Manual quarters"
+            st.session_state["fund_analysis_compare_acc_new"] = selected_transition["to_accession_number"]
+            st.session_state["fund_analysis_compare_acc_old"] = selected_transition["from_accession_number"]
+            st.toast("Compare is set to the selected transition.")
+        st.caption(
+            "Detailed new, closed, and share-change tables are consolidated in Compare so each transition is inspected in one place."
+        )
 
 
 def _render_compare_mode(
@@ -302,7 +466,7 @@ def _render_compare_mode(
     diff = compute_detailed_portfolio_diff(old_map, new_map, min_change_pct=0)
 
     st.caption(
-        "Normalized comparison by position. Common shares, CALLs, and PUTs remain separate "
+        "Compare is the position-level change workspace. Common shares, CALLs, and PUTs remain separate "
         "even when they share the same underlying CUSIP; positions without CUSIP use the fallback "
         "issuer/class/put-call."
     )
@@ -312,7 +476,7 @@ def _render_compare_mode(
     c2.metric("Closed positions", len(diff["closed_positions"]))
     c3.metric("Increased", len(diff["increased"]))
     c4.metric("Decreased", len(diff["decreased"]))
-    with st.expander("Shares Flow Sankey", expanded=True):
+    with st.expander("Visual movement summary", expanded=False):
         st.caption(
             "Delta Shares = NEW quarter shares - PREVIOUS quarter shares. "
             "Hover labels always show raw share deltas; thickness can be display-scaled for readability."
@@ -339,8 +503,7 @@ def _render_compare_mode(
             scale_mode=scale_mode,
             min_visible_pct=float(min_visible_pct),
         )
-
-    with st.expander("Position size before/after", expanded=True):
+        st.divider()
         render_shares_change_lanes(
             diff,
             fund,
@@ -363,7 +526,7 @@ def render_fund_analysis_page(
     query: Callable[[str, tuple], pd.DataFrame],
 ) -> None:
     st.title("Fund Analysis")
-    st.caption("One fund workspace for current holdings, historical trajectory, and quarter-over-quarter changes.")
+    st.caption("One fund workspace for filing inventory, quarter history, and position-level change analysis.")
 
     funds = get_fund_options()
     if not funds:
@@ -400,15 +563,15 @@ def render_fund_analysis_page(
         ("Compare", "Compare"),
     ])
 
-    render_section("Snapshot", "Inspect one filing: normalized portfolio, raw 13F lines, top holdings, and export.")
+    render_section("Snapshot", "Inspect one selected filing: holdings inventory, top positions, and export.")
     _render_snapshot_mode(fund, require_selection, accessions, query)
 
     st.divider()
-    render_section("Timeline", "Scan every quarter available for the fund and drill into the latest portfolio transition.")
+    render_section("Timeline", "Scan quarter history, portfolio trajectory, and activity levels.")
     _render_timeline_mode(fund, history_df, transitions)
 
     st.divider()
-    render_section("Compare", "Compare two quarters, review position flows, and inspect detailed share changes.")
+    render_section("Compare", "Compare two quarters and inspect position-level change tables.")
     _render_compare_mode(
         fund,
         require_selection,
