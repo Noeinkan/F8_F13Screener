@@ -63,6 +63,11 @@ DEPLOY_REPO_URL="${DEPLOY_REPO_URL:-}"
 DEPLOY_GITHUB_TOKEN="${DEPLOY_GITHUB_TOKEN:-${GITHUB_TOKEN:-}}"
 GITHUB_REPO_PATH=""
 
+if [ -z "$DEPLOY_GITHUB_TOKEN" ] && [ "${DEPLOY_PROMPT_GITHUB_TOKEN:-0}" = "1" ] && [ -t 0 ]; then
+    read -r -s -p "GitHub token (input hidden): " DEPLOY_GITHUB_TOKEN
+    echo
+fi
+
 if [[ "$REPO_URL" =~ ^https://github\.com/(.+)$ ]]; then
     GITHUB_REPO_PATH="${BASH_REMATCH[1]}"
 elif [[ "$REPO_URL" =~ ^git@github\.com:(.+)$ ]]; then
