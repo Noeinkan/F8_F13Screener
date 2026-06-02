@@ -59,6 +59,15 @@ done
 CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 LOCAL_COMMIT="$(git rev-parse HEAD)"
 REPO_URL="$(git remote get-url origin)"
+DEPLOY_REPO_URL="${DEPLOY_REPO_URL:-}"
+
+if [ -z "$DEPLOY_REPO_URL" ]; then
+    if [[ "$REPO_URL" =~ ^https://github\.com/(.+)$ ]]; then
+        DEPLOY_REPO_URL="git@github.com:${BASH_REMATCH[1]}"
+    else
+        DEPLOY_REPO_URL="$REPO_URL"
+    fi
+fi
 
 if [ "$CURRENT_BRANCH" != "$DEPLOY_BRANCH" ]; then
     echo "Errore: deploy consentito solo da '$DEPLOY_BRANCH' (branch corrente: '$CURRENT_BRANCH')"
@@ -102,7 +111,8 @@ if [ "$SKIP_PUSH" = false ]; then
 fi
 
 echo "→ Deploying commit ${LOCAL_COMMIT:0:12} to VPS ($VPS)..."
-ssh "$VPS" bash -s -- "$APP_DIR" "$REPO_URL" "$DEPLOY_BRANCH" "$LOCAL_COMMIT" "$REBUILD_DB" "$WORKERS" <<'REMOTE'
+echo "→ VPS repository URL: $DEPLOY_REPO_URL"
+ssh "$VPS" bash -s -- "$APP_DIR" "$DEPLOY_REPO_URL" "$DEPLOY_BRANCH" "$LOCAL_COMMIT" "$REBUILD_DB" "$WORKERS" <<'REMOTE'
 set -euo pipefail
 APP_DIR="$1"
 REPO_URL="$2"
