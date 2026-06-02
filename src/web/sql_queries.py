@@ -78,6 +78,7 @@ POSITION_KEY_SQL = """
 
 RAW_ACCESSION_HOLDINGS_SQL = """
     SELECT
+        filing_date AS "Filing Date",
         issuer_name AS "Issuer",
         TRIM(COALESCE(cusip, '')) AS "CUSIP",
         share_class AS "Class",
@@ -94,6 +95,7 @@ RAW_ACCESSION_HOLDINGS_SQL = """
 
 NORMALIZED_ACCESSION_HOLDINGS_SQL = f"""
     SELECT
+        MIN(filing_date) AS "Filing Date",
         MIN(issuer_name) AS "Issuer",
         MAX(TRIM(COALESCE(cusip, ''))) AS "CUSIP",
         GROUP_CONCAT(DISTINCT NULLIF(TRIM(share_class), '')) AS "Class",

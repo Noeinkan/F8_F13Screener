@@ -647,6 +647,10 @@ class FilingProcessor:
 
     def send_daily_summaries(self):
         """Send daily summaries for filtered filings"""
+        if not self.config.enable_filtered_daily_summary:
+            self.logger.info("Daily summary filtrati disabilitato da configurazione")
+            return
+
         self.logger.info("📋 Controllo daily summaries...")
 
         dates_to_send = self.storage.get_daily_summary_dates()
@@ -698,6 +702,10 @@ def main():
         config.submissions_request_delay_seconds,
         'ON' if config.enable_atom_fallback else 'OFF',
     )
+    logger.info(
+        "Daily summary filing filtrati: %s",
+        'ON' if config.enable_filtered_daily_summary else 'OFF',
+    )
     logger.info(f"Filtro attivo: SI - {len(config.hedge_funds_cik)} hedge funds monitorati (filtro per CIK)")
 
     # Log first 5 funds
@@ -743,9 +751,11 @@ def main():
 
             current_date = datetime.now().date()
 
-            # Check if new day -> send daily summaries
+            # Check if new day
             if current_date > last_summary_date:
-                processor.send_daily_summaries()
+                if config.enable_filtered_daily_summary:
+                    processor.send_daily_summaries()
+
                 last_summary_date = current_date
 
                 # Cleanup old filings (keep 90 days)

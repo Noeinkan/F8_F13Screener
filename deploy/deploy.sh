@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
-# Continuous deployment: push to GitHub then update the VPS.
+# Continuous deployment: push the current commit, then update the VPS from Git.
 # Usage (from Git Bash / WSL / Mac terminal):
 #   bash deploy/deploy.sh
-#   bash deploy/deploy.sh --skip-push   # only restart VPS, no git push
+#   bash deploy/deploy.sh --skip-push   # deploy current commit if it is already on origin/main
 #   bash deploy/deploy.sh --skip-tests  # skip local test gate
 #   bash deploy/deploy.sh --tests "tests/test_storage.py -q"
-#   bash deploy/deploy.sh --rebuild-db  # rebuild SQLite used by dashboard
+#   bash deploy/deploy.sh --rebuild-db  # rebuild DuckDB used by dashboard
 #   bash deploy/deploy.sh --rebuild-db --workers 2
 set -euo pipefail
 
 VPS="root@77.42.70.26"
 APP_DIR="/opt/F8_F13Screener"
+DEPLOY_BRANCH="main"
 SKIP_PUSH=false
 SKIP_TESTS=false
 TEST_ARGS="tests/"
@@ -55,6 +56,21 @@ while [ $# -gt 0 ]; do
     esac
 done
 
+CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+LOCAL_COMMIT="$(git rev-parse HEAD)"
+REPO_URL="$(git remote get-url origin)"
+
+if [ "$CURRENT_BRANCH" != "$DEPLOY_BRANCH" ]; then
+    echo "Errore: deploy consentito solo da '$DEPLOY_BRANCH' (branch corrente: '$CURRENT_BRANCH')"
+    exit 1
+fi
+
+if [ -n "$(git status --porcelain)" ]; then
+    echo "Errore: working tree non pulito. Commit/stash le modifiche prima del deploy."
+    git status --short
+    exit 1
+fi
+
 if [ "$SKIP_TESTS" = false ]; then
     echo "→ Running local tests before deploy..."
 
@@ -81,42 +97,51 @@ if [ "$SKIP_TESTS" = false ]; then
 fi
 
 if [ "$SKIP_PUSH" = false ]; then
-    echo "→ Pushing to GitHub..."
-    git push origin main
+    echo "→ Pushing $DEPLOY_BRANCH to GitHub..."
+    git push origin "$DEPLOY_BRANCH"
 fi
 
-echo "→ Syncing source files to VPS..."
-if command -v rsync >/dev/null 2>&1; then
-    rsync -az \
-        --exclude '__pycache__/' \
-        --exclude '*.pyc' \
-        --exclude 'core/data/' \
-        --exclude 'core/logs/' \
-        --exclude 'core/*.csv' \
-        src/ "$VPS:$APP_DIR/src/"
-else
-    find src -type f \
-        ! -path '*/__pycache__/*' \
-        ! -name '*.pyc' \
-        ! -path 'src/core/data/*' \
-        ! -path 'src/core/logs/*' \
-        ! -path 'src/core/*.csv' \
-        -print0 \
-        | tar --null -T - -cf - \
-        | ssh "$VPS" "cd '$APP_DIR' && tar -xf -"
-fi
-
-echo "→ Syncing root files to VPS..."
-scp requirements.txt "$VPS:$APP_DIR/requirements.txt"
-
-echo "→ Syncing service files to VPS..."
-scp deploy/f8-screener.service deploy/f8-dashboard.service "$VPS:$APP_DIR/deploy/"
-
-echo "→ Deploying to VPS ($VPS)..."
-ssh "$VPS" bash <<REMOTE
+echo "→ Deploying commit ${LOCAL_COMMIT:0:12} to VPS ($VPS)..."
+ssh "$VPS" bash -s -- "$APP_DIR" "$REPO_URL" "$DEPLOY_BRANCH" "$LOCAL_COMMIT" "$REBUILD_DB" "$WORKERS" <<'REMOTE'
 set -euo pipefail
+APP_DIR="$1"
+REPO_URL="$2"
+DEPLOY_BRANCH="$3"
+LOCAL_COMMIT="$4"
+REBUILD_DB="$5"
+WORKERS="$6"
+
+if [ ! -d "$APP_DIR/.git" ]; then
+    BACKUP_DIR=""
+    if [ -e "$APP_DIR" ]; then
+        BACKUP_DIR="${APP_DIR}.pre-git.$(date +%Y%m%d%H%M%S)"
+        echo "→ Existing non-Git app directory found; moving it to $BACKUP_DIR"
+        mv "$APP_DIR" "$BACKUP_DIR"
+    fi
+
+    git clone "$REPO_URL" "$APP_DIR"
+
+    if [ -n "$BACKUP_DIR" ]; then
+        for item in config_secret.py config data cache logs src/core/data src/core/logs; do
+            if [ -e "$BACKUP_DIR/$item" ]; then
+                mkdir -p "$APP_DIR/$(dirname "$item")"
+                rm -rf "$APP_DIR/$item"
+                cp -a "$BACKUP_DIR/$item" "$APP_DIR/$item"
+            fi
+        done
+    fi
+fi
 cd "$APP_DIR"
-# Sync code (caller must scp or the repo must be public for git pull)
+git remote set-url origin "$REPO_URL"
+git fetch --prune origin "$DEPLOY_BRANCH"
+git cat-file -e "$LOCAL_COMMIT^{commit}"
+git reset --hard "$LOCAL_COMMIT"
+SERVER_COMMIT="$(git rev-parse HEAD)"
+if [ "$SERVER_COMMIT" != "$LOCAL_COMMIT" ]; then
+    echo "Errore: commit server $SERVER_COMMIT diverso da commit deploy $LOCAL_COMMIT"
+    exit 1
+fi
+echo "→ VPS source now at $(git rev-parse --short HEAD)"
 if [ ! -x "$APP_DIR/venv/bin/python" ]; then
     python3 -m venv "$APP_DIR/venv"
 fi
@@ -143,9 +168,10 @@ echo "✓ VPS aggiornato"
 REMOTE
 
 echo "✓ Deploy completato"
+echo "   Commit: $LOCAL_COMMIT"
 echo "   Log live: ssh $VPS 'journalctl -u f8-screener -f'"
 echo "   Dashboard log: ssh $VPS 'journalctl -u f8-dashboard -f'"
 echo "   Dashboard URL: http://77.42.70.26:8502"
 if [ "$REBUILD_DB" = true ]; then
-    echo "   DB rebuilt: $APP_DIR/src/core/data/13f_holdings.db"
+    echo "   DB rebuilt: $APP_DIR/src/core/data/13f_dashboard.duckdb"
 fi

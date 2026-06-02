@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from html import escape
 import re
 from typing import Any
 
@@ -26,6 +27,37 @@ def render_section(title: str, description: str | None = None) -> None:
 def render_page_index(items: list[tuple[str, str]]) -> None:
     links = " &nbsp; ".join(f"[{label}](#{slugify_label(anchor)})" for label, anchor in items)
     st.caption(f"On this page: {links}")
+
+
+def render_compact_page_index(items: list[tuple[str, str]]) -> None:
+    links = "".join(
+        f'<a href="#{slugify_label(anchor)}">{escape(label)}</a>'
+        for label, anchor in items
+    )
+    st.markdown(f'<div class="f8-top-bar-links">On this page:{links}</div>', unsafe_allow_html=True)
+
+
+def render_compact_stats(items: list[tuple[str, str]], *, columns: int | None = None) -> None:
+    stat_count = columns or len(items)
+    cards = "".join(
+        "<div class=\"f8-compact-stat\">"
+        f"<div class=\"f8-compact-stat__label\">{escape(label)}</div>"
+        f"<div class=\"f8-compact-stat__value\" title=\"{escape(value)}\">{escape(value)}</div>"
+        "</div>"
+        for label, value in items
+    )
+    st.markdown(
+        f'<div class="f8-compact-stats" style="--f8-stat-count: {stat_count};">{cards}</div>',
+        unsafe_allow_html=True,
+    )
+
+
+def render_top_bar_message(message: str, *, level: str = "success") -> None:
+    safe_level = "warning" if level == "warning" else "success"
+    st.markdown(
+        f'<div class="f8-top-bar-message f8-top-bar-message--{safe_level}">{escape(message)}</div>',
+        unsafe_allow_html=True,
+    )
 
 
 def render_dataframe(

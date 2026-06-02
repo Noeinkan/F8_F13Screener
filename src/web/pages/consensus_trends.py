@@ -19,7 +19,7 @@ from src.web.formatting import (
 from src.web.sql_queries import CONSENSUS_NORMALIZED_POSITIONS_SQL
 from src.web.table_config import DEFAULT_TABLE_HEIGHT
 from src.web.tickers import add_ticker_column
-from src.web.ui_components import render_dataframe, render_page_index, render_section, safe_file_token
+from src.web.ui_components import render_compact_page_index, render_dataframe, render_page_index, render_section, safe_file_token
 from src.web.value_units import apply_value_multiplier_by_group, infer_value_multiplier_by_group, summarize_multipliers
 
 
@@ -417,15 +417,25 @@ def _render_leaderboard(
 def render_consensus_trends_page(
     query: Callable[[str, tuple], pd.DataFrame],
     get_fund_options: Callable[[], list[str]],
+    top_bar: Any | None = None,
 ) -> None:
-    st.title("Consensus Trends")
-    st.caption("Cross-fund 13F movement, ownership, and portfolio-weight patterns across recent filing quarters.")
-    render_page_index([
-        ("Accumulation", "Consensus accumulation"),
-        ("Distribution", "Consensus distribution"),
-        ("Weight growth", "Growing portfolio weight"),
-        ("Consensus", "Crowded and emerging consensus"),
-    ])
+    header = top_bar or st.container()
+    with header:
+        page_index_items = [
+            ("Accumulation", "Consensus accumulation"),
+            ("Distribution", "Consensus distribution"),
+            ("Weight growth", "Growing portfolio weight"),
+            ("Consensus", "Crowded and emerging consensus"),
+        ]
+        if top_bar:
+            title_col, index_col = st.columns([2, 3])
+            with title_col:
+                st.caption("Cross-fund movement, ownership, and portfolio-weight patterns.")
+            with index_col:
+                render_compact_page_index(page_index_items)
+        else:
+            st.caption("Cross-fund 13F movement, ownership, and portfolio-weight patterns across recent filing quarters.")
+            render_page_index(page_index_items)
 
     with st.spinner("Loading normalized cross-fund holdings..."):
         rows = query(CONSENSUS_NORMALIZED_POSITIONS_SQL)
@@ -434,27 +444,34 @@ def render_consensus_trends_page(
         return
 
     all_funds = get_fund_options()
-    controls = st.columns([1, 1, 1, 3])
-    with controls[0]:
-        lookback_quarters = st.selectbox(
-            "Window",
-            [2, 4, 6, 8],
-            index=1,
-            format_func=lambda value: f"Last {value} quarters",
-            key="consensus_trends_window",
-        )
-    with controls[1]:
-        min_funds = st.slider("Minimum funds", min_value=1, max_value=10, value=2, step=1, key="consensus_trends_min_funds")
-    with controls[2]:
-        top_n = st.slider("Rows", min_value=10, max_value=50, value=20, step=5, key="consensus_trends_top_n")
-    with controls[3]:
-        selected_funds = st.multiselect(
-            "Fund subset",
-            all_funds,
-            default=[],
-            placeholder="All tracked funds",
-            key="consensus_trends_fund_subset",
-        )
+    with header:
+        controls = st.columns([1.2, 1.2, 1.2, 3.8]) if top_bar else st.columns([1, 1, 1, 3])
+        with controls[0]:
+            lookback_quarters = st.selectbox(
+                "Window",
+                [2, 4, 6, 8],
+                index=1,
+                format_func=lambda value: f"Last {value} quarters",
+                key="consensus_trends_window",
+            )
+        with controls[1]:
+            if top_bar:
+                min_funds = st.selectbox("Minimum funds", list(range(1, 11)), index=1, key="consensus_trends_min_funds")
+            else:
+                min_funds = st.slider("Minimum funds", min_value=1, max_value=10, value=2, step=1, key="consensus_trends_min_funds")
+        with controls[2]:
+            if top_bar:
+                top_n = st.selectbox("Rows", list(range(10, 55, 5)), index=2, key="consensus_trends_top_n")
+            else:
+                top_n = st.slider("Rows", min_value=10, max_value=50, value=20, step=5, key="consensus_trends_top_n")
+        with controls[3]:
+            selected_funds = st.multiselect(
+                "Fund subset",
+                all_funds,
+                default=[],
+                placeholder="All tracked funds",
+                key="consensus_trends_fund_subset",
+            )
 
     tables = build_consensus_trend_tables(
         rows,

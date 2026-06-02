@@ -1,6 +1,7 @@
 """Overview dashboard page."""
 
 from collections.abc import Callable
+from typing import Any
 
 import pandas as pd
 import plotly.express as px
@@ -20,7 +21,7 @@ from src.web.sql_queries import (
 )
 from src.web.table_config import COMPACT_TABLE_HEIGHT, DEFAULT_TABLE_HEIGHT, common_holdings_column_config, fund_overview_column_config, recent_filings_column_config
 from src.web.tickers import add_ticker_column
-from src.web.ui_components import render_dataframe
+from src.web.ui_components import render_compact_stats, render_dataframe, render_top_bar_message
 from src.web.value_units import apply_value_multiplier_by_group, infer_value_multiplier_by_group, summarize_multipliers
 
 
@@ -60,47 +61,67 @@ def _load_accession_multiplier_map(
 def render_overview_page(
     query: Callable[..., pd.DataFrame],
     table_exists: Callable[[str], bool],
+    top_bar: Any | None = None,
 ):
-    st.title("Overview — 13F database status")
-
     dataset = query(OVERVIEW_SUMMARY_SQL)
     recent_activity = query(OVERVIEW_RECENT_ACTIVITY_SQL)
     has_portfolio_values = False
     export_token = "empty"
 
-    if not dataset.empty:
-        d = dataset.iloc[0]
-        recent = recent_activity.iloc[0] if not recent_activity.empty else None
-        has_portfolio_values = int(d["value_rows"] or 0) > 0
-        c1, c2, c3, c4, c5 = st.columns(5)
-        c1.metric("Holding rows", f"{int(d['positions']):,}")
-        c2.metric("13F filings", f"{int(d['filings']):,}")
-        c3.metric("Covered funds", f"{int(d['funds']):,}")
-        c4.metric("Latest filing", d["latest_filing_date"] or "-")
-        c5.metric(
-            "Filings in last ~120 days",
-            f"{int(recent['recent_filings']):,}" if recent is not None else "-",
-        )
+    header = top_bar or st.container()
+    with header:
+        st.caption("13F database status")
 
-        if recent is not None:
-            st.caption(
-                f"Funds with at least one filing in the last ~120 days: "
-                f"{int(recent['recent_funds']):,}"
-            )
+        if not dataset.empty:
+            d = dataset.iloc[0]
+            recent = recent_activity.iloc[0] if not recent_activity.empty else None
+            has_portfolio_values = int(d["value_rows"] or 0) > 0
+            if top_bar:
+                render_compact_stats([
+                    ("Holding rows", f"{int(d['positions']):,}"),
+                    ("13F filings", f"{int(d['filings']):,}"),
+                    ("Covered funds", f"{int(d['funds']):,}"),
+                    ("Latest filing", d["latest_filing_date"] or "-"),
+                    ("Recent filings", f"{int(recent['recent_filings']):,}" if recent is not None else "-"),
+                ])
+            else:
+                c1, c2, c3, c4, c5 = st.columns(5)
+                c1.metric("Holding rows", f"{int(d['positions']):,}")
+                c2.metric("13F filings", f"{int(d['filings']):,}")
+                c3.metric("Covered funds", f"{int(d['funds']):,}")
+                c4.metric("Latest filing", d["latest_filing_date"] or "-")
+                c5.metric(
+                    "Filings in last ~120 days",
+                    f"{int(recent['recent_filings']):,}" if recent is not None else "-",
+                )
 
-        if not has_portfolio_values:
-            st.warning(
-                "Portfolio values are not available in the current database "
-                "(`value_usd` / `value_x1000` are empty). "
-                "This overview therefore shows useful signals based on filings, "
-                "coverage, and normalized positions, which are the available data."
-            )
-        else:
-            st.success(
-                "Portfolio values are available: fund rankings and charts now use the latest valued filing."
-            )
+            if recent is not None:
+                st.caption(
+                    f"Funds with at least one filing in the last ~120 days: "
+                    f"{int(recent['recent_funds']):,}"
+                )
 
-        export_token = f"{int(d['positions'])}:{d['latest_filing_date']}"
+            if not has_portfolio_values:
+                warning_message = (
+                    "Portfolio values are not available; overview uses filings, coverage, and normalized positions."
+                    if top_bar
+                    else "Portfolio values are not available in the current database "
+                    "(`value_usd` / `value_x1000` are empty). "
+                    "This overview therefore shows useful signals based on filings, "
+                    "coverage, and normalized positions, which are the available data."
+                )
+                if top_bar:
+                    render_top_bar_message(warning_message, level="warning")
+                else:
+                    st.warning(warning_message)
+            else:
+                success_message = "Portfolio values available: rankings and charts use the latest valued filing."
+                if top_bar:
+                    render_top_bar_message(success_message)
+                else:
+                    st.success(success_message)
+
+            export_token = f"{int(d['positions'])}:{d['latest_filing_date']}"
 
     if st.session_state.get("overview_export_token") != export_token:
         st.session_state["overview_export_token"] = export_token

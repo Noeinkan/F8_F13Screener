@@ -21,15 +21,17 @@ from src.web.formatting import (
     fmt_accession_label,
     fmt_eu_date,
     fmt_quantity,
+    fmt_signed_pct,
+    fmt_signed_quantity,
     fmt_signed_value_dollars,
     fmt_transition_label,
     fmt_value_dollars,
 )
 from src.web.instrument_transforms import add_instrument_type_column, style_instrument_type_column
 from src.web.sql_queries import NORMALIZED_ACCESSION_HOLDINGS_SQL, RAW_ACCESSION_HOLDINGS_SQL
-from src.web.table_config import COMPACT_TABLE_HEIGHT, DEFAULT_TABLE_HEIGHT, holdings_column_config, timeline_column_config
+from src.web.table_config import COMPACT_TABLE_HEIGHT, DEFAULT_TABLE_HEIGHT, diff_column_config, holdings_column_config, timeline_column_config
 from src.web.tickers import add_ticker_column
-from src.web.ui_components import render_dataframe, render_page_index, render_section, safe_file_token
+from src.web.ui_components import render_compact_page_index, render_compact_stats, render_dataframe, render_page_index, render_section, safe_file_token
 from src.web.value_units import apply_value_multiplier, infer_value_multiplier_from_frame
 
 
@@ -46,6 +48,157 @@ def _transition_label(transition: dict) -> str:
         transition["to_filing_date"],
         transition["from_accession_number"],
         transition["to_accession_number"],
+    )
+
+
+def _position_label(position: dict | None) -> str:
+    if not position:
+        return "-"
+    issuer = str(position.get("issuer_name") or "").strip()
+    put_call = str(position.get("put_call") or "").strip().upper()
+    share_class = str(position.get("share_class") or "").strip()
+    suffix = " ".join(part for part in [share_class, put_call] if part)
+    return f"{issuer} ({suffix})" if issuer and suffix else issuer or str(position.get("cusip") or "-")
+
+
+def _largest_by_abs(items: list[dict], key: str) -> dict | None:
+    if not items:
+        return None
+    return max(items, key=lambda item: abs(float(item.get(key) or 0)))
+
+
+def _largest_by_value(items: list[dict], key: str) -> dict | None:
+    if not items:
+        return None
+    return max(items, key=lambda item: float(item.get(key) or 0))
+
+
+def _render_compare_highlights(diff: dict) -> None:
+    new_position = _largest_by_value(diff["new_positions"], "shares")
+    closed_position = _largest_by_value(diff["closed_positions"], "shares")
+    increased_position = _largest_by_abs(diff["increased"], "share_change")
+    decreased_position = _largest_by_abs(diff["decreased"], "share_change")
+
+    highlight_cols = st.columns(4)
+    highlights = [
+        ("Largest new", new_position, fmt_quantity(new_position.get("shares")) if new_position else "-", "reported shares"),
+        ("Largest closed", closed_position, fmt_quantity(closed_position.get("shares")) if closed_position else "-", "previous shares"),
+        (
+            "Largest increase",
+            increased_position,
+            fmt_signed_quantity(increased_position.get("share_change")) if increased_position else "-",
+            fmt_signed_pct(increased_position.get("pct_change")) if increased_position else "-",
+        ),
+        (
+            "Largest decrease",
+            decreased_position,
+            fmt_signed_quantity(decreased_position.get("share_change")) if decreased_position else "-",
+            fmt_signed_pct(decreased_position.get("pct_change")) if decreased_position else "-",
+        ),
+    ]
+    for column, (label, position, value, context) in zip(highlight_cols, highlights, strict=False):
+        column.metric(label, value, delta=None if context == "-" else context)
+        column.caption(_position_label(position))
+
+
+def _infer_diff_value_multiplier(diff: dict) -> int:
+    value_rows = []
+    for position in diff["new_positions"] + diff["closed_positions"]:
+        value_rows.append({"value": position.get("value_usd"), "shares": position.get("shares")})
+    for position in diff["increased"] + diff["decreased"]:
+        value_rows.append({"value": position.get("old_value_usd"), "shares": position.get("old_shares")})
+        value_rows.append({"value": position.get("new_value_usd"), "shares": position.get("new_shares")})
+    return infer_value_multiplier_from_frame(pd.DataFrame(value_rows), value_col="value", shares_col="shares")
+
+
+def _fmt_value_move(value: Any, multiplier: int) -> str:
+    if value is None or pd.isna(value):
+        return "-"
+    return fmt_signed_value_dollars(float(value) * multiplier)
+
+
+def _build_top_movers_table(diff: dict, *, limit: int = 12) -> tuple[pd.DataFrame, int]:
+    value_multiplier = _infer_diff_value_multiplier(diff)
+    rows = []
+
+    for position in diff["new_positions"]:
+        shares = float(position.get("shares") or 0)
+        rows.append({
+            "Ticker": position.get("cusip"),
+            "Type": "Purchase",
+            "Movement": "New",
+            "Issuer": position.get("issuer_name"),
+            "Delta Shares": fmt_signed_quantity(shares),
+            "Delta %": "New",
+            "Delta Value": _fmt_value_move(position.get("value_usd"), value_multiplier),
+            "Shares Before": "-",
+            "Shares After": fmt_quantity(shares),
+            "CUSIP": position.get("cusip"),
+            "Class": position.get("share_class"),
+            "Put/Call": position.get("put_call"),
+            "_Sort Magnitude": abs(shares),
+        })
+
+    for position in diff["closed_positions"]:
+        shares = float(position.get("shares") or 0)
+        value = position.get("value_usd")
+        rows.append({
+            "Ticker": position.get("cusip"),
+            "Type": "Sell",
+            "Movement": "Closed",
+            "Issuer": position.get("issuer_name"),
+            "Delta Shares": fmt_signed_quantity(-shares),
+            "Delta %": "Closed",
+            "Delta Value": _fmt_value_move(-float(value), value_multiplier) if value is not None and not pd.isna(value) else "-",
+            "Shares Before": fmt_quantity(shares),
+            "Shares After": "-",
+            "CUSIP": position.get("cusip"),
+            "Class": position.get("share_class"),
+            "Put/Call": position.get("put_call"),
+            "_Sort Magnitude": abs(shares),
+        })
+
+    for movement, positions in [("Increase", diff["increased"]), ("Decrease", diff["decreased"])]:
+        for position in positions:
+            share_change = float(position.get("share_change") or 0)
+            rows.append({
+                "Ticker": position.get("cusip"),
+                "Type": "Purchase" if share_change > 0 else "Sell",
+                "Movement": movement,
+                "Issuer": position.get("issuer_name"),
+                "Delta Shares": fmt_signed_quantity(share_change),
+                "Delta %": fmt_signed_pct(position.get("pct_change")),
+                "Delta Value": _fmt_value_move(position.get("value_change"), value_multiplier),
+                "Shares Before": fmt_quantity(position.get("old_shares")),
+                "Shares After": fmt_quantity(position.get("new_shares")),
+                "CUSIP": position.get("cusip"),
+                "Class": position.get("share_class"),
+                "Put/Call": position.get("put_call"),
+                "_Sort Magnitude": abs(share_change),
+            })
+
+    if not rows:
+        return pd.DataFrame(), value_multiplier
+
+    movers_df = pd.DataFrame(rows).sort_values(["_Sort Magnitude", "Issuer"], ascending=[False, True]).head(limit)
+    movers_df = add_ticker_column(movers_df.drop(columns=["_Sort Magnitude"]))
+    return movers_df, value_multiplier
+
+
+def _render_top_movers_table(diff: dict) -> None:
+    movers_df, value_multiplier = _build_top_movers_table(diff)
+    if movers_df.empty:
+        return
+
+    st.subheader("Top movers")
+    st.caption(
+        "Largest position changes by absolute share delta across new, closed, increased, and decreased positions "
+        f"(value multiplier x{value_multiplier})."
+    )
+    render_dataframe(
+        style_instrument_type_column(movers_df),
+        column_config=diff_column_config(),
+        height=COMPACT_TABLE_HEIGHT,
     )
 
 
@@ -283,7 +436,7 @@ def _render_snapshot_mode(
         filtered_df["Value"] = filtered_df["Value (USD)"].apply(fmt_value_dollars)
         filtered_df = add_instrument_type_column(filtered_df)
 
-        with st.expander("Position insight", expanded=bool(search)):
+        with st.expander("Position insight", expanded=True):
             _render_position_insight(filtered_df)
 
         export_df = filtered_df.drop(columns=["_Insight Key"], errors="ignore")
@@ -476,7 +629,10 @@ def _render_compare_mode(
     c2.metric("Closed positions", len(diff["closed_positions"]))
     c3.metric("Increased", len(diff["increased"]))
     c4.metric("Decreased", len(diff["decreased"]))
-    with st.expander("Visual movement summary", expanded=False):
+    _render_compare_highlights(diff)
+    _render_top_movers_table(diff)
+
+    with st.expander("Visual movement summary", expanded=True):
         st.caption(
             "Delta Shares = NEW quarter shares - PREVIOUS quarter shares. "
             "Hover labels always show raw share deltas; thickness can be display-scaled for readability."
@@ -524,21 +680,32 @@ def render_fund_analysis_page(
     load_normalized_positions_map: Callable[[str, str], dict],
     load_fund_instrument_history: Callable[[str], pd.DataFrame],
     query: Callable[[str, tuple], pd.DataFrame],
+    top_bar: Any | None = None,
 ) -> None:
-    st.title("Fund Analysis")
-    st.caption("One fund workspace for filing inventory, quarter history, and position-level change analysis.")
+    header = top_bar or st.container()
+    top_bar_stats = None
+    with header:
+        funds = get_fund_options()
+        if not funds:
+            st.info("No data in the database yet.")
+            st.stop()
 
-    funds = get_fund_options()
-    if not funds:
-        st.info("No data in the database yet.")
-        st.stop()
+        initialize_default_fund_selection(st.session_state, "fund_analysis_selected_fund", funds)
 
-    initialize_default_fund_selection(st.session_state, "fund_analysis_selected_fund", funds)
-
-    fund = require_selection(
-        st.selectbox("Select fund", funds, key="fund_analysis_selected_fund"),
-        "Select a fund to continue.",
-    )
+        if top_bar:
+            selector_col, stats_col = st.columns([3, 2])
+            with selector_col:
+                fund = require_selection(
+                    st.selectbox("Select fund", funds, key="fund_analysis_selected_fund"),
+                    "Select a fund to continue.",
+                )
+            top_bar_stats = stats_col.empty()
+        else:
+            st.caption("One fund workspace for filing inventory, quarter history, and position-level change analysis.")
+            fund = require_selection(
+                st.selectbox("Select fund", funds, key="fund_analysis_selected_fund"),
+                "Select a fund to continue.",
+            )
 
     if not fund_has_db_holdings(fund):
         st.warning(
@@ -551,17 +718,31 @@ def render_fund_analysis_page(
 
     if not history_df.empty:
         latest_snapshot = history_df.iloc[-1]
-        top_cols = st.columns(4)
-        top_cols[0].metric("Selected fund", fund)
-        top_cols[1].metric("Latest filing", latest_snapshot["Filing Date"])
-        top_cols[2].metric("Quarters", f"{len(history_df):,}")
-        top_cols[3].metric("Current positions", f"{int(latest_snapshot['Normalized Positions']):,}")
+        if top_bar and top_bar_stats is not None:
+            with top_bar_stats.container():
+                render_compact_stats([
+                    ("Latest filing", latest_snapshot["Filing Date"]),
+                    ("Quarters", f"{len(history_df):,}"),
+                    ("Current positions", f"{int(latest_snapshot['Normalized Positions']):,}"),
+                ])
+        else:
+            with header:
+                top_cols = st.columns(4)
+                top_cols[0].metric("Selected fund", fund)
+                top_cols[1].metric("Latest filing", latest_snapshot["Filing Date"])
+                top_cols[2].metric("Quarters", f"{len(history_df):,}")
+                top_cols[3].metric("Current positions", f"{int(latest_snapshot['Normalized Positions']):,}")
 
-    render_page_index([
-        ("Snapshot", "Snapshot"),
-        ("Timeline", "Timeline"),
-        ("Compare", "Compare"),
-    ])
+    with header:
+        page_index_items = [
+            ("Snapshot", "Snapshot"),
+            ("Timeline", "Timeline"),
+            ("Compare", "Compare"),
+        ]
+        if top_bar:
+            render_compact_page_index(page_index_items)
+        else:
+            render_page_index(page_index_items)
 
     render_section("Snapshot", "Inspect one selected filing: holdings inventory, top positions, and export.")
     _render_snapshot_mode(fund, require_selection, accessions, query)

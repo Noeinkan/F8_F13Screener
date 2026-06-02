@@ -44,6 +44,7 @@ class Config:
 
     # Feature flags
     auto_launch_viewer: bool = True
+    enable_filtered_daily_summary: bool = False
 
     # Submissions watcher
     submissions_recent_limit: int = 10
@@ -110,6 +111,7 @@ class Config:
             sec_user_agent=user_agent or 'YourName yourname@email.com',
             poll_interval=_env_int('F13F_POLL_INTERVAL_SECONDS', 120),
             auto_launch_viewer=_env_bool('F13F_AUTO_LAUNCH_VIEWER', True),
+            enable_filtered_daily_summary=_env_bool('F13F_ENABLE_FILTERED_DAILY_SUMMARY', False),
             submissions_recent_limit=_env_int('F13F_SUBMISSIONS_RECENT_LIMIT', 10),
             submissions_request_delay_seconds=_env_float('F13F_SUBMISSIONS_REQUEST_DELAY_SECONDS', 1.0),
             enable_atom_fallback=_env_bool('F13F_ENABLE_ATOM_FALLBACK', True),

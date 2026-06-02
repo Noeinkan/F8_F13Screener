@@ -1,6 +1,7 @@
 """Holdings Search dashboard page."""
 
 from collections.abc import Callable
+from typing import Any
 import re
 
 import pandas as pd
@@ -43,24 +44,40 @@ def build_holdings_search_filter(query_text: str) -> tuple[str, tuple[str, ...]]
     return " AND ".join(clauses), tuple(params)
 
 
-def render_holdings_search_page(query: Callable[[str, tuple], pd.DataFrame]):
-    st.title("Holdings Search")
-    st.caption("Search across issuers, CUSIPs, and funds. Multiple terms narrow the result set.")
+def render_holdings_search_page(query: Callable[[str, tuple], pd.DataFrame], top_bar: Any | None = None):
+    header = top_bar or st.container()
+    with header:
+        if top_bar:
+            search_col, note_col = st.columns([4, 2])
+            with search_col:
+                query_text = st.text_input(
+                    "Search by issuer, CUSIP, or fund",
+                    placeholder="e.g. apple, 037833100, apple berkshire",
+                    key="holdings_search_query",
+                )
+            with note_col:
+                st.caption("Multiple terms narrow results. CUSIP search ignores punctuation.")
+        else:
+            st.caption("Search across issuers, CUSIPs, and funds. Multiple terms narrow the result set.")
 
-    query_text = st.text_input(
-        "Search by issuer, CUSIP, or fund",
-        placeholder="e.g. apple, 037833100, apple berkshire",
-        key="holdings_search_query",
-    )
-    st.caption("CUSIP search ignores punctuation, so `037-833 100` matches `037833100`.")
+            query_text = st.text_input(
+                "Search by issuer, CUSIP, or fund",
+                placeholder="e.g. apple, 037833100, apple berkshire",
+                key="holdings_search_query",
+            )
+            st.caption("CUSIP search ignores punctuation, so `037-833 100` matches `037833100`.")
 
-    if not query_text:
-        st.info("Enter a search term to begin.")
-        st.stop()
+        if not query_text:
+            if top_bar:
+                st.caption("Enter a search term to begin.")
+            else:
+                st.info("Enter a search term to begin.")
+            st.stop()
 
     where_sql, search_params = build_holdings_search_filter(query_text)
     if not where_sql:
-        st.info("Enter a search term to begin.")
+        with header:
+            st.info("Enter a search term to begin.")
         st.stop()
 
     df = query(f"""
