@@ -60,10 +60,20 @@ CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 LOCAL_COMMIT="$(git rev-parse HEAD)"
 REPO_URL="$(git remote get-url origin)"
 DEPLOY_REPO_URL="${DEPLOY_REPO_URL:-}"
+DEPLOY_GITHUB_TOKEN="${DEPLOY_GITHUB_TOKEN:-${GITHUB_TOKEN:-}}"
+GITHUB_REPO_PATH=""
+
+if [[ "$REPO_URL" =~ ^https://github\.com/(.+)$ ]]; then
+    GITHUB_REPO_PATH="${BASH_REMATCH[1]}"
+elif [[ "$REPO_URL" =~ ^git@github\.com:(.+)$ ]]; then
+    GITHUB_REPO_PATH="${BASH_REMATCH[1]}"
+fi
 
 if [ -z "$DEPLOY_REPO_URL" ]; then
-    if [[ "$REPO_URL" =~ ^https://github\.com/(.+)$ ]]; then
-        DEPLOY_REPO_URL="git@github.com:${BASH_REMATCH[1]}"
+    if [ -n "$DEPLOY_GITHUB_TOKEN" ] && [ -n "$GITHUB_REPO_PATH" ]; then
+        DEPLOY_REPO_URL="https://x-access-token:${DEPLOY_GITHUB_TOKEN}@github.com/${GITHUB_REPO_PATH}"
+    elif [ -n "$GITHUB_REPO_PATH" ]; then
+        DEPLOY_REPO_URL="git@github.com:${GITHUB_REPO_PATH}"
     else
         DEPLOY_REPO_URL="$REPO_URL"
     fi
@@ -111,7 +121,15 @@ if [ "$SKIP_PUSH" = false ]; then
 fi
 
 echo "→ Deploying commit ${LOCAL_COMMIT:0:12} to VPS ($VPS)..."
-echo "→ VPS repository URL: $DEPLOY_REPO_URL"
+if [ -n "$GITHUB_REPO_PATH" ]; then
+    if [ -n "$DEPLOY_GITHUB_TOKEN" ]; then
+        echo "→ VPS repository auth: HTTPS token (repo: $GITHUB_REPO_PATH)"
+    else
+        echo "→ VPS repository auth: SSH key (repo: $GITHUB_REPO_PATH)"
+    fi
+else
+    echo "→ VPS repository URL configured from origin"
+fi
 ssh "$VPS" bash -s -- "$APP_DIR" "$DEPLOY_REPO_URL" "$DEPLOY_BRANCH" "$LOCAL_COMMIT" "$REBUILD_DB" "$WORKERS" <<'REMOTE'
 set -euo pipefail
 APP_DIR="$1"
