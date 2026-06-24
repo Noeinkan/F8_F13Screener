@@ -72,10 +72,11 @@ def render_overview_page(
     with header:
         st.caption("13F database status")
 
-        if not dataset.empty:
-            d = dataset.iloc[0]
-            recent = recent_activity.iloc[0] if not recent_activity.empty else None
-            has_portfolio_values = int(d["value_rows"] or 0) > 0
+    if not dataset.empty:
+        d = dataset.iloc[0]
+        recent = recent_activity.iloc[0] if not recent_activity.empty else None
+        has_portfolio_values = int(d["value_rows"] or 0) > 0
+        with header:
             if top_bar:
                 render_compact_stats([
                     ("Holding rows", f"{int(d['positions']):,}"),
@@ -95,33 +96,37 @@ def render_overview_page(
                     f"{int(recent['recent_filings']):,}" if recent is not None else "-",
                 )
 
-            if recent is not None:
+        if recent is not None:
+            with header:
                 st.caption(
                     f"Funds with at least one filing in the last ~120 days: "
                     f"{int(recent['recent_funds']):,}"
                 )
 
-            if not has_portfolio_values:
-                warning_message = (
-                    "Portfolio values are not available; overview uses filings, coverage, and normalized positions."
-                    if top_bar
-                    else "Portfolio values are not available in the current database "
+        if not has_portfolio_values:
+            if top_bar:
+                with header:
+                    render_top_bar_message(
+                        "Portfolio values are not available; overview uses filings, coverage, and normalized positions.",
+                        level="warning",
+                    )
+            else:
+                st.warning(
+                    "Portfolio values are not available in the current database "
                     "(`value_usd` / `value_x1000` are empty). "
                     "This overview therefore shows useful signals based on filings, "
                     "coverage, and normalized positions, which are the available data."
                 )
-                if top_bar:
-                    render_top_bar_message(warning_message, level="warning")
-                else:
-                    st.warning(warning_message)
+        else:
+            if top_bar:
+                with header:
+                    render_top_bar_message("Portfolio values available: rankings and charts use the latest valued filing.")
             else:
-                success_message = "Portfolio values available: rankings and charts use the latest valued filing."
-                if top_bar:
-                    render_top_bar_message(success_message)
-                else:
-                    st.success(success_message)
+                st.success(
+                    "Portfolio values are available: fund rankings and charts now use the latest valued filing."
+                )
 
-            export_token = f"{int(d['positions'])}:{d['latest_filing_date']}"
+        export_token = f"{int(d['positions'])}:{d['latest_filing_date']}"
 
     if st.session_state.get("overview_export_token") != export_token:
         st.session_state["overview_export_token"] = export_token

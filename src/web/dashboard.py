@@ -47,97 +47,161 @@ def render_top_bar(page_title: str) -> Any:
     top_bar_key = f"f8_top_bar_{re.sub(r'[^0-9a-z]+', '_', page_title.lower()).strip('_')}"
     top_bar_class = f"st-key-{top_bar_key}"
     top_padding = {
-        "Overview": "9rem",
-        "Fund Analysis": "10rem",
-        "Consensus Trends": "10rem",
-        "Holdings Search": "6.5rem",
-    }.get(page_title, "5.2rem")
+        "Overview": "5.25rem",
+        "Fund Analysis": "6.5rem",
+        "Consensus Trends": "8rem",
+        "Holdings Search": "7.6rem",
+    }.get(page_title, "6rem")
     st.markdown(
         f"""
         <style>
             .block-container {{
                 padding-top: {top_padding};
             }}
+            [data-testid="stSidebar"] > div:first-child {{
+                padding-top: {top_padding};
+            }}
+            [class*="st-key-f8_top_bar_"] {{
+                display: none;
+            }}
             .{top_bar_class} {{
+                display: block;
                 position: fixed;
                 top: 0;
                 left: 0;
                 right: 0;
                 z-index: 999999;
-                overflow: visible;
-                padding: 0.38rem 1.5rem 0.42rem;
+                padding: 0.48rem 1.4rem 0.58rem;
                 border-bottom: 1px solid rgba(250, 250, 250, 0.12);
                 background: rgba(14, 17, 23, 0.97);
                 backdrop-filter: blur(10px);
                 box-shadow: 0 8px 22px rgba(0, 0, 0, 0.32);
             }}
+            .{top_bar_class} [data-testid="stVerticalBlock"] {{
+                gap: 0.22rem;
+            }}
+            .{top_bar_class} [data-testid="element-container"]:has(.f8-top-bar__title-row) {{
+                flex: 0 0 auto;
+                height: 1.45rem;
+                margin: 0 0 0.14rem;
+            }}
+            .{top_bar_class} [data-testid="stHorizontalBlock"] {{
+                align-items: end;
+                flex-wrap: nowrap;
+                gap: 0.9rem;
+            }}
+            .{top_bar_class} [data-testid="column"],
+            .{top_bar_class} [data-testid="stColumn"] {{
+                min-width: 0;
+                padding-top: 0 !important;
+            }}
+            .{top_bar_class} [data-testid="stMarkdownContainer"] p,
+            .{top_bar_class} [data-testid="stCaptionContainer"] p {{
+                margin: 0;
+            }}
             .{top_bar_class} .f8-top-bar__title-row {{
                 align-items: baseline;
                 display: flex;
-                gap: 0.75rem;
-                margin-bottom: 0.05rem;
+                gap: 0.8rem;
+                height: 1.45rem;
+                margin: 0;
+                min-height: 1.42rem;
+                min-width: 0;
             }}
-            .{top_bar_class} .f8-top-bar__eyebrow {{
+            .f8-top-bar__eyebrow {{
                 color: rgba(250, 250, 250, 0.62);
-                font-size: 0.6rem;
+                font-size: 0.64rem;
                 font-weight: 700;
                 letter-spacing: 0.08em;
                 line-height: 1;
                 text-transform: uppercase;
+                white-space: nowrap;
             }}
-            .{top_bar_class} .f8-top-bar__title {{
+            .f8-top-bar__title {{
                 color: rgb(250, 250, 250);
-                font-size: 0.98rem;
+                font-size: 1.12rem;
                 font-weight: 700;
                 line-height: 1.2;
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }}
-            .{top_bar_class} [data-testid="stVerticalBlock"] {{
-                gap: 0.18rem;
-            }}
-            .{top_bar_class} [data-testid="stHorizontalBlock"] {{
-                flex-wrap: nowrap !important;
-                gap: 0.75rem;
-            }}
-            .{top_bar_class} [data-testid="column"] {{
-                flex: 1 1 0 !important;
-                min-width: 0 !important;
-                padding-top: 0 !important;
-            }}
-            .{top_bar_class} [data-testid="stMetric"] {{
-                background: transparent;
-                border: 0;
-                padding: 0;
-            }}
-            .{top_bar_class} [data-testid="stMetric"] > div {{
-                gap: 0.05rem;
-            }}
-            .{top_bar_class} [data-testid="stMetricLabel"] p,
             .{top_bar_class} [data-testid="stCaptionContainer"] p,
             .{top_bar_class} label p {{
-                font-size: 0.64rem;
+                font-size: 0.72rem;
+                line-height: 1.15;
+                margin: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }}
+            .{top_bar_class} label {{
+                min-height: 0.95rem;
+                padding-bottom: 0.12rem;
+            }}
+            .{top_bar_class} [data-baseweb="select"] > div,
+            .{top_bar_class} [data-baseweb="input"] {{
+                min-height: 2.05rem;
+            }}
+            .{top_bar_class} [data-baseweb="select"] > div {{
+                border-radius: 0.46rem;
+            }}
+            .{top_bar_class} [data-baseweb="select"] span,
+            .{top_bar_class} [data-baseweb="input"] input {{
+                font-size: 0.86rem;
                 line-height: 1.15;
             }}
-            .{top_bar_class} [data-testid="stMetricValue"] {{
-                font-size: 1rem;
-                line-height: 1.05;
+            .{top_bar_class} .f8-top-bar-note {{
+                color: rgba(250, 250, 250, 0.64);
+                font-size: 0.72rem;
+                font-weight: 650;
+                line-height: 1.25;
+                min-width: 0;
             }}
-            .{top_bar_class} [data-testid="stMetricValue"] > div {{
-                font-size: 1rem;
-                line-height: 1.05;
+            .{top_bar_class} [class*="st-key-f8_toolbar_row_"] {{
+                margin-top: 1.55rem;
+                min-width: 0;
+            }}
+            .{top_bar_class} [class*="st-key-f8_toolbar_row_"] [data-testid="stHorizontalBlock"] {{
+                align-items: end;
+                column-gap: 1rem;
+                row-gap: 0.4rem;
+            }}
+            .{top_bar_class} .st-key-f8_toolbar_row_holdings [data-testid="stHorizontalBlock"] {{
+                display: grid;
+                grid-template-columns: minmax(22rem, 2.7fr) minmax(18rem, 1fr);
+            }}
+            .{top_bar_class} .st-key-f8_toolbar_row_consensus [data-testid="stHorizontalBlock"] {{
+                display: grid;
+                grid-template-columns: minmax(9rem, 0.8fr) minmax(8rem, 0.72fr) minmax(8rem, 0.72fr) minmax(18rem, 2.7fr) minmax(16rem, 1.7fr);
+            }}
+            .{top_bar_class} .st-key-f8_toolbar_row_holdings [data-testid="column"],
+            .{top_bar_class} .st-key-f8_toolbar_row_holdings [data-testid="stColumn"],
+            .{top_bar_class} .st-key-f8_toolbar_row_consensus [data-testid="column"],
+            .{top_bar_class} .st-key-f8_toolbar_row_consensus [data-testid="stColumn"] {{
+                flex: unset !important;
+                min-width: 0 !important;
+                width: 100% !important;
+            }}
+            .{top_bar_class} .st-key-f8_toolbar_row_holdings [data-baseweb="select"],
+            .{top_bar_class} .st-key-f8_toolbar_row_holdings [data-baseweb="input"],
+            .{top_bar_class} .st-key-f8_toolbar_row_consensus [data-baseweb="select"],
+            .{top_bar_class} .st-key-f8_toolbar_row_consensus [data-baseweb="input"] {{
+                width: 100%;
             }}
             .{top_bar_class} .f8-compact-stats {{
                 display: grid;
-                gap: 0.7rem;
+                gap: 0.9rem;
                 grid-template-columns: repeat(var(--f8-stat-count, 4), minmax(0, 1fr));
-                margin-top: 0.12rem;
             }}
             .{top_bar_class} .f8-compact-stat {{
                 min-width: 0;
             }}
             .{top_bar_class} .f8-compact-stat__label {{
-                color: rgba(250, 250, 250, 0.68);
-                font-size: 0.66rem;
-                font-weight: 600;
+                color: rgba(250, 250, 250, 0.66);
+                font-size: 0.68rem;
+                font-weight: 700;
                 line-height: 1.1;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -145,20 +209,19 @@ def render_top_bar(page_title: str) -> Any:
             }}
             .{top_bar_class} .f8-compact-stat__value {{
                 color: rgb(250, 250, 250);
-                font-size: 1.05rem;
-                font-weight: 700;
-                line-height: 1.16;
+                font-size: 1.08rem;
+                font-weight: 750;
+                line-height: 1.18;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
             }}
             .{top_bar_class} .f8-top-bar-message {{
-                border-radius: 0.35rem;
+                border-radius: 0.4rem;
                 font-size: 0.72rem;
-                font-weight: 600;
-                line-height: 1.2;
-                margin-top: 0.18rem;
-                padding: 0.24rem 0.55rem;
+                font-weight: 650;
+                line-height: 1.15;
+                padding: 0.24rem 0.6rem;
             }}
             .{top_bar_class} .f8-top-bar-message--success {{
                 background: rgba(34, 197, 94, 0.18);
@@ -170,52 +233,54 @@ def render_top_bar(page_title: str) -> Any:
             }}
             .{top_bar_class} .f8-top-bar-links {{
                 color: rgba(250, 250, 250, 0.62);
-                font-size: 0.66rem;
-                line-height: 1.15;
+                font-size: 0.72rem;
+                line-height: 1.2;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                white-space: nowrap;
+                white-space: normal;
             }}
             .{top_bar_class} .f8-top-bar-links a {{
                 color: rgb(96, 165, 250);
-                margin-left: 0.35rem;
+                display: inline-block;
+                margin-left: 0.45rem;
                 text-decoration: none;
+                white-space: nowrap;
             }}
-            .{top_bar_class} [data-testid="stAlert"] {{
-                margin-top: 0.15rem;
-                min-height: 0;
-                padding: 0.25rem 0.65rem;
+            .{top_bar_class} .f8-top-bar-spacer {{
+                display: none;
             }}
-            .{top_bar_class} [data-testid="stAlert"] p {{
-                font-size: 0.68rem;
-                line-height: 1.15;
-            }}
-            .{top_bar_class} .stSelectbox,
-            .{top_bar_class} .stMultiSelect,
-            .{top_bar_class} .stSlider,
-            .{top_bar_class} .stTextInput {{
-                margin-bottom: 0;
-            }}
-            .{top_bar_class} [data-baseweb="select"] > div,
-            .{top_bar_class} [data-baseweb="input"] {{
-                min-height: 2rem;
-            }}
-            .{top_bar_class} [data-testid="stSlider"] {{
-                padding-top: 0;
-            }}
-            .{top_bar_class} [data-testid="stSlider"] > div {{
-                padding-top: 0.05rem;
+            @media (max-width: 1200px) {{
+                .{top_bar_class} .st-key-f8_toolbar_row_consensus [data-testid="stHorizontalBlock"] {{
+                    grid-template-columns: repeat(3, minmax(8rem, 1fr)) minmax(18rem, 2fr);
+                }}
+                .{top_bar_class} .st-key-f8_toolbar_row_consensus [data-testid="column"]:last-child,
+                .{top_bar_class} .st-key-f8_toolbar_row_consensus [data-testid="stColumn"]:last-child {{
+                    grid-column: 1 / -1;
+                }}
             }}
             @media (max-width: 640px) {{
                 .block-container {{
-                    padding-top: calc({top_padding} + 2rem);
+                    padding-top: calc({top_padding} + 4.6rem);
                 }}
                 .{top_bar_class} {{
                     padding-left: 1rem;
                     padding-right: 1rem;
                 }}
-                .{top_bar_class} .f8-top-bar__title-row {{
-                    display: block;
+                .{top_bar_class} [data-testid="stHorizontalBlock"] {{
+                    flex-wrap: wrap;
+                }}
+                .{top_bar_class} .st-key-f8_toolbar_row_holdings [data-testid="stHorizontalBlock"],
+                .{top_bar_class} .st-key-f8_toolbar_row_consensus [data-testid="stHorizontalBlock"] {{
+                    grid-template-columns: 1fr;
+                }}
+                .{top_bar_class} .st-key-f8_toolbar_row_consensus [data-testid="stHorizontalBlock"] {{
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }}
+                .{top_bar_class} .st-key-f8_toolbar_row_consensus [data-testid="column"]:nth-child(4),
+                .{top_bar_class} .st-key-f8_toolbar_row_consensus [data-testid="column"]:nth-child(5),
+                .{top_bar_class} .st-key-f8_toolbar_row_consensus [data-testid="stColumn"]:nth-child(4),
+                .{top_bar_class} .st-key-f8_toolbar_row_consensus [data-testid="stColumn"]:nth-child(5) {{
+                    grid-column: 1 / -1;
                 }}
             }}
         </style>
@@ -223,6 +288,7 @@ def render_top_bar(page_title: str) -> Any:
         unsafe_allow_html=True,
     )
     top_bar = st.container(key=top_bar_key)
+    top_bar.empty()
     with top_bar:
         st.markdown(
             f"""

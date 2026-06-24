@@ -11,7 +11,7 @@ from src.web.formatting import dataframe_to_csv_bytes, fmt_value_dollars
 from src.web.instrument_transforms import add_instrument_type_column, style_instrument_type_column
 from src.web.table_config import DEFAULT_TABLE_HEIGHT, holdings_column_config
 from src.web.tickers import add_ticker_column
-from src.web.ui_components import render_dataframe, safe_file_token
+from src.web.ui_components import render_dataframe, render_top_bar_note, render_top_bar_spacers, safe_file_token
 from src.web.value_units import apply_value_multiplier_by_group, infer_value_multiplier_by_group, summarize_multipliers
 
 
@@ -48,15 +48,20 @@ def render_holdings_search_page(query: Callable[[str, tuple], pd.DataFrame], top
     header = top_bar or st.container()
     with header:
         if top_bar:
-            search_col, note_col = st.columns([4, 2])
-            with search_col:
-                query_text = st.text_input(
-                    "Search by issuer, CUSIP, or fund",
-                    placeholder="e.g. apple, 037833100, apple berkshire",
-                    key="holdings_search_query",
-                )
-            with note_col:
-                st.caption("Multiple terms narrow results. CUSIP search ignores punctuation.")
+            toolbar = st.container(key="f8_toolbar_row_holdings")
+            with toolbar:
+                search_col, note_col = st.columns([4, 2])
+                with search_col:
+                    query_text = st.text_input(
+                        "Search by issuer, CUSIP, or fund",
+                        placeholder="e.g. apple, 037833100, apple berkshire",
+                        key="holdings_search_query",
+                    )
+                with note_col:
+                    note = "Multiple terms narrow results. CUSIP search ignores punctuation."
+                    if not query_text:
+                        note = f"{note} Enter a search term to begin."
+                    render_top_bar_note(note)
         else:
             st.caption("Search across issuers, CUSIPs, and funds. Multiple terms narrow the result set.")
 
@@ -69,10 +74,13 @@ def render_holdings_search_page(query: Callable[[str, tuple], pd.DataFrame], top
 
         if not query_text:
             if top_bar:
-                st.caption("Enter a search term to begin.")
+                render_top_bar_spacers(6)
             else:
                 st.info("Enter a search term to begin.")
             st.stop()
+
+        if top_bar:
+            render_top_bar_spacers(6)
 
     where_sql, search_params = build_holdings_search_filter(query_text)
     if not where_sql:

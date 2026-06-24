@@ -37,6 +37,10 @@ def render_compact_page_index(items: list[tuple[str, str]]) -> None:
     st.markdown(f'<div class="f8-top-bar-links">On this page:{links}</div>', unsafe_allow_html=True)
 
 
+def render_top_bar_note(message: str) -> None:
+    st.markdown(f'<div class="f8-top-bar-note">{escape(message)}</div>', unsafe_allow_html=True)
+
+
 def render_compact_stats(items: list[tuple[str, str]], *, columns: int | None = None) -> None:
     stat_count = columns or len(items)
     cards = "".join(
@@ -58,6 +62,11 @@ def render_top_bar_message(message: str, *, level: str = "success") -> None:
         f'<div class="f8-top-bar-message f8-top-bar-message--{safe_level}">{escape(message)}</div>',
         unsafe_allow_html=True,
     )
+
+
+def render_top_bar_spacers(count: int) -> None:
+    for _ in range(count):
+        st.markdown('<div class="f8-top-bar-spacer"></div>', unsafe_allow_html=True)
 
 
 def render_dataframe(

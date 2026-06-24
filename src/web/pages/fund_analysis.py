@@ -31,7 +31,7 @@ from src.web.instrument_transforms import add_instrument_type_column, style_inst
 from src.web.sql_queries import NORMALIZED_ACCESSION_HOLDINGS_SQL, RAW_ACCESSION_HOLDINGS_SQL
 from src.web.table_config import COMPACT_TABLE_HEIGHT, DEFAULT_TABLE_HEIGHT, diff_column_config, holdings_column_config, timeline_column_config
 from src.web.tickers import add_ticker_column
-from src.web.ui_components import render_compact_page_index, render_compact_stats, render_dataframe, render_page_index, render_section, safe_file_token
+from src.web.ui_components import render_compact_page_index, render_dataframe, render_page_index, render_section, render_top_bar_spacers, safe_file_token
 from src.web.value_units import apply_value_multiplier, infer_value_multiplier_from_frame
 
 
@@ -683,8 +683,10 @@ def render_fund_analysis_page(
     top_bar: Any | None = None,
 ) -> None:
     header = top_bar or st.container()
-    top_bar_stats = None
     with header:
+        if not top_bar:
+            st.caption("One fund workspace for filing inventory, quarter history, and position-level change analysis.")
+
         funds = get_fund_options()
         if not funds:
             st.info("No data in the database yet.")
@@ -693,15 +695,20 @@ def render_fund_analysis_page(
         initialize_default_fund_selection(st.session_state, "fund_analysis_selected_fund", funds)
 
         if top_bar:
-            selector_col, stats_col = st.columns([3, 2])
-            with selector_col:
+            select_col, links_col = st.columns([3, 2])
+            with select_col:
                 fund = require_selection(
                     st.selectbox("Select fund", funds, key="fund_analysis_selected_fund"),
                     "Select a fund to continue.",
                 )
-            top_bar_stats = stats_col.empty()
+            with links_col:
+                render_compact_page_index([
+                    ("Snapshot", "Snapshot"),
+                    ("Timeline", "Timeline"),
+                    ("Compare", "Compare"),
+                ])
+            render_top_bar_spacers(3)
         else:
-            st.caption("One fund workspace for filing inventory, quarter history, and position-level change analysis.")
             fund = require_selection(
                 st.selectbox("Select fund", funds, key="fund_analysis_selected_fund"),
                 "Select a fund to continue.",
@@ -718,31 +725,18 @@ def render_fund_analysis_page(
 
     if not history_df.empty:
         latest_snapshot = history_df.iloc[-1]
-        if top_bar and top_bar_stats is not None:
-            with top_bar_stats.container():
-                render_compact_stats([
-                    ("Latest filing", latest_snapshot["Filing Date"]),
-                    ("Quarters", f"{len(history_df):,}"),
-                    ("Current positions", f"{int(latest_snapshot['Normalized Positions']):,}"),
-                ])
-        else:
-            with header:
-                top_cols = st.columns(4)
-                top_cols[0].metric("Selected fund", fund)
-                top_cols[1].metric("Latest filing", latest_snapshot["Filing Date"])
-                top_cols[2].metric("Quarters", f"{len(history_df):,}")
-                top_cols[3].metric("Current positions", f"{int(latest_snapshot['Normalized Positions']):,}")
+        top_cols = st.columns(4)
+        top_cols[0].metric("Selected fund", fund)
+        top_cols[1].metric("Latest filing", latest_snapshot["Filing Date"])
+        top_cols[2].metric("Quarters", f"{len(history_df):,}")
+        top_cols[3].metric("Current positions", f"{int(latest_snapshot['Normalized Positions']):,}")
 
-    with header:
-        page_index_items = [
+    if not top_bar:
+        render_page_index([
             ("Snapshot", "Snapshot"),
             ("Timeline", "Timeline"),
             ("Compare", "Compare"),
-        ]
-        if top_bar:
-            render_compact_page_index(page_index_items)
-        else:
-            render_page_index(page_index_items)
+        ])
 
     render_section("Snapshot", "Inspect one selected filing: holdings inventory, top positions, and export.")
     _render_snapshot_mode(fund, require_selection, accessions, query)

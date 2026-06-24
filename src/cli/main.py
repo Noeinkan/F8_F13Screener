@@ -26,17 +26,26 @@ from src.core.diff import compute_portfolio_diff
 from src.core.telegram_commands import TelegramCommandHandler
 from src.core.paths import DASHBOARD_DB_FILE
 
+def _safe_print(msg: str) -> None:
+    """Print to stdout tolerating non-encodable unicode on cp1252 consoles."""
+    try:
+        print(msg)
+    except UnicodeEncodeError:
+        enc = sys.stdout.encoding or 'ascii'
+        print(msg.encode(enc, errors='replace').decode(enc, errors='replace'))
+
+
 def launch_telegram_viewer() -> bool:
     """Launch Telegram viewer in a separate window"""
     try:
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
         viewer_path = os.path.join(base_dir, 'src', 'gui', 'telegram_viewer.py')
         batch_path = os.path.join(base_dir, 'scripts', 'launch_viewer.bat')
-        
+
         if not os.path.exists(viewer_path):
-            print(f"⚠️  Viewer non trovato: {viewer_path}")
+            _safe_print(f"[!] Viewer non trovato: {viewer_path}")
             return False
-        
+
         # On Windows, try batch file first (more reliable)
         if sys.platform == 'win32' and os.path.exists(batch_path):
             try:
@@ -45,18 +54,18 @@ def launch_telegram_viewer() -> bool:
                     shell=True,
                     cwd=base_dir
                 )
-                print("✓ Telegram Viewer avviato (via batch)")
+                _safe_print("[OK] Telegram Viewer avviato (via batch)")
                 return True
             except Exception as e:
-                print(f"Fallback da batch: {e}")
-        
+                _safe_print(f"Fallback da batch: {e}")
+
         # Fallback or other OS
         if sys.platform == 'win32':
             # Use pythonw.exe to avoid console window
             python_exe = sys.executable.replace('python.exe', 'pythonw.exe')
             if not os.path.exists(python_exe):
                 python_exe = sys.executable
-            
+
             DETACHED_PROCESS = 0x00000008
             subprocess.Popen(
                 [python_exe, viewer_path],
@@ -70,12 +79,12 @@ def launch_telegram_viewer() -> bool:
                 close_fds=True,
                 cwd=base_dir
             )
-        
-        print("✓ Telegram Viewer avviato")
+
+        _safe_print("[OK] Telegram Viewer avviato")
         return True
-        
+
     except Exception as e:
-        print(f"⚠️  Errore avvio Telegram Viewer: {e}")
+        _safe_print(f"[!] Errore avvio Telegram Viewer: {e}")
         return False
 
 
