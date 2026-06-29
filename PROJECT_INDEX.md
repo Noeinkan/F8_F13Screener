@@ -4,7 +4,7 @@ Use this file first when you need a fast mental model of the repo.
 
 ## What This Project Does
 
-SEC 13F screener for tracked hedge funds. It polls SEC EDGAR, parses Information Tables, stores holdings, sends Telegram alerts, and serves a local Streamlit dashboard.
+SEC 13F screener for tracked hedge funds. It polls SEC EDGAR, parses Information Tables, stores holdings, sends Telegram alerts, and serves a local React + FastAPI dashboard (legacy Streamlit remains available).
 
 ## Read First
 
@@ -14,10 +14,12 @@ SEC 13F screener for tracked hedge funds. It polls SEC EDGAR, parses Information
 
 ## Canonical Entrypoints
 
-- [src/main.py](src/main.py): unified app entrypoint.
+- [src/main.py](src/main.py): unified app entrypoint (`dashboard`, `web`, `dashboard-streamlit`, `alerts`).
+- [src/api/](src/api/): FastAPI JSON analytics API.
+- [frontend/](frontend/): React + Vite dashboard UI.
 - [src/cli/main.py](src/cli/main.py): realtime poller and Telegram flow.
 - [src/cli/process_historical_13f.py](src/cli/process_historical_13f.py): historical refresh and dashboard DB rebuild.
-- [src/web/dashboard.py](src/web/dashboard.py): Streamlit dashboard.
+- [src/web/dashboard.py](src/web/dashboard.py): legacy Streamlit dashboard.
 - [dashboard.bat](dashboard.bat): Windows launcher wrapper.
 - [deploy.sh](deploy.sh): root Bash wrapper that forwards to the real deploy script.
 
@@ -71,6 +73,7 @@ SEC 13F screener for tracked hedge funds. It polls SEC EDGAR, parses Information
 
 ```powershell
 python -m src.main dashboard
+python -m src.main dashboard-streamlit
 python -m src.main alerts
 python -m src.cli.process_historical_13f full --yes
 python -m src.cli.process_historical_13f export --export-scope both
@@ -92,7 +95,7 @@ rtk pytest tests/ -v
 - [tests/test_web_charts.py](tests/test_web_charts.py)
 - [tests/test_web_instrument_transforms.py](tests/test_web_instrument_transforms.py)
 - [tests/test_web_sql_queries.py](tests/test_web_sql_queries.py)
-- [tests/test_web_formatting.py](tests/test_web_formatting.py)
+- [tests/test_api_health.py](tests/test_api_health.py)
 
 ## Troubleshooting Shortcuts
 

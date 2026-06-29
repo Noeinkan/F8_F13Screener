@@ -23,6 +23,31 @@ TICKER_REFERENCE_FILE = Path(CACHE_DIR) / "sec_company_tickers_exchange.json"
 
 logger = logging.getLogger(__name__)
 
+# CUSIP -> ticker overrides for issuers whose SEC reference name maps to more
+# than one ticker (typically multi-share-class companies such as Alphabet).
+# Consulted before the name-based lookup so ambiguous names still resolve.
+CUSIP_TICKER_OVERRIDES: dict[str, str] = {
+    # Alphabet Inc
+    "02079K305": "GOOG",   # Class C
+    "02079K107": "GOOGL",  # Class A
+    # Berkshire Hathaway (SEC reference lists both BRK-A and BRK-B under one
+    # name, so name-based lookup is ambiguous).
+    "084670108": "BRK-A",  # Class A
+    "084670702": "BRK-B",  # Class B
+    # News Corp
+    "65157J106": "NWSA",   # Class A
+    "65157J205": "NWS",    # Class B
+    # Fox Corp / Twenty-First Century Fox dual class
+    "337538106": "FOXA",   # Class A
+    "337539208": "FOX",    # Class B
+    # Discovery / Warner Bros. Discovery legacy share classes
+    "25746U109": "DISCA",  # Class A
+    "25746U208": "DISCK",  # Class C
+    # Lennar Corp
+    "526057104": "LEN",    # Class A
+    "526057302": "LENB",   # Class B
+}
+
 _CORPORATE_SUFFIXES = {
     "ADS",
     "ADR",
@@ -42,6 +67,16 @@ _CORPORATE_SUFFIXES = {
     "THE",
 }
 
+# Words that add no discriminative value when comparing issuer names.
+# Dropped (along with corporate suffixes) when building alias keys so that
+# "BANK AMERICA CORP" (13F) and "BANK OF AMERICA CORP" (SEC reference)
+# normalize to the same alias key.
+_NAME_NOISE_WORDS = {
+    "OF",
+    "THE",
+    "AND",
+}
+
 _WORD_ALIASES = {
     "CORPORATION": "CORP",
     "INCORPORATED": "INC",
@@ -49,6 +84,12 @@ _WORD_ALIASES = {
     "MANUFAC": "MFG",
     "MANUFACTURING": "MFG",
     "TECHNOLOGIES": "TECHNOLOGY",
+    # 13F filings frequently abbreviate "INTERNATIONAL" as "INTL".
+    "INTL": "INTERNATIONAL",
+    "INTLS": "INTERNATIONAL",
+    "GRP": "GROUP",
+    "HLDG": "HOLDINGS",
+    "HLDGS": "HOLDINGS",
 }
 
 
@@ -67,14 +108,36 @@ def _normalize_issuer_key(value: Any, *, drop_suffixes: bool = False, max_words:
     if value is None or value is pd.NA:
         return ""
 
+    # Strip SEC jurisdiction suffixes like "/DE/", "/MA/", "/CAN/" that would
+    # otherwise leak into the normalized key as spurious state-code tokens
+    # (e.g. "BANK OF AMERICA CORP /DE/" -> "BANK OF AMERICA CORP DE").
     text = str(value).upper().replace("&", " AND ")
+    text = re.sub(r"\s*/[A-Z0-9]+/\s*", " ", text)
     text = re.sub(r"[^A-Z0-9]+", " ", text)
     words = [_WORD_ALIASES.get(word, word) for word in text.split()]
     if drop_suffixes:
-        words = [word for word in words if word not in _CORPORATE_SUFFIXES]
+        words = [word for word in words if word not in _CORPORATE_SUFFIXES and word not in _NAME_NOISE_WORDS]
     if max_words is not None:
         words = words[:max_words]
     return " ".join(words)
+
+
+def _sorted_alias_key(value: Any) -> str:
+    """Word-order-insensitive alias key (suffixes + noise words dropped).
+
+    Lets "DISNEY WALT CO" (13F) match "WALT DISNEY CO" (SEC reference) without
+    requiring an exact word-order match. Only used as a last-resort alias.
+    """
+    normalized = _normalize_issuer_key(value, drop_suffixes=True)
+    if not normalized:
+        return ""
+    return " ".join(sorted(normalized.split()))
+
+
+def _normalize_cusip(value: Any) -> str:
+    if value is None or value is pd.NA:
+        return ""
+    return re.sub(r"[^A-Z0-9]", "", str(value).upper())
 
 
 def _unique_mapping(candidates: dict[str, set[str]]) -> dict[str, str]:
@@ -120,7 +183,12 @@ class TickerLookup:
     exact: dict[str, str]
     aliases: dict[str, str]
 
-    def resolve(self, issuer_name: Any) -> str:
+    def resolve(self, issuer_name: Any, cusip: Any = None) -> str:
+        if cusip is not None:
+            cusip_key = _normalize_cusip(cusip)
+            if cusip_key and (ticker := CUSIP_TICKER_OVERRIDES.get(cusip_key)):
+                return ticker
+
         exact_key = _normalize_issuer_key(issuer_name)
         if not exact_key:
             return ""
@@ -133,6 +201,7 @@ class TickerLookup:
             _normalize_issuer_key(issuer_name, drop_suffixes=True, max_words=4),
             _normalize_issuer_key(issuer_name, max_words=3),
             _normalize_issuer_key(issuer_name, drop_suffixes=True, max_words=3),
+            _sorted_alias_key(issuer_name),
         ]
         for key in alias_keys:
             if ticker := self.aliases.get(key):
@@ -157,6 +226,7 @@ def build_ticker_lookup(rows: list[dict[str, Any]]) -> TickerLookup:
             _normalize_issuer_key(name, drop_suffixes=True, max_words=4),
             _normalize_issuer_key(name, max_words=3),
             _normalize_issuer_key(name, drop_suffixes=True, max_words=3),
+            _sorted_alias_key(name),
         }:
             alias_candidates[key].add(ticker)
 
@@ -213,6 +283,7 @@ def add_ticker_column(
     *,
     issuer_col: str = "Issuer",
     ticker_col: str = "Ticker",
+    cusip_col: str = "CUSIP",
     lookup: TickerLookup | None = None,
 ) -> pd.DataFrame:
     if df.empty or issuer_col not in df.columns:
@@ -220,7 +291,14 @@ def add_ticker_column(
 
     enriched_df = df.copy()
     ticker_lookup = lookup or get_ticker_lookup()
-    tickers = enriched_df[issuer_col].apply(ticker_lookup.resolve)
+    cusip_series = enriched_df[cusip_col] if cusip_col in enriched_df.columns else None
+
+    def _resolve(row: pd.Series) -> str:
+        issuer = row[issuer_col]
+        cusip = row[cusip_col] if cusip_series is not None else None
+        return ticker_lookup.resolve(issuer, cusip)
+
+    tickers = enriched_df.apply(_resolve, axis=1)
 
     if ticker_col in enriched_df.columns:
         enriched_df[ticker_col] = tickers

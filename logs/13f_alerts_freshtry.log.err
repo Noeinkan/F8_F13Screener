@@ -1,821 +1,175 @@
-2026-06-24 09:46:24,348 - INFO - === Avvio 13F Alert System v3.0 (Refactored) ===
-2026-06-24 09:46:24,350 - INFO - Intervallo polling: 120s (2.0 minuti)
-2026-06-24 09:46:24,351 - INFO - Submissions watcher: ultimi 10 filing per CIK | delay 1.00s | atom fallback ON
-2026-06-24 09:46:24,352 - INFO - Daily summary filing filtrati: OFF
-2026-06-24 09:46:24,352 - INFO - Filtro attivo: SI - 60 hedge funds monitorati (filtro per CIK)
-2026-06-24 09:46:24,353 - INFO - Hedge funds: Baupost Group, Scion Asset Management, Appaloosa Management, Yacktman Asset Management, Pershing Square Capital...
-2026-06-24 09:46:24,353 - INFO - Avvio Telegram Message Viewer...
-2026-06-24 09:46:26,370 - INFO - Database initialized successfully
-2026-06-24 09:46:26,449 - INFO - Telegram command handler avviato
-2026-06-24 09:46:26,449 - INFO - 
+2026-06-26 22:52:12,645 - INFO - === Avvio 13F Alert System v3.0 (Refactored) ===
+2026-06-26 22:52:12,646 - INFO - Intervallo polling: 120s (2.0 minuti)
+2026-06-26 22:52:12,646 - INFO - Submissions watcher: ultimi 10 filing per CIK | delay 1.00s | atom fallback ON
+2026-06-26 22:52:12,647 - INFO - Daily summary filing filtrati: OFF
+2026-06-26 22:52:12,647 - INFO - Filtro attivo: SI - 60 hedge funds monitorati (filtro per CIK)
+2026-06-26 22:52:12,647 - INFO - Hedge funds: Baupost Group, Scion Asset Management, Appaloosa Management, Yacktman Asset Management, Pershing Square Capital...
+2026-06-26 22:52:12,647 - INFO - Avvio Telegram Message Viewer...
+2026-06-26 22:52:14,658 - INFO - Database initialized successfully
+2026-06-26 22:52:14,714 - INFO - Telegram command handler avviato
+2026-06-26 22:52:14,715 - INFO - 
 ============================================================
-2026-06-24 09:46:26,449 - INFO - Controllo submissions alle 2026-06-24 09:46:26
-2026-06-24 09:46:26,929 - WARNING - Telegram bot non autorizzato (HTTP 401). Comandi Telegram disabilitati su questo processo.
-2026-06-24 09:46:32,844 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-26-002336: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:33,012 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-26-001091: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:33,173 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-25-005039: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:33,338 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-25-003509: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:33,502 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-25-002315: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:33,662 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-25-001497: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:33,818 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-25-001119: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:33,961 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-24-005218: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:34,127 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-24-003511: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:34,281 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-24-002519: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:35,610 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-24-001512: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:35,772 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-23-004012: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:35,921 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-23-003174: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:36,071 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-23-002282: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:36,219 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-23-001336: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:36,368 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-22-002565: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:36,547 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-22-002019: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:36,729 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-22-001474: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:36,885 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-22-000884: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:37,037 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-21-002370: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:38,344 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000919574-26-003485: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:38,494 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000919574-26-001186: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:38,642 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000919574-25-007000: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:38,782 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000919574-25-004911: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:45,813 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001404599-22-000005: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:45,956 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001404599-22-000002: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:46,100 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001404599-22-000001: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:46,249 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001404599-21-000006: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:46,391 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001404599-21-000005: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:46,527 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001404599-21-000004: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:46,650 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001404599-21-000002: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:46,786 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001404599-20-000007: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:46,931 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001404599-20-000005: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:47,104 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001404599-20-000003: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:48,423 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000860643-26-000003: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:48,615 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000860643-26-000001: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:48,787 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000860643-25-000007: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:48,986 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000860643-25-000004: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:49,173 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000860643-25-000003: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:49,357 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000860643-25-000001: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:49,556 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000860643-24-000007: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:49,737 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000860643-24-000004: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:49,919 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000860643-24-000003: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:50,260 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000860643-24-000001: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:51,621 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000906304-26-000094: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:51,777 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000906304-26-000037: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:51,922 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000906304-25-000248: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:52,082 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000906304-25-000173: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:52,227 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000906304-25-000113: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:52,472 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000906304-25-000062: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:52,657 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000906304-24-000143: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:52,840 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000906304-24-000069: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:53,018 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000906304-24-000067: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:53,195 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000906304-24-000064: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:46:55,806 - INFO - Backfill holdings per filing gia visto 0001418812-08-000082 (ValueAct Capital)
-2026-06-24 09:46:55,807 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
-2026-06-24 09:46:56,142 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000141881208000082/0001418812-08-000082-index.htm
-2026-06-24 09:46:56,146 - WARNING - Information Table URL non trovata
-2026-06-24 09:46:56,166 - INFO - Backfill holdings per filing gia visto 0001418812-08-000080 (ValueAct Capital)
-2026-06-24 09:46:56,167 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
-2026-06-24 09:46:56,486 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000141881208000080/0001418812-08-000080-index.htm
-2026-06-24 09:46:56,488 - WARNING - Information Table URL non trovata
-2026-06-24 09:46:56,515 - INFO - Backfill holdings per filing gia visto 0001418812-08-000078 (ValueAct Capital)
-2026-06-24 09:46:56,515 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
-2026-06-24 09:46:56,842 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000141881208000078/0001418812-08-000078-index.htm
-2026-06-24 09:46:56,844 - WARNING - Information Table URL non trovata
-2026-06-24 09:46:56,869 - INFO - Backfill holdings per filing gia visto 0001418812-08-000076 (ValueAct Capital)
-2026-06-24 09:46:56,869 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
-2026-06-24 09:46:57,203 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000141881208000076/0001418812-08-000076-index.htm
-2026-06-24 09:46:57,206 - WARNING - Information Table URL non trovata
-2026-06-24 09:46:57,237 - INFO - Backfill holdings per filing gia visto 0001129787-07-000054 (ValueAct Capital)
-2026-06-24 09:46:57,237 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
-2026-06-24 09:46:57,597 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000112978707000054/0001129787-07-000054-index.htm
-2026-06-24 09:46:57,600 - WARNING - Information Table URL non trovata
-2026-06-24 09:46:57,627 - INFO - Backfill holdings per filing gia visto 0001129787-07-000026 (ValueAct Capital)
-2026-06-24 09:46:57,628 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
-2026-06-24 09:46:57,975 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000112978707000026/0001129787-07-000026-index.htm
-2026-06-24 09:46:57,977 - WARNING - Information Table URL non trovata
-2026-06-24 09:46:58,002 - INFO - Backfill holdings per filing gia visto 0001129787-06-000212 (ValueAct Capital)
-2026-06-24 09:46:58,002 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
-2026-06-24 09:46:58,361 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000112978706000212/0001129787-06-000212-index.htm
-2026-06-24 09:46:58,362 - WARNING - Information Table URL non trovata
-2026-06-24 09:47:02,371 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001606587-20-000686: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:02,535 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001606587-20-000320: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:02,684 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001606587-19-001030: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:02,825 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001606587-19-000793: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:02,973 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001606587-19-000541: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:03,133 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001606587-19-000261: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:03,294 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001606587-18-000878: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:03,444 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001606587-18-000653: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:03,608 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001606587-18-000440: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:03,752 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001606587-18-000206: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:05,054 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001112520-26-000009: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:05,192 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001112520-26-000008: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:05,338 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001112520-25-000029: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:05,484 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001112520-25-000019: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:05,633 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001112520-25-000015: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:05,797 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001112520-25-000003: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:05,951 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001112520-24-000025: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:06,088 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001112520-24-000014: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:06,232 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001112520-24-000012: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:06,378 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001112520-24-000010: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:14,454 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001539497-26-001469: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:14,600 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001539497-26-000679: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:14,732 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001539497-25-002973: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:14,876 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001539497-25-002145: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:15,030 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001539497-25-001390: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:15,184 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001539497-25-000660: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:15,326 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001539497-24-002435: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:15,481 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001539497-24-001704: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:15,636 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001539497-24-001052: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:15,781 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001539497-24-000494: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:17,116 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001193125-26-226661: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:17,283 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001193125-26-054580: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:17,431 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001193125-25-282901: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:17,578 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000950123-25-008361: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:17,726 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000950123-25-008343: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:17,869 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000950123-25-005701: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:18,015 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000950123-25-002701: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:18,149 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000950123-24-011775: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:18,292 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000950123-24-008740: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:18,435 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000950123-24-005664: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:19,787 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001840735-26-000011: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:19,929 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001840735-26-000003: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:20,096 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001840735-25-000021: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:20,255 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001840735-25-000017: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:20,336 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001840735-25-000012: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-. Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:25,881 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001536411-26-000004: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:26,015 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001536411-26-000002: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:26,129 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001536411-25-000017: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:26,261 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001536411-25-000011: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:26,391 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001536411-25-000008: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:26,529 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001536411-25-000006: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:26,663 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001536411-24-000009: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:26,795 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001536411-24-000007: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:26,927 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001536411-24-000005: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:27,064 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001536411-24-000002: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:30,930 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000919574-26-003501: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:31,047 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000919574-26-003414: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:31,161 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000919574-26-001239: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:31,286 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000919574-25-006976: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:31,438 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000919574-25-004823: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:31,566 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000919574-25-003179: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:31,688 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000919574-25-001429: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:31,810 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000919574-24-006691: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:31,935 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000919574-24-004594: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:32,052 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000919574-24-002996: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:37,584 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001172661-02-000006: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:38,862 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001104329-26-000008: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:38,993 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001104329-26-000002: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:43,003 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001448793-26-000004: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:43,121 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001448793-26-000002: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:43,238 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001448793-25-000009: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:43,348 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001448793-25-000008: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:43,462 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001448793-25-000007: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:43,576 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001448793-25-000003: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:43,699 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001448793-24-000006: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:43,823 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001448793-24-000005: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:43,946 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001448793-24-000004: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:44,072 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001448793-24-000003: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:50,519 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001541617-26-000006: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:50,633 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001541617-26-000002: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:50,749 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001541617-25-000013: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:50,869 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001541617-25-000009: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:50,985 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001541617-25-000005: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:51,105 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001541617-25-000002: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:51,222 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001541617-24-000009: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:51,343 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001541617-24-000007: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:51,469 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001541617-24-000006: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:51,592 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001541617-24-000004: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:47:58,064 - INFO - Backfill holdings per filing gia visto 0001125282-06-000970 (D.E. Shaw (David E. Shaw))
-2026-06-24 09:47:58,065 - INFO - Processamento holdings per: D. E. SHAW & CO, L.P.
-2026-06-24 09:47:58,412 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1009268/000112528206000970/0001125282-06-000970-index.htm
-2026-06-24 09:47:58,413 - WARNING - Information Table URL non trovata
-2026-06-24 09:47:58,430 - INFO - Backfill holdings per filing gia visto 0001125282-04-003821 (D.E. Shaw (David E. Shaw))
-2026-06-24 09:47:58,430 - INFO - Processamento holdings per: D. E. SHAW & CO, L.P.
-2026-06-24 09:47:58,758 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1009268/000112528204003821/0001125282-04-003821-index.htm
-2026-06-24 09:47:58,760 - WARNING - Information Table URL non trovata
-2026-06-24 09:47:58,776 - INFO - Backfill holdings per filing gia visto 0000889812-00-002219 (D.E. Shaw (David E. Shaw))
-2026-06-24 09:47:58,776 - INFO - Processamento holdings per: D. E. SHAW & CO, L.P.
-2026-06-24 09:47:59,108 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1009268/000088981200002219/0000889812-00-002219-index.htm
-2026-06-24 09:47:59,110 - WARNING - Information Table URL non trovata
-2026-06-24 09:48:05,711 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000919574-26-003476: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:48:05,844 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000902664-26-001100: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:48:05,981 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000902664-25-005042: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:48:06,132 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000902664-25-003670: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:48:06,266 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000902664-25-003078: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:48:06,404 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000902664-25-002399: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:48:06,536 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000902664-25-001050: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:48:06,665 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000902664-24-006620: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:48:06,792 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000902664-24-005526: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:48:06,925 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0000902664-24-005203: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:48:08,243 - INFO - Processamento holdings per: MILLENNIUM MANAGEMENT LLC
-2026-06-24 09:48:08,489 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1273087/000127308724000084/xslForm13F_X02/MLP_Filing_20240628_20240813.xml
-2026-06-24 09:48:12,267 - INFO - Parsate 5803 holdings dalla Information Table (HTML)
-2026-06-24 09:48:12,704 - INFO - Salvate 5803 holdings nel database
-2026-06-24 09:48:12,876 - ERROR - Salvataggio DuckDB dashboard fallito per 0001273087-24-000084: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 38952). DuckDB holdings e la fonte canonica; il filing resta seen ma le holdings non sono complete.
-2026-06-24 09:48:13,259 - WARNING - Errore Telegram permanente: token bot non valido (HTTP 401). Invio notifiche disabilitato per questo processo finche la configurazione non viene corretta.
-2026-06-24 09:48:13,272 - INFO - Processamento holdings per: MILLENNIUM MANAGEMENT LLC
-2026-06-24 09:48:13,651 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1273087/000127308724000071/xslForm13F_X02/MLP_13F_2024Q1.xml
-2026-06-24 09:48:17,253 - INFO - Parsate 6138 holdings dalla Information Table (HTML)
-2026-06-24 09:48:17,523 - INFO - Salvate 6138 holdings nel database
-2026-06-24 09:48:21,196 - INFO - Saved 6138 holdings rows into dashboard DB
-2026-06-24 09:48:21,224 - INFO - Portfolio diff: +3571 nuove, -3055 chiuse, ~2426 variate
-2026-06-24 09:48:21,225 - INFO - Holdings processate con successo per MILLENNIUM MANAGEMENT LLC
-2026-06-24 09:48:21,233 - INFO - Processamento holdings per: MILLENNIUM MANAGEMENT LLC
-2026-06-24 09:48:21,492 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1273087/000127308724000045/xslForm13F_X02/MLP_13F_20231229.xml
-2026-06-24 09:48:24,649 - INFO - Parsate 6007 holdings dalla Information Table (HTML)
-2026-06-24 09:48:24,879 - INFO - Salvate 6007 holdings nel database
-2026-06-24 09:48:28,525 - INFO - Saved 6007 holdings rows into dashboard DB
-2026-06-24 09:48:28,553 - INFO - Portfolio diff: +3489 nuove, -3104 chiuse, ~2405 variate
-2026-06-24 09:48:28,554 - INFO - Holdings processate con successo per MILLENNIUM MANAGEMENT LLC
-2026-06-24 09:48:29,760 - INFO - Processamento holdings per: BALYASNY ASSET MANAGEMENT L.P.
-2026-06-24 09:48:30,024 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1218710/000119312526226359/xslForm13F_X02/53979.xml
-2026-06-24 09:48:32,241 - INFO - Parsate 3117 holdings dalla Information Table (HTML)
-2026-06-24 09:48:32,392 - INFO - Salvate 3117 holdings nel database
-2026-06-24 09:48:34,645 - INFO - Saved 3117 holdings rows into dashboard DB
-2026-06-24 09:48:34,656 - INFO - Portfolio diff: +0 nuove, -0 chiuse, ~0 variate
-2026-06-24 09:48:34,657 - INFO - Holdings processate con successo per BALYASNY ASSET MANAGEMENT L.P.
-2026-06-24 09:48:34,666 - INFO - Processamento holdings per: BALYASNY ASSET MANAGEMENT L.P.
-2026-06-24 09:48:34,926 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1218710/000119312526054303/xslForm13F_X02/50361.xml
-2026-06-24 09:48:36,807 - INFO - Parsate 3338 holdings dalla Information Table (HTML)
-2026-06-24 09:48:36,975 - INFO - Salvate 3338 holdings nel database
-2026-06-24 09:48:39,716 - INFO - Saved 3338 holdings rows into dashboard DB
-2026-06-24 09:48:39,735 - INFO - Portfolio diff: +940 nuove, -719 chiuse, ~1863 variate
-2026-06-24 09:48:39,735 - INFO - Holdings processate con successo per BALYASNY ASSET MANAGEMENT L.P.
-2026-06-24 09:48:39,747 - INFO - Processamento holdings per: BALYASNY ASSET MANAGEMENT L.P.
-2026-06-24 09:48:40,023 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1218710/000119312525282267/xslForm13F_X02/47240.xml
-2026-06-24 09:48:42,765 - INFO - Parsate 2843 holdings dalla Information Table (HTML)
-2026-06-24 09:48:43,013 - INFO - Salvate 2843 holdings nel database
-2026-06-24 09:48:45,026 - INFO - Saved 2843 holdings rows into dashboard DB
-2026-06-24 09:48:45,056 - INFO - Portfolio diff: +1082 nuove, -1044 chiuse, ~1657 variate
-2026-06-24 09:48:45,057 - INFO - Holdings processate con successo per BALYASNY ASSET MANAGEMENT L.P.
-2026-06-24 09:48:45,065 - INFO - Processamento holdings per: BALYASNY ASSET MANAGEMENT L.P.
-2026-06-24 09:48:45,323 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1218710/000095012325008224/xslForm13F_X02/44296.xml
-2026-06-24 09:48:47,136 - INFO - Parsate 2740 holdings dalla Information Table (HTML)
-2026-06-24 09:48:47,302 - INFO - Salvate 2740 holdings nel database
-2026-06-24 09:48:49,124 - INFO - Saved 2740 holdings rows into dashboard DB
-2026-06-24 09:48:49,139 - INFO - Portfolio diff: +1114 nuove, -1179 chiuse, ~1533 variate
-2026-06-24 09:48:49,139 - INFO - Holdings processate con successo per BALYASNY ASSET MANAGEMENT L.P.
-2026-06-24 09:48:49,147 - INFO - Processamento holdings per: BALYASNY ASSET MANAGEMENT L.P.
-2026-06-24 09:48:49,376 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1218710/000095012325005606/xslForm13F_X02/41791.xml
-2026-06-24 09:48:50,996 - INFO - Parsate 2727 holdings dalla Information Table (HTML)
-2026-06-24 09:48:51,169 - INFO - Salvate 2727 holdings nel database
-2026-06-24 09:48:52,989 - INFO - Saved 2727 holdings rows into dashboard DB
-2026-06-24 09:48:53,003 - INFO - Portfolio diff: +1145 nuove, -1223 chiuse, ~1490 variate
-2026-06-24 09:48:53,003 - INFO - Holdings processate con successo per BALYASNY ASSET MANAGEMENT L.P.
-2026-06-24 09:48:53,012 - INFO - Processamento holdings per: BALYASNY ASSET MANAGEMENT L.P.
-2026-06-24 09:48:53,271 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1218710/000095012325002486/xslForm13F_X02/39347.xml
-2026-06-24 09:48:54,967 - INFO - Parsate 2682 holdings dalla Information Table (HTML)
-2026-06-24 09:48:55,123 - INFO - Salvate 2682 holdings nel database
-2026-06-24 09:48:56,900 - INFO - Saved 2682 holdings rows into dashboard DB
-2026-06-24 09:48:56,915 - INFO - Portfolio diff: +1153 nuove, -1292 chiuse, ~1448 variate
-2026-06-24 09:48:56,915 - INFO - Holdings processate con successo per BALYASNY ASSET MANAGEMENT L.P.
-2026-06-24 09:48:56,924 - INFO - Processamento holdings per: BALYASNY ASSET MANAGEMENT L.P.
-2026-06-24 09:48:57,153 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1218710/000095012324011629/xslForm13F_X02/37252.xml
-2026-06-24 09:48:58,862 - INFO - Parsate 2704 holdings dalla Information Table (HTML)
-2026-06-24 09:48:59,030 - INFO - Salvate 2704 holdings nel database
-2026-06-24 09:49:00,903 - INFO - Saved 2704 holdings rows into dashboard DB
-2026-06-24 09:49:00,917 - INFO - Portfolio diff: +1208 nuove, -1334 chiuse, ~1400 variate
-2026-06-24 09:49:00,917 - INFO - Holdings processate con successo per BALYASNY ASSET MANAGEMENT L.P.
-2026-06-24 09:49:00,928 - INFO - Processamento holdings per: BALYASNY ASSET MANAGEMENT L.P.
-2026-06-24 09:49:01,168 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1218710/000095012324008707/xslForm13F_X02/35026.xml
-2026-06-24 09:49:02,587 - INFO - Parsate 2512 holdings dalla Information Table (HTML)
-2026-06-24 09:49:02,748 - INFO - Salvate 2512 holdings nel database
-2026-06-24 09:49:04,454 - INFO - Saved 2512 holdings rows into dashboard DB
-2026-06-24 09:49:04,475 - INFO - Portfolio diff: +1118 nuove, -1423 chiuse, ~1321 variate
-2026-06-24 09:49:04,475 - INFO - Holdings processate con successo per BALYASNY ASSET MANAGEMENT L.P.
-2026-06-24 09:49:04,484 - INFO - Processamento holdings per: BALYASNY ASSET MANAGEMENT L.P.
-2026-06-24 09:49:04,722 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1218710/000095012324004654/xslForm13F_X02/32651.xml
-2026-06-24 09:49:06,241 - INFO - Parsate 2605 holdings dalla Information Table (HTML)
-2026-06-24 09:49:06,406 - INFO - Salvate 2605 holdings nel database
-2026-06-24 09:49:08,214 - INFO - Saved 2605 holdings rows into dashboard DB
-2026-06-24 09:49:08,227 - INFO - Portfolio diff: +1194 nuove, -1446 chiuse, ~1291 variate
-2026-06-24 09:49:08,228 - INFO - Holdings processate con successo per BALYASNY ASSET MANAGEMENT L.P.
-2026-06-24 09:49:08,236 - INFO - Processamento holdings per: BALYASNY ASSET MANAGEMENT L.P.
-2026-06-24 09:49:08,479 - INFO - Trovata Information Table: https://www.sec.gov/Archives/edgar/data/1218710/000095012324002330/xslForm13F_X02/30499.xml
-2026-06-24 09:49:10,003 - INFO - Parsate 3070 holdings dalla Information Table (HTML)
-2026-06-24 09:49:10,136 - INFO - Salvate 3070 holdings nel database
-2026-06-24 09:49:12,204 - INFO - Saved 3070 holdings rows into dashboard DB
-2026-06-24 09:49:12,218 - INFO - Portfolio diff: +1121 nuove, -1498 chiuse, ~1253 variate
-2026-06-24 09:49:12,219 - INFO - Holdings processate con successo per BALYASNY ASSET MANAGEMENT L.P.
-2026-06-24 09:49:13,221 - INFO - ðŸ“Š Submissions: 567 totali | 554 giÃ  visti | 0 bootstrap | 13 matched | 0 inviati | 13 falliti
-2026-06-24 09:49:13,243 - INFO - 
+2026-06-26 22:52:14,715 - INFO - Controllo submissions alle 2026-06-26 22:52:14
+2026-06-26 22:52:15,134 - INFO - Webhook eliminato, getUpdates attivo
+2026-06-26 22:52:34,853 - INFO - Backfill holdings per filing gia visto 0001418812-08-000082 (ValueAct Capital)
+2026-06-26 22:52:34,853 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:52:35,137 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000141881208000082/0001418812-08-000082-index.htm
+2026-06-26 22:52:35,139 - WARNING - Information Table URL non trovata
+2026-06-26 22:52:35,152 - INFO - Backfill holdings per filing gia visto 0001418812-08-000080 (ValueAct Capital)
+2026-06-26 22:52:35,153 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:52:35,388 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000141881208000080/0001418812-08-000080-index.htm
+2026-06-26 22:52:35,389 - WARNING - Information Table URL non trovata
+2026-06-26 22:52:35,401 - INFO - Backfill holdings per filing gia visto 0001418812-08-000078 (ValueAct Capital)
+2026-06-26 22:52:35,402 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:52:35,637 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000141881208000078/0001418812-08-000078-index.htm
+2026-06-26 22:52:35,638 - WARNING - Information Table URL non trovata
+2026-06-26 22:52:35,651 - INFO - Backfill holdings per filing gia visto 0001418812-08-000076 (ValueAct Capital)
+2026-06-26 22:52:35,651 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:52:35,946 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000141881208000076/0001418812-08-000076-index.htm
+2026-06-26 22:52:35,947 - WARNING - Information Table URL non trovata
+2026-06-26 22:52:35,960 - INFO - Backfill holdings per filing gia visto 0001129787-07-000054 (ValueAct Capital)
+2026-06-26 22:52:35,960 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:52:36,199 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000112978707000054/0001129787-07-000054-index.htm
+2026-06-26 22:52:36,202 - WARNING - Information Table URL non trovata
+2026-06-26 22:52:36,214 - INFO - Backfill holdings per filing gia visto 0001129787-07-000026 (ValueAct Capital)
+2026-06-26 22:52:36,214 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:52:36,438 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000112978707000026/0001129787-07-000026-index.htm
+2026-06-26 22:52:36,441 - WARNING - Information Table URL non trovata
+2026-06-26 22:52:36,464 - INFO - Backfill holdings per filing gia visto 0001129787-06-000212 (ValueAct Capital)
+2026-06-26 22:52:36,464 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:52:36,732 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000112978706000212/0001129787-06-000212-index.htm
+2026-06-26 22:52:36,733 - WARNING - Information Table URL non trovata
+2026-06-26 22:53:07,142 - INFO - Backfill holdings per filing gia visto 0001172661-02-000006 (Jericho Capital Asset Management (Josh Resnick))
+2026-06-26 22:53:07,155 - INFO - Processamento holdings per: ADVISER COMPLIANCE ASSOCIATES LLC
+2026-06-26 22:53:07,449 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1172661/000117266102000006/0001172661-02-000006-index.htm
+2026-06-26 22:53:07,462 - WARNING - Information Table URL non trovata
+2026-06-26 22:53:26,099 - INFO - Backfill holdings per filing gia visto 0001125282-06-000970 (D.E. Shaw (David E. Shaw))
+2026-06-26 22:53:26,099 - INFO - Processamento holdings per: D. E. SHAW & CO, L.P.
+2026-06-26 22:53:26,523 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1009268/000112528206000970/0001125282-06-000970-index.htm
+2026-06-26 22:53:26,524 - WARNING - Information Table URL non trovata
+2026-06-26 22:53:26,554 - INFO - Backfill holdings per filing gia visto 0001125282-04-003821 (D.E. Shaw (David E. Shaw))
+2026-06-26 22:53:26,554 - INFO - Processamento holdings per: D. E. SHAW & CO, L.P.
+2026-06-26 22:53:27,061 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1009268/000112528204003821/0001125282-04-003821-index.htm
+2026-06-26 22:53:27,062 - WARNING - Information Table URL non trovata
+2026-06-26 22:53:27,082 - INFO - Backfill holdings per filing gia visto 0000889812-00-002219 (D.E. Shaw (David E. Shaw))
+2026-06-26 22:53:27,082 - INFO - Processamento holdings per: D. E. SHAW & CO, L.P.
+2026-06-26 22:53:27,464 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1009268/000088981200002219/0000889812-00-002219-index.htm
+2026-06-26 22:53:27,465 - WARNING - Information Table URL non trovata
+2026-06-26 22:53:38,695 - INFO - \U0001f4ca Submissions: 567 totali | 567 già visti | 0 bootstrap | 0 matched | 0 inviati | 0 falliti
+2026-06-26 22:53:38,705 - INFO - 
 ============================================================
-2026-06-24 09:49:13,244 - INFO - Controllo feed fallback alle 2026-06-24 09:49:13
-2026-06-24 09:49:13,244 - INFO - Scaricamento feed SEC (tentativo 1/3)...
-2026-06-24 09:49:13,693 - INFO - Feed scaricato: 32 entry trovate
-2026-06-24 09:49:13,697 - INFO - ðŸ“Š Riepilogo: 32 totali | 32 giÃ  visti | 0 matched | 0 inviati | 0 filtrati | 0 falliti
-2026-06-24 09:49:13,697 - INFO - Prossimo controllo tra 2.0 minuti
-2026-06-24 09:51:13,699 - INFO - 
+2026-06-26 22:53:38,705 - INFO - Controllo feed fallback alle 2026-06-26 22:53:38
+2026-06-26 22:53:38,706 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2026-06-26 22:53:39,476 - INFO - Feed scaricato: 34 entry trovate
+2026-06-26 22:53:39,629 - INFO - \U0001f4ca Riepilogo: 34 totali | 11 già visti | 0 matched | 0 inviati | 23 filtrati | 0 falliti
+2026-06-26 22:53:39,637 - INFO - Prossimo controllo tra 2.0 minuti
+2026-06-26 22:55:39,639 - INFO - 
 ============================================================
-2026-06-24 09:51:13,700 - INFO - Controllo submissions alle 2026-06-24 09:51:13
-2026-06-24 09:51:33,154 - INFO - Backfill holdings per filing gia visto 0001418812-08-000082 (ValueAct Capital)
-2026-06-24 09:51:33,156 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
-2026-06-24 09:51:33,431 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000141881208000082/0001418812-08-000082-index.htm
-2026-06-24 09:51:33,433 - WARNING - Information Table URL non trovata
-2026-06-24 09:51:33,456 - INFO - Backfill holdings per filing gia visto 0001418812-08-000080 (ValueAct Capital)
-2026-06-24 09:51:33,456 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
-2026-06-24 09:51:33,674 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000141881208000080/0001418812-08-000080-index.htm
-2026-06-24 09:51:33,676 - WARNING - Information Table URL non trovata
-2026-06-24 09:51:33,698 - INFO - Backfill holdings per filing gia visto 0001418812-08-000078 (ValueAct Capital)
-2026-06-24 09:51:33,699 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
-2026-06-24 09:51:33,926 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000141881208000078/0001418812-08-000078-index.htm
-2026-06-24 09:51:33,928 - WARNING - Information Table URL non trovata
-2026-06-24 09:51:33,939 - INFO - Backfill holdings per filing gia visto 0001418812-08-000076 (ValueAct Capital)
-2026-06-24 09:51:33,939 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
-2026-06-24 09:51:34,170 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000141881208000076/0001418812-08-000076-index.htm
-2026-06-24 09:51:34,171 - WARNING - Information Table URL non trovata
-2026-06-24 09:51:34,185 - INFO - Backfill holdings per filing gia visto 0001129787-07-000054 (ValueAct Capital)
-2026-06-24 09:51:34,185 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
-2026-06-24 09:51:34,426 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000112978707000054/0001129787-07-000054-index.htm
-2026-06-24 09:51:34,427 - WARNING - Information Table URL non trovata
-2026-06-24 09:51:34,439 - INFO - Backfill holdings per filing gia visto 0001129787-07-000026 (ValueAct Capital)
-2026-06-24 09:51:34,439 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
-2026-06-24 09:51:34,675 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000112978707000026/0001129787-07-000026-index.htm
-2026-06-24 09:51:34,676 - WARNING - Information Table URL non trovata
-2026-06-24 09:51:34,689 - INFO - Backfill holdings per filing gia visto 0001129787-06-000212 (ValueAct Capital)
-2026-06-24 09:51:34,689 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
-2026-06-24 09:51:34,916 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000112978706000212/0001129787-06-000212-index.htm
-2026-06-24 09:51:34,918 - WARNING - Information Table URL non trovata
-2026-06-24 09:51:40,003 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001112520-25-000029: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-. Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:52:03,157 - WARNING - DuckDB dashboard temporaneamente non accessibile per 0001050464-26-000004: IO Error: Cannot open file "C:\Users\andre\Downloads\F8_F13Screener\src\core\data\13f_dashboard.duckdb": The process cannot access the file because it is being used by another process.
-
-File is already open in 
-C:\Python314\python.exe (PID 42136). Backfill dashboard rinviato al prossimo ciclo utile.
-2026-06-24 09:52:04,442 - INFO - Backfill holdings per filing gia visto 0001172661-02-000006 (Jericho Capital Asset Management (Josh Resnick))
-2026-06-24 09:52:04,444 - INFO - Processamento holdings per: ADVISER COMPLIANCE ASSOCIATES LLC
-2026-06-24 09:52:04,729 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1172661/000117266102000006/0001172661-02-000006-index.htm
-2026-06-24 09:52:04,732 - WARNING - Information Table URL non trovata
-2026-06-24 09:52:22,760 - INFO - Backfill holdings per filing gia visto 0001125282-06-000970 (D.E. Shaw (David E. Shaw))
-2026-06-24 09:52:22,761 - INFO - Processamento holdings per: D. E. SHAW & CO, L.P.
-2026-06-24 09:52:23,053 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1009268/000112528206000970/0001125282-06-000970-index.htm
-2026-06-24 09:52:23,055 - WARNING - Information Table URL non trovata
-2026-06-24 09:52:23,077 - INFO - Backfill holdings per filing gia visto 0001125282-04-003821 (D.E. Shaw (David E. Shaw))
-2026-06-24 09:52:23,077 - INFO - Processamento holdings per: D. E. SHAW & CO, L.P.
-2026-06-24 09:52:23,315 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1009268/000112528204003821/0001125282-04-003821-index.htm
-2026-06-24 09:52:23,317 - WARNING - Information Table URL non trovata
-2026-06-24 09:52:23,341 - INFO - Backfill holdings per filing gia visto 0000889812-00-002219 (D.E. Shaw (David E. Shaw))
-2026-06-24 09:52:23,342 - INFO - Processamento holdings per: D. E. SHAW & CO, L.P.
-2026-06-24 09:52:23,616 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1009268/000088981200002219/0000889812-00-002219-index.htm
-2026-06-24 09:52:23,619 - WARNING - Information Table URL non trovata
-2026-06-24 09:52:33,739 - INFO - ðŸ“Š Submissions: 567 totali | 567 giÃ  visti | 0 bootstrap | 0 matched | 0 inviati | 0 falliti
-2026-06-24 09:52:33,755 - INFO - 
+2026-06-26 22:55:39,640 - INFO - Controllo submissions alle 2026-06-26 22:55:39
+2026-06-26 22:55:59,444 - INFO - Backfill holdings per filing gia visto 0001418812-08-000082 (ValueAct Capital)
+2026-06-26 22:55:59,444 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:55:59,751 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000141881208000082/0001418812-08-000082-index.htm
+2026-06-26 22:55:59,764 - WARNING - Information Table URL non trovata
+2026-06-26 22:55:59,777 - INFO - Backfill holdings per filing gia visto 0001418812-08-000080 (ValueAct Capital)
+2026-06-26 22:55:59,777 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:56:00,034 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000141881208000080/0001418812-08-000080-index.htm
+2026-06-26 22:56:00,035 - WARNING - Information Table URL non trovata
+2026-06-26 22:56:00,051 - INFO - Backfill holdings per filing gia visto 0001418812-08-000078 (ValueAct Capital)
+2026-06-26 22:56:00,051 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:56:00,309 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000141881208000078/0001418812-08-000078-index.htm
+2026-06-26 22:56:00,310 - WARNING - Information Table URL non trovata
+2026-06-26 22:56:00,324 - INFO - Backfill holdings per filing gia visto 0001418812-08-000076 (ValueAct Capital)
+2026-06-26 22:56:00,325 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:56:00,601 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000141881208000076/0001418812-08-000076-index.htm
+2026-06-26 22:56:00,602 - WARNING - Information Table URL non trovata
+2026-06-26 22:56:00,614 - INFO - Backfill holdings per filing gia visto 0001129787-07-000054 (ValueAct Capital)
+2026-06-26 22:56:00,615 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:56:00,892 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000112978707000054/0001129787-07-000054-index.htm
+2026-06-26 22:56:00,893 - WARNING - Information Table URL non trovata
+2026-06-26 22:56:00,910 - INFO - Backfill holdings per filing gia visto 0001129787-07-000026 (ValueAct Capital)
+2026-06-26 22:56:00,910 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:56:01,194 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000112978707000026/0001129787-07-000026-index.htm
+2026-06-26 22:56:01,195 - WARNING - Information Table URL non trovata
+2026-06-26 22:56:01,207 - INFO - Backfill holdings per filing gia visto 0001129787-06-000212 (ValueAct Capital)
+2026-06-26 22:56:01,208 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:56:01,461 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000112978706000212/0001129787-06-000212-index.htm
+2026-06-26 22:56:01,463 - WARNING - Information Table URL non trovata
+2026-06-26 22:56:31,287 - INFO - Backfill holdings per filing gia visto 0001172661-02-000006 (Jericho Capital Asset Management (Josh Resnick))
+2026-06-26 22:56:31,289 - INFO - Processamento holdings per: ADVISER COMPLIANCE ASSOCIATES LLC
+2026-06-26 22:56:31,567 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1172661/000117266102000006/0001172661-02-000006-index.htm
+2026-06-26 22:56:31,569 - WARNING - Information Table URL non trovata
+2026-06-26 22:56:50,191 - INFO - Backfill holdings per filing gia visto 0001125282-06-000970 (D.E. Shaw (David E. Shaw))
+2026-06-26 22:56:50,192 - INFO - Processamento holdings per: D. E. SHAW & CO, L.P.
+2026-06-26 22:56:50,455 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1009268/000112528206000970/0001125282-06-000970-index.htm
+2026-06-26 22:56:50,458 - WARNING - Information Table URL non trovata
+2026-06-26 22:56:50,479 - INFO - Backfill holdings per filing gia visto 0001125282-04-003821 (D.E. Shaw (David E. Shaw))
+2026-06-26 22:56:50,480 - INFO - Processamento holdings per: D. E. SHAW & CO, L.P.
+2026-06-26 22:56:50,702 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1009268/000112528204003821/0001125282-04-003821-index.htm
+2026-06-26 22:56:50,705 - WARNING - Information Table URL non trovata
+2026-06-26 22:56:50,718 - INFO - Backfill holdings per filing gia visto 0000889812-00-002219 (D.E. Shaw (David E. Shaw))
+2026-06-26 22:56:50,719 - INFO - Processamento holdings per: D. E. SHAW & CO, L.P.
+2026-06-26 22:56:51,007 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1009268/000088981200002219/0000889812-00-002219-index.htm
+2026-06-26 22:56:51,009 - WARNING - Information Table URL non trovata
+2026-06-26 22:57:01,091 - INFO - \U0001f4ca Submissions: 567 totali | 567 già visti | 0 bootstrap | 0 matched | 0 inviati | 0 falliti
+2026-06-26 22:57:01,107 - INFO - 
 ============================================================
-2026-06-24 09:52:33,755 - INFO - Controllo feed fallback alle 2026-06-24 09:52:33
-2026-06-24 09:52:33,756 - INFO - Scaricamento feed SEC (tentativo 1/3)...
-2026-06-24 09:52:33,983 - INFO - Feed scaricato: 32 entry trovate
-2026-06-24 09:52:33,988 - INFO - ðŸ“Š Riepilogo: 32 totali | 32 giÃ  visti | 0 matched | 0 inviati | 0 filtrati | 0 falliti
-2026-06-24 09:52:33,998 - INFO - Prossimo controllo tra 2.0 minuti
+2026-06-26 22:57:01,107 - INFO - Controllo feed fallback alle 2026-06-26 22:57:01
+2026-06-26 22:57:01,107 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2026-06-26 22:57:01,593 - INFO - Feed scaricato: 34 entry trovate
+2026-06-26 22:57:01,597 - INFO - \U0001f4ca Riepilogo: 34 totali | 34 già visti | 0 matched | 0 inviati | 0 filtrati | 0 falliti
+2026-06-26 22:57:01,607 - INFO - Prossimo controllo tra 2.0 minuti
+2026-06-26 22:59:01,612 - INFO - 
+============================================================
+2026-06-26 22:59:01,614 - INFO - Controllo submissions alle 2026-06-26 22:59:01
+2026-06-26 22:59:21,377 - INFO - Backfill holdings per filing gia visto 0001418812-08-000082 (ValueAct Capital)
+2026-06-26 22:59:21,379 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:59:22,142 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000141881208000082/0001418812-08-000082-index.htm
+2026-06-26 22:59:22,144 - WARNING - Information Table URL non trovata
+2026-06-26 22:59:22,166 - INFO - Backfill holdings per filing gia visto 0001418812-08-000080 (ValueAct Capital)
+2026-06-26 22:59:22,167 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:59:22,449 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000141881208000080/0001418812-08-000080-index.htm
+2026-06-26 22:59:22,451 - WARNING - Information Table URL non trovata
+2026-06-26 22:59:22,474 - INFO - Backfill holdings per filing gia visto 0001418812-08-000078 (ValueAct Capital)
+2026-06-26 22:59:22,475 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:59:22,725 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000141881208000078/0001418812-08-000078-index.htm
+2026-06-26 22:59:22,727 - WARNING - Information Table URL non trovata
+2026-06-26 22:59:22,737 - INFO - Backfill holdings per filing gia visto 0001418812-08-000076 (ValueAct Capital)
+2026-06-26 22:59:22,738 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:59:22,991 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000141881208000076/0001418812-08-000076-index.htm
+2026-06-26 22:59:22,993 - WARNING - Information Table URL non trovata
+2026-06-26 22:59:23,016 - INFO - Backfill holdings per filing gia visto 0001129787-07-000054 (ValueAct Capital)
+2026-06-26 22:59:23,017 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:59:23,261 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000112978707000054/0001129787-07-000054-index.htm
+2026-06-26 22:59:23,266 - WARNING - Information Table URL non trovata
+2026-06-26 22:59:23,278 - INFO - Backfill holdings per filing gia visto 0001129787-07-000026 (ValueAct Capital)
+2026-06-26 22:59:23,278 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:59:23,510 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000112978707000026/0001129787-07-000026-index.htm
+2026-06-26 22:59:23,512 - WARNING - Information Table URL non trovata
+2026-06-26 22:59:23,534 - INFO - Backfill holdings per filing gia visto 0001129787-06-000212 (ValueAct Capital)
+2026-06-26 22:59:23,534 - INFO - Processamento holdings per: ValueAct Capital Management, L.P.
+2026-06-26 22:59:23,828 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1351069/000112978706000212/0001129787-06-000212-index.htm
+2026-06-26 22:59:23,830 - WARNING - Information Table URL non trovata
+2026-06-26 22:59:53,465 - INFO - Backfill holdings per filing gia visto 0001172661-02-000006 (Jericho Capital Asset Management (Josh Resnick))
+2026-06-26 22:59:53,467 - INFO - Processamento holdings per: ADVISER COMPLIANCE ASSOCIATES LLC
+2026-06-26 22:59:53,741 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1172661/000117266102000006/0001172661-02-000006-index.htm
+2026-06-26 22:59:53,743 - WARNING - Information Table URL non trovata
+2026-06-26 23:00:12,172 - INFO - Backfill holdings per filing gia visto 0001125282-06-000970 (D.E. Shaw (David E. Shaw))
+2026-06-26 23:00:12,173 - INFO - Processamento holdings per: D. E. SHAW & CO, L.P.
+2026-06-26 23:00:12,475 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1009268/000112528206000970/0001125282-06-000970-index.htm
+2026-06-26 23:00:12,477 - WARNING - Information Table URL non trovata
+2026-06-26 23:00:12,499 - INFO - Backfill holdings per filing gia visto 0001125282-04-003821 (D.E. Shaw (David E. Shaw))
+2026-06-26 23:00:12,499 - INFO - Processamento holdings per: D. E. SHAW & CO, L.P.
+2026-06-26 23:00:12,743 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1009268/000112528204003821/0001125282-04-003821-index.htm
+2026-06-26 23:00:12,745 - WARNING - Information Table URL non trovata
+2026-06-26 23:00:12,766 - INFO - Backfill holdings per filing gia visto 0000889812-00-002219 (D.E. Shaw (David E. Shaw))
+2026-06-26 23:00:12,767 - INFO - Processamento holdings per: D. E. SHAW & CO, L.P.
+2026-06-26 23:00:12,993 - WARNING - Information Table HTML non trovata nella pagina: https://www.sec.gov/Archives/edgar/data/1009268/000088981200002219/0000889812-00-002219-index.htm
+2026-06-26 23:00:12,995 - WARNING - Information Table URL non trovata
+2026-06-26 23:00:23,734 - INFO - \U0001f4ca Submissions: 567 totali | 567 già visti | 0 bootstrap | 0 matched | 0 inviati | 0 falliti
+2026-06-26 23:00:23,752 - INFO - 
+============================================================
+2026-06-26 23:00:23,752 - INFO - Controllo feed fallback alle 2026-06-26 23:00:23
+2026-06-26 23:00:23,752 - INFO - Scaricamento feed SEC (tentativo 1/3)...
+2026-06-26 23:00:25,219 - INFO - Feed scaricato: 34 entry trovate
+2026-06-26 23:00:25,223 - INFO - \U0001f4ca Riepilogo: 34 totali | 34 già visti | 0 matched | 0 inviati | 0 filtrati | 0 falliti
+2026-06-26 23:00:25,236 - INFO - Prossimo controllo tra 2.0 minuti

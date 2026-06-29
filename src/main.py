@@ -11,6 +11,13 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
+def _run_web() -> int:
+    """Launch FastAPI + Vite dashboard (npm start)."""
+    npm_cmd = "npm.cmd" if sys.platform == "win32" else "npm"
+    command = [npm_cmd, "start"]
+    return subprocess.run(command, cwd=REPO_ROOT, check=False).returncode
+
+
 def _run_dashboard(raw_args: list[str]) -> int:
     """Launch the Streamlit dashboard using the existing restart script on Windows."""
     if sys.platform == "win32":
@@ -47,7 +54,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m src.main")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    subparsers.add_parser("dashboard", help="Start Streamlit dashboard")
+    subparsers.add_parser("dashboard", help="Start React + FastAPI dashboard (canonical)")
+    subparsers.add_parser("web", help="Alias for dashboard (React + FastAPI)")
+    subparsers.add_parser("dashboard-streamlit", help="Start legacy Streamlit dashboard")
 
     subparsers.add_parser("alerts", help="Run realtime 13F alert poller")
     return parser
@@ -57,7 +66,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args, extra_args = parser.parse_known_args(argv)
 
-    if args.command == "dashboard":
+    if args.command in {"dashboard", "web"}:
+        if extra_args:
+            parser.error(f"Unrecognized arguments for {args.command}: {' '.join(extra_args)}")
+        return _run_web()
+    if args.command == "dashboard-streamlit":
         return _run_dashboard(extra_args)
     if args.command == "alerts":
         if extra_args:

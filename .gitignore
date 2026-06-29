@@ -61,3 +61,10 @@ Thumbs.db
 src/core/data/*.db
 src/core/data/*.duckdb
 src/core/data/historical/tracking/*.json
+
+# Node / frontend build artifacts
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/tsconfig.tsbuildinfo
+*.tsbuildinfo

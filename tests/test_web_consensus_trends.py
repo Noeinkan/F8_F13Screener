@@ -1,6 +1,6 @@
 import pandas as pd
 
-from src.web.pages.consensus_trends import build_consensus_trend_tables
+from src.api._consensus_analytics import build_consensus_trend_tables
 
 
 def _row(fund, accession, filing_date, position_key, issuer, shares, value):

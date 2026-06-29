@@ -1,0 +1,17 @@
+{
+  "name": "f8-13f-screener",
+  "private": true,
+  "version": "0.1.0",
+  "description": "F8 13F screener - local dev orchestrator (API + Dashboard)",
+  "scripts": {
+    "start": "concurrently -k -n API,WEB -c blue,green \"npm:dev:api\" \"npm:dev:web\"",
+    "dev": "npm start",
+    "dev:api": "python -m src.api",
+    "dev:web": "npm --prefix frontend run dev",
+    "install:all": "pip install -r requirements.txt && npm --prefix frontend install",
+    "web": "npm start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

@@ -8,7 +8,7 @@ SEC 13F screener that:
 - parses holdings (XML first, HTML fallback),
 - stores realtime and historical data,
 - sends Telegram alerts,
-- serves a local Streamlit dashboard.
+- serves a local React + FastAPI dashboard (legacy Streamlit still available).
 
 ## Quick Start (Windows PowerShell)
 
@@ -21,21 +21,33 @@ From the repository root:
 # 2) Install dependencies
 rtk pip install -r requirements.txt
 
-# 3) Launch dashboard
+# 3) Launch dashboard (React + FastAPI)
 python -m src.main dashboard
 ```
 
-Dashboard URL:
+Dashboard URLs:
 
-- http://localhost:8502
+- Web UI: http://localhost:5173
+- API: http://localhost:9001
+
+Legacy Streamlit (port 8502):
+
+```powershell
+python -m src.main dashboard-streamlit
+```
 
 ## Canonical Entrypoints
 
 Use these commands from the repo root:
 
 ```powershell
-# Dashboard
+# Dashboard (React + FastAPI)
 python -m src.main dashboard
+python -m src.main web
+npm start
+
+# Legacy Streamlit
+python -m src.main dashboard-streamlit
 
 # Realtime alert poller
 python -m src.main alerts
@@ -44,12 +56,12 @@ python -m src.main alerts
 python -m src.cli.process_historical_13f full --yes
 ```
 
-Dashboard options:
+Legacy Streamlit options:
 
 ```powershell
-python -m src.main dashboard -Port 8503
-python -m src.main dashboard -RebuildDb
-python -m src.main dashboard -RebuildDb -FullRefresh -Workers 2
+python -m src.main dashboard-streamlit -Port 8503
+python -m src.main dashboard-streamlit -RebuildDb
+python -m src.main dashboard-streamlit -RebuildDb -FullRefresh -Workers 2
 ```
 
 Legacy wrapper (still supported):
@@ -61,13 +73,12 @@ bash deploy.sh
 
 ## What The Dashboard Launcher Does
 
-When you run `python -m src.main dashboard` on Windows, it delegates to the restart script and:
+When you run `python -m src.main dashboard`, it starts:
 
-- stops prior dashboard processes,
-- clears the configured port,
-- starts Streamlit,
-- waits for the health endpoint (`/_stcore/health`),
-- opens the browser automatically.
+- FastAPI on port 9001 (`python -m src.api`)
+- Vite dev server on port 5173 (`frontend/`), proxying `/api` to the API
+
+Legacy Streamlit (`python -m src.main dashboard-streamlit`) still uses the Windows restart script and opens port 8502.
 
 ## Common Workflows
 

@@ -17,11 +17,16 @@ rtk pip install -r requirements.txt
 # Main poller
 rtk python -m src.main alerts
 
-# Dashboard (canonical)
+# Dashboard (canonical — React + FastAPI)
 rtk python -m src.main dashboard
-rtk python -m src.main dashboard -Port 8503
-rtk python -m src.main dashboard -RebuildDb
-rtk python -m src.main dashboard -RebuildDb -FullRefresh -Workers 2
+rtk python -m src.main web
+npm start
+powershell -ExecutionPolicy Bypass -File .\dev.ps1
+
+# Legacy Streamlit dashboard
+rtk python -m src.main dashboard-streamlit
+rtk python -m src.main dashboard-streamlit -Port 8503
+rtk python -m src.main dashboard-streamlit -RebuildDb
 
 # Historical refresh + dashboard DB
 rtk python -m src.cli.process_historical_13f full --yes
@@ -50,12 +55,12 @@ python src/gui/filing_processor_gui.py
 
 ## Dashboard
 
-- `python -m src.main dashboard` is the canonical local launch command.
-- `dashboard.bat` is a thin wrapper around `python -m src.main dashboard`.
-- It kills any old dashboard instance, clears the port, starts Streamlit, waits for `/_stcore/health`, then opens the browser.
-- If the SQLite DB is malformed, rebuild with `rtk python -m src.cli.process_historical_13f full --yes` or `rtk python -m src.main dashboard -RebuildDb`.
-- Dashboard analytics now read from `src/core/data/13f_dashboard.duckdb` (DuckDB). CSV exports remain optional artifacts.
-- For local pre-deploy smoke check: verify SQLite integrity, then run `rtk python -m src.main dashboard`.
+- `python -m src.main dashboard` (or `web`, `npm start`, `dev.ps1`) starts the React + FastAPI dashboard.
+- API: `http://127.0.0.1:9001` (`python -m src.api`). Web UI: `http://127.0.0.1:5173` (Vite dev server with `/api` proxy).
+- Legacy Streamlit: `python -m src.main dashboard-streamlit` (still available until fully removed).
+- `dashboard.bat` still wraps the legacy Streamlit restart script on Windows.
+- If the DuckDB is stale or missing, rebuild with `rtk python -m src.cli.process_historical_13f full --yes`.
+- Dashboard analytics read from `src/core/data/13f_dashboard.duckdb` (DuckDB). API layer lives in `src/api/`; React UI in `frontend/`.
 
 ## Config
 
@@ -71,7 +76,9 @@ python src/gui/filing_processor_gui.py
 - `src/core/parser.py`: Information Table parsing; XML first, HTML fallback.
 - `src/core/storage.py`: SQLite storage and accession lookup helpers.
 - `src/core/diff.py`: portfolio diff helpers for Telegram and dashboard history views.
-- `src/web/dashboard.py`: Streamlit dashboard (`Overview`, `Fund Analysis`, `Holdings Search`).
+- `src/api/`: FastAPI JSON analytics API (no Streamlit imports).
+- `frontend/`: React + Vite dashboard UI.
+- `src/web/dashboard.py`: legacy Streamlit dashboard.
 - `src/core/hedge_funds_config.py`: tracked funds list.
 
 ## Rules
