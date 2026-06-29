@@ -33,6 +33,8 @@ data/historical/holdings/*.csv
 data/historical/catalog/*.json
 src/core/data/historical/holdings/*.csv
 src/core/data/exports/*.csv
+data/*.db
+data/*.duckdb
 
 # Generated tracker CSVs (legacy + realtime snapshots)
 src/core/*holdings_tracker.csv
