@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
   Alert,
@@ -9,10 +9,10 @@ import {
   NumberInput,
   Paper,
   Radio,
-  SegmentedControl,
   Select,
   SimpleGrid,
   Slider,
+  Switch,
   Tabs,
   Text,
   TextInput,
@@ -32,6 +32,10 @@ import { ExportLink } from "@/components/ExportLink";
 import { AlertBanner } from "@/components/AlertBanner";
 import { ChartLoading, KpiLoading } from "@/components/LoadingState";
 import { formatDateValue, formatAccessionLabel } from "@/utils/dateFormat";
+import {
+  HOLDINGS_SEARCH_CELL_LINKS,
+  ISSUER_CELL_LINK,
+} from "@/utils/cellLinks";
 
 type AccessionLabel = {
   accession_number: string;
@@ -252,15 +256,15 @@ function buildSankeyHref(
   topN: number,
   topNBuys: number,
   topNSells: number,
-  scaleMode: string,
-  minVisiblePct: number,
+  includeOptions: boolean,
 ) {
   const params = new URLSearchParams({
     top_n: String(topN),
     top_n_buys: String(topNBuys),
     top_n_sells: String(topNSells),
-    scale_mode: scaleMode,
-    min_visible_pct: String(minVisiblePct),
+    scale_mode: "linear",
+    min_visible_pct: "0",
+    include_options: String(includeOptions),
   });
   return `/api/funds/${encodeURIComponent(fund)}/compare/charts/sankey?old_accession=${encodeURIComponent(
     oldAcc,
@@ -274,11 +278,13 @@ function buildLanesHref(
   topN: number,
   topNBuys: number,
   topNSells: number,
+  includeOptions: boolean,
 ) {
   const params = new URLSearchParams({
     top_n: String(topN),
     top_n_buys: String(topNBuys),
     top_n_sells: String(topNSells),
+    include_options: String(includeOptions),
   });
   return `/api/funds/${encodeURIComponent(fund)}/compare/charts/lanes?old_accession=${encodeURIComponent(
     oldAcc,
@@ -353,7 +359,99 @@ function getDefaultFund(funds: string[]): string {
   return funds[0] ?? "";
 }
 
+type TransitionDrilldownProps = {
+  formattedDiff: FormattedDiff | undefined;
+  loading: boolean;
+  caption?: string;
+};
+
+function TransitionDrilldownTables({ formattedDiff, loading, caption }: TransitionDrilldownProps) {
+  const newSection = formattedDiff?.new_positions;
+  const closedSection = formattedDiff?.closed_positions;
+  const changesSection = formattedDiff?.share_changes;
+  const hasNew = Boolean(newSection?.count);
+  const hasClosed = Boolean(closedSection?.count);
+  const hasChanges = Boolean(changesSection?.count);
+
+  const defaultTab = hasNew ? "new" : hasClosed ? "closed" : hasChanges ? "changes" : null;
+
+  return (
+    <div>
+      {caption ? (
+        <Text size="sm" c="dimmed" mb="sm">
+          {caption}
+        </Text>
+      ) : null}
+      {!hasNew && !hasClosed && !hasChanges ? (
+        <Alert variant="light" color="green" radius="md">
+          No position-level changes for this transition.
+        </Alert>
+      ) : (
+        <Tabs defaultValue={defaultTab ?? undefined} variant="pills">
+          <Tabs.List>
+            <Tabs.Tab value="new" disabled={!hasNew}>
+              New ({newSection?.count ?? 0})
+            </Tabs.Tab>
+            <Tabs.Tab value="closed" disabled={!hasClosed}>
+              Closed ({closedSection?.count ?? 0})
+            </Tabs.Tab>
+            <Tabs.Tab value="changes" disabled={!hasChanges}>
+              Share changes ({changesSection?.count ?? 0})
+            </Tabs.Tab>
+          </Tabs.List>
+
+          <Tabs.Panel value="new" pt="md">
+            {hasNew && newSection ? (
+              <DataTable
+                columns={newSection.rows[0] ? Object.keys(newSection.rows[0]) : []}
+                rows={newSection.rows}
+                columnOrder={NEW_POSITIONS_COLUMN_ORDER}
+                cellLinks={ISSUER_CELL_LINK}
+                maxHeight={360}
+                stickyHeader
+                loading={loading}
+                loadingColumns={NEW_POSITIONS_COLUMN_ORDER.length}
+              />
+            ) : null}
+          </Tabs.Panel>
+
+          <Tabs.Panel value="closed" pt="md">
+            {hasClosed && closedSection ? (
+              <DataTable
+                columns={closedSection.rows[0] ? Object.keys(closedSection.rows[0]) : []}
+                rows={closedSection.rows}
+                columnOrder={CLOSED_POSITIONS_COLUMN_ORDER}
+                cellLinks={ISSUER_CELL_LINK}
+                maxHeight={360}
+                stickyHeader
+                loading={loading}
+                loadingColumns={CLOSED_POSITIONS_COLUMN_ORDER.length}
+              />
+            ) : null}
+          </Tabs.Panel>
+
+          <Tabs.Panel value="changes" pt="md">
+            {hasChanges && changesSection ? (
+              <DataTable
+                columns={changesSection.rows[0] ? Object.keys(changesSection.rows[0]) : []}
+                rows={changesSection.rows}
+                columnOrder={CHANGES_COLUMN_ORDER}
+                cellLinks={ISSUER_CELL_LINK}
+                maxHeight={360}
+                stickyHeader
+                loading={loading}
+                loadingColumns={CHANGES_COLUMN_ORDER.length}
+              />
+            ) : null}
+          </Tabs.Panel>
+        </Tabs>
+      )}
+    </div>
+  );
+}
+
 export function FundAnalysisPage() {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialFund = searchParams.get("fund") ?? "";
   const initialTab = (searchParams.get("tab") as "snapshot" | "timeline" | "compare" | null) ?? "snapshot";
@@ -376,8 +474,7 @@ export function FundAnalysisPage() {
   const [sankeyTopN, setSankeyTopN] = useState(20);
   const [sankeyTopNBuys, setSankeyTopNBuys] = useState(20);
   const [sankeyTopNSells, setSankeyTopNSells] = useState(20);
-  const [sankeyScaleMode, setSankeyScaleMode] = useState<"linear" | "sqrt" | "log">("sqrt");
-  const [sankeyMinVisiblePct, setSankeyMinVisiblePct] = useState(0);
+  const [sankeyIncludeOptions, setSankeyIncludeOptions] = useState(false);
   const [transitionIndex, setTransitionIndex] = useState(0);
 
   // Insight key (resets when accession changes)
@@ -459,8 +556,7 @@ export function FundAnalysisPage() {
       sankeyTopN,
       sankeyTopNBuys,
       sankeyTopNSells,
-      sankeyScaleMode,
-      sankeyMinVisiblePct,
+      sankeyIncludeOptions,
     ],
     queryFn: () =>
       apiGet<{
@@ -470,6 +566,7 @@ export function FundAnalysisPage() {
         value_multiplier?: number;
         scale_mode?: string;
         min_visible_pct?: number;
+        include_options?: boolean;
       }>(
         buildSankeyHref(
           fund,
@@ -478,18 +575,34 @@ export function FundAnalysisPage() {
           sankeyTopN,
           sankeyTopNBuys,
           sankeyTopNSells,
-          sankeyScaleMode,
-          sankeyMinVisiblePct,
+          sankeyIncludeOptions,
         ),
       ),
     enabled: compareEnabled,
   });
 
   const lanesQuery = useQuery({
-    queryKey: ["fund-lanes", fund, oldAccession, newAccession, sankeyTopN, sankeyTopNBuys, sankeyTopNSells],
+    queryKey: [
+      "fund-lanes",
+      fund,
+      oldAccession,
+      newAccession,
+      sankeyTopN,
+      sankeyTopNBuys,
+      sankeyTopNSells,
+      sankeyIncludeOptions,
+    ],
     queryFn: () =>
       apiGet<{ rows: Record<string, unknown>[] }>(
-        buildLanesHref(fund, oldAccession, newAccession, sankeyTopN, sankeyTopNBuys, sankeyTopNSells),
+        buildLanesHref(
+          fund,
+          oldAccession,
+          newAccession,
+          sankeyTopN,
+          sankeyTopNBuys,
+          sankeyTopNSells,
+          sankeyIncludeOptions,
+        ),
       ),
     enabled: compareEnabled,
   });
@@ -550,6 +663,29 @@ export function FundAnalysisPage() {
     setOldAccession(transition.from_accession_number);
     setNewAccession(transition.to_accession_number);
     setComparePreset("manual");
+  };
+
+  const goToHoldingsSearch = useMemo(
+    () => (label: string) => {
+      // Position labels from lanes/sankey charts carry class/put-call suffixes
+      // (e.g. "Alphabet Inc. (Class C CALL)"). The holdings search ANDs whitespace
+      // separated terms, so trailing suffix tokens like "(Class" would yield zero
+      // matches. Strip the first parenthetical to recover the bare issuer name.
+      const withoutParens = label.replace(/\s*\([^)]*\)\s*$/, "").trim();
+      const text = withoutParens || label.trim();
+      if (!text || text.toLowerCase() === "unknown") return;
+      navigate(`/holdings-search?q=${encodeURIComponent(text)}`);
+    },
+    [navigate],
+  );
+
+  const onTransitionChartClick = (label: string) => {
+    const text = label.trim();
+    if (!text) return;
+    const matchIdx = latestFirstTransitions.findIndex(
+      (transition) => `${transition.from_filing_date} → ${transition.to_filing_date}` === text,
+    );
+    if (matchIdx >= 0) onSelectTransition(matchIdx);
   };
 
   const updateTab = (next: "snapshot" | "timeline" | "compare") => {
@@ -713,11 +849,13 @@ export function FundAnalysisPage() {
               <BarChart
                 chart={snapshot?.chart}
                 loading={snapshotQuery.isLoading && !snapshot?.chart?.x?.length}
+                onPointClick={goToHoldingsSearch}
               />
               <DataTable
                 columns={snapshotColumns}
                 rows={snapshotRows}
                 columnOrder={SNAPSHOT_COLUMN_ORDER}
+                cellLinks={HOLDINGS_SEARCH_CELL_LINKS}
                 maxHeight={420}
                 stickyHeader
                 loading={snapshotQuery.isLoading}
@@ -774,6 +912,7 @@ export function FundAnalysisPage() {
                   }
                   rows={insightDetail?.rows ?? []}
                   columnOrder={POSITION_INSIGHT_DETAIL_ORDER}
+                  cellLinks={HOLDINGS_SEARCH_CELL_LINKS}
                   maxHeight={360}
                   stickyHeader
                   loading={snapshotQuery.isLoading}
@@ -875,11 +1014,12 @@ export function FundAnalysisPage() {
               <Paper withBorder p="md" radius="md" bg="white" mb="lg">
                 <SectionHeader
                   title="Quarter-over-quarter activity"
-                  caption="Bars show per-transition counts of new / closed / increased / decreased positions."
+                  caption="Bars show per-transition counts of new / closed / increased / decreased positions. Click a bar cluster to drill into that transition below."
                 />
                 <GroupedBarChart
                   chart={transitionsChart}
                   loading={historyQuery.isLoading && !transitionsChart?.x?.length}
+                  onPointClick={onTransitionChartClick}
                 />
 
                 <SimpleGrid cols={{ base: 1, md: 2 }} mt="md">
@@ -927,6 +1067,27 @@ export function FundAnalysisPage() {
                       Detailed new, closed, and share-change tables are consolidated in Compare so each
                       transition is inspected in one place.
                     </Text>
+
+                    <Paper withBorder p="md" radius="md" bg="white" mt="md">
+                      <SectionHeader
+                        title="Position drill-down"
+                        caption={`New, closed, increased, and decreased positions for ${formatDateValue(
+                          selectedTransition.from_filing_date,
+                        )} → ${formatDateValue(selectedTransition.to_filing_date)}.`}
+                      />
+                      {compareQuery.isLoading && !compare?.formatted_diff ? (
+                        <ChartLoading label="Loading transition details…" />
+                      ) : compare?.formatted_diff ? (
+                        <TransitionDrilldownTables
+                          formattedDiff={compare.formatted_diff}
+                          loading={compareQuery.isLoading}
+                        />
+                      ) : (
+                        <Text size="sm" c="dimmed">
+                          No detailed rows available for this transition.
+                        </Text>
+                      )}
+                    </Paper>
                   </>
                 ) : null}
               </Paper>
@@ -1075,6 +1236,7 @@ export function FundAnalysisPage() {
                       }
                       rows={compare?.top_movers?.rows ?? []}
                       columnOrder={TOP_MOVERS_COLUMN_ORDER}
+                      cellLinks={HOLDINGS_SEARCH_CELL_LINKS}
                       maxHeight={420}
                       stickyHeader
                       loading={compareQuery.isLoading}
@@ -1086,7 +1248,7 @@ export function FundAnalysisPage() {
                 <Paper withBorder p="md" radius="md" bg="white" mt="lg">
                   <SectionHeader
                     title="Visual movement summary"
-                    caption="Delta Shares = NEW quarter shares - PREVIOUS quarter shares. Hover labels always show raw share deltas; thickness can be display-scaled for readability."
+                    caption="Delta Shares = NEW quarter shares - PREVIOUS quarter shares. Ribbon width is proportional to share quantity (linear scale). PUT/CALL options are excluded by default."
                   />
                   <SimpleGrid cols={{ base: 1, md: 2, lg: 4 }} mb="md">
                     <NumberInput
@@ -1111,45 +1273,46 @@ export function FundAnalysisPage() {
                     />
                     <div>
                       <Text size="sm" fw={500} mb={8}>
-                        Thickness scale
+                        Position nodes shown
                       </Text>
-                      <SegmentedControl
-                        value={sankeyScaleMode}
-                        onChange={(value) => setSankeyScaleMode(value as "linear" | "sqrt" | "log")}
-                        data={[
-                          { value: "linear", label: "Linear" },
-                          { value: "sqrt", label: "Sqrt" },
-                          { value: "log", label: "Log" },
+                      <Slider
+                        value={sankeyTopN}
+                        onChange={setSankeyTopN}
+                        min={5}
+                        max={40}
+                        step={5}
+                        marks={[
+                          { value: 5, label: "5" },
+                          { value: 20, label: "20" },
+                          { value: 40, label: "40" },
                         ]}
                       />
                     </div>
                     <div>
                       <Text size="sm" fw={500} mb={8}>
-                        Min visible thickness
+                        Options filter
                       </Text>
-                      <Slider
-                        value={sankeyMinVisiblePct}
-                        onChange={setSankeyMinVisiblePct}
-                        min={0}
-                        max={10}
-                        step={1}
-                        marks={[
-                          { value: 0, label: "0%" },
-                          { value: 5, label: "5%" },
-                          { value: 10, label: "10%" },
-                        ]}
+                      <Switch
+                        label="Include PUT/CALL options"
+                        checked={sankeyIncludeOptions}
+                        onChange={(event) => setSankeyIncludeOptions(event.currentTarget.checked)}
                       />
                     </div>
                   </SimpleGrid>
                   {sankeyQuery.data ? (
                     <Text size="sm" c="dimmed" mb="sm">
-                      Line thickness uses {sankeyQuery.data.scale_mode ?? "linear"} display scaling
-                      with a {sankeyQuery.data.min_visible_pct ?? 0}% visibility floor. Hover labels
+                      Ribbon width is proportional to share delta (linear scale).
+                      {" "}PUT/CALL options are{" "}
+                      {sankeyQuery.data.include_options ? "included" : "excluded"}. Hover labels
                       show raw share deltas and auto-normalized delta values (value multiplier x
                       {sankeyQuery.data.value_multiplier ?? 1}).
                     </Text>
                   ) : null}
-                  <SankeyChart data={sankeyQuery.data} loading={sankeyQuery.isLoading} />
+                  <SankeyChart
+                    data={sankeyQuery.data}
+                    loading={sankeyQuery.isLoading}
+                    onPointClick={goToHoldingsSearch}
+                  />
 
                   <LanesChart
                     chart={
@@ -1161,6 +1324,7 @@ export function FundAnalysisPage() {
                         : null
                     }
                     loading={lanesQuery.isLoading}
+                    onPointClick={goToHoldingsSearch}
                   />
                 </Paper>
 
@@ -1194,6 +1358,7 @@ export function FundAnalysisPage() {
                         }
                         rows={compare.formatted_diff.new_positions.rows}
                         columnOrder={NEW_POSITIONS_COLUMN_ORDER}
+                        cellLinks={ISSUER_CELL_LINK}
                         maxHeight={320}
                         stickyHeader
                         loading={compareQuery.isLoading}
@@ -1226,6 +1391,7 @@ export function FundAnalysisPage() {
                         }
                         rows={compare.formatted_diff.closed_positions.rows}
                         columnOrder={CLOSED_POSITIONS_COLUMN_ORDER}
+                        cellLinks={ISSUER_CELL_LINK}
                         maxHeight={320}
                         stickyHeader
                         loading={compareQuery.isLoading}
@@ -1259,6 +1425,7 @@ export function FundAnalysisPage() {
                         }
                         rows={compare.formatted_diff.share_changes.rows}
                         columnOrder={CHANGES_COLUMN_ORDER}
+                        cellLinks={ISSUER_CELL_LINK}
                         maxHeight={420}
                         stickyHeader
                         loading={compareQuery.isLoading}

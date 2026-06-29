@@ -163,7 +163,7 @@ def test_compare_sankey_scaling_pipeline_runs_on_sample_diff():
         captured["called"] = True
         return {"fund": fund, "diff": diff}
 
-    def fake_sankey_data(diff_obj, top_n=20, *, top_n_buys=None, top_n_sells=None):  # noqa: ARG001
+    def fake_sankey_data(diff_obj, top_n=20, *, top_n_buys=None, top_n_sells=None, include_options=False):  # noqa: ARG001
         return {
             "node": {"label": ["Bought shares", "Sold shares", "AAA Corp"]},
             "link": {

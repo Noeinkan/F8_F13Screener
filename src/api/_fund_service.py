@@ -346,6 +346,7 @@ def build_compare_sankey(
     top_n_sells: int | None = None,
     scale_mode: str | None = None,
     min_visible_pct: float | None = None,
+    include_options: bool = False,
 ) -> dict[str, Any]:
     payload = build_fund_compare(fund, old_accession=old_accession, new_accession=new_accession)
     sankey = build_shares_flow_sankey_data(
@@ -353,6 +354,7 @@ def build_compare_sankey(
         top_n=top_n,
         top_n_buys=top_n_buys,
         top_n_sells=top_n_sells,
+        include_options=include_options,
     )
 
     raw_values = list(sankey["link"]["value"])
@@ -367,6 +369,7 @@ def build_compare_sankey(
     sankey["raw_values"] = raw_values
     sankey["scale_mode"] = normalized_scale_mode
     sankey["min_visible_pct"] = pct_value
+    sankey["include_options"] = bool(include_options)
     sankey["customdata"] = sankey["link"].get("customdata", [])
     return sankey
 
@@ -379,6 +382,7 @@ def build_compare_lanes(
     top_n: int = 20,
     top_n_buys: int | None = None,
     top_n_sells: int | None = None,
+    include_options: bool = False,
 ) -> dict[str, Any]:
     payload = build_fund_compare(fund, old_accession=old_accession, new_accession=new_accession)
     lanes_df = build_shares_change_lane_data(
@@ -386,6 +390,7 @@ def build_compare_lanes(
         top_n=top_n,
         top_n_buys=top_n_buys,
         top_n_sells=top_n_sells,
+        include_options=include_options,
     )
     return {
         "rows": records_from_dataframe(lanes_df) if not lanes_df.empty else [],

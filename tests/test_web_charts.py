@@ -255,3 +255,91 @@ def test_shares_flow_sankey_ignores_nan_label_components():
     sankey_data = build_shares_flow_sankey_data(diff)
 
     assert "Apple (COM)" in sankey_data["node"]["label"]
+
+
+def test_shares_flow_sankey_excludes_options_by_default():
+    diff = {
+        "new_positions": [
+            {
+                "issuer_name": "Apple",
+                "cusip": "AAA",
+                "share_class": "COM",
+                "put_call": "CALL",
+                "shares": 50,
+            },
+            {
+                "issuer_name": "Nvidia",
+                "cusip": "DDD",
+                "shares": 100_000,
+            },
+        ],
+        "closed_positions": [
+            {
+                "issuer_name": "Tesla",
+                "cusip": "BBB",
+                "put_call": "PUT",
+                "shares": 40_000,
+            },
+        ],
+        "increased": [
+            {
+                "issuer_name": "Microsoft",
+                "cusip": "MSFT",
+                "put_call": "CALL",
+                "old_shares": 1_000,
+                "new_shares": 2_000,
+                "share_change": 1_000,
+            },
+            {
+                "issuer_name": "Amazon",
+                "cusip": "AMZN",
+                "old_shares": 100_000,
+                "new_shares": 150_000,
+                "share_change": 50_000,
+            },
+        ],
+        "decreased": [
+            {
+                "issuer_name": "Meta",
+                "cusip": "META",
+                "put_call": "PUT",
+                "old_shares": 10_000,
+                "new_shares": 9_000,
+                "share_change": -1_000,
+            },
+        ],
+    }
+
+    sankey_data = build_shares_flow_sankey_data(diff)
+
+    labels = sankey_data["node"]["label"]
+    assert "Apple (COM CALL)" not in labels
+    assert "Tesla (PUT)" not in labels
+    assert "Microsoft (CALL)" not in labels
+    assert "Meta (PUT)" not in labels
+    assert "Nvidia" in labels
+    assert "Amazon" in labels
+    movement_labels = [movement["label"] for movement in sankey_data["movements"]]
+    assert set(movement_labels) == {"Nvidia", "Amazon"}
+
+
+def test_shares_flow_sankey_includes_options_when_requested():
+    diff = {
+        "new_positions": [
+            {
+                "issuer_name": "Apple",
+                "cusip": "AAA",
+                "share_class": "COM",
+                "put_call": "CALL",
+                "shares": 50,
+            },
+        ],
+        "closed_positions": [],
+        "increased": [],
+        "decreased": [],
+    }
+
+    sankey_data = build_shares_flow_sankey_data(diff, include_options=True)
+
+    movement_labels = [movement["label"] for movement in sankey_data["movements"]]
+    assert "Apple (COM CALL)" in movement_labels

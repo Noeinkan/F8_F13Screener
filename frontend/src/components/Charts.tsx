@@ -81,42 +81,79 @@ export function BarChart({
   loading?: boolean;
   onPointClick?: (label: string) => void;
 }) {
+  const viewport = useChartViewport();
   if (loading) {
-    return <ChartLoadingPlaceholder />;
+    const placeholderHeight = viewport === "compact" ? 360 : viewport === "wide" ? 440 : 400;
+    return <ChartLoadingPlaceholder height={placeholderHeight} />;
   }
   if (!chart || chart.x.length === 0) return null;
   const formattedX = maybeFormatXTicks(chart.x);
+  const categoryCount = formattedX.length;
+
+  // Thin x-axis ticks so labels never overlap, scaling targets by viewport.
+  const targetLabels = viewport === "compact" ? 6 : viewport === "wide" ? 14 : 10;
+  const tickInterval = Math.max(1, Math.ceil(categoryCount / targetLabels));
+
+  const tickAngle = viewport === "compact" ? -55 : -35;
+  const tickFontSize = viewport === "compact" ? 10 : 11;
+  const titleFontSize = viewport === "compact" ? 13 : 15;
+  const bottomMargin = viewport === "compact" ? 150 : 120;
+
+  // Grow chart height with category count so bars stay legible instead of
+  // becoming hairlines, but cap it so a 25-row snapshot doesn't dominate.
+  const baseHeight = viewport === "compact" ? 360 : viewport === "wide" ? 440 : 400;
+  const perCategory = viewport === "compact" ? 5 : 7;
+  const maxHeight = viewport === "compact" ? 560 : 760;
+  const chartHeight = Math.min(
+    maxHeight,
+    Math.max(baseHeight, baseHeight + (categoryCount - 8) * perCategory),
+  );
+
+  // On narrow screens, give the plot a minimum width and let the frame scroll
+  // horizontally instead of crushing bars into illegibility.
+  const minWidth = viewport === "compact" ? 480 : undefined;
+
   return (
-    <Plot
-      data={[
-        {
-          type: "bar",
-          x: formattedX,
-          y: chart.y,
-          hovertemplate: "%{x}<br>%{y}<extra></extra>",
-        },
-      ]}
-      layout={{
-        title: chart.title,
-        paper_bgcolor: "white",
-        plot_bgcolor: "white",
-        margin: { l: 40, r: 20, t: 48, b: 120 },
-        xaxis: { tickangle: -35 },
-        yaxis: { title: chart.y_label ?? "" },
-        height: 360,
-      }}
-      config={{ displayModeBar: false }}
-      style={{ width: "100%" }}
-      onClick={
-        onPointClick
-          ? ((event: Readonly<Plotly.PlotMouseEvent>) => {
-              const point = event?.points?.[0];
-              const label = point ? String(point.x ?? "") : "";
-              if (label) onPointClick(label);
-            }) as PlotParams["onClick"]
-          : undefined
-      }
-    />
+    <ChartFrame minWidth={minWidth}>
+      <Plot
+        data={[
+          {
+            type: "bar",
+            x: formattedX,
+            y: chart.y,
+            hovertemplate: "%{x}<br>%{y}<extra></extra>",
+          },
+        ]}
+        layout={{
+          title: { text: chart.title, font: { size: titleFontSize } },
+          paper_bgcolor: "white",
+          plot_bgcolor: "white",
+          margin: { l: 48, r: 20, t: 48, b: bottomMargin },
+          xaxis: {
+            tickangle: tickAngle,
+            tickfont: { size: tickFontSize },
+            dtick: tickInterval,
+            automargin: true,
+          },
+          yaxis: { title: chart.y_label ?? "", automargin: true },
+          height: chartHeight,
+          font: { size: viewport === "compact" ? 10 : 12 },
+          autosize: true,
+        }}
+        config={{ displayModeBar: false, responsive: true }}
+        useResizeHandler
+        style={{ width: "100%" }}
+        onClick={
+          onPointClick
+            ? ((event: Readonly<Plotly.PlotMouseEvent>) => {
+                const point = event?.points?.[0];
+                const label = point ? String(point.x ?? "") : "";
+                if (label) onPointClick(label);
+              }) as PlotParams["onClick"]
+            : undefined
+        }
+      />
+    </ChartFrame>
   );
 }
 
@@ -161,6 +198,7 @@ export function LineChart({
 export function SankeyChart({
   data,
   loading = false,
+  onPointClick,
 }: {
   data:
     | {
@@ -170,6 +208,7 @@ export function SankeyChart({
     | null
     | undefined;
   loading?: boolean;
+  onPointClick?: (label: string) => void;
 }) {
   const viewport = useChartViewport();
   if (loading) {
@@ -178,9 +217,18 @@ export function SankeyChart({
   }
   if (!data?.node?.label?.length || !data.link?.source?.length) return null;
 
-  const nodePad = viewport === "compact" ? 10 : viewport === "wide" ? 18 : 14;
+  const nodeCount = data.node.label.length;
+  // Grow the chart with node count so small flows stay visible, but cap it
+  // so the diagram doesn't take over the whole viewport. With 40 nodes the
+  // wide-viewport chart reaches ~700px — taller than the old fixed 580px but
+  // still fits in the folding area.
+  const perNode = viewport === "compact" ? 5 : viewport === "wide" ? 8 : 6;
+  const baseHeight = viewport === "compact" ? 420 : viewport === "wide" ? 480 : 440;
+  const maxHeight = viewport === "compact" ? 540 : viewport === "wide" ? 700 : 620;
+  const chartHeight = Math.min(maxHeight, Math.max(baseHeight, baseHeight + nodeCount * perNode));
+
+  const nodePad = viewport === "compact" ? 6 : viewport === "wide" ? 12 : 10;
   const nodeThickness = viewport === "compact" ? 14 : viewport === "wide" ? 20 : 18;
-  const chartHeight = viewport === "compact" ? 460 : viewport === "wide" ? 580 : 500;
   const fontSize = viewport === "compact" ? 10 : 12;
   const titleFontSize = viewport === "compact" ? 13 : 15;
 
@@ -190,11 +238,13 @@ export function SankeyChart({
         data={[
           {
             type: "sankey",
+            arrangement: "snap",
             node: {
               label: data.node.label,
               color: data.node.color,
               pad: nodePad,
               thickness: nodeThickness,
+              line: { color: "rgba(60, 65, 75, 0.35)", width: 0.5 },
             },
             link: {
               source: data.link.source,
@@ -221,6 +271,18 @@ export function SankeyChart({
         config={{ displayModeBar: false, responsive: true }}
         useResizeHandler
         style={{ width: "100%" }}
+        onClick={
+          onPointClick
+            ? ((event: Readonly<Plotly.PlotMouseEvent>) => {
+                const point = event?.points?.[0] as (Plotly.PlotDatum & { label?: string }) | undefined;
+                if (!point) return;
+                const label = String(point.label ?? "");
+                if (!label) return;
+                if (label === "Bought shares" || label === "Sold shares") return;
+                onPointClick(label);
+              }) as PlotParams["onClick"]
+            : undefined
+        }
       />
     </ChartFrame>
   );
@@ -306,9 +368,10 @@ type LanesChartProps = {
     rows: LaneRow[];
   } | null | undefined;
   loading?: boolean;
+  onPointClick?: (label: string) => void;
 };
 
-export function LanesChart({ chart, loading = false }: LanesChartProps) {
+export function LanesChart({ chart, loading = false, onPointClick }: LanesChartProps) {
   const viewport = useChartViewport();
   if (loading) {
     return <ChartLoadingPlaceholder height={420} label="Loading lanes chart…" />;
@@ -459,6 +522,17 @@ export function LanesChart({ chart, loading = false }: LanesChartProps) {
         config={{ displayModeBar: false, responsive: true }}
         useResizeHandler
         style={{ width: "100%" }}
+        onClick={
+          onPointClick
+            ? ((event: Readonly<Plotly.PlotMouseEvent>) => {
+                const point = event?.points?.[0] as (Plotly.PlotDatum & { label?: string }) | undefined;
+                if (!point) return;
+                const label = String(point.y ?? point.label ?? "");
+                if (!label) return;
+                onPointClick(label);
+              }) as PlotParams["onClick"]
+            : undefined
+        }
       />
     </ChartFrame>
   );
@@ -479,9 +553,10 @@ type GroupedBarChartProps = {
     barmode?: "group" | "stack";
   } | null | undefined;
   loading?: boolean;
+  onPointClick?: (label: string) => void;
 };
 
-export function GroupedBarChart({ chart, loading = false }: GroupedBarChartProps) {
+export function GroupedBarChart({ chart, loading = false, onPointClick }: GroupedBarChartProps) {
   const viewport = useChartViewport();
   if (loading) {
     const placeholderHeight = viewport === "compact" ? 360 : viewport === "wide" ? 460 : 420;
@@ -547,10 +622,20 @@ export function GroupedBarChart({ chart, loading = false }: GroupedBarChartProps
           height: chartHeight,
           font: { size: viewport === "compact" ? 10 : 12 },
           autosize: true,
+          hovermode: "closest",
         }}
         config={{ displayModeBar: false, responsive: true }}
         useResizeHandler
         style={{ width: "100%" }}
+        onClick={
+          onPointClick
+            ? ((event: Readonly<Plotly.PlotMouseEvent>) => {
+                const point = event?.points?.[0];
+                const label = point ? String(point.x ?? "") : "";
+                if (label) onPointClick(label);
+              }) as PlotParams["onClick"]
+            : undefined
+        }
       />
     </ChartFrame>
   );

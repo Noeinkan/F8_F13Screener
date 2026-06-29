@@ -77,6 +77,14 @@ def _movement_style(movement: str) -> dict[str, str]:
     return MOVEMENT_STYLE.get(movement, MOVEMENT_STYLE["Increased"])
 
 
+def _is_option_entry(entry: dict) -> bool:
+    """Return True when the diff entry represents a PUT/CALL option position."""
+    put_call = entry.get("put_call")
+    if put_call is None or pd.isna(put_call):
+        return False
+    return bool(str(put_call).strip())
+
+
 def _limit_movements_by_side(
     movements: list[dict],
     *,
@@ -130,14 +138,22 @@ def build_shares_flow_sankey_data(
     *,
     top_n_buys: int | None = None,
     top_n_sells: int | None = None,
+    include_options: bool = False,
 ) -> dict:
-    """Build Plotly Sankey data for shares bought/sold between two quarters."""
+    """Build Plotly Sankey data for shares bought/sold between two quarters.
+
+    Options (PUT/CALL) positions are excluded by default since their share counts
+    represent contracts, not underlying shares, and would distort the linear
+    thickness scaling. Set ``include_options=True`` to include them.
+    """
     movements: list[dict] = []
     multiplier_probe_rows: list[dict] = []
     buy_limit = top_n if top_n_buys is None else top_n_buys
     sell_limit = top_n if top_n_sells is None else top_n_sells
 
     for entry in diff.get("increased", []):
+        if not include_options and _is_option_entry(entry):
+            continue
         delta_shares = _numeric_or_zero(entry.get("share_change"))
         if delta_shares <= 0:
             continue
@@ -159,6 +175,8 @@ def build_shares_flow_sankey_data(
         })
 
     for entry in diff.get("decreased", []):
+        if not include_options and _is_option_entry(entry):
+            continue
         delta_shares = _numeric_or_zero(entry.get("share_change"))
         if delta_shares >= 0:
             continue
@@ -180,6 +198,8 @@ def build_shares_flow_sankey_data(
         })
 
     for entry in diff.get("new_positions", []):
+        if not include_options and _is_option_entry(entry):
+            continue
         shares = _numeric_or_zero(entry.get("shares"))
         if shares <= 0:
             continue
@@ -200,6 +220,8 @@ def build_shares_flow_sankey_data(
         })
 
     for entry in diff.get("closed_positions", []):
+        if not include_options and _is_option_entry(entry):
+            continue
         shares = _numeric_or_zero(entry.get("shares"))
         if shares <= 0:
             continue
@@ -290,12 +312,14 @@ def build_shares_change_lane_data(
     *,
     top_n_buys: int | None = None,
     top_n_sells: int | None = None,
+    include_options: bool = False,
 ) -> pd.DataFrame:
     sankey_data = build_shares_flow_sankey_data(
         diff,
         top_n=top_n,
         top_n_buys=top_n_buys,
         top_n_sells=top_n_sells,
+        include_options=include_options,
     )
     rows = [
         {

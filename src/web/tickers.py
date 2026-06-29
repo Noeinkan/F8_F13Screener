@@ -46,6 +46,24 @@ CUSIP_TICKER_OVERRIDES: dict[str, str] = {
     # Lennar Corp
     "526057104": "LEN",    # Class A
     "526057302": "LENB",   # Class B
+    # ---- ETFs ----
+    # SEC `company_tickers_exchange.json` only registers a handful of ETFs
+    # (mostly SPDR/iShares commodity and crypto trusts). Most broad-market and
+    # sector ETFs held by 13F funds are missing from the reference, and SPY's
+    # 13F issuer name ("STATE STR SPDR S&P 500 ETF T") does not alias-match
+    # the SEC's "SPDR S&P 500 ETF TRUST" record. CUSIP overrides close both
+    # gaps. CUSIPs verified against each fund's official fact sheet.
+    "78462F103": "SPY",   # SPDR S&P 500 ETF Trust
+    "464287200": "IVV",   # iShares Core S&P 500 ETF
+    "922908363": "VOO",   # Vanguard S&P 500 ETF
+    "922908769": "VTI",   # Vanguard Total Stock Market ETF
+    "464287655": "IWM",   # iShares Russell 2000 ETF
+    "464287234": "EEM",   # iShares MSCI Emerging Markets ETF
+    "464287465": "EFA",   # iShares MSCI EAFE ETF
+    "922908736": "VUG",   # Vanguard Growth ETF
+    "922908744": "VTV",   # Vanguard Value ETF
+    "921908844": "VIG",   # Vanguard Dividend Appreciation ETF
+    "921937835": "BND",   # Vanguard Total Bond Market ETF
 }
 
 _CORPORATE_SUFFIXES = {

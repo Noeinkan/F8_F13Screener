@@ -157,6 +157,7 @@ def fund_compare_sankey(
     top_n_sells: int | None = Query(default=None, ge=5, le=50),
     scale_mode: str | None = Query(default=None),
     min_visible_pct: float | None = Query(default=None, ge=0, le=100),
+    include_options: bool = Query(default=False),
 ) -> dict[str, object]:
     try:
         return build_compare_sankey(
@@ -168,6 +169,7 @@ def fund_compare_sankey(
             top_n_sells=top_n_sells,
             scale_mode=scale_mode,
             min_visible_pct=min_visible_pct,
+            include_options=include_options,
         )
     except (DashboardDbError, ValueError) as exc:
         if isinstance(exc, DashboardDbError):
@@ -184,6 +186,7 @@ def fund_compare_lanes(
     top_n: int = Query(default=20, ge=5, le=40),
     top_n_buys: int | None = Query(default=None, ge=5, le=50),
     top_n_sells: int | None = Query(default=None, ge=5, le=50),
+    include_options: bool = Query(default=False),
 ) -> dict[str, object]:
     try:
         return build_compare_lanes(
@@ -193,6 +196,7 @@ def fund_compare_lanes(
             top_n=top_n,
             top_n_buys=top_n_buys,
             top_n_sells=top_n_sells,
+            include_options=include_options,
         )
     except (DashboardDbError, ValueError) as exc:
         if isinstance(exc, DashboardDbError):

@@ -119,3 +119,18 @@ def test_ticker_lookup_prefers_primary_listed_ticker_over_preferred_or_otc_rows(
     enriched = add_ticker_column(df, lookup=lookup)
 
     assert enriched["Ticker"].tolist() == ["ORCL", "TSM"]
+
+
+def test_ticker_lookup_resolves_etfs_missing_from_sec_reference_by_cusip():
+    # IVV (iShares Core S&P 500 ETF) is absent from the SEC
+    # company_tickers_exchange.json reference entirely, so the empty lookup
+    # simulates that scenario and the CUSIP override must still resolve it.
+    lookup = build_ticker_lookup([])
+    df = pd.DataFrame({
+        "Issuer": ["ISHARES TR", "STATE STR SPDR S&P 500 ETF T"],
+        "CUSIP": ["464287200", "78462F103"],
+    })
+
+    enriched = add_ticker_column(df, lookup=lookup)
+
+    assert enriched["Ticker"].tolist() == ["IVV", "SPY"]

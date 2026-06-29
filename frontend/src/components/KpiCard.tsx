@@ -31,7 +31,11 @@ type KpiGridProps = {
 
 export function KpiGrid({ items }: KpiGridProps) {
   return (
-    <SimpleGrid cols={{ base: 1, sm: 2, lg: items.length }} spacing="md" mb="lg">
+    <SimpleGrid
+      cols={{ base: 1, sm: 2, md: 3, lg: Math.min(items.length, 4) }}
+      spacing="md"
+      mb="lg"
+    >
       {items.map((item) => (
         <KpiCard key={item.label} {...item} />
       ))}
