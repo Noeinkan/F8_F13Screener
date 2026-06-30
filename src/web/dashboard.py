@@ -8,6 +8,8 @@ from pathlib import Path
 import re
 from typing import Any, TypeVar
 
+SelectionT = TypeVar("SelectionT")
+
 import streamlit as st
 
 # Ensure `src.*` imports work whether Streamlit is launched from repo root or src/web.
