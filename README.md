@@ -144,6 +144,29 @@ If dashboard data looks stale or malformed:
 - rebuild with `python -m src.main dashboard -RebuildDb`, or
 - run full historical refresh with `python -m src.cli.process_historical_13f full --yes`.
 
+## Repository Size Hygiene
+
+Several runtime artifacts can grow past GitHub's 100 MB per-file limit and must stay out of the repo:
+
+- `src/core/data/*.duckdb` and `*.db` — dashboard + SQLite runtime state
+- `cache/dashboard/*.snapshot.duckdb` — dashboard server snapshots
+- `data/*.duckdb`, `data/*.db`, `data/exports/*.csv`, `src/core/data/historical/holdings/*.csv` — runtime + export CSVs
+
+These are all covered by `.gitignore`. If a large file slips into history and `git push` is rejected:
+
+```powershell
+# Find oversized blobs
+git rev-list --objects --all |
+  git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' |
+  Where-Object { ($_ -split ' ')[0] -eq 'blob' -and [int64]($_ -split ' ')[2] -gt 100MB }
+
+# Strip them from history (single-contributor only; rewrites SHAs)
+git filter-repo --invert-paths --path <file> --force
+git push origin main --force
+```
+
+After a forced history rewrite, GitHub retains unreachable objects for ~14 days. To reclaim that quota immediately, contact GitHub support and ask them to run `git gc --prune=now --aggressive` on the repo.
+
 ## Project Layout (High Value)
 
 - `src/main.py`: unified command entrypoint (`dashboard`, `alerts`)
