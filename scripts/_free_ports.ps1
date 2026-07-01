@@ -17,6 +17,10 @@
 .PARAMETER VitePortEnd
   Last Vite dev-server port to free. Defaults to 5179.
 
+.PARAMETER ExtraPorts
+  Additional ports to free (e.g. legacy Streamlit 8501/8502, fallback 3000).
+  Defaults to 8501, 8502, 3000.
+
 .PARAMETER DryRun
   List the processes that would be stopped without actually stopping them.
 
@@ -24,12 +28,15 @@
   powershell -ExecutionPolicy Bypass -File .\scripts\_free_ports.ps1
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File .\scripts\_free_ports.ps1 -DryRun
+.EXAMPLE
+  powershell -ExecutionPolicy Bypass -File .\scripts\_free_ports.ps1 -ApiPort 9001 -ExtraPorts 8501,8502
 #>
 [CmdletBinding()]
 param(
   [int]$ApiPort       = $(if ($env:API_SERVER_PORT) { [int]$env:API_SERVER_PORT } else { 9001 }),
   [int]$VitePortStart = 5173,
   [int]$VitePortEnd   = 5179,
+  [int[]]$ExtraPorts  = @(8501, 8502, 3000),
   [switch]$DryRun
 )
 
@@ -37,6 +44,7 @@ $ErrorActionPreference = 'Stop'
 
 $ports = @($ApiPort)
 $ports += ($VitePortStart..$VitePortEnd)
+if ($ExtraPorts) { $ports += $ExtraPorts }
 $ports = $ports | Select-Object -Unique
 
 $killedPids = @{}

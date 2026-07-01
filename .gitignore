@@ -48,6 +48,11 @@ logs/*.log
 data/cache/*.json
 cache/dashboard/*.duckdb
 
+# Runtime DuckDB files (recreated each run; large + temp)
+cache/**/*.snapshot.duckdb
+cache/**/*.snapshot.db
+cache/**/*.tmp
+
 # Lock files
 *.lock
 
@@ -62,6 +67,8 @@ cache/dashboard/*.duckdb
 Thumbs.db
 src/core/data/*.db
 src/core/data/*.duckdb
+src/core/*.db
+src/core/*.duckdb
 src/core/data/historical/tracking/*.json
 
 # Node / frontend build artifacts

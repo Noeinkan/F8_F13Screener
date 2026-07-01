@@ -19,11 +19,12 @@ rtk python -m src.main alerts
 
 # Dashboard (canonical — React + FastAPI)
 rtk python -m src.main dashboard
-rtk python -m src.main web
-npm start
 powershell -ExecutionPolicy Bypass -File .\dev.ps1
 
-# Legacy Streamlit dashboard
+# Dashboard status — what is currently serving?
+rtk python -m src.main status
+
+# Legacy Streamlit dashboard (opt-in only)
 rtk python -m src.main dashboard-streamlit
 rtk python -m src.main dashboard-streamlit -Port 8503
 rtk python -m src.main dashboard-streamlit -RebuildDb
@@ -46,21 +47,40 @@ rtk python -m src.cli.view_cached_filings
 # Historical GUI
 python src/gui/filing_processor_gui.py
 
-# Local dashboard restart + browser open (wrapper)
+# Local dashboard restart (thin wrapper: pre-flight port cleanup + dev.ps1)
 .\dashboard.bat
-.\dashboard.bat -Port 8503
-.\dashboard.bat -RebuildDb
-.\dashboard.bat -RebuildDb -FullRefresh -Workers 2
+.\dashboard.bat -Streamlit           # opt into legacy Streamlit
 ```
 
 ## Dashboard
 
-- `python -m src.main dashboard` (or `web`, `npm start`, `dev.ps1`) starts the React + FastAPI dashboard.
-- API: `http://127.0.0.1:9001` (`python -m src.api`). Web UI: `http://127.0.0.1:5173` (Vite dev server with `/api` proxy).
-- Legacy Streamlit: `python -m src.main dashboard-streamlit` (still available until fully removed).
-- `dashboard.bat` still wraps the legacy Streamlit restart script on Windows.
-- If the DuckDB is stale or missing, rebuild with `rtk python -m src.cli.process_historical_13f full --yes`.
-- Dashboard analytics read from `src/core/data/13f_dashboard.duckdb` (DuckDB). API layer lives in `src/api/`; React UI in `frontend/`.
+The canonical dashboard is **React + FastAPI**, launched with **one** command:
+
+- Windows: `.\dev.ps1` (or `rtk python -m src.main dashboard`)
+- Anywhere: `rtk python -m src.main dashboard`
+
+This always:
+- pre-frees ports 5173-5179, 9001, 8501, 8502, 3000 via `scripts/_free_ports.ps1`
+  so a stale listener never wins the race (use `-SkipFreePorts` to opt out).
+- starts FastAPI on `http://127.0.0.1:9001` (`python -m src.api`)
+- starts the Vite dev server on `http://127.0.0.1:5173` (proxies `/api` to the API)
+
+If the UI looks stale, **first run** `rtk python -m src.main status`. It shows
+which of the known ports (5173, 9001, 8501, 8502, 3000) are currently LISTENing,
+the owning PID, and the command line, plus a one-line summary like
+`Dashboard (React+FastAPI): running on http://127.0.0.1:5173 — api pid X, web pid Y`
+or `stopped` / `partial`.
+
+`dashboard.bat` is now a thin wrapper that runs `_free_ports.ps1` and then
+delegates to `dev.ps1`. The legacy `start:no-browser` / `node server.js` paths
+have been removed from `package.json` — there is no other way to bring the
+dashboard up besides `dev.ps1` or `python -m src.main dashboard`. `npm start`
+still works (it runs the same `concurrently` recipe) but `dev.ps1` is the
+recommended entrypoint on Windows because of the pre-flight cleanup.
+
+If the DuckDB is stale or missing, rebuild with `rtk python -m src.cli.process_historical_13f full --yes`.
+Dashboard analytics read from `src/core/data/13f_dashboard.duckdb` (DuckDB).
+API layer lives in `src/api/`; React UI in `frontend/`.
 
 ## Config
 

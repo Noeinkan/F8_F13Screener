@@ -30,7 +30,7 @@ Write-Host ""
 if (-not $SkipFreePorts) {
   $freeScript = Join-Path $PSScriptRoot "scripts\_free_ports.ps1"
   if (Test-Path $freeScript) {
-    Write-Host "[setup] Freeing ports 9001 and 5173-5179 from stale listeners..."
+    Write-Host "[setup] Freeing ports 9001, 5173-5179, 8501, 8502, 3000 from stale listeners..."
     & $freeScript -ApiPort ([int]$apiPort)
   }
 }
