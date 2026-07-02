@@ -12,9 +12,17 @@ type SidebarNavProps = {
   dbLive?: string;
   readPath?: string;
   onRefresh: () => void;
+  refreshing?: boolean;
+  refreshMessage?: string | null;
 };
 
-export function SidebarNav({ dbLive, readPath, onRefresh }: SidebarNavProps) {
+export function SidebarNav({
+  dbLive,
+  readPath,
+  onRefresh,
+  refreshing,
+  refreshMessage,
+}: SidebarNavProps) {
   return (
     <Stack gap="lg" p="md" style={{ background: "var(--f8-bg)", minHeight: "100%" }}>
       <div>
@@ -45,19 +53,30 @@ export function SidebarNav({ dbLive, readPath, onRefresh }: SidebarNavProps) {
         <button
           type="button"
           onClick={onRefresh}
+          disabled={refreshing}
           style={{
             width: "100%",
-            background: "var(--f8-accent)",
+            background: refreshing ? "#94a3b8" : "var(--f8-accent)",
             color: "#fff",
             border: "none",
             borderRadius: "0.5rem",
             padding: "0.55rem 0.75rem",
             fontWeight: 600,
-            cursor: "pointer",
+            cursor: refreshing ? "wait" : "pointer",
           }}
         >
-          Refresh data
+          {refreshing ? "Refreshing…" : "Refresh data"}
         </button>
+        {refreshMessage ? (
+          <Text
+            size="xs"
+            c="dimmed"
+            mt="xs"
+            style={{ wordBreak: "break-word" }}
+          >
+            {refreshMessage}
+          </Text>
+        ) : null}
         {dbLive ? (
           <Text size="xs" c="dimmed" mt="sm" style={{ wordBreak: "break-all" }}>
             DB live: {dbLive}

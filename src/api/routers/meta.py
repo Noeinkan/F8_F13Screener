@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter
+import logging
 
+from fastapi import APIRouter, HTTPException
+
+from src.api import refresh
 from src.api.deps import raise_db_error
 from src.api.exceptions import DashboardDbError
 from src.api.repository import (
@@ -15,6 +18,14 @@ from src.api.repository import (
 )
 
 router = APIRouter(tags=["meta"])
+
+logger = logging.getLogger(__name__)
+
+
+def _on_refresh_success() -> None:
+    """Clear the in-process repository cache so the next query sees the new DuckDB."""
+    clear_repository_cache()
+    logger.info("Refresh succeeded; repository cache cleared.")
 
 
 @router.get("/api/health")
@@ -39,9 +50,32 @@ def db_state() -> dict[str, object]:
 
 
 @router.post("/api/cache/refresh")
-def refresh_cache() -> dict[str, bool]:
-    clear_repository_cache()
-    return {"ok": True}
+def refresh_cache() -> dict[str, object]:
+    """Kick off a full historical refresh in the background.
+
+    Spawns ``python -m src.cli.process_historical_13f full --yes`` and returns
+    immediately. Use ``GET /api/cache/refresh/status`` to poll for completion.
+    If a refresh is already running, returns the in-flight job without
+    starting a second one.
+    """
+    try:
+        job = refresh.start_refresh(on_success=_on_refresh_success)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail={"message": str(exc)})
+    payload = job.to_dict()
+    payload["already_running"] = not job.running and job.error is None and job.finished_at is None
+    return payload
+
+
+@router.get("/api/cache/refresh/status")
+def refresh_status() -> dict[str, object]:
+    """Return the current refresh job (if any) and the last few finished jobs."""
+    current = refresh.current_job()
+    return {
+        "running": refresh.is_running(),
+        "current": current.to_dict() if current is not None else None,
+        "history": [j.to_dict() for j in refresh.recent_jobs()[-5:]],
+    }
 
 
 @router.get("/api/funds")
