@@ -60,9 +60,13 @@ The canonical dashboard is **React + FastAPI**, launched with **one** command:
 - Anywhere: `rtk python -m src.main dashboard`
 
 This always:
-- pre-frees ports 5173-5179, 9001, 8501, 8502, 3000 via `scripts/_free_ports.ps1`
+- pre-frees ports 5173-5179, 9001, 9002, 8501, 8502, 3000 via `scripts/_free_ports.ps1`
   so a stale listener never wins the race (use `-SkipFreePorts` to opt out).
-- starts FastAPI on `http://127.0.0.1:9001` (`python -m src.api`)
+- starts FastAPI on `http://127.0.0.1:9001` by default (`python -m src.api`); on the
+  Hetzner VPS the API is pinned to **port 9002** via `API_SERVER_PORT` because another
+  FastAPI app on that host already owns 9001 — Vite's `/api` proxy is driven by
+  `F8_API_PROXY_TARGET` (see `deploy/f8-web.service`) so the same code runs locally
+  and remotely.
 - starts the Vite dev server on `http://127.0.0.1:5173` (proxies `/api` to the API)
 
 If the UI looks stale, **first run** `rtk python -m src.main status`. It shows
@@ -77,6 +81,21 @@ have been removed from `package.json` — there is no other way to bring the
 dashboard up besides `dev.ps1` or `python -m src.main dashboard`. `npm start`
 still works (it runs the same `concurrently` recipe) but `dev.ps1` is the
 recommended entrypoint on Windows because of the pre-flight cleanup.
+
+### Hetzner VPS deployment
+
+On `77.42.70.26` the dashboard is exposed via two systemd services
+(`f8-api` on 9002, `f8-web` on 5173) and UFW allows 5173 + 9002. The
+legacy Streamlit service (`f8-dashboard.service`, port 8502) has been
+**removed from the repo and disabled on the host** — the canonical URLs are:
+
+- Web UI: `http://77.42.70.26:5173/`
+- API:   `http://77.42.70.26:9002/`
+
+`deploy/deploy.sh` and `deploy/install.sh` install Node.js + frontend deps,
+register `f8-api.service` and `f8-web.service`, and remove the legacy
+`f8-dashboard.service` if it still exists on the host. New deploys will
+keep the canonical stack in sync.
 
 If the DuckDB is stale or missing, rebuild with `rtk python -m src.cli.process_historical_13f full --yes`.
 Dashboard analytics read from `src/core/data/13f_dashboard.duckdb` (DuckDB).
@@ -98,7 +117,9 @@ API layer lives in `src/api/`; React UI in `frontend/`.
 - `src/core/diff.py`: portfolio diff helpers for Telegram and dashboard history views.
 - `src/api/`: FastAPI JSON analytics API (no Streamlit imports).
 - `frontend/`: React + Vite dashboard UI.
-- `src/web/dashboard.py`: legacy Streamlit dashboard.
+- `src/web/dashboard.py`: legacy Streamlit dashboard (no longer deployed on the Hetzner VPS; opt-in only locally via `python -m src.main dashboard-streamlit`).
+- `deploy/f8-api.service`, `deploy/f8-web.service`: systemd units for the FastAPI API (port 9002 on Hetzner) and the Vite/React web UI (port 5173).
+- `deploy/f8-screener.service`: systemd unit for the realtime poller.
 - `src/core/hedge_funds_config.py`: tracked funds list.
 
 ## Rules

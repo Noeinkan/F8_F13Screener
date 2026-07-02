@@ -1,0 +1,23 @@
+[Unit]
+Description=F8 F13 Screener — Vite/React dashboard web UI
+After=network-online.target f8-api.service
+Wants=network-online.target
+# Vite needs the API ready before it starts proxying /api requests.
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/F8_F13Screener/frontend
+Environment=PYTHONUNBUFFERED=1
+# Vite dev server bound to all interfaces on port 5173.
+# The `/api` proxy (see frontend/vite.config.ts) forwards to F8_API_PROXY_TARGET.
+# Port 9001 is occupied on this host by another FastAPI app, so we point F8 at 9002.
+Environment=F8_API_PROXY_TARGET=http://127.0.0.1:9002
+ExecStart=/usr/bin/npx --no-install vite --host 0.0.0.0 --port 5173 --strictPort
+Restart=always
+RestartSec=15
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

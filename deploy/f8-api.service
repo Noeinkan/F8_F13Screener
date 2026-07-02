@@ -1,0 +1,29 @@
+[Unit]
+Description=F8 F13 Screener — FastAPI dashboard API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/F8_F13Screener
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONPATH=/opt/F8_F13Screener
+# API must be reachable from Vite/React on the same host (proxy /api -> 127.0.0.1:9001)
+# and from external clients hitting the public dashboard directly.
+Environment=API_SERVER_ADDRESS=0.0.0.0
+# Port 9001 is taken on this host by another FastAPI app (F9_CongressTrading).
+# F8 uses 9002 externally; Vite is configured to proxy /api to 9002.
+Environment=API_SERVER_PORT=9002
+Environment=F8_API_PUBLIC_PORT=9002
+# Allow the dashboard origin (Vite at :5173) to call the API when CORS preflight kicks in.
+# Vite proxies /api on the same origin, so this is mostly a safety net for direct API hits.
+Environment=CORS_ORIGINS=http://77.42.70.26:5173,http://127.0.0.1:5173,http://localhost:5173,http://127.0.0.1:5174,http://localhost:5174
+ExecStart=/opt/F8_F13Screener/venv/bin/python -m src.api
+Restart=always
+RestartSec=15
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

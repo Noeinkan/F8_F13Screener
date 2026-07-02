@@ -186,25 +186,45 @@ if [ "$REBUILD_DB" = true ]; then
     echo "→ Export CSV dashboard in data/exports..."
     "${APP_DIR}/venv/bin/python" -m src.cli.process_historical_13f export --export-scope both --output-dir data/exports
 fi
-sed -i 's/\r$//' deploy/f8-screener.service deploy/f8-dashboard.service
+sed -i 's/\r$//' deploy/f8-screener.service deploy/f8-api.service deploy/f8-web.service
 cp deploy/f8-screener.service /etc/systemd/system/
-cp deploy/f8-dashboard.service /etc/systemd/system/
-sed -i 's/\r$//' /etc/systemd/system/f8-screener.service /etc/systemd/system/f8-dashboard.service
+cp deploy/f8-api.service /etc/systemd/system/
+cp deploy/f8-web.service /etc/systemd/system/
+sed -i 's/\r$//' /etc/systemd/system/f8-screener.service /etc/systemd/system/f8-api.service /etc/systemd/system/f8-web.service
 if command -v ufw >/dev/null 2>&1; then
-    ufw allow 8502/tcp >/dev/null 2>&1 || true
+    ufw allow 5173/tcp >/dev/null 2>&1 || true
+    ufw allow 9002/tcp >/dev/null 2>&1 || true
+fi
+# Install frontend deps if missing. `npm ci` is reproducible but only when a
+# committed lockfile matches package.json exactly; fall back to `npm install`
+# otherwise so a fresh checkout never breaks the deploy.
+if [ ! -d "$APP_DIR/frontend/node_modules" ]; then
+    echo "→ Installing frontend dependencies (npm install)..."
+    (cd "$APP_DIR/frontend" && npm install --no-audit --no-fund)
 fi
 systemctl daemon-reload
-systemctl enable f8-screener f8-dashboard >/dev/null 2>&1 || true
+systemctl enable f8-screener f8-api f8-web >/dev/null 2>&1 || true
 systemctl restart f8-screener
-systemctl restart f8-dashboard
+systemctl restart f8-api
+systemctl restart f8-web
+# Remove the legacy Streamlit dashboard if it is still installed on a host
+# that pre-dates the React+FastAPI migration.
+if [ -f /etc/systemd/system/f8-dashboard.service ]; then
+    echo "→ Disabling legacy Streamlit dashboard service (f8-dashboard)..."
+    systemctl disable --now f8-dashboard >/dev/null 2>&1 || true
+    rm -f /etc/systemd/system/f8-dashboard.service
+    systemctl daemon-reload
+fi
 echo "✓ VPS aggiornato"
 REMOTE
 
 echo "✓ Deploy completato"
 echo "   Commit: $LOCAL_COMMIT"
 echo "   Log live: ssh $VPS 'journalctl -u f8-screener -f'"
-echo "   Dashboard log: ssh $VPS 'journalctl -u f8-dashboard -f'"
-echo "   Dashboard URL: http://77.42.70.26:8502"
+echo "   API log: ssh $VPS 'journalctl -u f8-api -f'"
+echo "   Web log: ssh $VPS 'journalctl -u f8-web -f'"
+echo "   Dashboard URL: http://77.42.70.26:5173"
+echo "   API URL:       http://77.42.70.26:9002"
 if [ "$REBUILD_DB" = true ]; then
     echo "   DB rebuilt: $APP_DIR/src/core/data/13f_dashboard.duckdb"
 fi
