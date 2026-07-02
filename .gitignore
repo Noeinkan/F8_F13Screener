@@ -46,12 +46,20 @@ logs/*.log
 
 # Cache
 data/cache/*.json
+cache/*.json
 cache/dashboard/*.duckdb
 
 # Runtime DuckDB files (recreated each run; large + temp)
 cache/**/*.snapshot.duckdb
 cache/**/*.snapshot.db
 cache/**/*.tmp
+
+# Test cache
+.pytest_cache/
+
+# pip / uv resolver artifacts
+uv.out
+uv.err
 
 # Lock files
 *.lock
@@ -77,3 +85,6 @@ frontend/node_modules/
 frontend/dist/
 frontend/tsconfig.tsbuildinfo
 *.tsbuildinfo
+
+# Claude / Cursor local config
+.claude/settings.local.json
