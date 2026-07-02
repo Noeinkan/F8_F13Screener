@@ -132,7 +132,6 @@ class HoldingsParser:
             # Try parsing XML/HTML with BeautifulSoup
             content = response.content
             soup_xml = BeautifulSoup(content, 'xml')
-            soup_html = BeautifulSoup(content, 'html.parser')
 
             # First: Try XML style parsing
             holdings = self._parse_xml_format(soup_xml)
@@ -141,6 +140,7 @@ class HoldingsParser:
                 return holdings
 
             # Fallback: HTML table parsing
+            soup_html = BeautifulSoup(content, 'html.parser')
             holdings = self._parse_html_format(soup_html)
             logger.info(f"Parsate {len(holdings)} holdings dalla Information Table (HTML)")
             return holdings
