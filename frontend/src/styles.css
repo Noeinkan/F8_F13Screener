@@ -130,6 +130,19 @@ a {
   box-shadow: 0 2px 8px rgba(30, 58, 138, 0.35);
 }
 
+/* Donate CTA — warm accent on the navy TopBar */
+.donate-button:hover,
+.donate-button:focus-visible {
+  background: #ffbf69;
+  border-color: #ffbf69;
+  color: #1a1f2e;
+  outline: none;
+}
+
+.donate-button:focus-visible {
+  box-shadow: 0 0 0 2px rgba(255, 191, 105, 0.45);
+}
+
 /* Plotly charts — fluid width with optional horizontal scroll on narrow viewports */
 .f8-chart-frame {
   width: 100%;

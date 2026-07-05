@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Button, Group, Paper, Text, TextInput } from "@mantine/core";
+import { Anchor, Button, Group, Paper, Text, TextInput } from "@mantine/core";
 import { apiGet } from "@/api/client";
+import { buildF2TickerUrl } from "@/config/externalLinks";
 import { DataTable } from "@/components/DataTable";
 import { ExportLink } from "@/components/ExportLink";
 import { KpiGrid } from "@/components/KpiCard";
@@ -75,6 +76,21 @@ export function HoldingsSearchPage() {
   });
 
   const data = searchQuery.data;
+
+  const uniqueTicker = useMemo<string | null>(() => {
+    if (!data?.latest_by_fund?.length) return null;
+    const skip = new Set(["", "-", "unknown", "n/a", "none"]);
+    const set = new Set<string>();
+    for (const row of data.latest_by_fund) {
+      const raw = row["Ticker"];
+      if (raw === null || raw === undefined) continue;
+      const text = String(raw).trim();
+      if (!text || skip.has(text.toLowerCase())) continue;
+      set.add(text.toUpperCase());
+    }
+    if (set.size !== 1) return null;
+    return set.values().next().value ?? null;
+  }, [data]);
 
   const latestColumns = useMemo(() => {
     const rows = data?.latest_by_fund ?? [];
@@ -182,7 +198,19 @@ export function HoldingsSearchPage() {
             <SectionHeader
               title="Who holds it today (latest filing per fund)"
               right={
-                <ExportLink href={exportHref} label="Download CSV results" fileName={exportFileName} />
+                <Group gap="md">
+                  {uniqueTicker ? (
+                    <Anchor
+                      href={buildF2TickerUrl(uniqueTicker)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ fontSize: "0.85rem", fontWeight: 600 }}
+                    >
+                      Open in SearchForAlpha
+                    </Anchor>
+                  ) : null}
+                  <ExportLink href={exportHref} label="Download CSV results" fileName={exportFileName} />
+                </Group>
               }
             />
             <DataTable

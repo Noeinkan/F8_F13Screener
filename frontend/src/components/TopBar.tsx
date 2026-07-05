@@ -1,3 +1,5 @@
+import { KOFI_URL } from "@/config/externalLinks";
+
 type TopBarProps = {
   pageTitle: string;
 };
@@ -20,6 +22,35 @@ export function TopBar({ pageTitle }: TopBarProps) {
       <span style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.8rem", fontWeight: 600 }}>
         {pageTitle}
       </span>
+      <a
+        href={KOFI_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="donate-button"
+        title="Support this project on Ko-fi"
+        aria-label="Donate — support this project on Ko-fi"
+        style={{
+          marginLeft: "auto",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "0.4rem",
+          padding: "0.35rem 0.8rem",
+          minHeight: 30,
+          borderRadius: "0.4rem",
+          border: "1px solid rgba(255, 191, 105, 0.7)",
+          background: "rgba(255, 191, 105, 0.12)",
+          color: "#ffbf69",
+          fontSize: "0.85rem",
+          fontWeight: 600,
+          textTransform: "none",
+          textDecoration: "none",
+          letterSpacing: "0.01em",
+          transition: "background-color 120ms ease, color 120ms ease, border-color 120ms ease",
+        }}
+      >
+        <span aria-hidden="true">☕</span>
+        Donate
+      </a>
     </div>
   );
 }
