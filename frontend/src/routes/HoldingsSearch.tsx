@@ -106,8 +106,8 @@ export function HoldingsSearchPage() {
         <Group align="flex-end" gap="md" wrap="wrap">
           <TextInput
             style={{ flexGrow: 1, minWidth: 280 }}
-            label="Search by issuer, CUSIP, or fund"
-            placeholder="e.g. apple, 037833100, apple berkshire"
+            label="Search by issuer, CUSIP, fund, or ticker"
+            placeholder="e.g. apple, 037833100, ORAN, AAPL berkshire"
             value={queryText}
             onChange={(event) => setQueryText(event.currentTarget.value)}
             onKeyDown={(event) => {
@@ -119,7 +119,8 @@ export function HoldingsSearchPage() {
           </Button>
         </Group>
         <Text size="sm" c="dimmed" mt="xs">
-          Multiple terms narrow results. CUSIP search ignores punctuation.
+          Ticker terms match against the holdings index. Multiple terms narrow
+          results. CUSIP search ignores punctuation.
         </Text>
       </Paper>
 

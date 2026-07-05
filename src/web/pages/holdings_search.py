@@ -1,7 +1,7 @@
 """Holdings Search dashboard page."""
 
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Iterable
 import re
 
 import pandas as pd
@@ -10,6 +10,7 @@ import streamlit as st
 from src.web.formatting import dataframe_to_csv_bytes, fmt_value_dollars
 from src.web.instrument_transforms import add_instrument_type_column, style_instrument_type_column
 from src.web.table_config import DEFAULT_TABLE_HEIGHT, holdings_column_config
+from src.web.ticker_index import expand_ticker_terms, is_ticker_like
 from src.web.tickers import add_ticker_column
 from src.web.ui_components import render_dataframe, render_top_bar_note, render_top_bar_spacers, safe_file_token
 from src.web.value_units import apply_value_multiplier_by_group, infer_value_multiplier_by_group, summarize_multipliers
@@ -26,7 +27,29 @@ def _normalize_cusip_term(term: str) -> str:
     return re.sub(r"[^0-9A-Za-z]", "", term)
 
 
-def build_holdings_search_filter(query_text: str) -> tuple[str, tuple[str, ...]]:
+def _ticker_match_clause(cusips: Iterable[str]) -> tuple[str | None, list[str]]:
+    """Build a `cusip IN (...)` clause for ticker-derived CUSIPs, or ``None``
+    when no tickers resolve."""
+    cusip_list = [str(c).strip() for c in cusips if c]
+    if not cusip_list:
+        return None, []
+    placeholders = ",".join(["?"] * len(cusip_list))
+    return f"cusip IN ({placeholders})", list(cusip_list)
+
+
+def build_holdings_search_filter(
+    query_text: str,
+    *,
+    ticker_cusips: Iterable[str] | None = None,
+) -> tuple[str, tuple[str, ...]]:
+    """Build a DuckDB WHERE clause + params for the holdings search box.
+
+    ``ticker_cusips`` is an explicit list of CUSIPs that the ticker index
+    resolved from ticker-shaped search terms (e.g. ``ORAN`` → ``['684060106']``).
+    Callers should pre-expand tickers via :func:`expand_ticker_terms` so the
+    search filter doesn't need to know about the index; this also keeps the
+    function pure and trivially testable.
+    """
     clauses = []
     params: list[str] = []
     for term in _split_search_terms(query_text):
@@ -41,7 +64,20 @@ def build_holdings_search_filter(query_text: str) -> tuple[str, tuple[str, ...]]
             )
         """)
         params.extend([text_pattern, text_pattern, text_pattern, cusip_pattern])
+
+    if ticker_cusips:
+        ticker_clause, ticker_params = _ticker_match_clause(ticker_cusips)
+        if ticker_clause:
+            clauses.append(f"({ticker_clause})")
+            params.extend(ticker_params)
+
     return " AND ".join(clauses), tuple(params)
+
+
+def resolve_search_tickers(query_text: str) -> list[str]:
+    """Return the deduplicated list of CUSIPs that ticker-shaped terms in
+    ``query_text`` map to (case-insensitive)."""
+    return expand_ticker_terms(_split_search_terms(query_text))
 
 
 def render_holdings_search_page(query: Callable[[str, tuple], pd.DataFrame], top_bar: Any | None = None):
@@ -53,24 +89,24 @@ def render_holdings_search_page(query: Callable[[str, tuple], pd.DataFrame], top
                 search_col, note_col = st.columns([4, 2])
                 with search_col:
                     query_text = st.text_input(
-                        "Search by issuer, CUSIP, or fund",
-                        placeholder="e.g. apple, 037833100, apple berkshire",
+                        "Search by issuer, CUSIP, fund, or ticker",
+                        placeholder="e.g. apple, 037833100, ORAN, AAPL berkshire",
                         key="holdings_search_query",
                     )
                 with note_col:
-                    note = "Multiple terms narrow results. CUSIP search ignores punctuation."
+                    note = "Ticker terms match against the holdings index. Multiple terms narrow results. CUSIP search ignores punctuation."
                     if not query_text:
                         note = f"{note} Enter a search term to begin."
                     render_top_bar_note(note)
         else:
-            st.caption("Search across issuers, CUSIPs, and funds. Multiple terms narrow the result set.")
+            st.caption("Search across issuers, CUSIPs, funds, and tickers. Multiple terms narrow the result set.")
 
             query_text = st.text_input(
-                "Search by issuer, CUSIP, or fund",
-                placeholder="e.g. apple, 037833100, apple berkshire",
+                "Search by issuer, CUSIP, fund, or ticker",
+                placeholder="e.g. apple, 037833100, ORAN, AAPL berkshire",
                 key="holdings_search_query",
             )
-            st.caption("CUSIP search ignores punctuation, so `037-833 100` matches `037833100`.")
+            st.caption("CUSIP search ignores punctuation, so `037-833 100` matches `037833100`. Ticker terms resolve via the holdings index.")
 
         if not query_text:
             if top_bar:
@@ -82,7 +118,9 @@ def render_holdings_search_page(query: Callable[[str, tuple], pd.DataFrame], top
         if top_bar:
             render_top_bar_spacers(6)
 
-    where_sql, search_params = build_holdings_search_filter(query_text)
+    where_sql, search_params = build_holdings_search_filter(
+        query_text, ticker_cusips=resolve_search_tickers(query_text)
+    )
     if not where_sql:
         with header:
             st.info("Enter a search term to begin.")

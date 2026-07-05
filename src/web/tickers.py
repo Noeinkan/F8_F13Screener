@@ -64,6 +64,12 @@ CUSIP_TICKER_OVERRIDES: dict[str, str] = {
     "922908744": "VTV",   # Vanguard Value ETF
     "921908844": "VIG",   # Vanguard Dividend Appreciation ETF
     "921937835": "BND",   # Vanguard Total Bond Market ETF
+    # ---- Foreign ADRs ----
+    # The SEC reference only tracks the unsponsored OTC ADR for Orange SA
+    # (CIK 1038143: tickers FNCTF/ORANY), but the NYSE-listed sponsored ADR
+    # is what investors actually search for. CUSIP verified against the NYSE
+    # listing and the sole Orange SA row in the dashboard holdings table.
+    "684060106": "ORAN",   # Orange SA (NYSE ADR)
 }
 
 _CORPORATE_SUFFIXES = {

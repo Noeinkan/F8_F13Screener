@@ -70,6 +70,58 @@ def test_holdings_search_filter_matches_tokens_and_normalized_cusip():
     assert rows == [("APPLE INC", "Berkshire Hathaway"), ("APPLE INC", "Other Fund")]
 
 
+def test_holdings_search_filter_uses_ticker_cusips_when_provided():
+    conn = duckdb.connect(":memory:")
+    conn.execute("""
+        CREATE TABLE holdings (
+            issuer_name TEXT,
+            fund_name TEXT,
+            cusip TEXT
+        )
+    """)
+    conn.executemany(
+        "INSERT INTO holdings VALUES (?, ?, ?)",
+        [
+            # Orange SA ADR — issuer name is just "ORANGE"; ticker ORAN / ORANY
+            # would never match via the ILIKE clauses alone.
+            ("ORANGE", "Ramsay Fund", "684060106"),
+            # Different issuer that happens to share the prefix.
+            ("ORANGE CNTY BANCORP INC", "Local Bank Fund", "68417L107"),
+            ("APPLE INC", "Other Fund", "037833100"),
+        ],
+    )
+
+    # Pass in a pre-resolved ticker expansion to keep this test independent
+    # of the on-disk ticker index. The real API does this via
+    # resolve_search_tickers(query_text).
+    where_sql, params = build_holdings_search_filter(
+        "ORAN", ticker_cusips=["684060106"]
+    )
+    rows = conn.execute(
+        f"SELECT issuer_name, cusip FROM holdings WHERE {where_sql}",
+        params,
+    ).fetchall()
+    assert rows == [("ORANGE", "684060106")]
+
+
+def test_holdings_search_filter_ignores_empty_ticker_cusip_list():
+    where_sql, params = build_holdings_search_filter("apple", ticker_cusips=[])
+    # No cusip IN clause should be appended.
+    assert "cusip IN" not in where_sql
+
+
+def test_resolve_search_tickers_skips_non_ticker_shaped_terms(monkeypatch):
+    from src.web.pages import holdings_search
+
+    monkeypatch.setattr(
+        holdings_search,
+        "expand_ticker_terms",
+        lambda terms: ["684060106"] if "ORAN" in terms else [],
+    )
+    assert holdings_search.resolve_search_tickers("ORAN") == ["684060106"]
+    assert holdings_search.resolve_search_tickers("037833100") == []
+
+
 def test_top_held_securities_preserves_put_call_exposure_type():
     conn = duckdb.connect(":memory:")
     conn.execute("""

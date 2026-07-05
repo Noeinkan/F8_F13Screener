@@ -15,7 +15,11 @@ from src.api.repository import query
 from src.api.serialize import dataframe_to_csv_text, records_from_dataframe
 from src.web.formatting import fmt_value_dollars
 from src.web.instrument_transforms import add_instrument_type_column
-from src.web.pages.holdings_search import MAX_SEARCH_DISPLAY_ROWS, build_holdings_search_filter
+from src.web.pages.holdings_search import (
+    MAX_SEARCH_DISPLAY_ROWS,
+    build_holdings_search_filter,
+    resolve_search_tickers,
+)
 from src.web.tickers import add_ticker_column
 from src.web.value_units import apply_value_multiplier_by_group, infer_value_multiplier_by_group, summarize_multipliers
 
@@ -23,7 +27,10 @@ router = APIRouter(prefix="/api/holdings", tags=["holdings"])
 
 
 def _search_holdings(query_text: str, limit: int) -> dict[str, object]:
-    where_sql, search_params = build_holdings_search_filter(query_text)
+    ticker_cusips = resolve_search_tickers(query_text)
+    where_sql, search_params = build_holdings_search_filter(
+        query_text, ticker_cusips=ticker_cusips
+    )
     if not where_sql:
         raise HTTPException(status_code=400, detail="Enter at least one search term.")
 
