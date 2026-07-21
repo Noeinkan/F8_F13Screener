@@ -5,6 +5,7 @@ DuckDB-backed storage for dashboard analytics data.
 from __future__ import annotations
 
 import logging
+import time
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -13,6 +14,36 @@ import duckdb
 import pandas as pd
 
 logger = logging.getLogger(__name__)
+
+# DuckDB allows a single writer process per database file. The realtime poller
+# and the historical refresh pipeline both open this DB in short bursts, so a
+# plain connect() loses the race often enough to abort a whole refresh run.
+# Retrying with backoff turns that collision into a short wait.
+LOCK_RETRY_ATTEMPTS = 12
+LOCK_RETRY_MAX_SLEEP = 5.0
+
+
+def _is_lock_conflict(exc: Exception) -> bool:
+    return "conflicting lock" in str(exc).lower()
+
+
+def _connect_with_lock_retry(db_path: str, **kwargs):
+    for attempt in range(LOCK_RETRY_ATTEMPTS):
+        try:
+            return duckdb.connect(db_path, **kwargs)
+        except duckdb.IOException as exc:
+            if not _is_lock_conflict(exc) or attempt + 1 >= LOCK_RETRY_ATTEMPTS:
+                raise
+            delay = min(0.25 * (2 ** attempt), LOCK_RETRY_MAX_SLEEP)
+            logger.warning(
+                "DuckDB %s locked by another process; retry %s/%s in %.2fs",
+                db_path,
+                attempt + 1,
+                LOCK_RETRY_ATTEMPTS,
+                delay,
+            )
+            time.sleep(delay)
+    raise RuntimeError(f"Unreachable: exhausted DuckDB lock retries for {db_path}")
 
 
 class DashboardStorage:
@@ -24,7 +55,7 @@ class DashboardStorage:
 
     @contextmanager
     def _get_connection(self):
-        conn = duckdb.connect(str(self.db_path))
+        conn = _connect_with_lock_retry(str(self.db_path))
         try:
             yield conn
         finally:

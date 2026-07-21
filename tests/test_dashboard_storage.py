@@ -1,9 +1,13 @@
 from pathlib import Path
 
+import duckdb
+import pytest
+
 from src.cli.process_historical_13f import (
     build_holdings_consistency_report,
     select_filings_missing_canonical_holdings,
 )
+from src.core import dashboard_storage as dashboard_storage_module
 from src.core.dashboard_storage import DashboardStorage
 
 
@@ -57,6 +61,40 @@ def test_save_holdings_replaces_existing_accession_atomically(tmp_path: Path):
 
     assert counts == {"ACC-001": 1}
     assert rows["issuer_name"].tolist() == ["Microsoft Corp"]
+
+
+def test_connect_retries_while_another_process_holds_the_lock(tmp_path, monkeypatch):
+    """The poller and the refresh pipeline both write this DB; a lost race must not abort."""
+    real_connect = duckdb.connect
+    calls = {"n": 0}
+
+    def flaky_connect(path, **kwargs):
+        calls["n"] += 1
+        if calls["n"] < 3:
+            raise duckdb.IOException(
+                f'IO Error: Could not set lock on file "{path}": '
+                "Conflicting lock is held in /usr/bin/python3.12 (PID 1234)."
+            )
+        return real_connect(path, **kwargs)
+
+    monkeypatch.setattr(duckdb, "connect", flaky_connect)
+    monkeypatch.setattr(dashboard_storage_module.time, "sleep", lambda _: None)
+
+    storage = DashboardStorage(tmp_path / "dashboard.duckdb")
+
+    assert calls["n"] == 3
+    assert storage.get_accession_row_counts(["MISSING"]) == {}
+
+
+def test_connect_does_not_retry_on_non_lock_io_errors(tmp_path, monkeypatch):
+    def broken_connect(path, **kwargs):
+        raise duckdb.IOException("IO Error: database file is corrupted")
+
+    monkeypatch.setattr(duckdb, "connect", broken_connect)
+    monkeypatch.setattr(dashboard_storage_module.time, "sleep", lambda _: None)
+
+    with pytest.raises(duckdb.IOException, match="corrupted"):
+        DashboardStorage(tmp_path / "dashboard.duckdb")
 
 
 def test_save_holdings_normalizes_fund_cik_to_ten_digits(tmp_path: Path):
