@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import logging
 import os
+import re
 import shutil
 import tempfile
 import time
@@ -12,6 +14,66 @@ from typing import Callable
 
 
 CopyFile = Callable[[Path, Path], object]
+
+logger = logging.getLogger(__name__)
+
+# Snapshots are named "<stem>.<pid>.snapshot.duckdb" so concurrent readers never
+# share a file. Nothing removed them, so every restart leaked a copy of the DB.
+_SNAPSHOT_PID_RE = re.compile(r"\.(\d+)\.snapshot\.duckdb$")
+
+
+def _pid_alive(pid: int) -> bool:
+    if pid <= 0:
+        return False
+
+    if os.name == "nt":
+        import ctypes
+
+        SYNCHRONIZE = 0x00100000  # noqa: N806
+        handle = ctypes.windll.kernel32.OpenProcess(SYNCHRONIZE, False, pid)
+        if not handle:
+            return False
+        ctypes.windll.kernel32.CloseHandle(handle)
+        return True
+
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        # Owned by another user, so it exists.
+        return True
+    return True
+
+
+def prune_orphan_snapshots(snapshot_dir: Path, keep_pid: int | None = None) -> list[Path]:
+    """Delete snapshots whose owning process is gone. Returns the removed paths."""
+
+    snapshot_dir = Path(snapshot_dir)
+    if not snapshot_dir.is_dir():
+        return []
+
+    keep_pid = os.getpid() if keep_pid is None else keep_pid
+    removed: list[Path] = []
+
+    for candidate in snapshot_dir.glob("*.snapshot.duckdb"):
+        match = _SNAPSHOT_PID_RE.search(candidate.name)
+        if not match:
+            continue
+        pid = int(match.group(1))
+        if pid == keep_pid or _pid_alive(pid):
+            continue
+        try:
+            candidate.unlink()
+        except OSError as exc:
+            # Still mapped by a live reader on Windows; it will be retried later.
+            logger.debug("Could not remove orphan snapshot %s: %s", candidate, exc)
+            continue
+        removed.append(candidate)
+
+    if removed:
+        logger.info("Removed %s orphan dashboard snapshot(s)", len(removed))
+    return removed
 
 
 def resolve_dashboard_snapshot(
