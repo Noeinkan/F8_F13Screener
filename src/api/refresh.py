@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import logging
 import os
+import shutil
 import subprocess
 import sys
 import threading
@@ -65,6 +66,40 @@ def _log_dir() -> Path:
     return LOGS_DIR
 
 
+def _systemd_run_path() -> Optional[str]:
+    """Return the ``systemd-run`` binary, or ``None`` when systemd is not in play."""
+    if os.name == "nt":
+        return None
+    if not Path("/run/systemd/system").exists():
+        return None
+    return shutil.which("systemd-run")
+
+
+def _scope_wrapper(command: list[str]) -> list[str]:
+    """Wrap ``command`` in a transient systemd scope when one is available.
+
+    ``start_new_session`` only escapes the process group, not the cgroup. Under
+    systemd the API runs with the default ``KillMode=control-group``, so every
+    ``systemctl restart f8-api`` killed the in-flight refresh — and since the job
+    history is in-memory, the restarted API showed no trace of it. A transient
+    scope moves the child into its own cgroup, out of the service's reach, while
+    keeping it a direct child so ``proc.wait()`` still works.
+    """
+    systemd_run = _systemd_run_path()
+    if not systemd_run:
+        return command
+
+    unit = f"f8-refresh-{int(time.time())}-{os.getpid()}"
+    return [
+        systemd_run,
+        "--scope",
+        "--quiet",
+        "--collect",
+        f"--unit={unit}",
+        *command,
+    ]
+
+
 def _spawn_subprocess(command: list[str], log_path: Path) -> subprocess.Popen[bytes]:
     """Spawn ``command`` detached so closing the API does not kill the refresh."""
     log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -84,7 +119,7 @@ def _spawn_subprocess(command: list[str], log_path: Path) -> subprocess.Popen[by
         kwargs["creationflags"] = DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
     else:
         kwargs["start_new_session"] = True
-    return subprocess.Popen(command, **kwargs)  # type: ignore[arg-type]
+    return subprocess.Popen(_scope_wrapper(command), **kwargs)  # type: ignore[arg-type]
 
 
 def _wait_and_finalize(

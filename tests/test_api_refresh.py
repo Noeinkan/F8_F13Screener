@@ -86,6 +86,27 @@ def test_refresh_status_after_post_reflects_history(monkeypatch):
     assert history[-1]["exit_code"] == 0
 
 
+def test_scope_wrapper_isolates_the_child_from_the_api_cgroup(monkeypatch):
+    """Without a transient scope, `systemctl restart f8-api` kills the refresh."""
+    monkeypatch.setattr(refresh, "_systemd_run_path", lambda: "/usr/bin/systemd-run")
+
+    wrapped = refresh._scope_wrapper(["python", "-m", "src.cli.process_historical_13f"])
+
+    assert wrapped[0] == "/usr/bin/systemd-run"
+    assert "--scope" in wrapped
+    assert "--collect" in wrapped
+    assert any(a.startswith("--unit=f8-refresh-") for a in wrapped)
+    assert wrapped[-3:] == ["python", "-m", "src.cli.process_historical_13f"]
+
+
+def test_scope_wrapper_is_a_noop_without_systemd(monkeypatch):
+    monkeypatch.setattr(refresh, "_systemd_run_path", lambda: None)
+
+    command = ["python", "-m", "src.cli.process_historical_13f"]
+
+    assert refresh._scope_wrapper(command) == command
+
+
 def test_refresh_already_running_does_not_respawn(monkeypatch):
     calls: list[object] = []
 
