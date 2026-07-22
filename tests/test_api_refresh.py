@@ -50,11 +50,14 @@ def test_refresh_post_returns_job(monkeypatch):
     body = response.json()
     assert body["pid"] == 424242
     assert body["command"][0] == sys.executable
+    # --fresh-catalog is what makes the button actually contact SEC instead of
+    # replaying the 24h submissions cache.
     assert body["command"][1:] == [
         "-m",
         "src.cli.process_historical_13f",
         "full",
         "--yes",
+        "--fresh-catalog",
     ]
     assert body["log_path"].endswith(".log")
     assert "running" in body

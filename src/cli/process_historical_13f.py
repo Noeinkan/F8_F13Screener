@@ -574,6 +574,7 @@ def get_13f_filings_for_cik(
     cache_dir: Optional[str] = None,
     start_date: str = CUTOFF_DATE,
     end_date: Optional[str] = None,
+    fresh_catalog: bool = False,
 ) -> List[Dict]:
     if cache_dir is None:
         cache_dir = FILING_CACHE_DIR
@@ -582,9 +583,9 @@ def get_13f_filings_for_cik(
     """
     os.makedirs(cache_dir, exist_ok=True)
     cache_file = os.path.join(cache_dir, f"{cik}.json")
-    
-    # Prova a caricare dal cache
-    if os.path.exists(cache_file):
+
+    # Prova a caricare dal cache (saltata su richiesta esplicita di refresh)
+    if os.path.exists(cache_file) and not fresh_catalog:
         try:
             with open(cache_file, 'r', encoding='utf-8') as f:
                 cached_data = json.load(f)
@@ -614,6 +615,7 @@ def download_catalog(
     quiet: bool = False,
     start_date: str = CUTOFF_DATE,
     end_date: Optional[str] = None,
+    fresh_catalog: bool = False,
 ) -> List[Dict]:
     """
     MODALITÀ 1: Scarica catalogo completo di filing da API SEC
@@ -656,7 +658,9 @@ def download_catalog(
     for i, (cik, fund_name) in tqdm(enumerate(HEDGE_FUNDS_CIK.items(), 1), total=get_total_funds(), desc="Downloading catalog", disable=quiet):
         print(f"[{i}/{get_total_funds()}]", end=" ")
         
-        filings = get_13f_filings_for_cik(cik, fund_name, "cache", start_date, end_date)
+        filings = get_13f_filings_for_cik(
+            cik, fund_name, "cache", start_date, end_date, fresh_catalog=fresh_catalog
+        )
         
         if filings:
             # Filtra solo filing nuovi se in modalità incrementale
@@ -976,6 +980,7 @@ def process_full_pipeline(
     incremental: bool = True,
     save_db: bool = True,
     save_csv: bool = False,
+    fresh_catalog: bool = False,
 ):
     """
     MODALITÀ 3: Esegue tutto il pipeline (catalog + holdings)
@@ -1013,6 +1018,7 @@ def process_full_pipeline(
         quiet=quiet,
         start_date=start_date,
         end_date=end_date,
+        fresh_catalog=fresh_catalog,
     )
     
     if not filings:
@@ -1486,7 +1492,13 @@ NOTES:
         default=datetime.now().strftime('%Y-%m-%d'),
         help='Data di fine (YYYY-MM-DD, default: oggi)'
     )
-    
+
+    parser.add_argument(
+        '--fresh-catalog',
+        action='store_true',
+        help='Ignora la cache submissions di 24h e riscarica il catalogo da SEC'
+    )
+
     args = parser.parse_args()
     
     # Setup
@@ -1523,7 +1535,7 @@ NOTES:
     global rate_limiter
     rate_limiter = TokenBucketRateLimiter(rate=args.rate, capacity=args.capacity)
     if args.mode == 'catalog':
-        download_catalog(args.catalog_file, incremental=not args.full_refresh, quiet=args.quiet, start_date=args.start_date, end_date=args.end_date)
+        download_catalog(args.catalog_file, incremental=not args.full_refresh, quiet=args.quiet, start_date=args.start_date, end_date=args.end_date, fresh_catalog=args.fresh_catalog)
     
     elif args.mode == 'holdings':
         # Use the workers provided via CLI
@@ -1550,6 +1562,7 @@ NOTES:
             incremental=not args.full_refresh,
             save_db=True,
             save_csv=args.save_csv,
+            fresh_catalog=args.fresh_catalog,
         )
     elif args.mode == 'export':
         raise SystemExit(export_dashboard_csvs(args.output_dir, scope=args.export_scope))

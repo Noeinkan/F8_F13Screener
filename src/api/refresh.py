@@ -1,7 +1,8 @@
 """Background refresh manager for the dashboard API.
 
 The "Refresh data" button is supposed to rebuild the canonical DuckDB by
-running ``python -m src.cli.process_historical_13f full --yes``. The actual
+running ``python -m src.cli.process_historical_13f full --yes
+--fresh-catalog``. The actual
 historical pipeline can take a long time (catalogue + holdings), so the work
 is spawned as a detached subprocess and the API returns immediately with a
 job handle. A companion ``status()`` accessor lets the UI poll for progress.
@@ -109,7 +110,8 @@ def _wait_and_finalize(
 def start_refresh(on_success: Optional[Callable[[], None]] = None) -> RefreshJob:
     """Start a refresh. Returns the existing job if one is already running.
 
-    The job runs ``python -m src.cli.process_historical_13f full --yes`` in the
+    The job runs ``python -m src.cli.process_historical_13f full --yes
+    --fresh-catalog`` in the
     background; ``sys.executable`` is used so the venv's interpreter is picked
     up on the Hetzner deployment (the systemd unit already launches the API
     via the venv python).
@@ -120,7 +122,16 @@ def start_refresh(on_success: Optional[Callable[[], None]] = None) -> RefreshJob
             return _current
 
         log_path = _log_dir() / f"refresh_{int(time.time())}_{os.getpid()}.log"
-        command = [sys.executable, "-m", "src.cli.process_historical_13f", "full", "--yes"]
+        # --fresh-catalog: a manual refresh must hit SEC, not replay the 24h
+        # submissions cache, otherwise the button silently does nothing all day.
+        command = [
+            sys.executable,
+            "-m",
+            "src.cli.process_historical_13f",
+            "full",
+            "--yes",
+            "--fresh-catalog",
+        ]
         try:
             proc = _spawn_subprocess(command, log_path)
         except OSError as exc:

@@ -22,7 +22,8 @@ HEDGE_FUNDS_CIK = {
     '0000860643': 'Gardner Russo & Gardner (Tom Russo)',
     '0000906304': 'Royce Investment Partners (Chuck Royce)',
     '0000807985': 'Southeastern Asset Management',
-    '0001351069': 'ValueAct Capital',
+    # 0001351069 (ValueAct Capital Management, L.P.) stopped filing in 2008.
+    '0001418814': 'ValueAct Capital',
     '0001040273': 'Third Point LLC (Dan Loeb)',
     '0001709323': 'Himalaya Capital (Li Lu)',
     '0001568820': 'Arlington Value Capital (Allan Mecham)',
@@ -49,7 +50,8 @@ HEDGE_FUNDS_CIK = {
     '0001891904': 'Octahedron Capital Management',
     '0001389234': 'Symmetry Peak Management (Quint Slattery)',
     '0001050464': 'Peconic Partners (William Harnisch)',
-    '0001172661': 'Jericho Capital Asset Management (Josh Resnick)',
+    # 0001172661 stopped filing in 2002; the live entity is the L.P.
+    '0001525234': 'Jericho Capital Asset Management (Josh Resnick)',
     '0001104329': 'Crosslink Capital (Seymour Kaufman)',
     '0001103887': 'Nwi Management (Hari Hariharan)',
     '0001462245': 'Shannon River Fund Management (Spencer Waxman)',
@@ -65,7 +67,8 @@ HEDGE_FUNDS_CIK = {
     '0001423053': 'Citadel (Kenneth Griffin)',
     '0001350694': 'Bridgewater Associates (Ray Dalio)',
     '0001167557': 'AQR Capital Management (Cliff Asness)',
-    '0001009268': 'D.E. Shaw (David E. Shaw)',
+    # 0001009268 (D. E. SHAW & CO, L.P.) stopped filing in 2006; the 13F filer is the Inc.
+    '0001009207': 'D.E. Shaw (David E. Shaw)',
     '0001317684': 'Two Sigma Investments (John Overdeck & David Siegel)',
     '0001791786': 'Elliott Investment Management (Paul Singer)',
     '0000909661': 'Farallon Capital Management (Thomas Steyer)',
