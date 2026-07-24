@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { Stack, Text } from "@mantine/core";
+import { FilingCalendar } from "@/components/FilingCalendar";
 
 const PAGES = [
   { to: "/", label: "Overview" },
@@ -45,6 +46,8 @@ export function SidebarNav({
           ))}
         </Stack>
       </div>
+
+      <FilingCalendar />
 
       <div>
         <Text size="xs" tt="uppercase" fw={700} c="dimmed" mb="sm">
