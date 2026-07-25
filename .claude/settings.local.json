@@ -1,6 +1,7 @@
 {
   "permissions": {
     "allow": [
+      "Bash(ssh root@77.42.70.26:*)",
       "Bash(git mv:*)",
       "Bash(git add:*)",
       "Bash(if [ -f telegram_messages.json ])",
