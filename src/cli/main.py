@@ -37,6 +37,13 @@ def _safe_print(msg: str) -> None:
 
 def launch_telegram_viewer() -> bool:
     """Launch Telegram viewer in a separate window"""
+    # The viewer is a tkinter desktop GUI. On a headless host (the Hetzner VPS)
+    # there is no display server, so the spawned subprocess just dies on
+    # `import tkinter`. Skip it there instead of leaking a doomed process on
+    # every poller start.
+    if sys.platform != 'win32' and not os.environ.get('DISPLAY'):
+        _safe_print("[i] Nessun display: Telegram Viewer non avviato")
+        return False
     try:
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
         viewer_path = os.path.join(base_dir, 'src', 'gui', 'telegram_viewer.py')
@@ -385,7 +392,10 @@ class FilingProcessor:
         # Fetch feed
         feed = self.sec_client.fetch_13f_feed(self.config.rss_url)
 
-        if not feed.entries:
+        # fetch_13f_feed() returns an empty FeedParserDict when SEC fails all
+        # retries; `.entries` on that raises AttributeError, so use .get() —
+        # otherwise a transient SEC outage crashes the whole poller process.
+        if not feed.get('entries'):
             self.logger.warning("Feed vuoto o non disponibile")
             return
 

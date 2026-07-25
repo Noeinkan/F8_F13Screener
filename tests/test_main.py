@@ -1,6 +1,8 @@
 import logging
 from unittest.mock import MagicMock
 
+import feedparser
+
 from src.cli.main import FilingProcessor
 
 
@@ -109,6 +111,20 @@ def test_process_holdings_succeeds_when_sqlite_save_raises(caplog):
     assert portfolio_diff is None
     assert "Salvataggio SQLite holdings non riuscito" in caplog.text
     dashboard_storage.save_holdings.assert_called_once()
+
+
+def test_process_feed_fallback_survives_empty_feed():
+    """A SEC outage returns an empty FeedParserDict; `.entries` would raise."""
+    processor, storage, _ = _make_processor()
+    processor.config = MagicMock()
+    processor.config.rss_url = "https://sec.gov/rss"
+    # This is exactly what fetch_13f_feed() returns after exhausting retries.
+    processor.sec_client.fetch_13f_feed.return_value = feedparser.FeedParserDict()
+
+    # Must return without raising and without trying to read seen filings.
+    processor.process_feed_fallback()
+
+    storage.get_seen_filings.assert_not_called()
 
 
 def test_needs_holdings_backfill_when_sqlite_has_accession_but_duckdb_does_not():

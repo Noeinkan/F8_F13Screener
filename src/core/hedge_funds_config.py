@@ -12,7 +12,9 @@ HEDGE_FUNDS_CIK = {
     '0001656456': 'Appaloosa Management (David Tepper)',
     '0000905567': 'Yacktman Asset Management',
     '0001336528': 'Pershing Square Capital (Bill Ackman)',
-    '0001079114': 'Greenlight Capital (David Einhorn)',
+    # CIK 0001079114 (Greenlight Capital Inc, GP entity) stopped filing 13F-HR
+    # in 2024-02; Einhorn's live holdings filer is DME Capital Management, LP.
+    '0001489933': 'Greenlight Capital (David Einhorn)',
     '0001056831': 'Fairholme Capital (Bruce Berkowitz)',
     '0000732905': 'Tweedy Browne Company',
     '0001099281': 'Third Avenue Management',
@@ -26,10 +28,13 @@ HEDGE_FUNDS_CIK = {
     '0001418814': 'ValueAct Capital',
     '0001040273': 'Third Point LLC (Dan Loeb)',
     '0001709323': 'Himalaya Capital (Li Lu)',
-    '0001568820': 'Arlington Value Capital (Allan Mecham)',
+    # Retired: Allan Mecham closed Arlington Value ~2021 (13F-NT wind-down
+    # notices through 2021-02, then defunct). Historical DuckDB rows retained.
+    # '0001568820': 'Arlington Value Capital (Allan Mecham)',
     '0001112520': 'Akre Capital Management (Chuck Akre)',
     '0001641864': 'Giverny Capital',
-    '0001360079': 'Wintergreen Advisers',
+    # Retired: Wintergreen Fund liquidated ~2019 (last filing 2019-05-10).
+    # '0001360079': 'Wintergreen Advisers',
     '0001218254': 'Boyar Asset Management',
     '0001056823': 'Horizon Kinetics',
     '0001039565': 'Kahn Brothers',
@@ -39,7 +44,9 @@ HEDGE_FUNDS_CIK = {
     # === GROWTH & TECH FOCUSED (18 funds) ===
     '0001840735': 'Greenoaks Capital Partners',
     '0001697591': 'CAS Investment Partners (Clifford Sosin)',
-    '0000872573': 'Caxton (Bruce Kovner)',
+    # CIK 0000872573 (Caxton Associates LP) stopped 13F-HR in 2025-02 after
+    # restructuring to the LLP. Kovner left in 2011 — now Andrew Law's fund.
+    '0002051323': 'Caxton Associates (Andrew Law)',
     '0001766596': 'RV Capital AG (Rob Vinall)',
     # '': 'Ratan Capital Management (Nehal Chopra)',  # CIK N/A
     '0001536411': 'Duquesne Family Office (Stanley Druckenmiller)',
@@ -69,7 +76,9 @@ HEDGE_FUNDS_CIK = {
     '0001167557': 'AQR Capital Management (Cliff Asness)',
     # 0001009268 (D. E. SHAW & CO, L.P.) stopped filing in 2006; the 13F filer is the Inc.
     '0001009207': 'D.E. Shaw (David E. Shaw)',
-    '0001317684': 'Two Sigma Investments (John Overdeck & David Siegel)',
+    # 0001317684 is "TI Automation LLC" and has never filed a 13F; the quant
+    # fund's 13F filer is Two Sigma Investments, LP (125 filings, active).
+    '0001179392': 'Two Sigma Investments (John Overdeck & David Siegel)',
     '0001791786': 'Elliott Investment Management (Paul Singer)',
     '0000909661': 'Farallon Capital Management (Thomas Steyer)',
     # '': 'Man Group Ltd.',  # CIK N/A
