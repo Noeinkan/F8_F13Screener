@@ -116,7 +116,7 @@ def test_resolve_search_tickers_skips_non_ticker_shaped_terms(monkeypatch):
     monkeypatch.setattr(
         holdings_search,
         "expand_ticker_terms",
-        lambda terms: ["684060106"] if "ORAN" in terms else [],
+        lambda terms, read_db_path=None: ["684060106"] if "ORAN" in terms else [],
     )
     assert holdings_search.resolve_search_tickers("ORAN") == ["684060106"]
     assert holdings_search.resolve_search_tickers("037833100") == []

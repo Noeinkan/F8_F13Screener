@@ -74,10 +74,14 @@ def build_holdings_search_filter(
     return " AND ".join(clauses), tuple(params)
 
 
-def resolve_search_tickers(query_text: str) -> list[str]:
+def resolve_search_tickers(query_text: str, read_db_path=None) -> list[str]:
     """Return the deduplicated list of CUSIPs that ticker-shaped terms in
-    ``query_text`` map to (case-insensitive)."""
-    return expand_ticker_terms(_split_search_terms(query_text))
+    ``query_text`` map to (case-insensitive).
+
+    ``read_db_path`` selects which DB the ticker index reads from; the API
+    passes its read-only snapshot so the search never opens the live writer DB.
+    """
+    return expand_ticker_terms(_split_search_terms(query_text), read_db_path=read_db_path)
 
 
 def render_holdings_search_page(query: Callable[[str, tuple], pd.DataFrame], top_bar: Any | None = None):

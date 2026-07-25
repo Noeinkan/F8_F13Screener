@@ -171,6 +171,60 @@ def test_expand_ticker_terms_drops_terms_with_no_resolution(fresh_ticker_index):
     assert cusips == []
 
 
+def test_index_reads_from_injected_path_not_live_db(monkeypatch, tmp_path):
+    """The API passes a read-only snapshot; the SELECT must run against *that*
+    path, never the live ``DASHBOARD_DB_FILE``. This is what keeps ticker search
+    off the live writer DB (no lock contention with the poller/refresh)."""
+    invalidate_ticker_index()
+
+    # The "live" DB is a decoy: if the index ever opens it we'd get TESLA, not AAPL.
+    live_db = tmp_path / "live" / "13f_dashboard.duckdb"
+    live_db.parent.mkdir()
+    conn = duckdb.connect(str(live_db))
+    conn.execute("CREATE TABLE holdings (cusip TEXT, issuer_name TEXT)")
+    conn.execute("INSERT INTO holdings VALUES ('88160R101', 'TESLA INC')")
+    conn.close()
+
+    # The snapshot the API would hand us: only Apple lives here.
+    snapshot_db = tmp_path / "snap" / "13f_dashboard.123.snapshot.duckdb"
+    snapshot_db.parent.mkdir()
+    conn = duckdb.connect(str(snapshot_db))
+    conn.execute("CREATE TABLE holdings (cusip TEXT, issuer_name TEXT)")
+    conn.execute("INSERT INTO holdings VALUES ('037833100', 'APPLE INC')")
+    conn.close()
+
+    ref_path = tmp_path / "sec_company_tickers_exchange.json"
+    ref_path.write_text(
+        json.dumps(
+            {
+                "fields": ["cik", "name", "ticker", "exchange"],
+                "data": [
+                    [320193, "Apple Inc.", "AAPL", "Nasdaq"],
+                    [1318605, "Tesla, Inc.", "TSLA", "Nasdaq"],
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("src.web.ticker_index.DASHBOARD_DB_FILE", live_db)
+    monkeypatch.setattr("src.web.ticker_index.CACHE_FILE", tmp_path / "holdings_ticker_index.json")
+    monkeypatch.setattr("src.web.tickers.TICKER_REFERENCE_FILE", ref_path)
+    from src.web import tickers
+    tickers.get_ticker_lookup.cache_clear()
+
+    try:
+        mapping = get_ticker_index(read_db_path=snapshot_db)
+        # Read from the snapshot: Apple present, Tesla (live-only) absent.
+        assert mapping.get("AAPL") == ["037833100"]
+        assert "TSLA" not in mapping
+        assert cusips_for_ticker("AAPL", read_db_path=snapshot_db) == ["037833100"]
+        assert expand_ticker_terms(["AAPL"], read_db_path=snapshot_db) == ["037833100"]
+    finally:
+        invalidate_ticker_index()
+        tickers.get_ticker_lookup.cache_clear()
+
+
 def test_index_persists_to_disk_and_invalidates_on_mtime_change(fresh_ticker_index, tmp_path):
     cache_file = _index_path()
     print("\n[debug] cache_file path:", cache_file)

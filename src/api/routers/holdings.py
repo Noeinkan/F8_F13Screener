@@ -11,7 +11,7 @@ import pandas as pd
 
 from src.api.deps import raise_db_error
 from src.api.exceptions import DashboardDbError
-from src.api.repository import query
+from src.api.repository import get_dashboard_db_state, query
 from src.api.serialize import dataframe_to_csv_text, records_from_dataframe
 from src.web.formatting import fmt_value_dollars
 from src.web.instrument_transforms import add_instrument_type_column
@@ -27,7 +27,11 @@ router = APIRouter(prefix="/api/holdings", tags=["holdings"])
 
 
 def _search_holdings(query_text: str, limit: int) -> dict[str, object]:
-    ticker_cusips = resolve_search_tickers(query_text)
+    # Resolve tickers against the same read-only snapshot the API queries, so a
+    # ticker search never opens the live writer DB and never contends with the
+    # poller/refresh for the DuckDB lock.
+    snapshot_path, _, _ = get_dashboard_db_state()
+    ticker_cusips = resolve_search_tickers(query_text, read_db_path=snapshot_path)
     where_sql, search_params = build_holdings_search_filter(
         query_text, ticker_cusips=ticker_cusips
     )

@@ -107,17 +107,23 @@ def _write_cache(source_mtime: int, mapping: dict[str, list[str]]) -> None:
     path.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
 
 
-def _build_from_holdings(source_mtime: int | None) -> dict[str, list[str]]:
-    """Build ticker→CUSIP index from the holdings DuckDB. Returns ``{}`` on any failure."""
+def _build_from_holdings(source_mtime: int | None, read_db_path: Path) -> dict[str, list[str]]:
+    """Build ticker→CUSIP index from the holdings DuckDB. Returns ``{}`` on any failure.
+
+    The SELECT runs against ``read_db_path``. On the API that is the process's
+    read-only snapshot, never the live writer DB, so building the index never
+    contends with the poller/refresh for the DuckDB lock.
+    """
     if source_mtime is None:
         return {}
-    if not DASHBOARD_DB_FILE.exists():
+    read_db_path = Path(read_db_path)
+    if not read_db_path.exists():
         return {}
 
     try:
         import duckdb  # local import to keep this module light
 
-        conn = duckdb.connect(str(DASHBOARD_DB_FILE), read_only=True)
+        conn = duckdb.connect(str(read_db_path), read_only=True)
     except Exception as exc:  # pragma: no cover - defensive
         logger.warning("Could not open dashboard DB for ticker index: %s", exc)
         return {}
@@ -186,42 +192,51 @@ def _build_from_holdings(source_mtime: int | None) -> dict[str, list[str]]:
 
 _index_lock = threading.Lock()
 _index_cache: dict[str, list[str]] | None = None
+_index_cache_key: tuple[str, int | None] | None = None
 
 
-def _load_index() -> dict[str, list[str]]:
+def _load_index(read_db_path: Path | str | None = None) -> dict[str, list[str]]:
     """Load (and lazily build) the holdings-derived ticker index.
 
-    The result is cached in-process; the on-disk cache is the persistence layer
-    that survives restarts. The on-disk cache is invalidated whenever the
-    source DuckDB mtime changes, so a rebuilt dashboard DB picks up new rows
-    on the next call.
+    ``read_db_path`` is where the SELECT runs (default: the live DB, used by the
+    standalone Streamlit app). The API passes its per-process read-only snapshot
+    so the index build never opens the live writer DB. Cache *validity* is keyed
+    on the live DB's mtime (the data version, stable across restarts), not the
+    snapshot's — a fresh snapshot copy on every API restart must not force an
+    expensive rebuild.
+
+    The result is cached in-process (one entry, auto-invalidated when the data
+    version changes); the on-disk cache is the persistence layer across restarts.
     """
-    global _index_cache
+    global _index_cache, _index_cache_key
+    read_path = Path(read_db_path) if read_db_path else DASHBOARD_DB_FILE
+    version_mtime = _safe_source_mtime()
+    key = (str(read_path), version_mtime)
     with _index_lock:
-        if _index_cache is not None:
+        if _index_cache is not None and _index_cache_key == key:
             return _index_cache
 
-        source_mtime = _safe_source_mtime()
-        cached = _read_cache(source_mtime) if source_mtime is not None else None
+        cached = _read_cache(version_mtime) if version_mtime is not None else None
         if cached is not None:
-            _index_cache = cached
+            _index_cache, _index_cache_key = cached, key
             return _index_cache
 
-        fresh = _build_from_holdings(source_mtime)
-        if source_mtime is not None and fresh:
+        fresh = _build_from_holdings(version_mtime, read_path)
+        if version_mtime is not None and fresh:
             try:
-                _write_cache(source_mtime, fresh)
+                _write_cache(version_mtime, fresh)
             except OSError as exc:
                 logger.warning("Could not persist holdings ticker index: %s", exc)
-        _index_cache = fresh
+        _index_cache, _index_cache_key = fresh, key
         return _index_cache
 
 
 def invalidate_ticker_index() -> None:
     """Clear both the in-process and on-disk ticker index caches."""
-    global _index_cache
+    global _index_cache, _index_cache_key
     with _index_lock:
         _index_cache = None
+        _index_cache_key = None
         path = _index_path()
         if path.exists():
             try:
@@ -236,19 +251,23 @@ def invalidate_ticker_index() -> None:
             pass
 
 
-def get_ticker_index() -> dict[str, list[str]]:
-    """Public accessor for the ticker→CUSIP index (read-only dict of lists)."""
-    return dict(_load_index())
+def get_ticker_index(read_db_path: Path | str | None = None) -> dict[str, list[str]]:
+    """Public accessor for the ticker→CUSIP index (read-only dict of lists).
+
+    Pass ``read_db_path`` (e.g. the API's read-only snapshot) to build the index
+    without touching the live writer DB; defaults to the live DB.
+    """
+    return dict(_load_index(read_db_path))
 
 
-def _resolve_term_to_ticker(term: str) -> str:
+def _resolve_term_to_ticker(term: str, read_db_path: Path | str | None = None) -> str:
     """Resolve a user-typed ticker term to the canonical ticker key the
     holdings index uses, consulting the alias table as a fallback.
     """
     cleaned = term.strip().upper()
     if not cleaned:
         return ""
-    index = get_ticker_index()
+    index = get_ticker_index(read_db_path)
     if cleaned in index:
         return cleaned
     aliased = TICKER_ALIASES.get(cleaned)
@@ -259,7 +278,7 @@ def _resolve_term_to_ticker(term: str) -> str:
     return aliased or cleaned
 
 
-def cusips_for_ticker(ticker: str) -> list[str]:
+def cusips_for_ticker(ticker: str, read_db_path: Path | str | None = None) -> list[str]:
     """Return the CUSIPs registered against ``ticker`` (case-insensitive).
 
     Falls back to the alias table for tickers the user types that the
@@ -270,7 +289,7 @@ def cusips_for_ticker(ticker: str) -> list[str]:
     cleaned = ticker.strip().upper()
     if not cleaned:
         return []
-    index = get_ticker_index()
+    index = get_ticker_index(read_db_path)
     if cleaned in index:
         return list(index[cleaned])
     aliased = TICKER_ALIASES.get(cleaned)
@@ -279,7 +298,7 @@ def cusips_for_ticker(ticker: str) -> list[str]:
     return []
 
 
-def expand_ticker_terms(terms: Iterable[str]) -> list[str]:
+def expand_ticker_terms(terms: Iterable[str], read_db_path: Path | str | None = None) -> list[str]:
     """For each ticker-shaped term, return the CUSIPs it maps to.
 
     Non-ticker-shaped terms are skipped (the search filter still applies the
@@ -291,7 +310,7 @@ def expand_ticker_terms(terms: Iterable[str]) -> list[str]:
     for term in terms:
         if not is_ticker_like(term):
             continue
-        for cusip in cusips_for_ticker(term):
+        for cusip in cusips_for_ticker(term, read_db_path):
             if cusip not in seen:
                 seen.add(cusip)
                 cusips.append(cusip)
