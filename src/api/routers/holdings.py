@@ -18,7 +18,7 @@ from src.web.instrument_transforms import add_instrument_type_column
 from src.web.pages.holdings_search import (
     MAX_SEARCH_DISPLAY_ROWS,
     build_holdings_search_filter,
-    resolve_search_tickers,
+    resolve_search_tickers_by_term,
 )
 from src.web.tickers import add_ticker_column
 from src.web.value_units import apply_value_multiplier_by_group, infer_value_multiplier_by_group, summarize_multipliers
@@ -31,9 +31,9 @@ def _search_holdings(query_text: str, limit: int) -> dict[str, object]:
     # ticker search never opens the live writer DB and never contends with the
     # poller/refresh for the DuckDB lock.
     snapshot_path, _, _ = get_dashboard_db_state()
-    ticker_cusips = resolve_search_tickers(query_text, read_db_path=snapshot_path)
+    ticker_cusips_by_term = resolve_search_tickers_by_term(query_text, read_db_path=snapshot_path)
     where_sql, search_params = build_holdings_search_filter(
-        query_text, ticker_cusips=ticker_cusips
+        query_text, ticker_cusips_by_term=ticker_cusips_by_term
     )
     if not where_sql:
         raise HTTPException(status_code=400, detail="Enter at least one search term.")

@@ -70,56 +70,96 @@ def test_holdings_search_filter_matches_tokens_and_normalized_cusip():
     assert rows == [("APPLE INC", "Berkshire Hathaway"), ("APPLE INC", "Other Fund")]
 
 
-def test_holdings_search_filter_uses_ticker_cusips_when_provided():
+def test_holdings_search_filter_matches_ticker_when_issuer_name_differs():
+    """Regression: a pure-ticker query must match via the resolved CUSIP even
+    when the issuer name shares no letters with the ticker. The old AND-ed
+    ticker clause returned zero rows here (issuer 'ALPHABET INC' has no 'GOOG')."""
     conn = duckdb.connect(":memory:")
-    conn.execute("""
-        CREATE TABLE holdings (
-            issuer_name TEXT,
-            fund_name TEXT,
-            cusip TEXT
-        )
-    """)
+    conn.execute("CREATE TABLE holdings (issuer_name TEXT, fund_name TEXT, cusip TEXT)")
     conn.executemany(
         "INSERT INTO holdings VALUES (?, ?, ?)",
         [
-            # Orange SA ADR — issuer name is just "ORANGE"; ticker ORAN / ORANY
-            # would never match via the ILIKE clauses alone.
-            ("ORANGE", "Ramsay Fund", "684060106"),
-            # Different issuer that happens to share the prefix.
-            ("ORANGE CNTY BANCORP INC", "Local Bank Fund", "68417L107"),
+            ("ALPHABET INC", "Some Fund", "02079K305"),  # GOOG (Class C)
             ("APPLE INC", "Other Fund", "037833100"),
         ],
     )
 
-    # Pass in a pre-resolved ticker expansion to keep this test independent
-    # of the on-disk ticker index. The real API does this via
-    # resolve_search_tickers(query_text).
     where_sql, params = build_holdings_search_filter(
-        "ORAN", ticker_cusips=["684060106"]
+        "GOOG", ticker_cusips_by_term={"GOOG": ["02079K305"]}
     )
     rows = conn.execute(
         f"SELECT issuer_name, cusip FROM holdings WHERE {where_sql}",
         params,
     ).fetchall()
-    assert rows == [("ORANGE", "684060106")]
+    assert rows == [("ALPHABET INC", "02079K305")]
 
 
-def test_holdings_search_filter_ignores_empty_ticker_cusip_list():
-    where_sql, params = build_holdings_search_filter("apple", ticker_cusips=[])
+def test_holdings_search_filter_ors_ticker_cusips_with_text_match():
+    """The ticker CUSIP is OR-ed into the term group, so a ticker term also
+    picks up text hits on the same term (broad search-box behavior)."""
+    conn = duckdb.connect(":memory:")
+    conn.execute("CREATE TABLE holdings (issuer_name TEXT, fund_name TEXT, cusip TEXT)")
+    conn.executemany(
+        "INSERT INTO holdings VALUES (?, ?, ?)",
+        [
+            ("ORANGE", "Ramsay Fund", "684060106"),  # Orange SA — matches text + cusip
+            ("ORANGE CNTY BANCORP INC", "Local Bank Fund", "68417L107"),  # text only
+            ("APPLE INC", "Other Fund", "037833100"),  # neither
+        ],
+    )
+
+    where_sql, params = build_holdings_search_filter(
+        "ORAN", ticker_cusips_by_term={"ORAN": ["684060106"]}
+    )
+    rows = conn.execute(
+        f"SELECT issuer_name, cusip FROM holdings WHERE {where_sql}",
+        params,
+    ).fetchall()
+    assert set(rows) == {("ORANGE", "684060106"), ("ORANGE CNTY BANCORP INC", "68417L107")}
+
+
+def test_holdings_search_filter_narrows_across_terms():
+    """Per-term OR, cross-term AND: 'AAPL berkshire' returns Apple held by
+    Berkshire, not every Apple row or every Berkshire row."""
+    conn = duckdb.connect(":memory:")
+    conn.execute("CREATE TABLE holdings (issuer_name TEXT, fund_name TEXT, cusip TEXT)")
+    conn.executemany(
+        "INSERT INTO holdings VALUES (?, ?, ?)",
+        [
+            ("APPLE INC", "Berkshire Hathaway", "037833100"),
+            ("APPLE INC", "Other Fund", "037833100"),
+            ("MICROSOFT CORP", "Berkshire Hathaway", "594918104"),
+        ],
+    )
+
+    where_sql, params = build_holdings_search_filter(
+        "AAPL berkshire", ticker_cusips_by_term={"AAPL": ["037833100"]}
+    )
+    rows = conn.execute(
+        f"SELECT issuer_name, fund_name FROM holdings WHERE {where_sql}",
+        params,
+    ).fetchall()
+    assert rows == [("APPLE INC", "Berkshire Hathaway")]
+
+
+def test_holdings_search_filter_ignores_empty_ticker_map():
+    where_sql, params = build_holdings_search_filter("apple", ticker_cusips_by_term={})
     # No cusip IN clause should be appended.
     assert "cusip IN" not in where_sql
 
 
-def test_resolve_search_tickers_skips_non_ticker_shaped_terms(monkeypatch):
+def test_resolve_search_tickers_by_term_skips_non_ticker_shaped_terms(monkeypatch):
     from src.web.pages import holdings_search
 
     monkeypatch.setattr(
         holdings_search,
-        "expand_ticker_terms",
-        lambda terms, read_db_path=None: ["684060106"] if "ORAN" in terms else [],
+        "cusips_for_ticker",
+        lambda term, read_db_path=None: ["684060106"] if term.upper() == "ORAN" else [],
     )
-    assert holdings_search.resolve_search_tickers("ORAN") == ["684060106"]
-    assert holdings_search.resolve_search_tickers("037833100") == []
+    # Ticker-shaped term that resolves is keyed by the term as typed.
+    assert holdings_search.resolve_search_tickers_by_term("ORAN") == {"ORAN": ["684060106"]}
+    # Numeric (CUSIP-shaped) term is not ticker-like, so it's skipped entirely.
+    assert holdings_search.resolve_search_tickers_by_term("037833100") == {}
 
 
 def test_top_held_securities_preserves_put_call_exposure_type():

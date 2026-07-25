@@ -1,7 +1,7 @@
 """Holdings Search dashboard page."""
 
 from collections.abc import Callable
-from typing import Any, Iterable
+from typing import Any
 import re
 
 import pandas as pd
@@ -10,7 +10,7 @@ import streamlit as st
 from src.web.formatting import dataframe_to_csv_bytes, fmt_value_dollars
 from src.web.instrument_transforms import add_instrument_type_column, style_instrument_type_column
 from src.web.table_config import DEFAULT_TABLE_HEIGHT, holdings_column_config
-from src.web.ticker_index import expand_ticker_terms, is_ticker_like
+from src.web.ticker_index import cusips_for_ticker, is_ticker_like
 from src.web.tickers import add_ticker_column
 from src.web.ui_components import render_dataframe, render_top_bar_note, render_top_bar_spacers, safe_file_token
 from src.web.value_units import apply_value_multiplier_by_group, infer_value_multiplier_by_group, summarize_multipliers
@@ -27,61 +27,69 @@ def _normalize_cusip_term(term: str) -> str:
     return re.sub(r"[^0-9A-Za-z]", "", term)
 
 
-def _ticker_match_clause(cusips: Iterable[str]) -> tuple[str | None, list[str]]:
-    """Build a `cusip IN (...)` clause for ticker-derived CUSIPs, or ``None``
-    when no tickers resolve."""
-    cusip_list = [str(c).strip() for c in cusips if c]
-    if not cusip_list:
-        return None, []
-    placeholders = ",".join(["?"] * len(cusip_list))
-    return f"cusip IN ({placeholders})", list(cusip_list)
-
-
 def build_holdings_search_filter(
     query_text: str,
     *,
-    ticker_cusips: Iterable[str] | None = None,
+    ticker_cusips_by_term: dict[str, list[str]] | None = None,
 ) -> tuple[str, tuple[str, ...]]:
     """Build a DuckDB WHERE clause + params for the holdings search box.
 
-    ``ticker_cusips`` is an explicit list of CUSIPs that the ticker index
-    resolved from ticker-shaped search terms (e.g. ``ORAN`` → ``['684060106']``).
-    Callers should pre-expand tickers via :func:`expand_ticker_terms` so the
-    search filter doesn't need to know about the index; this also keeps the
-    function pure and trivially testable.
+    Each whitespace-separated term matches ``issuer_name`` / ``fund_name`` /
+    ``cusip`` (text) OR, when the term is a ticker that resolved to CUSIPs, any
+    of those CUSIPs. The ticker CUSIPs are OR-ed *inside* the term's own group,
+    so a pure-ticker query like ``GOOG`` still matches Alphabet even though the
+    issuer name contains no "GOOG". Terms are then AND-ed together so multiple
+    terms narrow the result.
+
+    ``ticker_cusips_by_term`` maps each term (exactly as it appears in the query)
+    to the CUSIPs it resolved to. Callers pre-resolve via
+    :func:`resolve_search_tickers_by_term` so this function stays pure and
+    trivially testable — it never touches the ticker index itself.
     """
+    ticker_cusips_by_term = ticker_cusips_by_term or {}
     clauses = []
     params: list[str] = []
     for term in _split_search_terms(query_text):
         text_pattern = f"%{term}%"
         cusip_pattern = f"%{_normalize_cusip_term(term)}%"
-        clauses.append("""
-            (
-                issuer_name ILIKE ?
-                OR fund_name ILIKE ?
-                OR cusip ILIKE ?
-                OR REGEXP_REPLACE(COALESCE(cusip, ''), '[^0-9A-Za-z]', '', 'g') ILIKE ?
-            )
-        """)
-        params.extend([text_pattern, text_pattern, text_pattern, cusip_pattern])
+        ors = [
+            "issuer_name ILIKE ?",
+            "fund_name ILIKE ?",
+            "cusip ILIKE ?",
+            "REGEXP_REPLACE(COALESCE(cusip, ''), '[^0-9A-Za-z]', '', 'g') ILIKE ?",
+        ]
+        term_params = [text_pattern, text_pattern, text_pattern, cusip_pattern]
 
-    if ticker_cusips:
-        ticker_clause, ticker_params = _ticker_match_clause(ticker_cusips)
-        if ticker_clause:
-            clauses.append(f"({ticker_clause})")
-            params.extend(ticker_params)
+        term_cusips = [str(c).strip() for c in ticker_cusips_by_term.get(term, []) if c]
+        if term_cusips:
+            placeholders = ",".join(["?"] * len(term_cusips))
+            ors.append(f"cusip IN ({placeholders})")
+            term_params.extend(term_cusips)
+
+        clauses.append("(" + " OR ".join(ors) + ")")
+        params.extend(term_params)
 
     return " AND ".join(clauses), tuple(params)
 
 
-def resolve_search_tickers(query_text: str, read_db_path=None) -> list[str]:
-    """Return the deduplicated list of CUSIPs that ticker-shaped terms in
-    ``query_text`` map to (case-insensitive).
+def resolve_search_tickers_by_term(
+    query_text: str, read_db_path=None
+) -> dict[str, list[str]]:
+    """Map each ticker-shaped term in ``query_text`` to the CUSIPs it resolves to.
 
-    ``read_db_path`` selects which DB the ticker index reads from; the API
-    passes its read-only snapshot so the search never opens the live writer DB.
+    Keyed by the term exactly as it appears in the query so
+    :func:`build_holdings_search_filter` can OR the CUSIPs into that term's
+    clause. ``read_db_path`` selects which DB the ticker index reads from; the
+    API passes its read-only snapshot so the search never opens the live writer DB.
     """
-    return expand_ticker_terms(_split_search_terms(query_text), read_db_path=read_db_path)
+    resolved: dict[str, list[str]] = {}
+    for term in _split_search_terms(query_text):
+        if not is_ticker_like(term):
+            continue
+        cusips = cusips_for_ticker(term, read_db_path)
+        if cusips:
+            resolved[term] = cusips
+    return resolved
 
 
 def render_holdings_search_page(query: Callable[[str, tuple], pd.DataFrame], top_bar: Any | None = None):
@@ -123,7 +131,7 @@ def render_holdings_search_page(query: Callable[[str, tuple], pd.DataFrame], top
             render_top_bar_spacers(6)
 
     where_sql, search_params = build_holdings_search_filter(
-        query_text, ticker_cusips=resolve_search_tickers(query_text)
+        query_text, ticker_cusips_by_term=resolve_search_tickers_by_term(query_text)
     )
     if not where_sql:
         with header:
