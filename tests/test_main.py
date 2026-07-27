@@ -125,6 +125,7 @@ def test_process_feed_fallback_survives_empty_feed():
     processor.process_feed_fallback()
 
     storage.get_seen_filings.assert_not_called()
+    storage.any_filing_seen.assert_not_called()
 
 
 def test_needs_holdings_backfill_when_sqlite_has_accession_but_duckdb_does_not():
