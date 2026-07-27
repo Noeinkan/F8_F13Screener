@@ -228,7 +228,6 @@ class FilingProcessor:
         self.logger.info("\n%s", "=" * 60)
         self.logger.info("Controllo submissions alle %s", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
-        seen_filings = self.storage.get_seen_filings(limit=2000)
         bootstrap_mode = not self.runtime_state.get('submissions_bootstrapped', False)
         if bootstrap_mode:
             self.logger.info(
@@ -273,7 +272,7 @@ class FilingProcessor:
                     fallback=f"submissions:{cik}:{filing_date}:{filing.get('primary_document', '')}",
                 )
 
-                if any(candidate in seen_filings for candidate in seen_candidates):
+                if self.storage.any_filing_seen(seen_candidates):
                     if self._needs_holdings_backfill(accession_number):
                         self.logger.info(
                             "Backfill holdings per filing gia visto %s (%s)",
@@ -314,7 +313,6 @@ class FilingProcessor:
                             filing_date,
                             acceptance_datetime=acceptance_datetime,
                         )
-                    seen_filings.add(entry_id)
                     stats['bootstrapped'] += 1
                     continue
 
@@ -359,8 +357,6 @@ class FilingProcessor:
                 else:
                     stats['failed'] += 1
 
-                seen_filings.add(entry_id)
-
             time.sleep(self.config.submissions_request_delay_seconds)
 
         self.logger.info(
@@ -398,9 +394,6 @@ class FilingProcessor:
         if not feed.get('entries'):
             self.logger.warning("Feed vuoto o non disponibile")
             return
-
-        # Get seen filings from database
-        seen_filings = self.storage.get_seen_filings()
 
         # Statistics
         stats = {
@@ -441,7 +434,7 @@ class FilingProcessor:
                 stats['total_checked'] += 1
 
                 # Skip if already seen
-                if any(candidate in seen_filings for candidate in seen_candidates):
+                if self.storage.any_filing_seen(seen_candidates):
                     matched_fund = self.config.hedge_funds_cik.get(cik.zfill(10)) or self.config.hedge_funds_cik.get(cik)
                     if matched_fund and self._needs_holdings_backfill(accession_number):
                         self.logger.info(

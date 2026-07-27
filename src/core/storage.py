@@ -193,6 +193,36 @@ class Storage:
 
             return {row['entry_id'] for row in cursor.fetchall()}
 
+    def any_filing_seen(self, entry_ids: Set[str]) -> bool:
+        """
+        Exact "have we already processed any of these entry IDs?" test.
+
+        Dedup must never be answered from get_seen_filings(), which returns a
+        bounded window ordered by processed_at: once seen_filings outgrows that
+        window the oldest rows silently look unseen and get re-alerted, and
+        re-marking them bumps processed_at so they evict *other* rows, which
+        re-alert on the next cycle. That loop sustains itself indefinitely.
+        entry_id is the PRIMARY KEY, so this is an index lookup.
+
+        Args:
+            entry_ids: Candidate IDs for the same filing (filing:/submissions:/feed:)
+
+        Returns:
+            True if any candidate is already recorded
+        """
+        candidates = [e for e in entry_ids if e]
+        if not candidates:
+            return False
+
+        placeholders = ','.join('?' * len(candidates))
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                f"SELECT 1 FROM seen_filings WHERE entry_id IN ({placeholders}) LIMIT 1",
+                candidates,
+            )
+            return cursor.fetchone() is not None
+
     def mark_filing_seen(
         self,
         entry_id: str,
@@ -485,6 +515,11 @@ class Storage:
         """
         Clean up old seen filings to keep database size manageable
 
+        Only unmatched rows (RSS noise from filers we do not track) are pruned.
+        Matched rows are kept forever: the submissions endpoint keeps returning
+        the last N 13F-HRs per tracked CIK — years back — so deleting a matched
+        row makes that filing look new again and re-alerts it.
+
         Args:
             days: Number of days to retain
         """
@@ -495,6 +530,7 @@ class Storage:
             cursor.execute("""
                 DELETE FROM seen_filings
                 WHERE processed_at < ?
+                  AND matched = 0
             """, (cutoff_date,))
 
             deleted = cursor.rowcount

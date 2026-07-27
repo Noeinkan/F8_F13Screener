@@ -69,6 +69,45 @@ class TestSeenFilings:
         assert len(db.get_seen_filings(limit=5)) == 5
 
 
+class TestAnyFilingSeen:
+    """Dedup must be exact, never a recency window (see any_filing_seen docstring)."""
+
+    def test_unknown_entry_not_seen(self, db):
+        assert db.any_filing_seen({"filing:123:ACC-1"}) is False
+
+    def test_known_entry_seen(self, db):
+        db.mark_filing_seen("filing:123:ACC-1", "Fund", "123", "2026-05-01")
+        assert db.any_filing_seen({"filing:123:ACC-1"}) is True
+
+    def test_any_candidate_variant_matches(self, db):
+        db.mark_filing_seen("filing:123:ACC-1", "Fund", "123", "2026-05-01")
+        candidates = {
+            "filing:123:ACC-1",
+            "submissions:123:ACC-1",
+            "feed:123:ACC-1",
+        }
+        assert db.any_filing_seen(candidates) is True
+
+    def test_empty_candidates_not_seen(self, db):
+        assert db.any_filing_seen(set()) is False
+        assert db.any_filing_seen({""}) is False
+
+    def test_seen_even_when_far_outside_recency_window(self, db):
+        """The regression: an old row buried under thousands of newer ones.
+
+        get_seen_filings() would not return it, so the poller re-alerted the
+        filing on every cycle. any_filing_seen() must still find it.
+        """
+        db.mark_filing_seen("filing:123:OLD-ACC", "Fund", "123", "2024-08-14", matched=True)
+        for i in range(3000):
+            db.mark_filing_seen(f"feed:noise:{i}", "Noise", str(i), "2026-07-27")
+
+        # The windowed read genuinely loses it...
+        assert "filing:123:OLD-ACC" not in db.get_seen_filings(limit=2000)
+        # ...but dedup must not.
+        assert db.any_filing_seen({"filing:123:OLD-ACC"}) is True
+
+
 # ---------------------------------------------------------------------------
 # save_holdings / get_holdings_by_accession
 # ---------------------------------------------------------------------------
@@ -287,6 +326,26 @@ class TestCleanup:
         db.mark_filing_seen("new-entry", "NewFund", "888", "2026-05-01")
         db.cleanup_old_filings(days=90)
         assert "new-entry" in db.get_seen_filings()
+
+    def test_old_matched_records_kept(self, db):
+        """Submissions still returns years-old 13F-HRs for tracked CIKs.
+
+        Pruning a matched row makes that filing look new again on the next
+        cycle, which re-alerts it.
+        """
+        import sqlite3
+        conn = sqlite3.connect(db.db_path)
+        old_ts = (datetime.now() - timedelta(days=400)).isoformat()
+        conn.execute(
+            "INSERT INTO seen_filings (entry_id, filer_name, cik, filing_date, matched, processed_at) "
+            "VALUES ('filing:123:OLD-MATCHED', 'Tracked Fund', '123', '2024-08-14', 1, ?)",
+            (old_ts,)
+        )
+        conn.commit()
+        conn.close()
+
+        db.cleanup_old_filings(days=90)
+        assert db.any_filing_seen({"filing:123:OLD-MATCHED"}) is True
 
     def test_clear_holdings_removes_all_rows(self, db):
         db.save_holdings([_make_holding()], "Fund", "123", "2026-05-01", "ACC-100", "https://sec.gov/x")
