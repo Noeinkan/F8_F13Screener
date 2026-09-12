@@ -36,6 +36,8 @@ def fresh_ticker_index(monkeypatch, tmp_path):
         )
         """
     )
+    # The index reads holdings_effective; over a bare test table it is a pass-through.
+    conn.execute("CREATE VIEW holdings_effective AS SELECT * FROM holdings")
     conn.executemany(
         "INSERT INTO holdings VALUES (?, ?)",
         [
@@ -116,6 +118,7 @@ def test_get_ticker_index_includes_oran_via_cusip_override(monkeypatch, tmp_path
     db_path = tmp_path / "13f_dashboard.duckdb"
     conn = duckdb.connect(str(db_path))
     conn.execute("CREATE TABLE holdings (cusip TEXT, issuer_name TEXT)")
+    conn.execute("CREATE VIEW holdings_effective AS SELECT * FROM holdings")
     conn.execute("INSERT INTO holdings VALUES ('684060106', 'ORANGE')")
     conn.close()
 
@@ -182,6 +185,7 @@ def test_index_reads_from_injected_path_not_live_db(monkeypatch, tmp_path):
     live_db.parent.mkdir()
     conn = duckdb.connect(str(live_db))
     conn.execute("CREATE TABLE holdings (cusip TEXT, issuer_name TEXT)")
+    conn.execute("CREATE VIEW holdings_effective AS SELECT * FROM holdings")
     conn.execute("INSERT INTO holdings VALUES ('88160R101', 'TESLA INC')")
     conn.close()
 
@@ -190,6 +194,7 @@ def test_index_reads_from_injected_path_not_live_db(monkeypatch, tmp_path):
     snapshot_db.parent.mkdir()
     conn = duckdb.connect(str(snapshot_db))
     conn.execute("CREATE TABLE holdings (cusip TEXT, issuer_name TEXT)")
+    conn.execute("CREATE VIEW holdings_effective AS SELECT * FROM holdings")
     conn.execute("INSERT INTO holdings VALUES ('037833100', 'APPLE INC')")
     conn.close()
 
