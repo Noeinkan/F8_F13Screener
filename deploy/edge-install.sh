@@ -50,12 +50,21 @@ if [ "$SET_PASSWORD" = true ]; then
     unset PASSWORD
 fi
 
+# ssh joins its arguments into one string that the remote shell parses again:
+# an apr1 hash ("$apr1$salt$...") would be expanded as variables and an empty
+# argument would vanish. Base64 has no characters the shell cares about, and
+# "-" stands in for "no new password".
+HASH_B64="-"
+[ -n "$HASH" ] && HASH_B64="$(printf '%s' "$HASH" | base64 | tr -d '\n')"
+
 echo "→ Uploading vhosts"
 scp -q deploy/edge/f8-live.conf deploy/edge/f8-live.bootstrap.conf "$VPS:/tmp/"
 
-ssh "$VPS" bash -s -- "$DOMAIN" "$SERVER_IP" "$LOGIN" "$HASH" <<'REMOTE'
+ssh "$VPS" bash -s -- "$DOMAIN" "$SERVER_IP" "$LOGIN" "$HASH_B64" <<'REMOTE'
 set -euo pipefail
-DOMAIN="$1"; SERVER_IP="$2"; LOGIN="$3"; HASH="$4"
+DOMAIN="$1"; SERVER_IP="$2"; LOGIN="$3"; HASH_B64="$4"
+HASH=""
+[ "$HASH_B64" = "-" ] || HASH="$(printf '%s' "$HASH_B64" | base64 -d)"
 
 VHOSTS="/opt/sites/_vhosts"
 EDGE_NGINX="bep-generator-nginx-1"
@@ -88,6 +97,10 @@ echo "    f8-web answers on host.docker.internal:5173"
 echo "==> 3/6 password"
 if [ -n "$HASH" ]; then
     TMP="$(mktemp "$VHOSTS/.f8-live.htpasswd.XXXXXX")"
+    case "$HASH" in
+        '$apr1$'*) ;;
+        *) echo "ERRORE: l'hash della password e' arrivato malformato"; rm -f "$TMP"; exit 1 ;;
+    esac
     printf '%s:%s\n' "$LOGIN" "$HASH" > "$TMP"
     # nginx workers run as uid 101 inside the container and must read it;
     # nobody else needs to.
@@ -95,7 +108,7 @@ if [ -n "$HASH" ]; then
     chmod 640 "$TMP"
     mv "$TMP" "$PASSWD"
     echo "    login '$LOGIN' written"
-elif [ -f "$PASSWD" ]; then
+elif [ -f "$PASSWD" ] && grep -q ':\$apr1\$' "$PASSWD"; then
     echo "    existing login kept"
 else
     echo "ERRORE: nessuna password impostata. Rilancia con --set-password."
@@ -146,7 +159,15 @@ echo "    nginx -t passed, reloaded"
 echo "==> 6/6 smoke test"
 # Without a login the dashboard must refuse; with a wrong one too. A 200 here
 # would mean the password is not being enforced.
-ANON="$(http_code "https://$DOMAIN/")"
+# `nginx -s reload` only signals the master: for a moment the old workers keep
+# answering, and without this vhost the edge's default HTTPS site replies 200
+# for any name. Give the new workers a few seconds before judging.
+ANON=""
+for _ in 1 2 3 4 5 6 7 8 9 10; do
+    ANON="$(http_code "https://$DOMAIN/")"
+    [ "$ANON" = "401" ] && break
+    sleep 1
+done
 echo "    https://$DOMAIN/ without login -> $ANON"
 if [ "$ANON" != "401" ]; then
     echo "ERRORE: atteso 401 senza login, ottenuto $ANON. Vhost rimosso."
