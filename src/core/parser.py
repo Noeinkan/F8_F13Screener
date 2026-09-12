@@ -3,7 +3,8 @@
 """
 import re
 import logging
-from typing import List, Dict, Optional
+import xml.etree.ElementTree as ET
+from typing import List, Dict, Optional, Tuple
 import requests
 from bs4 import BeautifulSoup
 
@@ -50,6 +51,15 @@ class HoldingsParser:
         Returns:
             URL of the Information Table or None if not found
         """
+        urls = self.get_information_table_urls(filing_index_url)
+        return urls[0] if urls else None
+
+    def get_information_table_urls(self, filing_index_url: str) -> List[str]:
+        """All Information Table links on the filing index page, best first.
+
+        The alternatives are what gives a malformed raw XML a second chance:
+        SEC's rendering of the same table is usually listed right beside it.
+        """
         try:
             headers = {'User-Agent': self.user_agent}
             response = requests.get(filing_index_url, headers=headers, timeout=30)
@@ -68,13 +78,13 @@ class HoldingsParser:
                     return f"https://www.sec.gov{href}"
                 return f"{base_url}/{href}"
 
-            def best_of(hrefs: List[str]) -> Optional[str]:
+            def ranked(hrefs: List[str]) -> List[str]:
                 # Stable sort: equal ranks keep the order they appear on the page.
-                ranked = sorted(
+                ordered = sorted(
                     enumerate(hrefs),
                     key=lambda item: (self._information_table_link_rank(item[1]), item[0]),
                 )
-                return build_full_url(ranked[0][1]) if ranked else None
+                return list(dict.fromkeys(build_full_url(href) for _, href in ordered))
 
             # Method 1: Prefer rows explicitly labeled INFORMATION TABLE.
             row_hrefs: List[str] = []
@@ -95,10 +105,10 @@ class HoldingsParser:
                     if self._information_table_link_rank(href) < self._RANK_OTHER:
                         row_hrefs.append(href)
 
-            best_url = best_of(row_hrefs)
-            if best_url:
-                logger.debug(f"Found infotable (method 1): {best_url}")
-                return best_url
+            urls = ranked(row_hrefs)
+            if urls:
+                logger.debug(f"Found infotable (method 1): {urls}")
+                return urls
 
             # Method 2: Search for link containing "infotable" in its text or href.
             infotable_hrefs = [
@@ -106,10 +116,10 @@ class HoldingsParser:
                 for link in soup.find_all('a', href=True)
                 if 'infotable' in link.get_text(strip=True).lower() or 'infotable' in link['href'].lower()
             ]
-            best_url = best_of(infotable_hrefs)
-            if best_url:
-                logger.debug(f"Found infotable (method 2): {best_url}")
-                return best_url
+            urls = ranked(infotable_hrefs)
+            if urls:
+                logger.debug(f"Found infotable (method 2): {urls}")
+                return urls
 
             # Method 3: Any XML file except the primary cover document.
             xml_hrefs = [
@@ -118,21 +128,78 @@ class HoldingsParser:
                 if self._href_path(link['href']).endswith('.xml')
                 and 'primary_doc' not in link['href'].lower()
             ]
-            best_url = best_of(xml_hrefs)
-            if best_url:
-                logger.debug(f"Found XML table (method 3): {best_url}")
-                return best_url
+            urls = ranked(xml_hrefs)
+            if urls:
+                logger.debug(f"Found XML table (method 3): {urls}")
+                return urls
 
             logger.warning(f"Information Table HTML non trovata nella pagina: {filing_index_url}")
             # Log available files for debugging
             all_files = [link.get('href') for link in soup.find_all('a', href=True) if link.get('href', '').endswith(('.xml', '.html', '.htm'))]
             if all_files:
                 logger.debug(f"Available files: {', '.join(all_files[:10])}")
-            return None
+            return []
 
         except Exception as e:
             logger.error(f"Errore parsing index page: {e}")
+            return []
+
+    def parse_filing_holdings(self, filing_index_url: str) -> Tuple[Optional[str], List[Dict]]:
+        """Find and parse a filing's Information Table, trying each link in turn.
+
+        A link is passed over when it does not download, when it is raw XML that
+        is not well-formed, or when it yields no holdings. Malformed XML is never
+        used even though it "parses": the XML reader recovers silently and keeps
+        only the rows before the break, which the diff would then report as
+        positions closed. Holdings without a single value are kept only when no
+        other link does better.
+
+        Returns ``(url used, holdings)``, or ``(None, [])`` when no link gave any.
+        """
+        urls = self.get_information_table_urls(filing_index_url)
+        fallback: Tuple[Optional[str], List[Dict]] = (None, [])
+
+        for url in urls:
+            content = self._download_information_table(url)
+            if content is None:
+                continue
+            if self._information_table_link_rank(url) == self._RANK_RAW_XML and not self._is_well_formed_xml(content):
+                logger.warning(f"Information Table XML malformata, provo il link successivo: {url}")
+                continue
+            holdings = self.parse_information_table_content(content)
+            if not holdings:
+                logger.warning(f"Nessuna holding in {url}, provo il link successivo")
+                continue
+            if any(holding.get('value') is not None for holding in holdings):
+                return url, holdings
+            logger.warning(f"Holdings senza alcun valore in {url}, provo il link successivo")
+            if not fallback[1]:
+                fallback = (url, holdings)
+
+        if urls and not fallback[1]:
+            logger.error(f"Nessun link dell'Information Table ha dato holdings utilizzabili: {filing_index_url}")
+        return fallback
+
+    @staticmethod
+    def _is_well_formed_xml(content: bytes | str) -> bool:
+        """Strict parse, no recovery. Leading whitespace is tolerated, as EDGAR files sometimes carry it."""
+        try:
+            ET.fromstring(content.lstrip())
+            return True
+        except ET.ParseError:
+            return False
+
+    def _download_information_table(self, url: str) -> Optional[bytes]:
+        try:
+            headers = {'User-Agent': self.user_agent}
+            response = requests.get(url, headers=headers, timeout=30)
+        except Exception as e:
+            logger.error(f"Errore scaricamento Information Table {url}: {e}")
             return None
+        if response.status_code != 200:
+            logger.error(f"Errore scaricamento Information Table: HTTP {response.status_code} ({url})")
+            return None
+        return response.content
 
     def parse_information_table(self, html_url: str) -> List[Dict]:
         """
@@ -144,16 +211,11 @@ class HoldingsParser:
         Returns:
             List of holdings dictionaries
         """
+        content = self._download_information_table(html_url)
+        if content is None:
+            return []
         try:
-            headers = {'User-Agent': self.user_agent}
-            response = requests.get(html_url, headers=headers, timeout=30)
-
-            if response.status_code != 200:
-                logger.error(f"Errore scaricamento Information Table: HTTP {response.status_code}")
-                return []
-
-            return self.parse_information_table_content(response.content)
-
+            return self.parse_information_table_content(content)
         except Exception as e:
             logger.error(f"Errore parsing Information Table: {e}")
             return []

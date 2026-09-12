@@ -263,13 +263,8 @@ def process_filing_holdings(
         cik = sec_client.extract_cik_from_link(filing_url)
         accession_number = sec_client.extract_accession_number(filing_url)
         
-        # Get Information Table URL
-        info_table_url = parser.get_information_table_url(filing_url)
-        if not info_table_url:
-            return False
-        
-        # Parse holdings
-        holdings = parser.parse_information_table(info_table_url)
+        # Find and parse the Information Table; a malformed link falls through to the next.
+        _, holdings = parser.parse_filing_holdings(filing_url)
         if not holdings:
             return False
 

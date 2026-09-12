@@ -29,8 +29,7 @@ def _configure_successful_parse(processor, storage, dashboard_storage):
         "shares": 1000,
     }]
     processor.sec_client.extract_accession_number.return_value = "ACC-001"
-    processor.parser.get_information_table_url.return_value = "https://sec.gov/info.xml"
-    processor.parser.parse_information_table.return_value = holdings
+    processor.parser.parse_filing_holdings.return_value = ("https://sec.gov/info.xml", holdings)
     storage.get_latest_accessions_for_fund.return_value = []
     storage.save_holdings.return_value = len(holdings)
     dashboard_storage.save_holdings.return_value = len(holdings)

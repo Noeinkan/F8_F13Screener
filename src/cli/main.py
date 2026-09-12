@@ -779,19 +779,13 @@ class FilingProcessor:
             # Extract accession number
             accession_number = self.sec_client.extract_accession_number(filing_url)
 
-            # Get Information Table URL
-            info_table_url = self.parser.get_information_table_url(filing_url)
-            if not info_table_url:
-                self.logger.warning("Information Table URL non trovata")
-                return False, None
-
-            self.logger.info(f"Trovata Information Table: {info_table_url}")
-
-            # Parse holdings
-            holdings = self.parser.parse_information_table(info_table_url)
+            # Find and parse the Information Table; a malformed link falls through to the next.
+            info_table_url, holdings = self.parser.parse_filing_holdings(filing_url)
             if not holdings:
-                self.logger.warning("Nessuna holding trovata nel file")
+                self.logger.warning("Nessuna holding trovata per il filing")
                 return False, None
+
+            self.logger.info(f"Holdings lette da: {info_table_url}")
 
             # Snapshot previous quarter before saving the new one
             portfolio_diff = None

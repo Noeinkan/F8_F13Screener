@@ -1,4 +1,5 @@
 import os
+import re
 import tempfile
 from pathlib import Path
 
@@ -371,3 +372,88 @@ def test_html_voting_authority_is_integer_like_the_xml_path():
     assert len(holdings) == 1
     h = holdings[0]
     assert (h['voting_authority_sole'], h['voting_authority_shared'], h['voting_authority_none']) == (10877, 0, 0)
+
+
+FILING_BASE = 'https://www.sec.gov/Archives/edgar/data/1649339/000164933924000011'
+RAW_URL = f'{FILING_BASE}/infotable.xml'
+RENDERED_URL = f'{FILING_BASE}/xslForm13F_X02/infotable.xml'
+
+
+def _serve_by_url(monkeypatch, pages, seen_urls):
+    """Index page plus per-URL bodies; a URL mapped to None answers 404."""
+    class DummyResp:
+        def __init__(self, body):
+            self.status_code = 404 if body is None else 200
+            self.content = body or b''
+
+    def fake_get(url, headers=None, timeout=None):
+        seen_urls.append(url)
+        if url == INDEX_URL:
+            return DummyResp((FIXTURES / 'index_xslform_and_raw.htm').read_bytes())
+        return DummyResp(pages.get(url))
+
+    monkeypatch.setattr(requests, 'get', fake_get)
+
+
+def test_parse_filing_holdings_uses_raw_xml_and_never_fetches_the_rendering(monkeypatch):
+    seen = []
+    raw = b'\n  ' + (FIXTURES / 'paired_raw.xml').read_bytes()  # leading whitespace is not "malformed"
+    _serve_by_url(monkeypatch, {RAW_URL: raw}, seen)
+
+    url, holdings = parser.parse_filing_holdings(INDEX_URL)
+
+    assert url == RAW_URL
+    assert len(holdings) == 5
+    assert RENDERED_URL not in seen
+
+
+def test_parse_filing_holdings_malformed_raw_xml_falls_back_to_sec_rendering(monkeypatch):
+    # Cut mid-document: the lenient XML reader would still return the first rows,
+    # and the diff would report the missing ones as closed positions.
+    raw = (FIXTURES / 'paired_raw.xml').read_bytes()
+    truncated = raw[: len(raw) // 2]
+    assert 0 < len(parser.parse_information_table_content(truncated)) < 5
+    _serve_by_url(monkeypatch, {
+        RAW_URL: truncated,
+        RENDERED_URL: (FIXTURES / 'paired_xsl_rendered.html').read_bytes(),
+    }, [])
+
+    url, holdings = parser.parse_filing_holdings(INDEX_URL)
+
+    assert url == RENDERED_URL
+    assert holdings == parser.parse_information_table_content(raw)
+
+
+def test_parse_filing_holdings_raw_xml_unavailable_falls_back_to_sec_rendering(monkeypatch):
+    _serve_by_url(monkeypatch, {
+        RAW_URL: None,
+        RENDERED_URL: (FIXTURES / 'paired_xsl_rendered.html').read_bytes(),
+    }, [])
+
+    url, holdings = parser.parse_filing_holdings(INDEX_URL)
+
+    assert url == RENDERED_URL
+    assert len(holdings) == 5
+
+
+def test_parse_filing_holdings_prefers_a_link_with_values_over_one_without(monkeypatch):
+    no_values = re.sub(rb'<value>[^<]*</value>', b'', (FIXTURES / 'paired_raw.xml').read_bytes())
+    _serve_by_url(monkeypatch, {
+        RAW_URL: no_values,
+        RENDERED_URL: (FIXTURES / 'paired_xsl_rendered.html').read_bytes(),
+    }, [])
+
+    url, holdings = parser.parse_filing_holdings(INDEX_URL)
+
+    assert url == RENDERED_URL
+    assert all(h['value'] is not None for h in holdings)
+
+
+def test_parse_filing_holdings_gives_nothing_rather_than_a_partial_portfolio(monkeypatch):
+    raw = (FIXTURES / 'paired_raw.xml').read_bytes()
+    _serve_by_url(monkeypatch, {
+        RAW_URL: raw[: len(raw) // 2],
+        RENDERED_URL: b'<html><body>Access Denied</body></html>',
+    }, [])
+
+    assert parser.parse_filing_holdings(INDEX_URL) == (None, [])
