@@ -99,8 +99,11 @@ fi
 # password-protected vhost from deploy/edge-install.sh. Deploying before that
 # vhost exists would leave the dashboard unreachable, so refuse. 401 is the
 # healthy answer: nginx is there and asking for the login.
+# Pinned to the VPS address: the question is whether the vhost exists there,
+# and a local resolver still caching "no such name" must not answer it.
 EDGE_URL="https://13f.noeinsolutions.com/"
-EDGE_CODE="$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$EDGE_URL" || true)"
+EDGE_CODE="$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 \
+    --resolve "13f.noeinsolutions.com:443:${VPS#*@}" "$EDGE_URL" || true)"
 if [ "$EDGE_CODE" != "401" ]; then
     echo "Errore: $EDGE_URL risponde '$EDGE_CODE' invece di 401."
     echo "        Il vhost del dashboard non e' installato: esegui prima 'bash deploy/edge-install.sh --set-password'."
