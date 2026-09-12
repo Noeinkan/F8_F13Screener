@@ -46,6 +46,30 @@ class Config:
     auto_launch_viewer: bool = True
     enable_filtered_daily_summary: bool = False
 
+    # Notification strategy
+    # Where the React dashboard lives, used to build the deep links in alerts.
+    # Alerts are headlines; the detail is one tap away in the dashboard.
+    dashboard_base_url: str = 'http://127.0.0.1:5173'
+    # During a filing wave dozens of funds file within hours. Batch their alerts
+    # into one digest instead of sending 40+ separate messages.
+    enable_digest: bool = True
+    digest_days_before: int = 2
+    digest_days_after: int = 7
+    # Let a digest fill up for this long before sending it, so the cadence is
+    # set by how fast filings arrive and not by how often the timer happens to
+    # run. A burst that hits the pending cap is sent immediately.
+    digest_min_age_minutes: int = 45
+    digest_max_pending: int = 20
+    # The daily proof-of-life message, and how late a cycle may be before the
+    # reporter treats the poller as down.
+    enable_heartbeat: bool = True
+    heartbeat_hour: int = 8
+    health_stale_minutes: int = 30
+    # How many days ahead of a deadline to send the heads-up.
+    reminder_days_before: int = 3
+    # Minimum hours between two wave-progress messages during a wave.
+    wave_progress_every_hours: int = 6
+
     # Submissions watcher
     submissions_recent_limit: int = 10
     submissions_request_delay_seconds: float = 1.0
@@ -115,6 +139,19 @@ class Config:
             submissions_recent_limit=_env_int('F13F_SUBMISSIONS_RECENT_LIMIT', 10),
             submissions_request_delay_seconds=_env_float('F13F_SUBMISSIONS_REQUEST_DELAY_SECONDS', 1.0),
             enable_atom_fallback=_env_bool('F13F_ENABLE_ATOM_FALLBACK', True),
+            dashboard_base_url=(
+                os.getenv('F13F_DASHBOARD_BASE_URL') or 'http://127.0.0.1:5173'
+            ).rstrip('/'),
+            enable_digest=_env_bool('F13F_ENABLE_DIGEST', True),
+            digest_days_before=_env_int('F13F_DIGEST_DAYS_BEFORE', 2),
+            digest_days_after=_env_int('F13F_DIGEST_DAYS_AFTER', 7),
+            digest_min_age_minutes=_env_int('F13F_DIGEST_MIN_AGE_MINUTES', 45),
+            digest_max_pending=_env_int('F13F_DIGEST_MAX_PENDING', 20),
+            enable_heartbeat=_env_bool('F13F_ENABLE_HEARTBEAT', True),
+            heartbeat_hour=_env_int('F13F_HEARTBEAT_HOUR', 8),
+            health_stale_minutes=_env_int('F13F_HEALTH_STALE_MINUTES', 30),
+            reminder_days_before=_env_int('F13F_REMINDER_DAYS_BEFORE', 3),
+            wave_progress_every_hours=_env_int('F13F_WAVE_PROGRESS_EVERY_HOURS', 6),
             hedge_funds_cik=hedge_funds
         )
 

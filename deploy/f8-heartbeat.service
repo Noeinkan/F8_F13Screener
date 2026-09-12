@@ -1,0 +1,29 @@
+[Unit]
+# The periodic notification reporter: digests, the daily heartbeat, the
+# pre-deadline reminder, wave progress, and the alarm when the poller dies.
+#
+# It runs OUT of the poller's process on purpose. f8-screener cannot report its
+# own death: if it crashes or hangs, only something scheduled independently is
+# still around to notice that no cycle has completed and to say so. This unit is
+# that independent thing, triggered by f8-heartbeat.timer.
+Description=F8 F13 Screener — periodic Telegram reporter
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/F8_F13Screener
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONPATH=/opt/F8_F13Screener
+# Deep links in every alert point at the public dashboard, not at localhost.
+Environment=F13F_DASHBOARD_BASE_URL=http://77.42.70.26:5173
+ExecStart=/opt/F8_F13Screener/venv/bin/python -m src.cli.notify_reporter
+StandardOutput=journal
+StandardError=journal
+# A single pass is seconds of work; if it wedges on a hung HTTP call, give up
+# rather than letting runs pile on top of each other.
+TimeoutStartSec=180
+
+[Install]
+WantedBy=multi-user.target

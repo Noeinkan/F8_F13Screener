@@ -57,11 +57,13 @@ fi
 
 # 6. Install systemd services
 echo "→ Installo i servizi systemd..."
-sudo sed -i 's/\r$//' "$APP_DIR/deploy/f8-screener.service" "$APP_DIR/deploy/f8-api.service" "$APP_DIR/deploy/f8-web.service"
+sudo sed -i 's/\r$//' "$APP_DIR/deploy/f8-screener.service" "$APP_DIR/deploy/f8-api.service" "$APP_DIR/deploy/f8-web.service" "$APP_DIR/deploy/f8-heartbeat.service" "$APP_DIR/deploy/f8-heartbeat.timer"
 sudo cp "$APP_DIR/deploy/f8-screener.service"   /etc/systemd/system/
 sudo cp "$APP_DIR/deploy/f8-api.service"       /etc/systemd/system/
 sudo cp "$APP_DIR/deploy/f8-web.service"       /etc/systemd/system/
-sudo sed -i 's/\r$//' /etc/systemd/system/f8-screener.service /etc/systemd/system/f8-api.service /etc/systemd/system/f8-web.service
+sudo cp "$APP_DIR/deploy/f8-heartbeat.service" /etc/systemd/system/
+sudo cp "$APP_DIR/deploy/f8-heartbeat.timer"   /etc/systemd/system/
+sudo sed -i 's/\r$//' /etc/systemd/system/f8-screener.service /etc/systemd/system/f8-api.service /etc/systemd/system/f8-web.service /etc/systemd/system/f8-heartbeat.service /etc/systemd/system/f8-heartbeat.timer
 # Remove the legacy Streamlit dashboard service if present on this host
 if [ -f /etc/systemd/system/f8-dashboard.service ]; then
     echo "→ Rimuovo servizio legacy f8-dashboard (Streamlit)..."
@@ -70,6 +72,7 @@ if [ -f /etc/systemd/system/f8-dashboard.service ]; then
 fi
 sudo systemctl daemon-reload
 sudo systemctl enable f8-screener f8-api f8-web
+sudo systemctl enable --now f8-heartbeat.timer
 
 echo ""
 echo "✓ Installazione completata."

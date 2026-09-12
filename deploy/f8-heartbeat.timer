@@ -1,0 +1,17 @@
+[Unit]
+Description=F8 F13 Screener — run the periodic Telegram reporter every 10 minutes
+Requires=f8-heartbeat.service
+
+[Timer]
+# Ten minutes is chosen for the health alarm, not for the digest: with
+# F13F_HEALTH_STALE_MINUTES at 30, a dead poller is reported within ~10 minutes
+# of crossing the threshold. The digest has its own age rule
+# (F13F_DIGEST_MIN_AGE_MINUTES), so running often does not mean sending often.
+OnBootSec=5min
+OnUnitActiveSec=10min
+# Do not fire every pending run at once after the host has been asleep or down.
+Persistent=false
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target

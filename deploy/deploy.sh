@@ -186,11 +186,13 @@ if [ "$REBUILD_DB" = true ]; then
     echo "→ Export CSV dashboard in data/exports..."
     "${APP_DIR}/venv/bin/python" -m src.cli.process_historical_13f export --export-scope both --output-dir data/exports
 fi
-sed -i 's/\r$//' deploy/f8-screener.service deploy/f8-api.service deploy/f8-web.service
+sed -i 's/\r$//' deploy/f8-screener.service deploy/f8-api.service deploy/f8-web.service deploy/f8-heartbeat.service deploy/f8-heartbeat.timer
 cp deploy/f8-screener.service /etc/systemd/system/
 cp deploy/f8-api.service /etc/systemd/system/
 cp deploy/f8-web.service /etc/systemd/system/
-sed -i 's/\r$//' /etc/systemd/system/f8-screener.service /etc/systemd/system/f8-api.service /etc/systemd/system/f8-web.service
+cp deploy/f8-heartbeat.service /etc/systemd/system/
+cp deploy/f8-heartbeat.timer /etc/systemd/system/
+sed -i 's/\r$//' /etc/systemd/system/f8-screener.service /etc/systemd/system/f8-api.service /etc/systemd/system/f8-web.service /etc/systemd/system/f8-heartbeat.service /etc/systemd/system/f8-heartbeat.timer
 if command -v ufw >/dev/null 2>&1; then
     ufw allow 5173/tcp >/dev/null 2>&1 || true
     ufw allow 9002/tcp >/dev/null 2>&1 || true
@@ -207,6 +209,9 @@ systemctl enable f8-screener f8-api f8-web >/dev/null 2>&1 || true
 systemctl restart f8-screener
 systemctl restart f8-api
 systemctl restart f8-web
+# The reporter is a timer, not a long-running service: enable --now starts the
+# timer (which then triggers the oneshot), rather than running the pass here.
+systemctl enable --now f8-heartbeat.timer >/dev/null 2>&1 || true
 # Remove the legacy Streamlit dashboard if it is still installed on a host
 # that pre-dates the React+FastAPI migration.
 if [ -f /etc/systemd/system/f8-dashboard.service ]; then
@@ -223,6 +228,7 @@ echo "   Commit: $LOCAL_COMMIT"
 echo "   Log live: ssh $VPS 'journalctl -u f8-screener -f'"
 echo "   API log: ssh $VPS 'journalctl -u f8-api -f'"
 echo "   Web log: ssh $VPS 'journalctl -u f8-web -f'"
+echo "   Reporter log: ssh $VPS 'journalctl -u f8-heartbeat -f'"
 echo "   Dashboard URL: http://77.42.70.26:5173"
 echo "   API URL:       http://77.42.70.26:9002"
 if [ "$REBUILD_DB" = true ]; then

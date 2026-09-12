@@ -130,7 +130,66 @@ a {
   box-shadow: 0 2px 8px rgba(30, 58, 138, 0.35);
 }
 
-/* Donate CTA — warm accent on the navy TopBar */
+/* TopBar — brand, page title and the two action pills on the navy bar */
+.f8-topbar {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1.25rem;
+  background: var(--f8-accent);
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.f8-topbar-brand {
+  font-size: 1.05rem;
+  flex: 0 0 auto;
+}
+
+.f8-topbar-page {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.8rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Shared geometry for the two action pills on the right of the bar */
+.f8-topbar-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 0 0 auto;
+  padding: 0.35rem 0.8rem;
+  min-height: 30px;
+  border-radius: 0.4rem;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: none;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+/* The Feedback pill is first in the cluster, so it carries the auto margin
+   that pushes both away from the page title. */
+.f8-topbar-pill.feedback-button {
+  margin-left: auto;
+}
+
+/* Ko-fi support CTA — warm accent on the navy TopBar. The class name is
+   internal; the visible label must stay "Support", never "Donate". */
+.donate-button {
+  border: 1px solid rgba(255, 191, 105, 0.7);
+  background: rgba(255, 191, 105, 0.12);
+  color: #ffbf69;
+}
+
 .donate-button:hover,
 .donate-button:focus-visible {
   background: #ffbf69;
@@ -141,6 +200,47 @@ a {
 
 .donate-button:focus-visible {
   box-shadow: 0 0 0 2px rgba(255, 191, 105, 0.45);
+}
+
+/* Feedback trigger — quieter than the Ko-fi CTA sitting next to it */
+.feedback-button {
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.feedback-button:hover,
+.feedback-button:focus-visible {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.8);
+  outline: none;
+}
+
+.feedback-button:focus-visible {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
+}
+
+/* The page title also heads the content below, so it is the thing to drop
+   first: the Feedback and Support pills must stay reachable at phone width. */
+@media (max-width: 620px) {
+  .f8-topbar-page {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .f8-topbar {
+    gap: 0.4rem;
+    padding: 0 0.6rem;
+  }
+
+  .f8-topbar-brand {
+    font-size: 0.95rem;
+  }
+
+  .f8-topbar-pill {
+    padding: 0.35rem 0.55rem;
+  }
 }
 
 /* Plotly charts — fluid width with optional horizontal scroll on narrow viewports */

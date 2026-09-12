@@ -1,5 +1,9 @@
 """
-Telegram notification service
+Telegram notification service.
+
+This module owns *delivery* only. What a message says is composed in
+``src.core.report_builder``, so the wording of an alert can be asserted in a
+test without mocking an HTTP call.
 """
 import logging
 import time
@@ -7,6 +11,7 @@ from datetime import datetime
 from typing import Dict, Optional
 import requests
 
+from src.core import report_builder
 from src.utils.message_bridge import save_message_to_viewer
 
 logger = logging.getLogger(__name__)
@@ -15,11 +20,19 @@ logger = logging.getLogger(__name__)
 class TelegramNotifier:
     """Service for sending Telegram notifications"""
 
-    def __init__(self, bot_token: str, chat_id: str, max_retries: int = 3, retry_delay: int = 60):
+    def __init__(
+        self,
+        bot_token: str,
+        chat_id: str,
+        max_retries: int = 3,
+        retry_delay: int = 60,
+        dashboard_base_url: str = '',
+    ):
         self.bot_token = bot_token
         self.chat_id = chat_id
         self.max_retries = max_retries
         self.retry_delay = retry_delay
+        self.dashboard_base_url = dashboard_base_url
         self.telegram_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
         self._disabled_due_to_unauthorized = False
 
@@ -71,13 +84,12 @@ class TelegramNotifier:
 
     @staticmethod
     def _format_date(date_str: str) -> str:
-        MONTHS_IT = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu',
-                     'lug', 'ago', 'set', 'ott', 'nov', 'dic']
+        """Italian date formatting, passing unparseable input straight through."""
         try:
-            dt = datetime.fromisoformat(date_str)
-            return f"{dt.day:02d} {MONTHS_IT[dt.month - 1]} {dt.year}, {dt.hour:02d}:{dt.minute:02d}"
+            datetime.fromisoformat(date_str)
         except (ValueError, TypeError):
             return date_str
+        return report_builder.fmt_datetime(date_str)
 
     def send_filing_alert(
         self,
@@ -102,23 +114,15 @@ class TelegramNotifier:
         Returns:
             True if message sent successfully
         """
-        message = (
-            f"🔔 <b>Nuovo Form 13F-HR Rilevato!</b>\n\n"
-            f"📊 <b>Fund:</b> {fund_name}\n"
-            f"🏢 <b>Filer:</b> {filer_name}\n"
-            f"📅 <b>Data:</b> {self._format_date(filing_date)}\n"
-            f"🔗 <b>Link:</b> <a href='{filing_url}'>Visualizza su EDGAR</a>"
+        message = report_builder.format_headline_alert(
+            fund_name=fund_name,
+            filer_name=filer_name,
+            filing_date=filing_date,
+            filing_url=filing_url,
+            dashboard_base_url=self.dashboard_base_url,
+            holdings_saved=holdings_saved,
+            portfolio_diff=portfolio_diff,
         )
-
-        if holdings_saved:
-            message += "\n\n✅ <b>Holdings salvate nel database</b>"
-
-        if portfolio_diff is not None:
-            from src.core.diff import format_diff_for_telegram
-            diff_text = format_diff_for_telegram(portfolio_diff)
-            if diff_text:
-                message += diff_text
-
         return self.send_message(message)
 
     def send_daily_summary(self, date: str, count: int, top_filers: list) -> bool:

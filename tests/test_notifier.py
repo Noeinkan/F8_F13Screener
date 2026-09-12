@@ -55,6 +55,7 @@ class TestSendFilingAlert:
             chat_id="123456",
             max_retries=1,
             retry_delay=0,
+            dashboard_base_url="http://dash.test:5173",
         )
 
     def test_basic_alert_contains_fund_name(self):
@@ -64,21 +65,24 @@ class TestSendFilingAlert:
             msg = mock_send.call_args[0][0]
             assert "Berkshire" in msg
 
-    def test_holdings_saved_line_added(self):
+    def test_alert_links_to_dashboard_and_edgar(self):
         notifier = self._make_notifier()
         with patch.object(notifier, "send_message", return_value=True) as mock_send:
-            notifier.send_filing_alert("Fund", "Fund Inc", "2026-05-01T00:00:00", "https://sec.gov/x", holdings_saved=True)
+            notifier.send_filing_alert("Fund", "Fund Inc", "2026-05-01T00:00:00", "https://sec.gov/x")
             msg = mock_send.call_args[0][0]
-            assert "Holdings" in msg
+            assert "http://dash.test:5173/fund-analysis?fund=Fund" in msg
+            assert "https://sec.gov/x" in msg
 
-    def test_holdings_saved_line_absent_when_false(self):
+    def test_alert_warns_when_holdings_missing(self):
         notifier = self._make_notifier()
         with patch.object(notifier, "send_message", return_value=True) as mock_send:
-            notifier.send_filing_alert("Fund", "Fund Inc", "2026-05-01T00:00:00", "https://sec.gov/x", holdings_saved=False)
+            notifier.send_filing_alert("Fund", "Fund Inc", "2026-05-01T00:00:00", "https://sec.gov/x",
+                                       holdings_saved=False)
             msg = mock_send.call_args[0][0]
-            assert "Holdings" not in msg
+            assert "holdings non ancora elaborate" in msg
 
-    def test_diff_section_appended_when_provided(self):
+    def test_alert_is_a_headline_not_a_full_diff(self):
+        """The detail belongs in the dashboard; the message carries the counts."""
         notifier = self._make_notifier()
         diff = {
             "new_positions": [{"cusip": "X", "issuer_name": "Apple", "shares": 100, "value_usd": 5000}],
@@ -90,15 +94,27 @@ class TestSendFilingAlert:
             notifier.send_filing_alert("Fund", "Fund Inc", "2026-05-01T00:00:00", "https://sec.gov/x",
                                        portfolio_diff=diff)
             msg = mock_send.call_args[0][0]
-            assert "NUOVE POSIZIONI" in msg
+            assert "+1 nuove" in msg
+            # The per-position listing stays out of Telegram entirely.
+            assert "NUOVE POSIZIONI" not in msg
+            assert "Apple" not in msg
 
-    def test_diff_section_absent_when_none(self):
+    def test_no_change_summary_when_diff_empty(self):
         notifier = self._make_notifier()
+        empty = {"new_positions": [], "closed_positions": [], "increased": [], "decreased": []}
         with patch.object(notifier, "send_message", return_value=True) as mock_send:
             notifier.send_filing_alert("Fund", "Fund Inc", "2026-05-01T00:00:00", "https://sec.gov/x",
-                                       portfolio_diff=None)
+                                       holdings_saved=True, portfolio_diff=empty)
             msg = mock_send.call_args[0][0]
-            assert "NUOVE POSIZIONI" not in msg
+            assert "nessuna variazione" in msg
+
+    def test_fund_name_with_ampersand_is_escaped(self):
+        """Telegram's HTML parser rejects a bare '&', and several funds have one."""
+        notifier = self._make_notifier()
+        with patch.object(notifier, "send_message", return_value=True) as mock_send:
+            notifier.send_filing_alert("Brown & Co", "Brown & Co", "2026-05-01T00:00:00", "https://sec.gov/x")
+            msg = mock_send.call_args[0][0]
+            assert "Brown &amp; Co" in msg
 
     def test_returns_send_message_result(self):
         notifier = self._make_notifier()

@@ -154,3 +154,53 @@ def test_needs_holdings_backfill_ignores_duckdb_errors_for_retry_later(caplog):
 
     assert needs_backfill is False
     assert "DuckDB dashboard temporaneamente non accessibile" in caplog.text
+
+# ---------------------------------------------------------------------------
+# Cross-path dedup: the two discovery routes must recognise each other's rows
+# ---------------------------------------------------------------------------
+
+ACC = "0000908834-26-000432"
+
+
+def test_seen_candidates_cover_padded_and_unpadded_cik():
+    """The feed reads '909661' from the URL, submissions uses '0000909661'.
+
+    Unless both spellings are probed the two paths never see each other's rows
+    and every tracked filing is alerted twice - which is exactly what happened
+    on 14 August 2026 (88 messages for 42 funds).
+    """
+    candidates = FilingProcessor._build_seen_candidates("feed", "909661", ACC, "fallback")
+
+    assert f"filing:909661:{ACC}" in candidates
+    assert f"filing:0000909661:{ACC}" in candidates
+    assert f"submissions:0000909661:{ACC}" in candidates
+    assert f"feed:909661:{ACC}" in candidates
+
+
+def test_seen_candidates_match_across_the_two_paths():
+    from_feed = FilingProcessor._build_seen_candidates("feed", "909661", ACC, "a")
+    from_submissions = FilingProcessor._build_seen_candidates("submissions", "0000909661", ACC, "b")
+
+    assert from_feed & from_submissions, "the two discovery paths must share a candidate"
+
+
+def test_entry_id_is_written_in_one_canonical_spelling():
+    from_feed = FilingProcessor._build_entry_id("feed", "909661", ACC, "a")
+    from_submissions = FilingProcessor._build_entry_id("submissions", "0000909661", ACC, "b")
+
+    assert from_feed == from_submissions == f"filing:0000909661:{ACC}"
+
+
+def test_entry_id_falls_back_when_accession_unknown():
+    assert FilingProcessor._build_entry_id("feed", "909661", "N/A", "the-fallback") == "the-fallback"
+    assert FilingProcessor._build_entry_id("feed", "909661", "", "the-fallback") == "the-fallback"
+
+
+def test_cik_variants_leaves_non_numeric_alone():
+    assert FilingProcessor._cik_variants("N/A") == {"N/A"}
+    assert FilingProcessor._cik_variants("") == {""}
+
+
+def test_seen_candidates_without_accession_use_the_fallback():
+    candidates = FilingProcessor._build_seen_candidates("feed", "909661", "N/A", "raw-entry-id")
+    assert candidates == {"raw-entry-id", "feed:raw-entry-id"}

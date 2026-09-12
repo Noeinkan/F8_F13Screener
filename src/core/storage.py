@@ -401,6 +401,33 @@ class Storage:
 
             return [dict(row) for row in cursor.fetchall()]
 
+    def get_matched_filings_between(self, start: str, end: str) -> List[Dict]:
+        """
+        Matched filings whose filing_date falls in [start, end].
+
+        Used to answer "how much of this quarter's wave has landed?". The cik
+        column holds both a padded and an unpadded spelling for historical rows,
+        so callers must normalise before counting distinct funds.
+
+        Args:
+            start: First date to include, YYYY-MM-DD
+            end: Last date to include, YYYY-MM-DD
+
+        Returns:
+            List of matched filing dictionaries, oldest first
+        """
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT entry_id, filer_name, cik, filing_date, acceptance_datetime
+                FROM seen_filings
+                WHERE matched = 1
+                AND DATE(filing_date) BETWEEN ? AND ?
+                ORDER BY filing_date ASC
+            """, (start, end))
+
+            return [dict(row) for row in cursor.fetchall()]
+
     def get_daily_summary_dates(self) -> List[str]:
         """
         Get dates that need daily summaries sent

@@ -10,12 +10,13 @@ import sys
 import os
 import subprocess
 from logging.handlers import RotatingFileHandler
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
 # Add project root to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
+from src.core import filing_calendar, notification_state
 from src.core.config import Config
 from src.core.dashboard_storage import DashboardStorage
 from src.core.sec_client import SECClient
@@ -25,14 +26,11 @@ from src.core.storage import Storage
 from src.core.diff import compute_portfolio_diff
 from src.core.telegram_commands import TelegramCommandHandler
 from src.core.paths import DASHBOARD_DB_FILE
+from src.utils.console import safe_print
 
 def _safe_print(msg: str) -> None:
     """Print to stdout tolerating non-encodable unicode on cp1252 consoles."""
-    try:
-        print(msg)
-    except UnicodeEncodeError:
-        enc = sys.stdout.encoding or 'ascii'
-        print(msg.encode(enc, errors='replace').decode(enc, errors='replace'))
+    safe_print(msg)
 
 
 def launch_telegram_viewer() -> bool:
@@ -141,7 +139,8 @@ class FilingProcessor:
             config.telegram_bot_token,
             config.telegram_chat_id,
             config.max_retries,
-            config.retry_delay
+            config.retry_delay,
+            dashboard_base_url=config.dashboard_base_url,
         )
         self.storage = Storage(config.holdings_db)
         self.dashboard_storage = DashboardStorage(DASHBOARD_DB_FILE)
@@ -169,18 +168,42 @@ class FilingProcessor:
             self.logger.warning(f"Impossibile salvare state file realtime: {e}")
 
     @staticmethod
+    def _canonical_cik(cik: str) -> str:
+        """The one spelling of a CIK we write, zero-padded to 10 digits."""
+        raw = (cik or '').strip()
+        return raw.zfill(10) if raw.isdigit() else raw
+
+    @staticmethod
+    def _cik_variants(cik: str) -> set[str]:
+        """Every spelling of ``cik`` the two discovery paths can produce.
+
+        The feed path reads the CIK out of the EDGAR URL, where it is unpadded
+        ('909661'); the submissions path uses the zero-padded key from
+        hedge_funds_config ('0000909661'). Unless the seen-check tries both,
+        neither path recognises the other's rows and every tracked filing is
+        alerted twice - once per path.
+        """
+        raw = (cik or '').strip()
+        variants = {raw}
+        if raw.isdigit():
+            digits = raw.lstrip('0') or '0'
+            variants.add(digits)
+            variants.add(digits.zfill(10))
+        return variants
+
+    @staticmethod
     def _build_entry_id(source: str, cik: str, accession_number: str, fallback: str) -> str:
         if accession_number and accession_number != 'N/A':
-            return f"filing:{cik}:{accession_number}"
+            return f"filing:{FilingProcessor._canonical_cik(cik)}:{accession_number}"
         return fallback
 
     @staticmethod
     def _build_seen_candidates(source: str, cik: str, accession_number: str, fallback: str) -> set[str]:
         if accession_number and accession_number != 'N/A':
             return {
-                f"filing:{cik}:{accession_number}",
-                f"submissions:{cik}:{accession_number}",
-                f"feed:{cik}:{accession_number}",
+                f"{prefix}:{variant}:{accession_number}"
+                for prefix in ('filing', 'submissions', 'feed')
+                for variant in FilingProcessor._cik_variants(cik)
             }
         return {fallback, f"{source}:{fallback}"}
 
@@ -218,10 +241,82 @@ class FilingProcessor:
         return True
 
     def process_filings_cycle(self):
-        """Primary filings cycle: submissions endpoint first, Atom feed fallback second."""
-        self.process_submissions()
-        if self.config.enable_atom_fallback:
-            self.process_feed_fallback()
+        """Primary filings cycle: submissions endpoint first, Atom feed fallback second.
+
+        Records the cycle in the shared health file on the way out. That file is
+        the poller's only proof of life: the out-of-process reporter reads it to
+        tell a quiet quarter apart from a crashed process.
+        """
+        totals = {'total': 0, 'matched': 0, 'sent': 0, 'filtered': 0, 'failed': 0}
+
+        try:
+            for stats in (self.process_submissions(), self._run_feed_fallback()):
+                if not stats:
+                    continue
+                totals['total'] += stats.get('total_checked', 0)
+                totals['matched'] += stats.get('matched', 0)
+                totals['sent'] += stats.get('sent', 0)
+                totals['filtered'] += stats.get('filtered', 0)
+                totals['failed'] += stats.get('failed', 0)
+        except Exception as e:
+            notification_state.record_cycle_error(str(e))
+            raise
+
+        notification_state.record_cycle(totals)
+
+    def _run_feed_fallback(self):
+        if not self.config.enable_atom_fallback:
+            return None
+        return self.process_feed_fallback()
+
+    def _dispatch_alert(
+        self,
+        fund_name: str,
+        filer_name: str,
+        filing_date: str,
+        filing_url: str,
+        holdings_saved: bool,
+        portfolio_diff,
+        entry_id: str,
+    ) -> bool:
+        """Send an alert now, or park it for the digest if a filing wave is on.
+
+        Around a quarterly deadline dozens of funds file within hours of each
+        other - 42 of them on 14 August 2026. One message per filing turns the
+        only informative days of the year into a wall nobody reads, so inside
+        the wave the alert is queued and the reporter folds it into a digest.
+        Outside a wave (a lone amendment, say) it goes straight out.
+        """
+        in_wave = self.config.enable_digest and filing_calendar.active_window(
+            date.today(),
+            days_before=self.config.digest_days_before,
+            days_after=self.config.digest_days_after,
+        )
+
+        if not in_wave:
+            return self.notifier.send_filing_alert(
+                fund_name,
+                filer_name,
+                filing_date,
+                filing_url,
+                holdings_saved,
+                portfolio_diff,
+            )
+
+        notification_state.queue_alert(
+            entry_id,
+            {
+                'fund_name': fund_name,
+                'filer_name': filer_name,
+                'filing_date': filing_date,
+                'filing_url': filing_url,
+                'holdings_saved': holdings_saved,
+                'portfolio_diff': portfolio_diff,
+                'queued_at': datetime.now().isoformat(timespec='seconds'),
+            },
+        )
+        self.logger.info("Alert accodato per il digest: %s", fund_name)
+        return True
 
     def process_submissions(self):
         """Process recent filings discovered via SEC submissions endpoint."""
@@ -345,13 +440,14 @@ class FilingProcessor:
                     acceptance_datetime=acceptance_datetime,
                 )
 
-                if self.notifier.send_filing_alert(
+                if self._dispatch_alert(
                     fund_name,
                     filer_name,
                     acceptance_datetime,
                     filing_url,
                     holdings_saved,
                     portfolio_diff,
+                    entry_id,
                 ):
                     stats['sent'] += 1
                 else:
@@ -380,6 +476,8 @@ class FilingProcessor:
             filtered=stats['filtered'],
         )
 
+        return stats
+
     def process_feed_fallback(self):
         """Process the current RSS feed as fallback/secondary monitoring."""
         self.logger.info(f"\n{'='*60}")
@@ -393,7 +491,7 @@ class FilingProcessor:
         # otherwise a transient SEC outage crashes the whole poller process.
         if not feed.get('entries'):
             self.logger.warning("Feed vuoto o non disponibile")
-            return
+            return None
 
         # Statistics
         stats = {
@@ -501,13 +599,14 @@ class FilingProcessor:
                 )
 
                 # Send notification (failure here won't cause re-processing)
-                if self.notifier.send_filing_alert(
+                if self._dispatch_alert(
                     matched_fund,
                     filer_name,
                     filing_date,
                     filing_url,
                     holdings_saved,
                     portfolio_diff,
+                    entry_id,
                 ):
                     stats['sent'] += 1
                 else:
@@ -532,6 +631,8 @@ class FilingProcessor:
             matched=stats['matched'],
             filtered=stats['filtered']
         )
+
+        return stats
 
     def _process_holdings(
         self,
@@ -735,6 +836,7 @@ def main():
 
     # Create processor
     processor = FilingProcessor(config)
+    notification_state.record_startup()
 
     # Shared state for command handler
     pause_event = threading.Event()       # set = polling paused
