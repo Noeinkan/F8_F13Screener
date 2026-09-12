@@ -8,6 +8,7 @@ import { DataTable } from "@/components/DataTable";
 import { KpiGrid } from "@/components/KpiCard";
 import { SectionHeader } from "@/components/SectionHeader";
 import { ExportLink } from "@/components/ExportLink";
+import { useIsDemo } from "@/demo/useDemoSession";
 import { AlertBanner } from "@/components/AlertBanner";
 import { ChartLoading, KpiLoading } from "@/components/LoadingState";
 import { formatDateValue } from "@/utils/dateFormat";
@@ -79,6 +80,7 @@ function toCount(value: number | string | null | undefined): number {
 
 export function OverviewPage() {
   const navigate = useNavigate();
+  const isDemo = useIsDemo();
   const [filter, setFilter] = useState("");
 
   const fundsQuery = useQuery({
@@ -253,11 +255,15 @@ export function OverviewPage() {
           caption="For each fund, we show only the latest available filing, with raw row count and CUSIP-normalized count. Select a row to open the fund workspace."
           right={
             <Group gap="md">
+              {/* The full export streams every row of the snapshot; the demo
+                  refuses it server-side, so do not offer it here either. */}
+              {isDemo ? null : (
               <ExportLink
                 href="/api/overview/exports/full"
                 label="Export full holdings CSV"
                 fileName="f8_13f_all_holdings.csv"
               />
+              )}
               <ExportLink
                 href="/api/overview/exports/latest"
                 label="Export latest snapshot CSV"

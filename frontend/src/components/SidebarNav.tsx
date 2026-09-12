@@ -15,6 +15,8 @@ type SidebarNavProps = {
   onRefresh: () => void;
   refreshing?: boolean;
   refreshMessage?: string | null;
+  /** The demo reads a frozen snapshot: there is nothing to refresh. */
+  hideRefresh?: boolean;
 };
 
 export function SidebarNav({
@@ -23,6 +25,7 @@ export function SidebarNav({
   onRefresh,
   refreshing,
   refreshMessage,
+  hideRefresh = false,
 }: SidebarNavProps) {
   return (
     <Stack gap="lg" p="md" style={{ background: "var(--f8-bg)", minHeight: "100%" }}>
@@ -49,10 +52,15 @@ export function SidebarNav({
 
       <FilingCalendar />
 
+      {/* Nothing to put here on the demo: no refresh to run, and the paths
+          this prints belong to somebody else's server. The demo banner already
+          says which snapshot is on screen. */}
+      {hideRefresh && !dbLive && !readPath ? null : (
       <div>
         <Text size="xs" tt="uppercase" fw={700} c="dimmed" mb="sm">
           Admin
         </Text>
+        {hideRefresh ? null : (
         <button
           type="button"
           onClick={onRefresh}
@@ -70,7 +78,8 @@ export function SidebarNav({
         >
           {refreshing ? "Refreshing…" : "Refresh data"}
         </button>
-        {refreshMessage ? (
+        )}
+        {refreshMessage && !hideRefresh ? (
           <Text
             size="xs"
             c="dimmed"
@@ -91,6 +100,7 @@ export function SidebarNav({
           </Text>
         ) : null}
       </div>
+      )}
 
       <Text size="xs" c="dimmed" mt="auto">
         F8 13F Screener — hedge fund 13F tracker

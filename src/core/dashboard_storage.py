@@ -49,13 +49,26 @@ def _connect_with_lock_retry(db_path: str, **kwargs):
 class DashboardStorage:
     """DuckDB storage used by historical processing and Streamlit dashboard."""
 
-    def __init__(self, db_path: Path):
+    def __init__(self, db_path: Path, read_only: bool = False):
+        """``read_only`` opens the file without taking DuckDB's write lock.
+
+        DuckDB allows one writer at a time per file, so a writable connection
+        per query means the several requests that make up one page load queue
+        behind each other and, past the retry budget, fail. A read-only
+        connection takes no such lock and any number can be open at once, which
+        is what a frozen snapshot wants -- nothing on the read path writes.
+
+        The default is unchanged, so the historical pipeline still gets the
+        writable connection it needs.
+        """
         self.db_path = Path(db_path)
-        self._init_database()
+        self.read_only = read_only
+        if not read_only:
+            self._init_database()
 
     @contextmanager
     def _get_connection(self):
-        conn = _connect_with_lock_retry(str(self.db_path))
+        conn = _connect_with_lock_retry(str(self.db_path), read_only=self.read_only)
         try:
             yield conn
         finally:

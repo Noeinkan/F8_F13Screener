@@ -1,0 +1,67 @@
+# 13f — the public demo of the 13F screener (FastAPI serving its own React bundle).
+# Secrets come from /opt/sites/13f/.env (0600, root-owned, never in git).
+services:
+  web:
+    build:
+      # Context is the site directory, not the checkout, so the Dockerfile
+      # lives outside the cloned repo and .dockerignore can keep .env and
+      # repo/.git out of the build context entirely.
+      context: .
+      dockerfile: Dockerfile
+    image: site-13f:${SITE_TAG:-latest}
+    container_name: site-13f-web
+    env_file:
+      - .env
+    environment:
+      # Demo mode is the kill switch. Set it to false here and redeploy and the
+      # container serves the ordinary dashboard with no gate -- which is why the
+      # snapshot path below is equally explicit: nothing about this deployment
+      # should be able to fall back to a live database it does not have.
+      DEMO_MODE: "true"
+      F8_DASHBOARD_DB: /app/demo/fixtures/13f_demo.duckdb
+      F8_STATIC_DIR: /app/frontend/dist
+      DEMO_PUBLIC_URL: https://13f.demos.noeinsolutions.com
+      API_SERVER_ADDRESS: 0.0.0.0
+      API_SERVER_PORT: "8000"
+    networks:
+      - edge
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      # The API reads through a private copy of the snapshot; at ~10 MB it is
+      # cheaper to hold in RAM than to give the container a writable layer.
+      - /app/cache:size=64m,mode=1777
+      # src/core/paths.py creates these at import time. They exist in the image
+      # already, so nothing has to be written -- but mounting them keeps that
+      # true even if that list grows, instead of turning into a crash on boot.
+      - /app/src/core/data:size=16m,mode=1777
+      - /app/src/core/logs:size=16m,mode=1777
+      - /app/src/core/config:size=1m,mode=1777
+      - /tmp:mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 1g
+    pids_limit: 256
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "python -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=5).status==200 else 1)\"",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      # Loading pandas and warming the snapshot copy takes a few seconds; a
+      # shorter window would mark a healthy container unhealthy on every start.
+      start_period: 60s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  edge:
+    external: true

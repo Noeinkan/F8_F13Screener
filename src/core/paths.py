@@ -14,6 +14,10 @@ REALTIME_DATA_DIR = DATA_DIR / "realtime"
 HISTORICAL_DATA_DIR = DATA_DIR / "historical"
 MESSAGES_DATA_DIR = DATA_DIR / "messages"
 CACHE_DIR = DATA_DIR / "cache"
+NOTIFY_DIR = REALTIME_DATA_DIR / "notifications"
+# One file per pending alert. The poller writes them and the reporter deletes
+# them after sending, so the two processes never contend over a shared file.
+NOTIFY_QUEUE_DIR = NOTIFY_DIR / "queue"
 
 # Log directory
 LOGS_DIR = PROJECT_ROOT / "logs"
@@ -32,6 +36,8 @@ for directory in [
     CACHE_DIR,
     LOGS_DIR,
     CONFIG_DIR,
+    NOTIFY_DIR,
+    NOTIFY_QUEUE_DIR,
 ]:
     directory.mkdir(parents=True, exist_ok=True)
 
@@ -40,7 +46,16 @@ LAST_CHECK_FILE = str(REALTIME_DATA_DIR / "last_13f_check_v2.json")
 REALTIME_HOLDINGS_CSV = str(REALTIME_DATA_DIR / "13f_holdings_tracker.csv")
 REALTIME_LOG_FILE = str(LOGS_DIR / "13f_alerts.log")
 HOLDINGS_DB_FILE = DATA_DIR / "13f_holdings.db"
-DASHBOARD_DB_FILE = DATA_DIR / "13f_dashboard.duckdb"
+# The dashboard DuckDB can be pointed elsewhere with F8_DASHBOARD_DB. The
+# public demo uses it to read the frozen snapshot in demo/fixtures/ instead of
+# the live database; it is equally the way to run the dashboard against a copy
+# without moving the real file.
+_DASHBOARD_DB_OVERRIDE = (os.getenv("F8_DASHBOARD_DB") or "").strip()
+DASHBOARD_DB_FILE = (
+    Path(_DASHBOARD_DB_OVERRIDE).expanduser()
+    if _DASHBOARD_DB_OVERRIDE
+    else DATA_DIR / "13f_dashboard.duckdb"
+)
 
 # Historical processing files
 CATALOG_FILE = str(
@@ -61,6 +76,13 @@ PROCESSING_CHECKPOINT_FILE = str(
 
 # Message files
 MESSAGE_LOG_FILE = str(MESSAGES_DATA_DIR / "telegram_messages.json")
+
+# Notification state. NOTIFY_HEALTH_FILE is the poller's proof of life, written
+# every cycle and read by the out-of-process reporter; NOTIFY_SENT_FILE records
+# which once-per-event messages (a given quarter's reminder, today's heartbeat)
+# have already gone out, so a restart cannot send them twice.
+NOTIFY_HEALTH_FILE = NOTIFY_DIR / "health.json"
+NOTIFY_SENT_FILE = NOTIFY_DIR / "sent_markers.json"
 
 # Config files
 ENV_EXAMPLE_FILE = str(CONFIG_DIR / ".env.example")

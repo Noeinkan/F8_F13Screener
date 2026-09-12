@@ -1,0 +1,58 @@
+{
+  "manifestVersion": 1,
+
+  "slug": "f8-f13-screener",
+  "repo": "F8_F13Screener",
+  "name": "13F Screener",
+
+  "archetype": "dashboard",
+  "kind": "sandbox",
+  "status": "live",
+
+  "url": "https://13f.demos.noeinsolutions.com/",
+  "note": "Leave an email, get a link back. Read-only; filings to 1 June 2026.",
+  "noteIt": "Lasci una email e ricevi un link. Sola lettura; filing fino al 1 giugno 2026.",
+
+  "data": {
+    "source": "demo/fixtures/13f_demo.duckdb",
+    "snapshot": "2026-06-01",
+    "capturedAt": "2026-09-12",
+    "rows": 223501,
+    "filings": 239,
+    "funds": 52,
+    "quarters": ["2025-Q3", "2025-Q4", "2026-Q1", "2026-Q2"],
+    "refresh": "Run `python -m demo.freeze_demo_data` against a current live DuckDB, commit demo/fixtures/, then `bash deploy-site.sh`."
+  },
+
+  "killSwitch": {
+    "server": "DEMO_MODE=false",
+    "client": null,
+    "note": "Unset or false and the demo routes 404, nothing can be minted, and the API reads the live database again."
+  },
+
+  "limits": {
+    "ttlMinutes": 240,
+    "perSessionActions": null,
+    "globalDailyActions": 200,
+    "perIpPerHour": 5
+  },
+
+  "auth": {
+    "kind": "email-link",
+    "note": "An address gets a signed link, good for 30 minutes; following it mints a 4-hour session cookie. Nothing is stored: both tokens are stateless HMACs. The gate proves someone can read an inbox — it is not protecting the data, which is public SEC filings."
+  },
+
+  "resets": "Read-only against a frozen snapshot — nothing to reset. Sessions expire on their own and leave nothing behind.",
+  "costPerVisit": "none beyond the access email",
+
+  "runLocally": "DEMO_MODE=true DEMO_SESSION_SECRET=dev DEMO_PUBLIC_URL=http://localhost:5173 F8_DASHBOARD_DB=demo/fixtures/13f_demo.duckdb python -m src.api",
+  "shots": [
+    "f8-f13-screener-demo-gate.jpg",
+    "f8-f13-screener.jpg",
+    "f8-f13-screener-fund.jpg",
+    "f8-f13-screener-consensus.jpg",
+    "f8-f13-screener-holdings.jpg"
+  ],
+  "registeredOnLanding": false,
+  "updatedAt": "2026-09-12"
+}

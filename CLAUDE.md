@@ -101,6 +101,49 @@ If the DuckDB is stale or missing, rebuild with `rtk python -m src.cli.process_h
 Dashboard analytics read from `src/core/data/13f_dashboard.duckdb` (DuckDB).
 API layer lives in `src/api/`; React UI in `frontend/`.
 
+## Notifications
+
+Telegram is the only channel. Two processes send:
+
+- **`f8-screener`** sends a *single* filing alert — a headline (fund, date,
+  `+3 nuove · −2 chiuse · ~5 variate`) with deep links to the dashboard and
+  EDGAR. The per-position detail deliberately stays in the dashboard.
+- **`f8-heartbeat`** (systemd timer, every 10 min) sends everything periodic:
+  the wave digest, the daily heartbeat, the dead-poller alarm, the pre-deadline
+  reminder and wave progress.
+
+The reporter runs out of process on purpose: a poller cannot report its own
+death. If `f8-screener` crashes or hangs, the timer still fires, sees no fresh
+cycle in `health.json`, and raises the alarm.
+
+During a filing wave (`filing_calendar.active_window()`, default deadline −2d to
++7d) alerts are queued to `data/realtime/notifications/queue/` and folded into a
+digest instead of being sent one by one — 42 funds filed on 14 Aug 2026.
+Outside a wave a lone filing goes out immediately.
+
+```powershell
+# Preview what the reporter would send, without sending it
+rtk python -m src.cli.notify_reporter --dry-run
+
+# On the VPS
+systemctl list-timers f8-heartbeat.timer
+journalctl -u f8-heartbeat -f
+```
+
+Tuning is all env vars on `f8-heartbeat.service` (`F13F_HEARTBEAT_HOUR`,
+`F13F_HEALTH_STALE_MINUTES`, `F13F_DIGEST_MIN_AGE_MINUTES`,
+`F13F_DIGEST_MAX_PENDING`, `F13F_REMINDER_DAYS_BEFORE`,
+`F13F_DASHBOARD_BASE_URL`). See `src/core/config.py` for defaults.
+
+## Public demo
+
+`https://13f.demos.noeinsolutions.com/` runs this dashboard read-only over
+`demo/fixtures/13f_demo.duckdb`, a frozen four-quarter snapshot, behind an email
+gate. `DEMO_MODE` is the kill switch: unset, nothing in `src/api/demo.py` runs
+and the API reads the live database as always. Full detail, every env var and
+how to refresh the snapshot: [docs/DEMO.md](docs/DEMO.md). Deployed with
+`bash deploy-site.sh` (not `deploy.sh`, which is the live poller).
+
 ## Config
 
 - Secrets live in `config_secret.py` using `config_secret.template.py` as reference.
@@ -120,7 +163,14 @@ API layer lives in `src/api/`; React UI in `frontend/`.
 - `src/web/dashboard.py`: legacy Streamlit dashboard (no longer deployed on the Hetzner VPS; opt-in only locally via `python -m src.main dashboard-streamlit`).
 - `deploy/f8-api.service`, `deploy/f8-web.service`: systemd units for the FastAPI API (port 9002 on Hetzner) and the Vite/React web UI (port 5173).
 - `deploy/f8-screener.service`: systemd unit for the realtime poller.
+- `deploy/f8-heartbeat.service` + `.timer`: the periodic reporter, every 10 min.
+- `src/core/filing_calendar.py`: quarterly deadlines; decides when to batch.
+- `src/core/report_builder.py`: the text of every message (pure, no I/O).
+- `src/core/notification_state.py`: health file + alert queue shared with the reporter.
+- `src/cli/notify_reporter.py`: digests, heartbeat, alarms, reminders.
 - `src/core/hedge_funds_config.py`: tracked funds list.
+- `src/api/demo.py`, `src/api/demo_mail.py`, `src/api/routers/demo.py`: public demo mode — email gate, frozen-snapshot settings, blocked routes.
+- `demo/`: the demo's fixtures, its freeze script and `demo.json`. See [docs/DEMO.md](docs/DEMO.md).
 
 ## Rules
 
@@ -128,6 +178,7 @@ API layer lives in `src/api/`; React UI in `frontend/`.
 - `HoldingsParser` tries XML first, then HTML fallback.
 - `paths.py` is the single source of truth for data paths and directory creation.
 - `seen_filings` is written before Telegram notification; send failures must not cause re-processing.
+- The CIK in `seen_filings` exists in both a padded and an unpadded spelling; normalize before counting distinct funds or deduping across discovery paths.
 - Dashboard comparisons are normalized positions, not raw rows.
 - Normalization key is CUSIP when present, otherwise `issuer_name|share_class|put_call`.
 - `compute_portfolio_diff()` stays Telegram-friendly; dashboard history uses `compute_detailed_portfolio_diff()` and `compute_quarterly_history_transitions()`.

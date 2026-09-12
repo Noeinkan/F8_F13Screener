@@ -1,0 +1,18 @@
+{
+  "snapshotDate": "2026-06-01",
+  "capturedAt": "2026-09-12",
+  "quartersKept": 4,
+  "quarters": [
+    "2025-Q3",
+    "2025-Q4",
+    "2026-Q1",
+    "2026-Q2"
+  ],
+  "rows": 223501,
+  "funds": 52,
+  "filings": 239,
+  "earliestFilingDate": "2025-07-08",
+  "latestFilingDate": "2026-06-01",
+  "sizeBytes": 9973760,
+  "source": "src/core/data/13f_dashboard.duckdb"
+}

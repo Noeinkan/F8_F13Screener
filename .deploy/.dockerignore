@@ -1,0 +1,8 @@
+# Keep secrets and history out of the build context.
+.env
+.env.*
+*.log
+repo/.git
+repo/node_modules
+repo/.env
+repo/.env.*

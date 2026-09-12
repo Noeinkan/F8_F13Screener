@@ -1,0 +1,21 @@
+{
+  "slug": "13f",
+  "domain": "13f.demos.noeinsolutions.com",
+  "repo": "https://github.com/Noeinkan/F8_F13Screener.git",
+  "ref": "main",
+
+  "type": "node",
+  "buildCommand": "",
+  "outputDir": "",
+  "spa": true,
+
+  "port": 8000,
+  "healthPath": "/api/health",
+  "expectStatus": 200,
+
+  "memLimit": "1g",
+  "maxBody": "4m",
+  "readTimeout": "120s",
+
+  "notes": "The public demo of the 13F screener, not the screener itself. One container: a Node stage builds the React bundle, a Python stage runs FastAPI, and that one process serves both the API and the built page (F8_STATIC_DIR) because the edge proxies one hostname to one port. Type is 'node' because the pipeline has no Python type; the Dockerfile here is custom and ignores BUILD_COMMAND/START_COMMAND. Reads demo/fixtures/13f_demo.duckdb -- a frozen four-quarter snapshot committed in the repo -- read-only, never the live database, and never SEC. Entry is an email gate: an address gets a signed link, the link mints a session cookie. Secrets (DEMO_SESSION_SECRET and the DEMO_SMTP_* set) live in /opt/sites/13f/.env and nothing here. Stateless: the only writes are a temporary copy of the snapshot into a tmpfs. memLimit is 1g rather than the 512m default because the API pulls in pandas, and consensus aggregates ~140k position transitions in memory."
+}

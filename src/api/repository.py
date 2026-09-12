@@ -75,7 +75,12 @@ def _get_storage_cached(db_path_raw: str, snapshot_version: int) -> DashboardSto
     if not db_path.exists():
         raise DashboardDbError(f"Database not found: {db_path}")
 
-    storage = DashboardStorage(db_path)
+    # The demo serves a frozen snapshot to concurrent strangers, so it opens
+    # the file read-only: DuckDB's single-writer lock is what turns one page
+    # load's worth of parallel requests into a row of 503s.
+    from src.api import demo
+
+    storage = DashboardStorage(db_path, read_only=demo.is_enabled())
     health = storage.get_health_snapshot()
     if health["total_rows"] > 0 and health["only_all_fund"]:
         raise DashboardDbError(

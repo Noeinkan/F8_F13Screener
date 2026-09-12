@@ -6,7 +6,7 @@ import logging
 
 from fastapi import APIRouter, HTTPException
 
-from src.api import refresh
+from src.api import demo, refresh
 from src.api.deps import raise_db_error
 from src.api.exceptions import DashboardDbError
 from src.api.repository import (
@@ -35,6 +35,18 @@ def health() -> dict[str, str]:
 
 @router.get("/api/db/state")
 def db_state() -> dict[str, object]:
+    # The sidebar prints these. On the public demo they would be absolute paths
+    # on someone else's server, so demo mode answers with the snapshot label
+    # the visitor actually cares about instead.
+    if demo.is_enabled():
+        meta = demo.snapshot_meta()
+        label = meta.get("latestFilingDate") or "frozen snapshot"
+        return {
+            "db_live": f"Frozen demo snapshot (filings to {label})",
+            "read_path": "read-only",
+            "warning": None,
+            "snapshot_path": None,
+        }
     try:
         _, reader_path, warning = initialize_dashboard_storage()
         db_path_raw, _, _ = get_dashboard_db_state()
@@ -58,6 +70,16 @@ def refresh_cache() -> dict[str, object]:
     If a refresh is already running, returns the in-flight job without
     starting a second one.
     """
+    # Also guarded by the demo gate middleware; kept here so the refusal holds
+    # for any caller that reaches the router without passing through it.
+    if demo.is_enabled():
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "code": "demo_unavailable",
+                "message": demo.BLOCKED_PATHS["/api/cache/refresh"],
+            },
+        )
     try:
         job = refresh.start_refresh(on_success=_on_refresh_success)
     except RuntimeError as exc:

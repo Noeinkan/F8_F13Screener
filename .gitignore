@@ -89,3 +89,12 @@ frontend/tsconfig.tsbuildinfo
 
 # Claude / Cursor local config
 .claude/settings.local.json
+
+# Screenshot runs (screenshot-kit)
+.shots/
+
+# Site deploy (hetzner-site): secrets live on the server, never here.
+.deploy/.env
+
+# Screenshot output (the demo set; .shots/ is already listed above).
+.shots-demo/

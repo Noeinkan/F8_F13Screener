@@ -5,6 +5,8 @@ import { useState } from "react";
 import { apiGet, apiPost } from "@/api/client";
 import { SidebarNav } from "@/components/SidebarNav";
 import { TopBar } from "@/components/TopBar";
+import { DemoBanner } from "@/demo/DemoBanner";
+import { useIsDemo } from "@/demo/useDemoSession";
 
 const PAGE_TITLES: Record<string, string> = {
   "/": "Overview",
@@ -42,6 +44,7 @@ const POLL_TIMEOUT_MS = 30 * 60 * 1000; // 30 min, the full pipeline can be long
 export function AppShellLayout() {
   const location = useLocation();
   const queryClient = useQueryClient();
+  const isDemo = useIsDemo();
   const pageTitle = PAGE_TITLES[location.pathname] ?? "Dashboard";
   const [refreshMessage, setRefreshMessage] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -114,14 +117,16 @@ export function AppShellLayout() {
     >
       <AppShell.Navbar p={0}>
         <SidebarNav
-          dbLive={dbState.data?.db_live}
-          readPath={dbState.data?.read_path}
+          dbLive={isDemo ? undefined : dbState.data?.db_live}
+          readPath={isDemo ? undefined : dbState.data?.read_path}
           onRefresh={handleRefresh}
           refreshing={refreshing}
           refreshMessage={refreshMessage}
+          hideRefresh={isDemo}
         />
       </AppShell.Navbar>
       <AppShell.Main>
+        <DemoBanner />
         <TopBar pageTitle={pageTitle} />
         <div style={{ padding: "1rem 1.25rem 2rem" }}>
           <Outlet />
