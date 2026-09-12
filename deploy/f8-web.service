@@ -1,19 +1,23 @@
 [Unit]
 Description=F8 F13 Screener — Vite/React dashboard web UI
-After=network-online.target f8-api.service
+After=network-online.target f8-api.service docker.service
 Wants=network-online.target
-# Vite needs the API ready before it starts proxying /api requests.
+# Vite needs the API ready before it starts proxying /api requests, and the
+# Docker bridge up before it can listen on it.
 
 [Service]
 Type=simple
 User=root
 WorkingDirectory=/opt/F8_F13Screener/frontend
 Environment=PYTHONUNBUFFERED=1
-# Vite dev server bound to all interfaces on port 5173.
+# Vite listens on the Docker bridge (172.17.0.1, what host.docker.internal
+# resolves to inside the nginx container) and nowhere else. The public way in is
+# https://13f.noeinsolutions.com via deploy/edge/f8-live.conf, behind a
+# password that an open :5173 on the public address would bypass.
 # The `/api` proxy (see frontend/vite.config.ts) forwards to F8_API_PROXY_TARGET.
 # Port 9001 is occupied on this host by another FastAPI app, so we point F8 at 9002.
 Environment=F8_API_PROXY_TARGET=http://127.0.0.1:9002
-ExecStart=/usr/bin/npx --no-install vite --host 0.0.0.0 --port 5173 --strictPort
+ExecStart=/usr/bin/npx --no-install vite --host 172.17.0.1 --port 5173 --strictPort
 Restart=always
 RestartSec=15
 StandardOutput=journal

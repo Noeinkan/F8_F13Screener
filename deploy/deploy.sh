@@ -95,6 +95,18 @@ if [ -n "$(git status --porcelain)" ]; then
     exit 1
 fi
 
+# The units bind the dashboard to the server itself; the only way in is the
+# password-protected vhost from deploy/edge-install.sh. Deploying before that
+# vhost exists would leave the dashboard unreachable, so refuse. 401 is the
+# healthy answer: nginx is there and asking for the login.
+EDGE_URL="https://13f.noeinsolutions.com/"
+EDGE_CODE="$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$EDGE_URL" || true)"
+if [ "$EDGE_CODE" != "401" ]; then
+    echo "Errore: $EDGE_URL risponde '$EDGE_CODE' invece di 401."
+    echo "        Il vhost del dashboard non e' installato: esegui prima 'bash deploy/edge-install.sh --set-password'."
+    exit 1
+fi
+
 if [ "$SKIP_TESTS" = false ]; then
     echo "→ Running local tests before deploy..."
 
@@ -193,10 +205,6 @@ cp deploy/f8-web.service /etc/systemd/system/
 cp deploy/f8-heartbeat.service /etc/systemd/system/
 cp deploy/f8-heartbeat.timer /etc/systemd/system/
 sed -i 's/\r$//' /etc/systemd/system/f8-screener.service /etc/systemd/system/f8-api.service /etc/systemd/system/f8-web.service /etc/systemd/system/f8-heartbeat.service /etc/systemd/system/f8-heartbeat.timer
-if command -v ufw >/dev/null 2>&1; then
-    ufw allow 5173/tcp >/dev/null 2>&1 || true
-    ufw allow 9002/tcp >/dev/null 2>&1 || true
-fi
 # Install frontend deps if missing. `npm ci` is reproducible but only when a
 # committed lockfile matches package.json exactly; fall back to `npm install`
 # otherwise so a fresh checkout never breaks the deploy.
@@ -229,8 +237,7 @@ echo "   Log live: ssh $VPS 'journalctl -u f8-screener -f'"
 echo "   API log: ssh $VPS 'journalctl -u f8-api -f'"
 echo "   Web log: ssh $VPS 'journalctl -u f8-web -f'"
 echo "   Reporter log: ssh $VPS 'journalctl -u f8-heartbeat -f'"
-echo "   Dashboard URL: http://77.42.70.26:5173"
-echo "   API URL:       http://77.42.70.26:9002"
+echo "   Dashboard URL: https://13f.noeinsolutions.com  (login richiesto)"
 if [ "$REBUILD_DB" = true ]; then
     echo "   DB rebuilt: $APP_DIR/src/core/data/13f_dashboard.duckdb"
 fi

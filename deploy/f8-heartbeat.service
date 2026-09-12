@@ -17,7 +17,7 @@ WorkingDirectory=/opt/F8_F13Screener
 Environment=PYTHONUNBUFFERED=1
 Environment=PYTHONPATH=/opt/F8_F13Screener
 # Deep links in every alert point at the public dashboard, not at localhost.
-Environment=F13F_DASHBOARD_BASE_URL=http://77.42.70.26:5173
+Environment=F13F_DASHBOARD_BASE_URL=https://13f.noeinsolutions.com
 ExecStart=/opt/F8_F13Screener/venv/bin/python -m src.cli.notify_reporter
 StandardOutput=journal
 StandardError=journal

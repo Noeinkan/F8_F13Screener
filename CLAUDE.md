@@ -84,13 +84,19 @@ recommended entrypoint on Windows because of the pre-flight cleanup.
 
 ### Hetzner VPS deployment
 
-On `77.42.70.26` the dashboard is exposed via two systemd services
-(`f8-api` on 9002, `f8-web` on 5173) and UFW allows 5173 + 9002. The
-legacy Streamlit service (`f8-dashboard.service`, port 8502) has been
-**removed from the repo and disabled on the host** — the canonical URLs are:
+On `77.42.70.26` the dashboard runs as two systemd services that do **not**
+answer from the internet: `f8-api` on `127.0.0.1:9002` and `f8-web` (Vite) on
+the Docker bridge `172.17.0.1:5173`. The only way in is the shared nginx edge:
 
-- Web UI: `http://77.42.70.26:5173/`
-- API:   `http://77.42.70.26:9002/`
+- Dashboard: `https://13f.noeinsolutions.com/` — password protected (login `beta`)
+
+The vhost and its password live in `deploy/edge/` and are installed with
+`bash deploy/edge-install.sh` (`--set-password` to change the login). Run it
+before `deploy.sh` on a host that lacks it; `deploy.sh` refuses to deploy while
+that URL does not answer 401. The legacy Streamlit service
+(`f8-dashboard.service`, port 8502) has been **removed from the repo and
+disabled on the host**. Not to be confused with the public demo on
+`13f.demos.noeinsolutions.com` (see below).
 
 `deploy/deploy.sh` and `deploy/install.sh` install Node.js + frontend deps,
 register `f8-api.service` and `f8-web.service`, and remove the legacy
