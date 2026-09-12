@@ -5,7 +5,7 @@ import { formatDateValue } from "@/utils/dateFormat";
 
 const DISMISS_KEY = "f8-demo-banner-dismissed";
 
-const BUILDS_URL = "https://noeinsolutions.com/en/builds.html#f8-f13-screener";
+const BUILDS_URL = "https://noeinsolutions.com/builds.html";
 
 function readDismissed(): boolean {
   try {

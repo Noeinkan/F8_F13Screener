@@ -182,7 +182,7 @@ export function DemoGate({ children }: { children: React.ReactNode }) {
         <Text size="xs" c="dimmed">
           More of these at{" "}
           <a
-            href="https://noeinsolutions.com/en/builds.html#f8-f13-screener"
+            href="https://noeinsolutions.com/builds.html"
             style={{ color: "var(--f8-accent)", fontWeight: 600 }}
           >
             noeinsolutions.com/builds
