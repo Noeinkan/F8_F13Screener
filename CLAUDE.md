@@ -105,12 +105,19 @@ API layer lives in `src/api/`; React UI in `frontend/`.
 
 Telegram is the only channel. Two processes send:
 
-- **`f8-screener`** sends a *single* filing alert — a headline (fund, date,
-  `+3 nuove · −2 chiuse · ~5 variate`) with deep links to the dashboard and
-  EDGAR. The per-position detail deliberately stays in the dashboard.
+- **`f8-screener`** sends a *single* filing alert — a headline (fund, quarter,
+  date, `+3 nuove · −2 chiuse · ~5 variate`, the one biggest move in dollars,
+  a ✏️ flag on 13F-HR/A amendments) with two buttons: **Confronto** (the
+  dashboard's Compare tab pinned to this filing vs the previous one) and
+  **EDGAR**. The per-position detail deliberately stays in the dashboard.
 - **`f8-heartbeat`** (systemd timer, every 10 min) sends everything periodic:
-  the wave digest, the daily heartbeat, the dead-poller alarm, the pre-deadline
-  reminder and wave progress.
+  the wave digest (with "X di N fondi" progress in its header), the daily
+  heartbeat and wave progress (both *silent*: no phone buzz), the dead-poller
+  alarm and the pre-deadline reminder. Wave progress only goes out when the
+  count moved and no digest already reported it.
+- Both services need `F13F_DASHBOARD_BASE_URL`, or links fall back to
+  `127.0.0.1`. If Telegram refuses a button URL, the notifier resends the same
+  links as inline text instead of dropping the message.
 
 The reporter runs out of process on purpose: a poller cannot report its own
 death. If `f8-screener` crashes or hangs, the timer still fires, sees no fresh
@@ -122,7 +129,7 @@ digest instead of being sent one by one — 42 funds filed on 14 Aug 2026.
 Outside a wave a lone filing goes out immediately.
 
 ```powershell
-# Preview what the reporter would send, without sending it
+# Preview what the reporter would send, without sending it or touching the queue/markers
 rtk python -m src.cli.notify_reporter --dry-run
 
 # On the VPS

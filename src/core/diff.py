@@ -218,6 +218,8 @@ def compute_portfolio_diff(
                 'old_shares': entry['old_shares'],
                 'new_shares': entry['new_shares'],
                 'pct_change': entry['pct_change'],
+                'old_value_usd': entry['old_value_usd'],
+                'new_value_usd': entry['new_value_usd'],
             }
             for entry in detailed['increased']
         ],
@@ -228,6 +230,8 @@ def compute_portfolio_diff(
                 'old_shares': entry['old_shares'],
                 'new_shares': entry['new_shares'],
                 'pct_change': entry['pct_change'],
+                'old_value_usd': entry['old_value_usd'],
+                'new_value_usd': entry['new_value_usd'],
             }
             for entry in detailed['decreased']
         ],

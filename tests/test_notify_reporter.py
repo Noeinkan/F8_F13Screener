@@ -33,11 +33,25 @@ def reporter(tmp_path):
     return Reporter(config)
 
 
+class Sent(list):
+    """Texts that went to Telegram; ``options`` holds each send's buttons and silence."""
+
+    def __init__(self):
+        super().__init__()
+        self.options = []
+
+
 @pytest.fixture
 def sent(reporter):
     """Capture what would go to Telegram."""
-    messages = []
-    with patch.object(reporter.notifier, "send_message", side_effect=lambda m: messages.append(m) or True):
+    messages = Sent()
+
+    def fake_send(message, buttons=None, silent=False):
+        messages.append(message)
+        messages.options.append({"buttons": buttons or [], "silent": silent})
+        return True
+
+    with patch.object(reporter.notifier, "send_message", side_effect=fake_send):
         yield messages
 
 
@@ -70,6 +84,7 @@ def test_digest_goes_out_once_the_queue_has_aged(reporter, sent):
     assert len(sent) == 1
     assert "1 nuovi filing" in sent[0]
     assert notification_state.pending_alert_count() == 0
+    assert sent.options[0]["buttons"] == [("📊 Apri il dashboard", "http://dash.test:5173/")]
 
 
 def test_a_burst_is_not_held_back_for_the_age_rule(reporter, sent):
@@ -89,6 +104,52 @@ def test_a_failed_digest_puts_the_alerts_back(reporter):
         assert reporter.flush_digest(ripe) is False
 
     assert notification_state.pending_alert_count() == 1, "a whole wave must not be lost"
+
+
+def _file(reporter, cik, accession, filed_on="2026-08-14", accepted="2026-08-14T12:00:00"):
+    reporter.storage.mark_filing_seen(
+        f"filing:{cik}:{accession}", "FILER", cik, filed_on,
+        acceptance_datetime=accepted, matched=True,
+    )
+
+
+def test_digest_header_reports_the_wave_progress(reporter, sent):
+    _file(reporter, "0000909661", "acc-1")
+    for i in range(25):
+        notification_state.queue_alert(f"fund-{i}", {"fund_name": f"Fund {i}"})
+
+    assert reporter.flush_digest(datetime(2026, 8, 14, 18, 0)) is True
+    assert "1 di 2 fondi hanno depositato" in sent[0]
+
+
+def test_progress_already_in_a_digest_is_not_sent_again(reporter, sent):
+    _file(reporter, "0000909661", "acc-1")
+    for i in range(25):
+        notification_state.queue_alert(f"fund-{i}", {"fund_name": f"Fund {i}"})
+    during_wave = datetime(2026, 8, 14, 18, 0)
+
+    reporter.flush_digest(during_wave)
+    assert reporter.send_wave_progress(during_wave) is False
+    assert len(sent) == 1
+
+
+# ---------------------------------------------------------------------------
+# Dry run - must preview without consuming anything
+# ---------------------------------------------------------------------------
+
+def test_a_dry_run_leaves_the_queue_and_the_markers_alone(reporter):
+    notification_state.queue_alert("a", {"fund_name": "A"})
+    notification_state.record_cycle({"total": 74}, now=NOW)
+    reporter.dry_run = True
+    ripe = datetime.now() + timedelta(minutes=60)
+
+    with patch.object(reporter.notifier, "send_message") as real_send:
+        assert reporter.flush_digest(ripe) is True
+        assert reporter.send_heartbeat(NOW) is True
+        real_send.assert_not_called()
+
+    assert notification_state.pending_alert_count() == 1
+    assert notification_state.was_sent(f"heartbeat:{NOW.date().isoformat()}") is False
 
 
 # ---------------------------------------------------------------------------
@@ -154,6 +215,17 @@ def test_heartbeat_goes_out_once_a_day(reporter, sent):
     assert "Screener attivo" in sent[0]
 
 
+def test_heartbeat_arrives_silently(reporter, sent):
+    notification_state.record_cycle({"total": 74, "matched": 0}, now=NOW)
+    reporter.send_heartbeat(NOW)
+    assert sent.options[0]["silent"] is True
+
+
+def test_the_health_alarm_is_never_silent(reporter, sent):
+    reporter.check_health(NOW)
+    assert sent.options[0]["silent"] is False
+
+
 def test_heartbeat_can_be_switched_off(reporter, sent):
     reporter.config.enable_heartbeat = False
     assert reporter.send_heartbeat(NOW) is False
@@ -216,6 +288,31 @@ def test_wave_progress_is_rate_limited(reporter, sent):
     assert reporter.send_wave_progress(during_wave) is True
     assert reporter.send_wave_progress(during_wave + timedelta(hours=1)) is False
     assert len(sent) == 1
+
+
+def test_wave_progress_stays_quiet_when_the_count_has_not_moved(reporter, sent):
+    """Four identical '1 di 2 fondi' a day for ten days is the noise this replaces."""
+    _file(reporter, "0000909661", "acc-1")
+    during_wave = datetime(2026, 8, 14, 6, 0)
+
+    assert reporter.send_wave_progress(during_wave) is True
+    assert reporter.send_wave_progress(during_wave + timedelta(hours=6)) is False
+    assert reporter.send_wave_progress(during_wave + timedelta(hours=12)) is False
+
+    _file(reporter, "0001423053", "acc-2", accepted="2026-08-14T19:00:00")
+    assert reporter.send_wave_progress(during_wave + timedelta(hours=18)) is True
+    assert "2 di 2 fondi" in sent[-1]
+    assert all(option["silent"] for option in sent.options)
+
+
+def test_latest_arrivals_are_the_most_recent_not_the_last_alphabetically(reporter, sent):
+    # Citadel files in the evening, Farallon in the morning; alphabetically
+    # Farallon comes last, but Citadel is the latest arrival.
+    _file(reporter, "0001423053", "acc-1", accepted="2026-08-14T20:27:00")
+    _file(reporter, "0000909661", "acc-2", accepted="2026-08-14T09:03:00")
+
+    reporter.send_wave_progress(datetime(2026, 8, 14, 21, 0))
+    assert "Ultimi arrivi: Citadel, Farallon" in sent[0]
 
 
 # ---------------------------------------------------------------------------

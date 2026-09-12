@@ -67,7 +67,7 @@ def test_headline_omits_the_filer_when_it_matches_the_fund():
     msg = report_builder.format_headline_alert(
         "Citadel", "Citadel", "2026-08-14T20:27:53", "https://sec.gov/x", DASH,
     )
-    assert msg.count("Citadel") == 2  # the heading, and the dashboard link
+    assert msg.count("Citadel") == 1  # the heading only; links travel as buttons
 
 
 def test_headline_shows_the_filer_when_it_differs():
@@ -84,6 +84,122 @@ def test_headline_flags_unprocessed_holdings():
         holdings_saved=False, portfolio_diff=None,
     )
     assert "holdings non ancora elaborate" in msg
+
+
+def test_headline_names_the_quarter_from_the_report_date():
+    msg = report_builder.format_headline_alert(
+        "Citadel", "Citadel", "2026-08-14T20:27:53", "https://sec.gov/x", DASH,
+        report_date="2026-06-30",
+    )
+    assert "Q2 2026" in msg.splitlines()[0]
+
+
+def test_headline_without_a_report_date_does_not_guess_a_quarter():
+    msg = report_builder.format_headline_alert(
+        "Citadel", "Citadel", "2026-08-14T20:27:53", "https://sec.gov/x", DASH,
+    )
+    assert " Q" not in msg
+
+
+def test_headline_flags_an_amendment():
+    """A 13F-HR/A diffed against a full filing can show phantom closures."""
+    msg = report_builder.format_headline_alert(
+        "Fund", "Fund", "2026-08-14T20:27:53", "https://sec.gov/x", DASH,
+        holdings_saved=True, portfolio_diff=_diff(closed=300), form="13F-HR/A",
+    )
+    assert "Rettifica (13F-HR/A)" in msg
+    assert "Rettifica" not in report_builder.format_headline_alert(
+        "Fund", "Fund", "2026-08-14T20:27:53", "https://sec.gov/x", DASH, form="13F-HR",
+    )
+
+
+def _sized_diff(scale=1):
+    """Share prices around $100 once multiplied by ``scale``'s inverse."""
+    return {
+        "new_positions": [
+            {"issuer_name": "NVIDIA CORP", "shares": 10_000_000, "value_usd": 1_200_000_000 // scale},
+            {"issuer_name": "SMALL CO", "shares": 1_000, "value_usd": 100_000 // scale},
+        ],
+        "closed_positions": [
+            {"issuer_name": "OLD CO", "shares": 2_000_000, "value_usd": 200_000_000 // scale},
+        ],
+        "increased": [
+            # +100% of 1M shares at $100: ~$100M traded.
+            {"issuer_name": "UP CO", "old_shares": 1_000_000, "new_shares": 2_000_000,
+             "pct_change": 100.0, "old_value_usd": 90_000_000 // scale,
+             "new_value_usd": 200_000_000 // scale},
+        ],
+        "decreased": [],
+    }
+
+
+def test_headline_names_the_single_biggest_move_in_dollars():
+    msg = report_builder.format_headline_alert(
+        "Fund", "Fund", "2026-08-14T20:27:53", "https://sec.gov/x", DASH,
+        holdings_saved=True, portfolio_diff=_sized_diff(),
+    )
+    assert "🔝 Nuova: NVIDIA CORP ($1.2B)" in msg
+    assert "OLD CO" not in msg and "SMALL CO" not in msg  # one line, not a listing
+
+
+def test_values_stored_in_thousands_are_scaled_up():
+    """Pre-2023 filings reported x$1000; the implied share price gives it away."""
+    msg = report_builder.format_headline_alert(
+        "Fund", "Fund", "2026-08-14T20:27:53", "https://sec.gov/x", DASH,
+        holdings_saved=True, portfolio_diff=_sized_diff(scale=1000),
+    )
+    assert "NVIDIA CORP ($1.2B)" in msg
+
+
+def test_a_trade_is_sized_by_shares_traded_not_by_value_change():
+    diff = _sized_diff()
+    diff["new_positions"], diff["closed_positions"] = [], []
+    msg = report_builder.format_headline_alert(
+        "Fund", "Fund", "2026-08-14T20:27:53", "https://sec.gov/x", DASH,
+        holdings_saved=True, portfolio_diff=diff,
+    )
+    assert "Aumentata: UP CO +100% (~$100M)" in msg
+
+
+def test_no_biggest_move_line_without_values():
+    msg = report_builder.format_headline_alert(
+        "Fund", "Fund", "2026-08-14T20:27:53", "https://sec.gov/x", DASH,
+        holdings_saved=True, portfolio_diff=_diff(new=3),
+    )
+    assert "🔝" not in msg
+
+
+def test_money_formats_by_magnitude():
+    assert report_builder.fmt_money(1_234_000_000) == "$1.2B"
+    assert report_builder.fmt_money(340_000_000) == "$340M"
+    assert report_builder.fmt_money(2_500_000) == "$2.5M"
+    assert report_builder.fmt_money(12_000) == "$12k"
+
+
+# ---------------------------------------------------------------------------
+# Buttons
+# ---------------------------------------------------------------------------
+
+def test_buttons_open_the_exact_comparison_when_the_diff_names_both_filings():
+    diff = {**_diff(new=1), "from_accession_number": "0001-26-000001", "to_accession_number": "0001-26-000002"}
+    buttons = report_builder.headline_buttons("Citadel", "https://sec.gov/x", DASH, diff)
+
+    label, url = buttons[0]
+    assert label == "📊 Confronto"
+    assert "tab=compare" in url
+    assert "old=0001-26-000001" in url and "new=0001-26-000002" in url
+    assert buttons[1] == ("📄 EDGAR", "https://sec.gov/x")
+
+
+def test_buttons_fall_back_to_the_snapshot_without_a_previous_filing():
+    label, url = report_builder.headline_buttons("Citadel", "https://sec.gov/x", DASH, _diff(new=1))[0]
+    assert label == "📊 Dashboard"
+    assert "tab=snapshot" in url
+
+
+def test_links_line_escapes_the_urls():
+    line = report_builder.links_line([("EDGAR", "https://x.test/?a=1&b=2")])
+    assert "a=1&amp;b=2" in line
 
 
 # ---------------------------------------------------------------------------
@@ -110,6 +226,46 @@ def test_digest_puts_the_biggest_movers_first():
     msg = report_builder.format_digest(alerts, DASH, Q2)
 
     assert msg.index("Busy") < msg.index("Quiet")
+
+
+def test_digest_ranks_money_moved_above_position_count():
+    """900 tiny changes must not outrank one $1.2B new stake."""
+    tiny = {
+        "new_positions": [{"issuer_name": f"T{i}", "shares": 100, "value_usd": 10_000} for i in range(900)],
+        "closed_positions": [], "increased": [], "decreased": [],
+    }
+    alerts = [
+        {"fund_name": "Many Small", "portfolio_diff": tiny},
+        {"fund_name": "One Big", "portfolio_diff": _sized_diff()},
+    ]
+    msg = report_builder.format_digest(alerts, DASH, Q2)
+
+    assert msg.index("One Big") < msg.index("Many Small")
+
+
+def test_digest_header_carries_the_wave_progress():
+    msg = report_builder.format_digest(
+        [{"fund_name": "A", "portfolio_diff": _diff(new=1)}], DASH, Q2, filed=31, tracked=48,
+    )
+    assert "31 di 48 fondi hanno depositato (65%)" in msg
+
+
+def test_digest_marks_amendments_and_explains_the_mark():
+    alerts = [
+        {"fund_name": "Amended", "form": "13F-HR/A", "portfolio_diff": _diff(new=1)},
+        {"fund_name": "Plain", "form": "13F-HR", "portfolio_diff": _diff(new=1)},
+    ]
+    msg = report_builder.format_digest(alerts, DASH, Q2)
+
+    assert "Amended</a> ✏️" in msg
+    assert "Plain</a> ✏️" not in msg
+    assert "rettifica" in msg
+
+
+def test_digest_rows_link_to_the_comparison_when_known():
+    diff = {**_diff(new=1), "from_accession_number": "A1", "to_accession_number": "A2"}
+    msg = report_builder.format_digest([{"fund_name": "F", "portfolio_diff": diff}], DASH, Q2)
+    assert "tab=compare&amp;old=A1&amp;new=A2" in msg
 
 
 def test_digest_truncates_a_deadline_day_wave():

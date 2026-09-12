@@ -5,10 +5,11 @@ This module owns *delivery* only. What a message says is composed in
 ``src.core.report_builder``, so the wording of an alert can be asserted in a
 test without mocking an HTTP call.
 """
+import json
 import logging
 import time
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Dict, Optional, Sequence
 import requests
 
 from src.core import report_builder
@@ -36,12 +37,19 @@ class TelegramNotifier:
         self.telegram_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
         self._disabled_due_to_unauthorized = False
 
-    def send_message(self, message: str) -> bool:
+    def send_message(
+        self,
+        message: str,
+        buttons: Optional[Sequence[report_builder.Button]] = None,
+        silent: bool = False,
+    ) -> bool:
         """
         Send a message via Telegram with automatic retry
 
         Args:
             message: Message text (supports HTML formatting)
+            buttons: (label, url) pairs shown as one row of buttons under the text
+            silent: deliver without a sound or vibration - for routine messages
 
         Returns:
             True if message sent successfully, False otherwise
@@ -55,6 +63,12 @@ class TelegramNotifier:
             'parse_mode': 'HTML',
             'disable_web_page_preview': True
         }
+        if silent:
+            payload['disable_notification'] = True
+        if buttons:
+            payload['reply_markup'] = json.dumps({
+                'inline_keyboard': [[{'text': label, 'url': url} for label, url in buttons]]
+            })
 
         for attempt in range(self.max_retries):
             try:
@@ -71,6 +85,17 @@ class TelegramNotifier:
                         "Invio notifiche disabilitato per questo processo finche la configurazione non viene corretta."
                     )
                     return False
+                if response.status_code == 400 and buttons:
+                    # Telegram rejects the whole message when it dislikes a
+                    # button URL (localhost is refused outright). Retrying the
+                    # same payload cannot help, so resend the links as text.
+                    logger.warning(
+                        "Pulsanti rifiutati da Telegram (%s): reinvio con link testuali",
+                        response.text[:200],
+                    )
+                    return self.send_message(
+                        f"{message}\n{report_builder.links_line(buttons)}", silent=silent
+                    )
                 else:
                     logger.warning(f"Errore Telegram (tentativo {attempt+1}/{self.max_retries}): {response.status_code}")
             except requests.exceptions.RequestException as e:
@@ -99,6 +124,8 @@ class TelegramNotifier:
         filing_url: str,
         holdings_saved: bool = False,
         portfolio_diff: Optional[Dict] = None,
+        form: str = '',
+        report_date: str = '',
     ) -> bool:
         """
         Send a 13F filing alert, optionally including a quarter-over-quarter diff.
@@ -110,6 +137,8 @@ class TelegramNotifier:
             filing_url: URL to the filing on EDGAR
             holdings_saved: Whether holdings were successfully saved
             portfolio_diff: Output of compute_portfolio_diff(), or None
+            form: SEC form type ('13F-HR' or '13F-HR/A'), when known
+            report_date: Quarter end the filing reports on (YYYY-MM-DD), when known
 
         Returns:
             True if message sent successfully
@@ -122,8 +151,13 @@ class TelegramNotifier:
             dashboard_base_url=self.dashboard_base_url,
             holdings_saved=holdings_saved,
             portfolio_diff=portfolio_diff,
+            form=form,
+            report_date=report_date,
         )
-        return self.send_message(message)
+        buttons = report_builder.headline_buttons(
+            fund_name, filing_url, self.dashboard_base_url, portfolio_diff
+        )
+        return self.send_message(message, buttons=buttons)
 
     def send_daily_summary(self, date: str, count: int, top_filers: list) -> bool:
         """

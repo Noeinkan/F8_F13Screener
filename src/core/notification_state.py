@@ -212,25 +212,36 @@ def oldest_pending_age_seconds(now: Optional[datetime] = None) -> Optional[float
     return (now or datetime.now()).timestamp() - min(mtimes)
 
 
-def drain_alerts() -> List[Dict[str, Any]]:
-    """Read and remove every queued alert. Only the reporter calls this."""
-    drained: List[Dict[str, Any]] = []
+def _read_queue(remove: bool) -> List[Dict[str, Any]]:
+    alerts: List[Dict[str, Any]] = []
     try:
         files = sorted(NOTIFY_QUEUE_DIR.glob('*.json'))
     except OSError:
-        return drained
+        return alerts
 
     for path in files:
         payload = _read_json(path, None)
         if isinstance(payload, dict):
-            drained.append(payload)
+            alerts.append(payload)
+        if not remove:
+            continue
         try:
             path.unlink()
         except OSError as exc:
             logger.warning("Impossibile rimuovere %s dalla coda: %s", path.name, exc)
 
-    drained.sort(key=lambda item: str(item.get('queued_at') or ''))
-    return drained
+    alerts.sort(key=lambda item: str(item.get('queued_at') or ''))
+    return alerts
+
+
+def drain_alerts() -> List[Dict[str, Any]]:
+    """Read and remove every queued alert. Only the reporter calls this."""
+    return _read_queue(remove=True)
+
+
+def peek_alerts() -> List[Dict[str, Any]]:
+    """Read every queued alert and leave the queue as it was - for a dry run."""
+    return _read_queue(remove=False)
 
 
 # --------------------------------------------------------------------------- #

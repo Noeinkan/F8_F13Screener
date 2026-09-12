@@ -19,13 +19,15 @@ twice:
 5. **Wave progress** - during a wave, how many tracked funds have filed.
 
 Run it by hand with ``python -m src.cli.notify_reporter --dry-run`` to see what
-it *would* send without sending anything.
+it *would* send without sending anything. A dry run also leaves the state alone:
+the queue keeps its alerts and no "already sent" marker is written, so the real
+run that follows still sends everything.
 """
 import argparse
 import logging
 import sys
 from datetime import date, datetime
-from typing import List, Optional
+from typing import List, Optional, Sequence
 
 from src.core import filing_calendar, notification_state, report_builder
 from src.core.config import Config
@@ -54,15 +56,36 @@ class Reporter:
 
     # -- delivery ---------------------------------------------------------- #
 
-    def _send(self, message: str, label: str) -> bool:
+    def _send(
+        self,
+        message: str,
+        label: str,
+        buttons: Sequence[report_builder.Button] = (),
+        silent: bool = False,
+    ) -> bool:
         if not message:
             return False
         if self.dry_run:
-            safe_print(f"\n----- {label} -----\n{message}\n")
+            extra = ''.join(f"\n[{text}] {url}" for text, url in buttons)
+            mode = ' (silenzioso)' if silent else ''
+            safe_print(f"\n----- {label}{mode} -----\n{message}{extra}\n")
             return True
-        sent = self.notifier.send_message(message)
+        sent = self.notifier.send_message(message, buttons=list(buttons), silent=silent)
         logger.info("%s: %s", label, 'inviato' if sent else 'FALLITO')
         return sent
+
+    def _mark(self, marker: str, now: datetime) -> None:
+        if not self.dry_run:
+            notification_state.mark_sent(marker, now)
+
+    def _clear(self, marker: str) -> None:
+        if not self.dry_run:
+            notification_state.clear_marker(marker)
+
+    @staticmethod
+    def _wave_count_marker(period: FilingPeriod, filed: int) -> str:
+        """Shared by the digest and the progress message: a count is reported once."""
+        return f"wave-count:{period.label}:{filed}"
 
     # -- 1. digest --------------------------------------------------------- #
 
@@ -87,7 +110,10 @@ class Reporter:
         if not self._digest_is_ripe(now):
             return False
 
-        alerts = notification_state.drain_alerts()
+        if self.dry_run:
+            alerts = notification_state.peek_alerts()
+        else:
+            alerts = notification_state.drain_alerts()
         if not alerts:
             return False
 
@@ -96,17 +122,28 @@ class Reporter:
             days_before=self.config.digest_days_before,
             days_after=self.config.digest_days_after,
         )
+        filed = len(self._funds_filed_for(period)) if period else None
         message = report_builder.format_digest(
-            alerts, self.config.dashboard_base_url, period
+            alerts,
+            self.config.dashboard_base_url,
+            period,
+            filed=filed,
+            tracked=len(self.config.hedge_funds_cik),
         )
 
-        if not self._send(message, f"digest ({len(alerts)} filing)"):
+        if not self._send(
+            message,
+            f"digest ({len(alerts)} filing)",
+            buttons=report_builder.digest_buttons(self.config.dashboard_base_url),
+        ):
             # Delivery failed and the queue files are already gone, so put them
             # back rather than dropping a whole wave's worth of alerts.
             for alert in alerts:
                 key = f"{alert.get('fund_name', 'alert')}-{alert.get('queued_at', '')}"
                 notification_state.queue_alert(key, alert)
             return False
+        if period and filed:
+            self._mark(self._wave_count_marker(period, filed), now)
         return True
 
     # -- 2. health --------------------------------------------------------- #
@@ -130,7 +167,7 @@ class Reporter:
                 threshold_minutes=self.config.health_stale_minutes,
             )
             if self._send(message, 'allarme salute'):
-                notification_state.mark_sent('health-alarm-open', now)
+                self._mark('health-alarm-open', now)
                 return True
             return False
 
@@ -140,7 +177,7 @@ class Reporter:
                 f"Ciclo completato {report_builder.fmt_datetime(health.last_cycle_at.isoformat())}."
             )
             if self._send(recovered, 'ripristino'):
-                notification_state.clear_marker('health-alarm-open')
+                self._clear('health-alarm-open')
                 return True
         return False
 
@@ -175,8 +212,10 @@ class Reporter:
         days = filing_calendar.days_until_next(now.date())
         message = report_builder.format_heartbeat(now.date(), totals, nxt, days)
 
-        if self._send(message, 'heartbeat'):
-            notification_state.mark_sent(marker, now)
+        # Silent: it lands in the chat to be glanced at, but a daily buzz that
+        # says "nothing happened" teaches the reader to ignore the buzzes that matter.
+        if self._send(message, 'heartbeat', silent=True):
+            self._mark(marker, now)
             return True
         return False
 
@@ -196,14 +235,14 @@ class Reporter:
 
         message = report_builder.format_deadline_reminder(nxt, days)
         if self._send(message, 'promemoria scadenza'):
-            notification_state.mark_sent(marker, now)
+            self._mark(marker, now)
             return True
         return False
 
     # -- 5. wave progress -------------------------------------------------- #
 
     def _funds_filed_for(self, period: FilingPeriod) -> List[str]:
-        """Distinct tracked funds that have filed for ``period``.
+        """Distinct tracked funds that have filed for ``period``, most recent arrival last.
 
         seen_filings holds the same CIK in both a padded and an unpadded
         spelling for historical rows, so normalise before counting or the same
@@ -215,15 +254,29 @@ class Reporter:
         ).isoformat()
 
         rows = self.storage.get_matched_filings_between(start, end)
+        # Storage orders by filing date only, and a whole wave shares one date;
+        # the acceptance time is what tells 20:27 apart from 09:03.
+        rows = sorted(
+            rows,
+            key=lambda row: (str(row.get('filing_date') or ''), str(row.get('acceptance_datetime') or '')),
+        )
         by_cik = {}
         for row in rows:
             raw = str(row.get('cik') or '').strip()
             key = raw.zfill(10) if raw.isdigit() else raw
             if key:
+                # Re-insert so dict order follows each fund's latest filing.
+                by_cik.pop(key, None)
                 by_cik[key] = self.config.hedge_funds_cik.get(key, row.get('filer_name') or key)
-        return sorted(by_cik.values())
+        return list(by_cik.values())
 
     def send_wave_progress(self, now: datetime) -> bool:
+        """How much of the wave has landed - only when that number has moved.
+
+        Every digest already carries the count in its header, so this speaks
+        only for arrivals no digest reported, and at most once per
+        ``wave_progress_every_hours``.
+        """
         period = filing_calendar.active_window(
             now.date(),
             days_before=self.config.digest_days_before,
@@ -241,12 +294,17 @@ class Reporter:
         filed = self._funds_filed_for(period)
         if not filed:
             return False
+        count_marker = self._wave_count_marker(period, len(filed))
+        if notification_state.was_sent(count_marker):
+            return False
 
+        newest_first = list(reversed(filed))
         message = report_builder.format_wave_progress(
-            period, len(filed), len(self.config.hedge_funds_cik), filed[-10:]
+            period, len(filed), len(self.config.hedge_funds_cik), newest_first[:10]
         )
-        if self._send(message, 'avanzamento wave'):
-            notification_state.mark_sent(marker, now)
+        if self._send(message, 'avanzamento wave', silent=True):
+            self._mark(marker, now)
+            self._mark(count_marker, now)
             return True
         return False
 

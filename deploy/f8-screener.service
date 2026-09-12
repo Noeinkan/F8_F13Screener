@@ -9,6 +9,10 @@ User=root
 WorkingDirectory=/opt/F8_F13Screener
 Environment=PYTHONUNBUFFERED=1
 Environment=PYTHONPATH=/opt/F8_F13Screener
+# Single-filing alerts link to the dashboard. Without this the poller falls back
+# to http://127.0.0.1:5173, which on a phone points at the phone itself.
+# Keep in step with f8-heartbeat.service.
+Environment=F13F_DASHBOARD_BASE_URL=http://77.42.70.26:5173
 ExecStart=/opt/F8_F13Screener/venv/bin/python -m src.cli.main
 Restart=always
 RestartSec=15

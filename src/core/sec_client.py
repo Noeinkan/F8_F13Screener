@@ -64,7 +64,8 @@ class SECClient:
 
         Returns:
             List of dicts with form, filing_date, acceptance_datetime,
-            accession_number, filing_url and filer_name.
+            accession_number, report_date (the quarter end reported on),
+            filing_url and filer_name.
         """
         cik_padded = cik.zfill(10)
         submissions_url = f"https://data.sec.gov/submissions/CIK{cik_padded}.json"
@@ -86,6 +87,7 @@ class SECClient:
                     filing_dates = recent.get('filingDate', [])
                     acceptance_datetimes = recent.get('acceptanceDateTime', [])
                     primary_documents = recent.get('primaryDocument', [])
+                    report_dates = recent.get('reportDate', [])
                     filer_name = data.get('name', '').strip()
 
                     filings: List[Dict[str, str]] = []
@@ -110,6 +112,7 @@ class SECClient:
                             'filing_date': filing_date,
                             'acceptance_datetime': acceptance_datetime,
                             'accession_number': accession_number,
+                            'report_date': report_dates[idx] if idx < len(report_dates) else '',
                             'primary_document': primary_document,
                             'filing_url': filing_url,
                             'filer_name': filer_name,

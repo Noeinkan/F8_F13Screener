@@ -468,7 +468,11 @@ export function FundAnalysisPage() {
   const [filter, setFilter] = useState("");
 
   // Compare tab state
-  const [comparePreset, setComparePreset] = useState<ComparePreset>("latest");
+  // A deep link naming both filings (a Telegram alert) must not be overwritten
+  // by the "latest" preset once the accession list loads.
+  const [comparePreset, setComparePreset] = useState<ComparePreset>(
+    initialOldAcc && initialNewAcc ? "manual" : "latest",
+  );
   const [oldAccession, setOldAccession] = useState(initialOldAcc);
   const [newAccession, setNewAccession] = useState(initialNewAcc);
   const [sankeyTopN, setSankeyTopN] = useState(20);

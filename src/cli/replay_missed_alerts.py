@@ -136,6 +136,7 @@ def main() -> int:
         config.telegram_chat_id,
         config.max_retries,
         config.retry_delay,
+        dashboard_base_url=config.dashboard_base_url,
     )
 
     rows = _fetch_window_rows(storage, WINDOW_DAYS)

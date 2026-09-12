@@ -278,6 +278,8 @@ class FilingProcessor:
         holdings_saved: bool,
         portfolio_diff,
         entry_id: str,
+        form: str = '',
+        report_date: str = '',
     ) -> bool:
         """Send an alert now, or park it for the digest if a filing wave is on.
 
@@ -301,6 +303,8 @@ class FilingProcessor:
                 filing_url,
                 holdings_saved,
                 portfolio_diff,
+                form=form,
+                report_date=report_date,
             )
 
         notification_state.queue_alert(
@@ -310,6 +314,8 @@ class FilingProcessor:
                 'filer_name': filer_name,
                 'filing_date': filing_date,
                 'filing_url': filing_url,
+                'form': form,
+                'report_date': report_date,
                 'holdings_saved': holdings_saved,
                 'portfolio_diff': portfolio_diff,
                 'queued_at': datetime.now().isoformat(timespec='seconds'),
@@ -448,6 +454,8 @@ class FilingProcessor:
                     holdings_saved,
                     portfolio_diff,
                     entry_id,
+                    form=filing.get('form', ''),
+                    report_date=filing.get('report_date', ''),
                 ):
                     stats['sent'] += 1
                 else:
@@ -599,6 +607,9 @@ class FilingProcessor:
                 )
 
                 # Send notification (failure here won't cause re-processing)
+                # The feed title starts with the form ("13F-HR/A - FUND (...)");
+                # it carries no report date, so the headline goes without a quarter.
+                form = title.split(' - ', 1)[0].strip() if title.startswith('13F') else ''
                 if self._dispatch_alert(
                     matched_fund,
                     filer_name,
@@ -607,6 +618,7 @@ class FilingProcessor:
                     holdings_saved,
                     portfolio_diff,
                     entry_id,
+                    form=form,
                 ):
                     stats['sent'] += 1
                 else:
@@ -742,6 +754,10 @@ class FilingProcessor:
                 try:
                     new_holdings_map = self.storage.get_holdings_by_accession(accession_number)
                     portfolio_diff = compute_portfolio_diff(old_holdings_map, new_holdings_map)
+                    if prev_accession_number != accession_number:
+                        # Lets the alert link straight to this exact comparison.
+                        portfolio_diff['from_accession_number'] = prev_accession_number
+                        portfolio_diff['to_accession_number'] = accession_number
                     n_new = len(portfolio_diff.get('new_positions', []))
                     n_closed = len(portfolio_diff.get('closed_positions', []))
                     n_changed = len(portfolio_diff.get('increased', [])) + len(portfolio_diff.get('decreased', []))

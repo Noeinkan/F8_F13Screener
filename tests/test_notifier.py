@@ -1,4 +1,6 @@
 """Tests for src/core/notifier.py — pure message formatting (no network)."""
+import json
+
 import pytest
 from unittest.mock import patch, MagicMock
 from src.core.notifier import TelegramNotifier
@@ -69,9 +71,9 @@ class TestSendFilingAlert:
         notifier = self._make_notifier()
         with patch.object(notifier, "send_message", return_value=True) as mock_send:
             notifier.send_filing_alert("Fund", "Fund Inc", "2026-05-01T00:00:00", "https://sec.gov/x")
-            msg = mock_send.call_args[0][0]
-            assert "http://dash.test:5173/fund-analysis?fund=Fund" in msg
-            assert "https://sec.gov/x" in msg
+            urls = [url for _, url in mock_send.call_args.kwargs["buttons"]]
+            assert urls[0].startswith("http://dash.test:5173/fund-analysis?fund=Fund")
+            assert urls[1] == "https://sec.gov/x"
 
     def test_alert_warns_when_holdings_missing(self):
         notifier = self._make_notifier()
@@ -82,10 +84,13 @@ class TestSendFilingAlert:
             assert "holdings non ancora elaborate" in msg
 
     def test_alert_is_a_headline_not_a_full_diff(self):
-        """The detail belongs in the dashboard; the message carries the counts."""
+        """The detail belongs in the dashboard; the message carries counts and one top move."""
         notifier = self._make_notifier()
         diff = {
-            "new_positions": [{"cusip": "X", "issuer_name": "Apple", "shares": 100, "value_usd": 5000}],
+            "new_positions": [
+                {"cusip": "X", "issuer_name": "Apple", "shares": 100, "value_usd": 5000},
+                {"cusip": "Y", "issuer_name": "Tiny", "shares": 10, "value_usd": 500},
+            ],
             "closed_positions": [],
             "increased": [],
             "decreased": [],
@@ -94,10 +99,11 @@ class TestSendFilingAlert:
             notifier.send_filing_alert("Fund", "Fund Inc", "2026-05-01T00:00:00", "https://sec.gov/x",
                                        portfolio_diff=diff)
             msg = mock_send.call_args[0][0]
-            assert "+1 nuove" in msg
+            assert "+2 nuove" in msg
             # The per-position listing stays out of Telegram entirely.
             assert "NUOVE POSIZIONI" not in msg
-            assert "Apple" not in msg
+            assert "Apple" in msg
+            assert "Tiny" not in msg
 
     def test_no_change_summary_when_diff_empty(self):
         notifier = self._make_notifier()
@@ -121,6 +127,56 @@ class TestSendFilingAlert:
         with patch.object(notifier, "send_message", return_value=False):
             result = notifier.send_filing_alert("F", "F", "2026-01-01T00:00:00", "https://x.com")
             assert result is False
+
+
+# ---------------------------------------------------------------------------
+# send_message — payload (mocked HTTP)
+# ---------------------------------------------------------------------------
+
+class TestSendMessagePayload:
+
+    def _make_notifier(self):
+        return TelegramNotifier("fake", "123", max_retries=1, retry_delay=0)
+
+    @staticmethod
+    def _response(status, text=""):
+        response = MagicMock()
+        response.status_code = status
+        response.text = text
+        return response
+
+    def test_buttons_and_silence_reach_telegram(self):
+        notifier = self._make_notifier()
+        with patch("src.core.notifier.requests.post", return_value=self._response(200)) as post, \
+                patch("src.core.notifier.save_message_to_viewer"):
+            assert notifier.send_message("hi", buttons=[("EDGAR", "https://sec.gov/x")], silent=True)
+
+        payload = post.call_args.kwargs["data"]
+        assert payload["disable_notification"] is True
+        markup = json.loads(payload["reply_markup"])
+        assert markup == {"inline_keyboard": [[{"text": "EDGAR", "url": "https://sec.gov/x"}]]}
+
+    def test_a_plain_message_is_audible_and_has_no_buttons(self):
+        notifier = self._make_notifier()
+        with patch("src.core.notifier.requests.post", return_value=self._response(200)) as post, \
+                patch("src.core.notifier.save_message_to_viewer"):
+            notifier.send_message("hi")
+
+        payload = post.call_args.kwargs["data"]
+        assert "disable_notification" not in payload
+        assert "reply_markup" not in payload
+
+    def test_refused_buttons_fall_back_to_text_links(self):
+        """Telegram rejects the whole message over a button URL it dislikes."""
+        notifier = self._make_notifier()
+        responses = [self._response(400, "Bad Request: Wrong HTTP URL"), self._response(200)]
+        with patch("src.core.notifier.requests.post", side_effect=responses) as post, \
+                patch("src.core.notifier.save_message_to_viewer"):
+            assert notifier.send_message("hi", buttons=[("Dashboard", "http://127.0.0.1:5173/")]) is True
+
+        retry = post.call_args_list[1].kwargs["data"]
+        assert "reply_markup" not in retry
+        assert "<a href='http://127.0.0.1:5173/'>Dashboard</a>" in retry["text"]
 
 
 # ---------------------------------------------------------------------------

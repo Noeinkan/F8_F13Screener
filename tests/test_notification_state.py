@@ -105,6 +105,14 @@ def test_draining_empties_the_queue():
     assert notification_state.drain_alerts() == []
 
 
+def test_peeking_leaves_the_queue_intact():
+    """What a dry run reads; draining here would silently eat a wave's digest."""
+    notification_state.queue_alert("x", {"fund_name": "X"})
+
+    assert [a["fund_name"] for a in notification_state.peek_alerts()] == ["X"]
+    assert notification_state.pending_alert_count() == 1
+
+
 def test_queueing_the_same_filing_twice_stores_it_once():
     """The queue key is the entry_id, so a re-run cannot duplicate an alert."""
     notification_state.queue_alert("filing:1:acc", {"fund_name": "A"})

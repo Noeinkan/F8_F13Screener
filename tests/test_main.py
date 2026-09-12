@@ -53,6 +53,38 @@ def test_process_holdings_returns_true_when_sqlite_and_duckdb_save():
     dashboard_storage.save_holdings.assert_called_once()
 
 
+def test_process_holdings_diff_names_the_two_filings_it_compared():
+    """The alert deep-links to exactly this comparison in the dashboard."""
+    processor, storage, dashboard_storage = _make_processor()
+    _configure_successful_parse(processor, storage, dashboard_storage)
+    storage.get_latest_accessions_for_fund.return_value = [{"accession_number": "ACC-000"}]
+    storage.get_holdings_by_accession.side_effect = lambda acc: {
+        "037833100": {"cusip": "037833100", "issuer_name": "Apple Inc", "shares": 500 if acc == "ACC-000" else 1000,
+                      "value_usd": 5000},
+    }
+
+    _, portfolio_diff = processor._process_holdings(
+        "https://sec.gov/filing", "Filer LLC", "Fund LP", "0001234567", "2026-05-15",
+    )
+
+    assert portfolio_diff["from_accession_number"] == "ACC-000"
+    assert portfolio_diff["to_accession_number"] == "ACC-001"
+
+
+def test_dispatch_queues_form_and_report_date_during_a_wave(monkeypatch):
+    processor, _, _ = _make_processor()
+    processor.config = MagicMock(enable_digest=True, digest_days_before=2, digest_days_after=7)
+    queued = {}
+    monkeypatch.setattr("src.cli.main.filing_calendar.active_window", lambda *a, **k: object())
+    monkeypatch.setattr("src.cli.main.notification_state.queue_alert", lambda key, payload: queued.update(payload))
+
+    processor._dispatch_alert("Fund", "Filer", "2026-08-14", "https://sec.gov/x", True, None, "entry",
+                              form="13F-HR/A", report_date="2026-06-30")
+
+    assert queued["form"] == "13F-HR/A"
+    assert queued["report_date"] == "2026-06-30"
+
+
 def test_process_holdings_fails_when_duckdb_save_raises(caplog):
     processor, storage, dashboard_storage = _make_processor()
     _configure_successful_parse(processor, storage, dashboard_storage)
