@@ -1,0 +1,4 @@
+# Shell scripts and server config run on Linux: a Windows checkout with
+# core.autocrlf=true would otherwise turn them CRLF and bash fails on "\r".
+*.sh              text eol=lf
+deploy/**         text eol=lf
