@@ -1,5 +1,7 @@
 import os
 import tempfile
+from pathlib import Path
+
 import requests
 import pytest
 from bs4 import BeautifulSoup
@@ -115,7 +117,8 @@ def test_parse_xml(write_temp_file):
     try:
         holdings = parser.parse_information_table(xml_path)
         assert isinstance(holdings, list)
-        assert len(holdings) >= 1
+        # Exactly one: the <informationTable> root must not count as a holding.
+        assert len(holdings) == 1
         h = holdings[0]
         assert h.get('issuer_name') == 'ACME CORP'
         assert h.get('cusip') == '123456789'
@@ -143,7 +146,7 @@ def test_parse_html(write_temp_file):
     try:
         holdings = parser.parse_information_table(html_path)
         assert isinstance(holdings, list)
-        assert len(holdings) >= 1
+        assert len(holdings) == 1
         h = holdings[0]
         assert h.get('issuer_name') == 'ACME CORP'
         assert h.get('cusip') == '123456789'
@@ -227,3 +230,144 @@ def test_get_information_table_url_prefers_explicit_information_table_xml():
         assert not result.endswith('/primary_doc.xml')
     finally:
         monkey.undo()
+
+
+# ---------------------------------------------------------------------------
+# Fixture-based tests: real EDGAR page shapes
+# ---------------------------------------------------------------------------
+
+FIXTURES = Path(__file__).parent / 'fixtures' / 'infotable'
+INDEX_URL = 'https://www.sec.gov/Archives/edgar/data/1649339/000164933924000011/0001649339-24-000011-index.htm'
+
+
+def _serve(monkeypatch, content: bytes, seen_urls=None):
+    class DummyResp:
+        status_code = 200
+
+        def __init__(self, body):
+            self.content = body
+
+    def fake_get(url, headers=None, timeout=None):
+        if seen_urls is not None:
+            seen_urls.append(url)
+        return DummyResp(content)
+
+    monkeypatch.setattr(requests, 'get', fake_get)
+
+
+def _index_page(rows):
+    """Minimal EDGAR index table; rows are (href, type) pairs."""
+    body = ''.join(
+        f'<tr><td>1</td><td></td><td><a href="{href}">{href.rsplit("/", 1)[-1]}</a></td><td>{kind}</td><td>100</td></tr>'
+        for href, kind in rows
+    )
+    return f'<html><body><table class="tableFile">{body}</table></body></html>'.encode('utf-8')
+
+
+def test_get_information_table_url_prefers_raw_xml_over_xslform_rendering(monkeypatch):
+    # The xslForm link is listed first on the page, as EDGAR does.
+    _serve(monkeypatch, (FIXTURES / 'index_xslform_and_raw.htm').read_bytes())
+
+    result = parser.get_information_table_url(INDEX_URL)
+
+    assert result == 'https://www.sec.gov/Archives/edgar/data/1649339/000164933924000011/infotable.xml'
+
+
+def test_get_information_table_url_ranks_html_before_xslform_rendering(monkeypatch):
+    base = '/Archives/edgar/data/1/000000000124000001'
+    _serve(monkeypatch, _index_page([
+        (f'{base}/xslForm13F_X02/table.xml', 'INFORMATION TABLE'),
+        (f'{base}/table.htm', 'INFORMATION TABLE'),
+    ]))
+
+    assert parser.get_information_table_url(INDEX_URL) == f'https://www.sec.gov{base}/table.htm'
+
+
+def test_get_information_table_url_falls_back_to_xslform_rendering_when_alone(monkeypatch):
+    base = '/Archives/edgar/data/1/000000000124000001'
+    _serve(monkeypatch, _index_page([
+        (f'{base}/xslForm13F_X01/primary_doc.xml', '13F-HR'),
+        (f'{base}/XSLFORM13F_X01/Table.XML', 'INFORMATION TABLE'),
+    ]))
+
+    assert parser.get_information_table_url(INDEX_URL) == f'https://www.sec.gov{base}/XSLFORM13F_X01/Table.XML'
+
+
+def test_get_information_table_url_method3_skips_primary_doc_and_prefers_raw(monkeypatch):
+    # No INFORMATION TABLE label and no "infotable" in names: method 3.
+    base = '/Archives/edgar/data/1/000000000124000001'
+    _serve(monkeypatch, _index_page([
+        (f'{base}/xslForm13F_X02/primary_doc.xml', '13F-HR'),
+        (f'{base}/primary_doc.xml', '13F-HR'),
+        (f'{base}/xslForm13F_X02/holdings.xml', ''),
+        (f'{base}/holdings.xml', ''),
+    ]))
+
+    assert parser.get_information_table_url(INDEX_URL) == f'https://www.sec.gov{base}/holdings.xml'
+
+
+def test_parse_namespaced_raw_xml_does_not_invent_a_row_from_the_root(monkeypatch):
+    _serve(monkeypatch, (FIXTURES / 'infotable_ns_prefixed.xml').read_bytes())
+
+    holdings = parser.parse_information_table('https://www.sec.gov/x/infotable.xml')
+
+    assert len(holdings) == 2
+    first, second = holdings
+    assert (first['issuer_name'], first['cusip'], first['put_call']) == ('MICROSOFT CORP', '594918104', '')
+    assert (second['issuer_name'], second['cusip'], second['put_call']) == ('SPDR S&P 500 ETF TR', '78462F103', 'Put')
+    assert first['value'] == 37604000
+    assert first['shares'] == 100000
+    assert first['sh_prn'] == 'SH'
+    assert first['voting_authority_sole'] == 100000
+    assert second['voting_authority_sole'] == 0
+
+
+def test_parse_xml_tolerates_case_variants_of_info_table():
+    content = b'''<?xml version="1.0"?>
+    <informationtable>
+      <INFOTABLE><NAMEOFISSUER>ACME CORP</NAMEOFISSUER><CUSIP>123456789</CUSIP><VALUE>10</VALUE>
+        <SHRSORPRN><SSHPRNAMT>5</SSHPRNAMT><SSHPRNAMTTYPE>SH</SSHPRNAMTTYPE></SHRSORPRN></INFOTABLE>
+      <infotable><nameofissuer>BETA INC</nameofissuer><cusip>987654321</cusip><value>20</value>
+        <shrsorprn><sshprnamttype>PRN</sshprnamttype><sshprnamt>7</sshprnamt></shrsorprn></infotable>
+    </informationtable>'''
+
+    holdings = parser.parse_information_table_content(content)
+
+    assert [(h['issuer_name'], h['shares'], h['sh_prn']) for h in holdings] == [
+        ('ACME CORP', 5, 'SH'),
+        ('BETA INC', 7, 'PRN'),  # amount found even when the type element comes first
+    ]
+
+
+def test_raw_xml_and_its_xslform_rendering_parse_to_identical_holdings():
+    """Downstream code and the DB expect one shape, whichever link was picked."""
+    from_xml = parser.parse_information_table_content((FIXTURES / 'paired_raw.xml').read_bytes())
+    from_html = parser.parse_information_table_content((FIXTURES / 'paired_xsl_rendered.html').read_bytes())
+
+    assert len(from_xml) == 5
+    assert from_xml == from_html
+
+    by_cusip = {h['cusip']: h for h in from_xml}
+    apple = by_cusip['037833100']
+    assert apple['value'] == 174347025280
+    assert apple['value_x1000'] == '174347025280'
+    assert apple['shares'] == 905560000
+    assert apple['shares_raw'] == '905560000'
+    assert apple['other_manager'] == '4,8,11'
+    assert apple['figi'] == ''
+    assert by_cusip['060505104']['figi'] == 'BBG000BCTLF6'
+    assert by_cusip['88160R101']['put_call'] == 'Call'
+    carvana = by_cusip['146869AJ1']
+    assert (carvana['sh_prn'], carvana['share_class']) == ('PRN', 'NOTE 10.250% 5/0')
+    att = by_cusip['00206R102']
+    assert att['issuer_name'] == 'AT&T INC'
+    assert (att['put_call'], att['investment_discretion']) == ('Put', 'OTR')
+    assert (att['voting_authority_sole'], att['voting_authority_shared'], att['voting_authority_none']) == (0, 1000, 0)
+
+
+def test_html_voting_authority_is_integer_like_the_xml_path():
+    holdings = parser.parse_information_table_content(SAMPLE_HTML_MULTIROW_VALUE)
+
+    assert len(holdings) == 1
+    h = holdings[0]
+    assert (h['voting_authority_sole'], h['voting_authority_shared'], h['voting_authority_none']) == (10877, 0, 0)

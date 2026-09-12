@@ -13,8 +13,32 @@ logger = logging.getLogger(__name__)
 class HoldingsParser:
     """Parser for 13F Information Table"""
 
+    # Ranking of Information Table links on a filing index page; lower wins.
+    # EDGAR lists the table twice: the raw XML the filer submitted, and an
+    # ``xslForm13F_X0N/<name>.xml`` link that is SEC's XSLT rendering of that
+    # XML as an HTML page. Both end in ``.xml``, so the extension alone cannot
+    # tell them apart. The raw XML is exact and parses with the XML path; the
+    # rendering is kept only as the last resort.
+    _RANK_RAW_XML = 0
+    _RANK_HTML = 1
+    _RANK_XSL_RENDERED = 2
+    _RANK_OTHER = 3
+
     def __init__(self, user_agent: str):
         self.user_agent = user_agent
+
+    @staticmethod
+    def _href_path(href: str) -> str:
+        return href.split('#', 1)[0].split('?', 1)[0].lower()
+
+    @classmethod
+    def _information_table_link_rank(cls, href: str) -> int:
+        path = cls._href_path(href)
+        if path.endswith('.xml'):
+            return cls._RANK_XSL_RENDERED if 'xslform' in path else cls._RANK_RAW_XML
+        if path.endswith(('.html', '.htm')):
+            return cls._RANK_HTML
+        return cls._RANK_OTHER
 
     def get_information_table_url(self, filing_index_url: str) -> Optional[str]:
         """
@@ -44,8 +68,16 @@ class HoldingsParser:
                     return f"https://www.sec.gov{href}"
                 return f"{base_url}/{href}"
 
+            def best_of(hrefs: List[str]) -> Optional[str]:
+                # Stable sort: equal ranks keep the order they appear on the page.
+                ranked = sorted(
+                    enumerate(hrefs),
+                    key=lambda item: (self._information_table_link_rank(item[1]), item[0]),
+                )
+                return build_full_url(ranked[0][1]) if ranked else None
+
             # Method 1: Prefer rows explicitly labeled INFORMATION TABLE.
-            candidates = []
+            row_hrefs: List[str] = []
             for row in soup.find_all('tr'):
                 cells = row.find_all('td')
                 if len(cells) < 3:
@@ -60,45 +92,36 @@ class HoldingsParser:
                     if not link:
                         continue
                     href = link['href']
-                    lower_href = href.lower()
-                    if lower_href.endswith('.xml'):
-                        candidates.append((0, build_full_url(href)))
-                    elif lower_href.endswith(('.html', '.htm')):
-                        candidates.append((1, build_full_url(href)))
+                    if self._information_table_link_rank(href) < self._RANK_OTHER:
+                        row_hrefs.append(href)
 
-            if candidates:
-                best_url = sorted(candidates, key=lambda item: item[0])[0][1]
+            best_url = best_of(row_hrefs)
+            if best_url:
                 logger.debug(f"Found infotable (method 1): {best_url}")
                 return best_url
 
-            # Method 2: Search for link containing "infotable" (XSLT rendered form)
-            for link in soup.find_all('a', href=True):
-                href = link['href']
-                link_text = link.get_text(strip=True).lower()
+            # Method 2: Search for link containing "infotable" in its text or href.
+            infotable_hrefs = [
+                link['href']
+                for link in soup.find_all('a', href=True)
+                if 'infotable' in link.get_text(strip=True).lower() or 'infotable' in link['href'].lower()
+            ]
+            best_url = best_of(infotable_hrefs)
+            if best_url:
+                logger.debug(f"Found infotable (method 2): {best_url}")
+                return best_url
 
-                # Search "infotable" in link text or href
-                if 'infotable' in link_text or 'infotable' in href.lower():
-                    full_url = build_full_url(href)
-                    logger.debug(f"Found infotable (method 2): {full_url}")
-                    return full_url
-
-            # Method 3: Search for likely XML information-table files, excluding the primary cover XML.
-            for link in soup.find_all('a', href=True):
-                href = link['href']
-                link_text = link.get_text(strip=True).lower()
-                lower_href = href.lower()
-                
-                # Look for XML files with strong information-table hints.
-                if not lower_href.endswith('.xml'):
-                    continue
-                if 'primary_doc' in lower_href:
-                    continue
-                if not any(token in lower_href for token in ('infotable', 'information', 'table', 'xml')) and 'information table' not in link_text:
-                    continue
-
-                full_url = build_full_url(href)
-                logger.debug(f"Found XML table (method 3): {full_url}")
-                return full_url
+            # Method 3: Any XML file except the primary cover document.
+            xml_hrefs = [
+                link['href']
+                for link in soup.find_all('a', href=True)
+                if self._href_path(link['href']).endswith('.xml')
+                and 'primary_doc' not in link['href'].lower()
+            ]
+            best_url = best_of(xml_hrefs)
+            if best_url:
+                logger.debug(f"Found XML table (method 3): {best_url}")
+                return best_url
 
             logger.warning(f"Information Table HTML non trovata nella pagina: {filing_index_url}")
             # Log available files for debugging
@@ -129,83 +152,107 @@ class HoldingsParser:
                 logger.error(f"Errore scaricamento Information Table: HTTP {response.status_code}")
                 return []
 
-            # Try parsing XML/HTML with BeautifulSoup
-            content = response.content
-            soup_xml = BeautifulSoup(content, 'xml')
-
-            # First: Try XML style parsing
-            holdings = self._parse_xml_format(soup_xml)
-            if holdings:
-                logger.info(f"Parsate {len(holdings)} holdings da XML Information Table")
-                return holdings
-
-            # Fallback: HTML table parsing
-            soup_html = BeautifulSoup(content, 'html.parser')
-            holdings = self._parse_html_format(soup_html)
-            logger.info(f"Parsate {len(holdings)} holdings dalla Information Table (HTML)")
-            return holdings
+            return self.parse_information_table_content(response.content)
 
         except Exception as e:
             logger.error(f"Errore parsing Information Table: {e}")
             return []
 
+    def parse_information_table_content(self, content: bytes | str) -> List[Dict]:
+        """Parse an already-downloaded Information Table: XML first, HTML table fallback."""
+        # First: Try XML style parsing
+        holdings = self._parse_xml_format(BeautifulSoup(content, 'xml'))
+        if holdings:
+            logger.info(f"Parsate {len(holdings)} holdings da XML Information Table")
+            return holdings
+
+        # Fallback: HTML table parsing
+        holdings = self._parse_html_format(BeautifulSoup(content, 'html.parser'))
+        logger.info(f"Parsate {len(holdings)} holdings dalla Information Table (HTML)")
+        return holdings
+
+    @staticmethod
+    def _local_name(tag) -> str:
+        """Tag name without namespace prefix, lower-cased (``ns1:infoTable`` -> ``infotable``)."""
+        name = getattr(tag, 'name', None) or ''
+        return name.rsplit(':', 1)[-1].lower()
+
+    @classmethod
+    def _find_local(cls, parent, *names: str):
+        """First descendant whose local name matches one of ``names``, ignoring case and prefix."""
+        wanted = {name.lower() for name in names}
+        return parent.find(lambda tag: cls._local_name(tag) in wanted)
+
+    @staticmethod
+    def _rendered_number(raw: str) -> str:
+        """Format an integer the way SEC's XSLT rendering prints it (``1016782`` -> ``1,016,782``)."""
+        if re.fullmatch(r'-?\d+', raw or ''):
+            return f"{int(raw):,}"
+        return raw
+
     def _parse_xml_format(self, soup_xml: BeautifulSoup) -> List[Dict]:
-        """Parse XML format Information Table"""
+        """Parse XML format Information Table.
+
+        Each holding is one ``infoTable`` element. The document root is
+        ``informationTable``, which must never be read as a holding: its
+        descendant search would pick up fields from whichever row carries them
+        first, inventing a row out of pieces of the real ones.
+        """
         holdings = []
 
-        info_entries = soup_xml.find_all(['infoTable', 'informationTable', 'infotable'])
+        info_entries = soup_xml.find_all(lambda tag: self._local_name(tag) == 'infotable')
         if not info_entries:
             return []
 
         logger.info(f"Information Table XML trovata: {len(info_entries)} entries")
 
         for entry in info_entries:
-            def get_tag_text(tag_name):
-                tag = entry.find(tag_name)
+            def get_tag_text(*tag_names, parent=entry):
+                tag = self._find_local(parent, *tag_names)
                 return tag.get_text(strip=True) if tag else ''
 
-            issuer = get_tag_text('nameOfIssuer') or get_tag_text('nameofissuer') or get_tag_text('NAMEOFISSUER')
-            share_class = get_tag_text('titleOfClass') or get_tag_text('titleofclass')
-            cusip = get_tag_text('cusip') or get_tag_text('CUSIP')
-            figi = get_tag_text('figi') or get_tag_text('FIGI')
-            value_raw = get_tag_text('value') or get_tag_text('VALUE') or get_tag_text('marketValue') or get_tag_text('marketvalue')
+            issuer = get_tag_text('nameOfIssuer')
+            share_class = get_tag_text('titleOfClass')
+            cusip = get_tag_text('cusip')
+            figi = get_tag_text('figi')
+            value_raw = get_tag_text('value', 'marketValue')
 
             # shrsOrPrn can be nested
             sh_qty = ''
             sh_prn_type = ''
-            sh_tag = entry.find('shrsOrPrn') or entry.find('shrsorprn')
+            sh_tag = self._find_local(entry, 'shrsOrPrn')
             if sh_tag:
-                amt = sh_tag.find(['sshPrnamt', 'sshPrnAmt', 'sshpnamt', 'sshPrnamtType', 'sshPrnAmtType'])
-                if amt:
-                    sh_qty = amt.get_text(strip=True)
-                else:
+                amt = self._find_local(sh_tag, 'sshPrnamt')
+                sh_qty = amt.get_text(strip=True) if amt else ''
+                sh_prn_type = get_tag_text('sshPrnamtType', parent=sh_tag)
+                if not amt and not sh_prn_type:
                     sh_qty = sh_tag.get_text(strip=True)
-                # Extract SH/PRN type
-                prn_type_tag = sh_tag.find(['sshPrnamtType', 'sshPrnAmtType', 'sshprnamttype'])
-                if prn_type_tag:
-                    sh_prn_type = prn_type_tag.get_text(strip=True)
             else:
-                sh_qty = get_tag_text('shrsOrPrn') or get_tag_text('shrsorprn') or get_tag_text('amount')
+                sh_qty = get_tag_text('amount')
 
-            put_call = get_tag_text('putCall') or get_tag_text('putcall')
-            investment_discretion = get_tag_text('investmentDiscretion') or get_tag_text('investmentdiscretion')
-            other_manager = get_tag_text('otherManager') or get_tag_text('othermanager')
+            put_call = get_tag_text('putCall')
+            investment_discretion = get_tag_text('investmentDiscretion')
+            other_manager = get_tag_text('otherManager')
 
             # VotingAuthority may be structured
             voting_sole = ''
             voting_shared = ''
             voting_none = ''
-            va = entry.find('votingAuthority') or entry.find('votingauthority')
+            va = self._find_local(entry, 'votingAuthority')
             if va:
-                s = va.find(['sole', 'Sole'])
-                if s:
-                    voting_sole = s.get_text(strip=True)
-                sh = va.find(['shared', 'Shared'])
-                if sh:
-                    voting_shared = sh.get_text(strip=True)
-                n = va.find(['none', 'None'])
-                if n:
-                    voting_none = n.get_text(strip=True)
+                voting_sole = get_tag_text('sole', parent=va)
+                voting_shared = get_tag_text('shared', parent=va)
+                voting_none = get_tag_text('none', parent=va)
+
+            # Mirror the HTML path's raw trace: every column of SEC's rendered
+            # table, in its order, numbers with thousands separators.
+            rendered_cells = [
+                issuer, share_class, cusip, figi,
+                self._rendered_number(value_raw), self._rendered_number(sh_qty), sh_prn_type,
+                put_call, investment_discretion, other_manager,
+                self._rendered_number(voting_sole), self._rendered_number(voting_shared),
+                self._rendered_number(voting_none),
+            ]
 
             holding = {
                 'issuer_name': issuer,
@@ -225,7 +272,7 @@ class HoldingsParser:
                 'voting_authority_shared': self._to_int(voting_shared),
                 'voting_authority_none': self._to_int(voting_none),
                 'voting_authority_raw': '',
-                'all_columns_raw': ' | '.join([str(x) for x in [issuer, share_class, cusip, figi, value_raw, sh_qty, sh_prn_type, put_call, investment_discretion, other_manager, voting_sole, voting_shared, voting_none] if x])
+                'all_columns_raw': ' | '.join(rendered_cells).strip(),
             }
 
             if holding['cusip'] or holding['issuer_name']:
@@ -388,6 +435,10 @@ class HoldingsParser:
                     holding['voting_authority_sole'] = nums[0]
                     holding['voting_authority_shared'] = nums[1]
                     holding['voting_authority_none'] = nums[2]
+
+            # Same type as the XML path and as the INTEGER/BIGINT columns they land in.
+            for key in ('voting_authority_sole', 'voting_authority_shared', 'voting_authority_none'):
+                holding[key] = self._to_int(holding.get(key))
 
             holding['all_columns_raw'] = holding['all_columns_raw'] or (' | '.join(cell_texts)).strip()
             return holding

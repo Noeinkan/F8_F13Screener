@@ -12,6 +12,7 @@ import subprocess
 from logging.handlers import RotatingFileHandler
 from datetime import date, datetime
 from pathlib import Path
+from typing import Optional
 
 # Add project root to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
@@ -19,7 +20,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 from src.core import filing_calendar, notification_state
 from src.core.config import Config
 from src.core.dashboard_storage import DashboardStorage
-from src.core.sec_client import SECClient
+from src.core.sec_client import SECClient, SECFetchError
 from src.core.parser import HoldingsParser
 from src.core.notifier import TelegramNotifier
 from src.core.storage import Storage
@@ -129,10 +130,12 @@ class FilingProcessor:
 
     def __init__(self, config: Config):
         self.config = config
+        # config.retry_delay (60 s) is Telegram's pacing, not SEC's: SECClient
+        # uses its own short exponential backoff so an SEC outage cannot stretch
+        # one cycle past the reporter's staleness threshold.
         self.sec_client = SECClient(
             config.sec_user_agent,
-            config.max_retries,
-            config.retry_delay
+            max_retries=config.max_retries,
         )
         self.parser = HoldingsParser(config.sec_user_agent)
         self.notifier = TelegramNotifier(
@@ -247,10 +250,15 @@ class FilingProcessor:
         the poller's only proof of life: the out-of-process reporter reads it to
         tell a quiet quarter apart from a crashed process.
         """
-        totals = {'total': 0, 'matched': 0, 'sent': 0, 'filtered': 0, 'failed': 0}
+        totals = {
+            'total': 0, 'matched': 0, 'sent': 0, 'filtered': 0, 'failed': 0,
+            'errors': 0, 'fetch_failed': 0,
+        }
 
         try:
-            for stats in (self.process_submissions(), self._run_feed_fallback()):
+            submissions_stats = self.process_submissions()
+            feed_stats = self._run_feed_fallback()
+            for stats in (submissions_stats, feed_stats):
                 if not stats:
                     continue
                 totals['total'] += stats.get('total_checked', 0)
@@ -258,11 +266,47 @@ class FilingProcessor:
                 totals['sent'] += stats.get('sent', 0)
                 totals['filtered'] += stats.get('filtered', 0)
                 totals['failed'] += stats.get('failed', 0)
+                totals['errors'] += stats.get('errors', 0)
+                totals['fetch_failed'] += stats.get('fetch_failed', 0)
         except Exception as e:
             notification_state.record_cycle_error(str(e))
             raise
 
-        notification_state.record_cycle(totals)
+        outage = self._sec_outage_reason(submissions_stats)
+        if outage:
+            # Not a heartbeat: "no filings" is only trustworthy when SEC answered.
+            self.logger.error("Ciclo degradato: %s", outage)
+            notification_state.record_cycle_degraded(totals, outage)
+        else:
+            notification_state.record_cycle(totals)
+
+    # A cycle where at least this share of funds could not be read is recorded
+    # as degraded, not healthy.
+    SEC_OUTAGE_RATIO = 0.5
+    # After this many funds fail in a row, SEC is down or blocking us: stop the
+    # cycle instead of walking every remaining fund through its retries.
+    SEC_CIRCUIT_BREAKER_THRESHOLD = 5
+
+    @classmethod
+    def _sec_outage_reason(cls, stats) -> Optional[str]:
+        """A one-line reason when SEC failed for too many funds, else ``None``."""
+        if not stats:
+            return None
+        funds = int(stats.get('funds_total', 0) or 0)
+        failed = int(stats.get('fetch_failed', 0) or 0)
+        skipped = int(stats.get('funds_skipped', 0) or 0)
+        unchecked = failed + skipped
+        if funds <= 0 or failed < 1 or unchecked < funds * cls.SEC_OUTAGE_RATIO:
+            return None
+
+        last_error = stats.get('last_fetch_error') or 'sconosciuto'
+        if skipped:
+            return (
+                f"SEC non raggiungibile: {unchecked}/{funds} fondi non controllati "
+                f"({failed} falliti, {skipped} saltati dopo {cls.SEC_CIRCUIT_BREAKER_THRESHOLD} "
+                f"errori di fila), ultimo errore {last_error}"
+            )
+        return f"SEC non raggiungibile: {failed}/{funds} fondi falliti, ultimo errore {last_error}"
 
     def _run_feed_fallback(self):
         if not self.config.enable_atom_fallback:
@@ -335,6 +379,7 @@ class FilingProcessor:
                 "Bootstrap submissions attivo: backfill DB e seed dei filing recenti senza invio Telegram"
             )
 
+        funds = list(self.config.hedge_funds_cik.items())
         stats = {
             'total_checked': 0,
             'already_seen': 0,
@@ -343,140 +388,90 @@ class FilingProcessor:
             'filtered': 0,
             'sent': 0,
             'failed': 0,
+            # Health accounting: a fund SEC would not answer for is not a fund
+            # with no filings, and a filing that raised is not a filing handled.
+            'errors': 0,
+            'funds_total': len(funds),
+            'fetch_failed': 0,
+            'funds_skipped': 0,
+            'last_fetch_error': None,
         }
+        consecutive_failures = 0
 
-        for cik, fund_name in self.config.hedge_funds_cik.items():
-            filings = self.sec_client.fetch_recent_13f_for_cik(
-                cik,
-                max_entries=self.config.submissions_recent_limit,
-            )
-
-            for filing in filings:
-                stats['total_checked'] += 1
-
-                accession_number = filing.get('accession_number', '')
-                filing_url = filing.get('filing_url', '')
-                filer_name = filing.get('filer_name', '') or fund_name
-                filing_date = filing.get('filing_date', '')
-                acceptance_datetime = filing.get('acceptance_datetime', '') or filing_date
-
-                entry_id = self._build_entry_id(
-                    source='submissions',
-                    cik=cik,
-                    accession_number=accession_number,
-                    fallback=f"submissions:{cik}:{filing_date}:{filing.get('primary_document', '')}",
+        for index, (cik, fund_name) in enumerate(funds):
+            try:
+                filings = self.sec_client.fetch_recent_13f_for_cik(
+                    cik,
+                    max_entries=self.config.submissions_recent_limit,
                 )
-                seen_candidates = self._build_seen_candidates(
-                    source='submissions',
-                    cik=cik,
-                    accession_number=accession_number,
-                    fallback=f"submissions:{cik}:{filing_date}:{filing.get('primary_document', '')}",
+            except Exception as e:
+                stats['fetch_failed'] += 1
+                consecutive_failures += 1
+                stats['last_fetch_error'] = e.reason if isinstance(e, SECFetchError) else f"{type(e).__name__}: {e}"
+                self.logger.warning(
+                    "Submissions SEC non lette per %s (CIK %s): %s",
+                    fund_name,
+                    cik,
+                    e,
+                    exc_info=not isinstance(e, SECFetchError),
                 )
-
-                if self.storage.any_filing_seen(seen_candidates):
-                    if self._needs_holdings_backfill(accession_number):
-                        self.logger.info(
-                            "Backfill holdings per filing gia visto %s (%s)",
-                            accession_number,
-                            fund_name,
-                        )
-                        self._process_holdings(
-                            filing_url,
-                            filer_name,
-                            fund_name,
-                            cik,
-                            filing_date,
-                            acceptance_datetime=acceptance_datetime,
-                        )
-                    stats['already_seen'] += 1
-                    continue
-
-                if bootstrap_mode:
-                    self.storage.mark_filing_seen(
-                        entry_id,
-                        filer_name,
-                        cik,
-                        filing_date,
-                        acceptance_datetime=acceptance_datetime,
-                        matched=True,
+                if consecutive_failures >= self.SEC_CIRCUIT_BREAKER_THRESHOLD:
+                    stats['funds_skipped'] = len(funds) - index - 1
+                    self.logger.error(
+                        "%s fondi falliti di fila: interrompo il ciclo submissions, %s fondi saltati "
+                        "(ultimo errore: %s)",
+                        consecutive_failures,
+                        stats['funds_skipped'],
+                        stats['last_fetch_error'],
                     )
-                    if self._needs_holdings_backfill(accession_number):
-                        self.logger.info(
-                            "Bootstrap backfill holdings per %s (%s)",
-                            accession_number,
-                            fund_name,
-                        )
-                        self._process_holdings(
-                            filing_url,
-                            filer_name,
-                            fund_name,
-                            cik,
-                            filing_date,
-                            acceptance_datetime=acceptance_datetime,
-                        )
-                    stats['bootstrapped'] += 1
-                    continue
+                    break
+                time.sleep(self.config.submissions_request_delay_seconds)
+                continue
 
-                # Mark as seen before outbound notification to avoid duplicate alerts.
-                self.storage.mark_filing_seen(
-                    entry_id,
-                    filer_name,
-                    cik,
-                    filing_date,
-                    acceptance_datetime=acceptance_datetime,
-                    matched=False,
-                )
-
-                stats['matched'] += 1
-                self.storage.mark_filing_seen(
-                    entry_id,
-                    filer_name,
-                    cik,
-                    filing_date,
-                    acceptance_datetime=acceptance_datetime,
-                    matched=True,
-                )
-
-                holdings_saved, portfolio_diff = self._process_holdings(
-                    filing_url,
-                    filer_name,
-                    fund_name,
-                    cik,
-                    filing_date,
-                    acceptance_datetime=acceptance_datetime,
-                )
-
-                if self._dispatch_alert(
-                    fund_name,
-                    filer_name,
-                    acceptance_datetime,
-                    filing_url,
-                    holdings_saved,
-                    portfolio_diff,
-                    entry_id,
-                    form=filing.get('form', ''),
-                    report_date=filing.get('report_date', ''),
-                ):
-                    stats['sent'] += 1
-                else:
-                    stats['failed'] += 1
+            consecutive_failures = 0
+            for filing in filings:
+                try:
+                    self._process_submission_filing(cik, fund_name, filing, stats, bootstrap_mode)
+                except Exception as e:
+                    # Mirrors the feed loop: one bad filing (SQLite locked, a
+                    # queue write) must not abort the cycle for every other fund.
+                    stats['errors'] += 1
+                    self.logger.error(
+                        "Errore processamento filing %s di %s (CIK %s): %s",
+                        filing.get('accession_number', '') if isinstance(filing, dict) else '?',
+                        fund_name,
+                        cik,
+                        e,
+                        exc_info=True,
+                    )
 
             time.sleep(self.config.submissions_request_delay_seconds)
 
         self.logger.info(
-            "📊 Submissions: %s totali | %s già visti | %s bootstrap | %s matched | %s inviati | %s falliti",
+            "📊 Submissions: %s totali | %s già visti | %s bootstrap | %s matched | %s inviati | %s falliti"
+            " | %s errori | fondi non letti %s/%s (+%s saltati)",
             stats['total_checked'],
             stats['already_seen'],
             stats['bootstrapped'],
             stats['matched'],
             stats['sent'],
             stats['failed'],
+            stats['errors'],
+            stats['fetch_failed'],
+            stats['funds_total'],
+            stats['funds_skipped'],
         )
 
         if bootstrap_mode:
-            self.runtime_state['submissions_bootstrapped'] = True
-            self.runtime_state['submissions_bootstrapped_at'] = datetime.utcnow().isoformat(timespec='seconds') + 'Z'
-            self._save_runtime_state()
+            if self._sec_outage_reason(stats):
+                # Seeding is what keeps the first live cycle from alerting on
+                # every fund's back catalogue; funds SEC did not answer for are
+                # not seeded yet, so try again next cycle.
+                self.logger.warning("Bootstrap submissions rinviato: SEC non ha risposto per troppi fondi")
+            else:
+                self.runtime_state['submissions_bootstrapped'] = True
+                self.runtime_state['submissions_bootstrapped_at'] = datetime.utcnow().isoformat(timespec='seconds') + 'Z'
+                self._save_runtime_state()
 
         self.storage.update_statistics(
             total_checked=stats['total_checked'] - stats['already_seen'],
@@ -486,17 +481,132 @@ class FilingProcessor:
 
         return stats
 
+    def _process_submission_filing(self, cik, fund_name, filing, stats, bootstrap_mode):
+        """Handle one filing from the submissions endpoint, updating ``stats``."""
+        stats['total_checked'] += 1
+
+        accession_number = filing.get('accession_number', '')
+        filing_url = filing.get('filing_url', '')
+        filer_name = filing.get('filer_name', '') or fund_name
+        filing_date = filing.get('filing_date', '')
+        acceptance_datetime = filing.get('acceptance_datetime', '') or filing_date
+
+        entry_id = self._build_entry_id(
+            source='submissions',
+            cik=cik,
+            accession_number=accession_number,
+            fallback=f"submissions:{cik}:{filing_date}:{filing.get('primary_document', '')}",
+        )
+        seen_candidates = self._build_seen_candidates(
+            source='submissions',
+            cik=cik,
+            accession_number=accession_number,
+            fallback=f"submissions:{cik}:{filing_date}:{filing.get('primary_document', '')}",
+        )
+
+        if self.storage.any_filing_seen(seen_candidates):
+            if self._needs_holdings_backfill(accession_number):
+                self.logger.info(
+                    "Backfill holdings per filing gia visto %s (%s)",
+                    accession_number,
+                    fund_name,
+                )
+                self._process_holdings(
+                    filing_url,
+                    filer_name,
+                    fund_name,
+                    cik,
+                    filing_date,
+                    acceptance_datetime=acceptance_datetime,
+                )
+            stats['already_seen'] += 1
+            return
+
+        if bootstrap_mode:
+            self.storage.mark_filing_seen(
+                entry_id,
+                filer_name,
+                cik,
+                filing_date,
+                acceptance_datetime=acceptance_datetime,
+                matched=True,
+            )
+            if self._needs_holdings_backfill(accession_number):
+                self.logger.info(
+                    "Bootstrap backfill holdings per %s (%s)",
+                    accession_number,
+                    fund_name,
+                )
+                self._process_holdings(
+                    filing_url,
+                    filer_name,
+                    fund_name,
+                    cik,
+                    filing_date,
+                    acceptance_datetime=acceptance_datetime,
+                )
+            stats['bootstrapped'] += 1
+            return
+
+        # Mark as seen before outbound notification to avoid duplicate alerts.
+        self.storage.mark_filing_seen(
+            entry_id,
+            filer_name,
+            cik,
+            filing_date,
+            acceptance_datetime=acceptance_datetime,
+            matched=False,
+        )
+
+        stats['matched'] += 1
+        self.storage.mark_filing_seen(
+            entry_id,
+            filer_name,
+            cik,
+            filing_date,
+            acceptance_datetime=acceptance_datetime,
+            matched=True,
+        )
+
+        holdings_saved, portfolio_diff = self._process_holdings(
+            filing_url,
+            filer_name,
+            fund_name,
+            cik,
+            filing_date,
+            acceptance_datetime=acceptance_datetime,
+        )
+
+        if self._dispatch_alert(
+            fund_name,
+            filer_name,
+            acceptance_datetime,
+            filing_url,
+            holdings_saved,
+            portfolio_diff,
+            entry_id,
+            form=filing.get('form', ''),
+            report_date=filing.get('report_date', ''),
+        ):
+            stats['sent'] += 1
+        else:
+            stats['failed'] += 1
+
     def process_feed_fallback(self):
         """Process the current RSS feed as fallback/secondary monitoring."""
         self.logger.info(f"\n{'='*60}")
         self.logger.info(f"Controllo feed fallback alle {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
-        # Fetch feed
-        feed = self.sec_client.fetch_13f_feed(self.config.rss_url)
+        try:
+            feed = self.sec_client.fetch_13f_feed(self.config.rss_url)
+        except SECFetchError as e:
+            # The feed is the secondary path; submissions already decides
+            # whether the cycle is healthy. Log it and let the cycle finish.
+            self.logger.warning("Feed SEC non disponibile: %s", e)
+            return None
 
-        # fetch_13f_feed() returns an empty FeedParserDict when SEC fails all
-        # retries; `.entries` on that raises AttributeError, so use .get() —
-        # otherwise a transient SEC outage crashes the whole poller process.
+        # A feed that parsed but has no entries (or a mocked empty
+        # FeedParserDict, where `.entries` raises AttributeError): use .get().
         if not feed.get('entries'):
             self.logger.warning("Feed vuoto o non disponibile")
             return None
@@ -508,7 +618,8 @@ class FilingProcessor:
             'matched': 0,
             'filtered': 0,
             'sent': 0,
-            'failed': 0
+            'failed': 0,
+            'errors': 0,
         }
 
         # Process each entry
@@ -625,6 +736,7 @@ class FilingProcessor:
                     stats['failed'] += 1
 
             except Exception as e:
+                stats['errors'] += 1
                 self.logger.error(f"Errore processamento entry: {e}", exc_info=True)
 
         # Log summary

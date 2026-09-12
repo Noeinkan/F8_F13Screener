@@ -1,5 +1,11 @@
 """
 DuckDB-backed storage for dashboard analytics data.
+
+``holdings`` keeps each Information Table row as filed. ``filings`` (one row
+per accession) and the ``holdings_effective`` view on top of both are
+maintained by :mod:`src.core.filing_rollup`; analytics read the view, while
+the bookkeeping queries here that decide whether an accession is already
+ingested keep reading the raw table.
 """
 
 from __future__ import annotations
@@ -8,10 +14,12 @@ import logging
 import time
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import duckdb
 import pandas as pd
+
+from src.core import filing_rollup
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +54,92 @@ def _connect_with_lock_retry(db_path: str, **kwargs):
     raise RuntimeError(f"Unreachable: exhausted DuckDB lock retries for {db_path}")
 
 
+HOLDINGS_TABLE_DDL = """
+    CREATE TABLE IF NOT EXISTS holdings (
+        id BIGINT,
+        filing_date VARCHAR NOT NULL,
+        fund_name VARCHAR NOT NULL,
+        fund_cik VARCHAR,
+        accession_number VARCHAR,
+        filing_url VARCHAR,
+        acceptance_datetime VARCHAR,
+        issuer_name VARCHAR,
+        share_class VARCHAR,
+        cusip VARCHAR,
+        figi VARCHAR,
+        value_x1000 VARCHAR,
+        value_usd BIGINT,
+        shares_raw VARCHAR,
+        shares BIGINT,
+        sh_prn VARCHAR,
+        put_call VARCHAR,
+        investment_discretion VARCHAR,
+        other_manager VARCHAR,
+        other_managers_raw VARCHAR,
+        all_columns_raw VARCHAR,
+        voting_authority_sole BIGINT,
+        voting_authority_shared BIGINT,
+        voting_authority_none BIGINT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+"""
+
+
+def _apply_schema(conn) -> None:
+    """Create or upgrade every dashboard table and view on an open connection."""
+    conn.execute(HOLDINGS_TABLE_DDL)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_dash_accession ON holdings(accession_number)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_dash_fund_date ON holdings(fund_name, filing_date)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_dash_cusip ON holdings(cusip)")
+    existing_columns = {
+        row[1]
+        for row in conn.execute("PRAGMA table_info('holdings')").fetchall()
+    }
+    if 'acceptance_datetime' not in existing_columns:
+        conn.execute("ALTER TABLE holdings ADD COLUMN acceptance_datetime VARCHAR")
+
+    conn.execute("BEGIN TRANSACTION")
+    try:
+        filing_rollup.ensure_filings_schema(conn)
+        conn.execute("COMMIT")
+    except Exception:
+        conn.execute("ROLLBACK")
+        raise
+
+
+def ensure_dashboard_schema(db_path: Path | str) -> bool:
+    """Migrate a dashboard DuckDB file in place, without waiting for a lock.
+
+    The API reads a read-only copy of this file, so the ``filings`` table and
+    the ``holdings_effective`` view must already exist in the live file when
+    the copy is taken. Writers (poller, refresh) run the same migration when
+    they open the file, so if one of them holds the lock right now this gives
+    up with a warning instead of stalling startup.
+
+    Returns True when the schema was applied, False when skipped.
+    """
+    path = Path(db_path)
+    if not path.exists():
+        return False
+    try:
+        conn = duckdb.connect(str(path))
+    except duckdb.IOException as exc:
+        if not _is_lock_conflict(exc):
+            raise
+        logger.warning(
+            "Dashboard schema check skipped: %s is locked by another process (%s). "
+            "The writer holding it applies the same migration.",
+            path,
+            exc,
+        )
+        return False
+    try:
+        _apply_schema(conn)
+    finally:
+        conn.close()
+    return True
+
+
 class DashboardStorage:
     """DuckDB storage used by historical processing and Streamlit dashboard."""
 
@@ -76,51 +170,26 @@ class DashboardStorage:
 
     def _init_database(self):
         with self._get_connection() as conn:
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS holdings (
-                    id BIGINT,
-                    filing_date VARCHAR NOT NULL,
-                    fund_name VARCHAR NOT NULL,
-                    fund_cik VARCHAR,
-                    accession_number VARCHAR,
-                    filing_url VARCHAR,
-                    acceptance_datetime VARCHAR,
-                    issuer_name VARCHAR,
-                    share_class VARCHAR,
-                    cusip VARCHAR,
-                    figi VARCHAR,
-                    value_x1000 VARCHAR,
-                    value_usd BIGINT,
-                    shares_raw VARCHAR,
-                    shares BIGINT,
-                    sh_prn VARCHAR,
-                    put_call VARCHAR,
-                    investment_discretion VARCHAR,
-                    other_manager VARCHAR,
-                    other_managers_raw VARCHAR,
-                    all_columns_raw VARCHAR,
-                    voting_authority_sole BIGINT,
-                    voting_authority_shared BIGINT,
-                    voting_authority_none BIGINT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-                """
-            )
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_dash_accession ON holdings(accession_number)")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_dash_fund_date ON holdings(fund_name, filing_date)")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_dash_cusip ON holdings(cusip)")
-            existing_columns = {
-                row[1]
-                for row in conn.execute("PRAGMA table_info('holdings')").fetchall()
-            }
-            if 'acceptance_datetime' not in existing_columns:
-                conn.execute("ALTER TABLE holdings ADD COLUMN acceptance_datetime VARCHAR")
+            _apply_schema(conn)
 
     def clear_holdings(self) -> int:
+        """Delete every holdings row.
+
+        ``filings`` rows go with them, except those carrying metadata read from
+        SEC documents: a full rebuild re-ingests the same accessions and would
+        otherwise have to fetch it all again.
+        """
         with self._get_connection() as conn:
-            deleted = conn.execute("SELECT COUNT(*) FROM holdings").fetchone()[0]
-            conn.execute("DELETE FROM holdings")
+            conn.execute("BEGIN TRANSACTION")
+            try:
+                deleted = conn.execute("SELECT COUNT(*) FROM holdings").fetchone()[0]
+                conn.execute("DELETE FROM holdings")
+                filing_rollup.prune_orphan_filings(conn)
+                filing_rollup.refresh_filing_rollup(conn, None)
+                conn.execute("COMMIT")
+            except Exception:
+                conn.execute("ROLLBACK")
+                raise
             logger.info("Cleared %s rows from dashboard DB", deleted)
             return int(deleted)
 
@@ -133,7 +202,18 @@ class DashboardStorage:
         accession_number: str,
         filing_url: str,
         acceptance_datetime: Optional[str] = None,
+        *,
+        form_type: Optional[str] = None,
+        period_of_report: Optional[str] = None,
+        amendment_type: Optional[str] = None,
+        table_entry_total: Optional[int] = None,
+        table_value_total: Optional[int] = None,
     ) -> int:
+        """Replace one accession's rows and refresh its fund's filing rollup.
+
+        The metadata keywords describe the filing's cover page; any left as
+        None keeps what ``filings`` already knows about the accession.
+        """
         if not holdings:
             return 0
 
@@ -171,10 +251,25 @@ class DashboardStorage:
                 )
             )
 
+        metadata = {
+            "form_type": form_type,
+            "period_of_report": period_of_report,
+            "amendment_type": amendment_type,
+            "table_entry_total": table_entry_total,
+            "table_value_total": table_value_total,
+        }
+
         with self._get_connection() as conn:
             conn.execute("BEGIN TRANSACTION")
             try:
+                funds_to_refresh = {fund_name}
                 if accession_number:
+                    previous = conn.execute(
+                        "SELECT fund_name FROM filings WHERE accession_number = ?",
+                        [accession_number],
+                    ).fetchone()
+                    if previous is not None and previous[0]:
+                        funds_to_refresh.add(previous[0])
                     conn.execute("DELETE FROM holdings WHERE accession_number = ?", [accession_number])
                 conn.executemany(
                     """
@@ -189,6 +284,17 @@ class DashboardStorage:
                     """,
                     rows,
                 )
+                if accession_number:
+                    filing_rollup.upsert_filing(
+                        conn,
+                        accession_number=accession_number,
+                        fund_name=fund_name,
+                        fund_cik=fund_cik_clean,
+                        filing_date=filing_date_clean,
+                        acceptance_datetime=acceptance_datetime,
+                        metadata=metadata,
+                    )
+                    filing_rollup.refresh_filing_rollup(conn, funds_to_refresh)
                 conn.execute("COMMIT")
             except Exception:
                 conn.execute("ROLLBACK")
@@ -246,8 +352,10 @@ class DashboardStorage:
 
         with self._get_connection() as conn:
             conn.register("seed_holdings_df", seed_df)
-            conn.execute("DELETE FROM holdings")
-            conn.execute(
+            conn.execute("BEGIN TRANSACTION")
+            try:
+                conn.execute("DELETE FROM holdings")
+                conn.execute(
                 """
                 INSERT INTO holdings (
                     id, filing_date, fund_name, fund_cik, accession_number, filing_url,
@@ -284,10 +392,66 @@ class DashboardStorage:
                     voting_authority_none
                 FROM seed_holdings_df
                 """
-            )
-            inserted = conn.execute("SELECT COUNT(*) FROM holdings").fetchone()[0]
-            conn.unregister("seed_holdings_df")
+                )
+                filing_rollup.rebuild_filings_from_holdings(conn)
+                inserted = conn.execute("SELECT COUNT(*) FROM holdings").fetchone()[0]
+                conn.execute("COMMIT")
+            except Exception:
+                conn.execute("ROLLBACK")
+                raise
+            finally:
+                conn.unregister("seed_holdings_df")
         return int(inserted)
+
+    # ------------------------------------------------------------------
+    # Filing metadata and rollup (see src/core/filing_rollup.py)
+    # ------------------------------------------------------------------
+
+    def _run_in_transaction(self, work):
+        with self._get_connection() as conn:
+            conn.execute("BEGIN TRANSACTION")
+            try:
+                result = work(conn)
+                conn.execute("COMMIT")
+            except Exception:
+                conn.execute("ROLLBACK")
+                raise
+            return result
+
+    def upsert_filing_metadata_many(self, records: List[Dict[str, Any]]) -> int:
+        """Store cover-page metadata for existing filings and refresh their funds.
+
+        Each record has ``accession_number`` plus any of ``form_type``,
+        ``period_of_report``, ``amendment_type``, ``table_entry_total``,
+        ``table_value_total``; only fields that are not None are written.
+        Returns the number of ``filings`` rows updated.
+        """
+        records = list(records or [])
+        if not records:
+            return 0
+
+        def work(conn) -> int:
+            updated, funds = filing_rollup.update_filing_metadata(conn, records)
+            if funds:
+                filing_rollup.refresh_filing_rollup(conn, funds)
+            return updated
+
+        return int(self._run_in_transaction(work))
+
+    def refresh_filing_rollup(self, fund_name: Optional[str] = None) -> None:
+        """Recompute row counts, value units and amendment folding (one fund or all)."""
+        funds = None if fund_name is None else [fund_name]
+        self._run_in_transaction(lambda conn: filing_rollup.refresh_filing_rollup(conn, funds))
+
+    def get_filings_missing_metadata(self, limit: Optional[int] = None) -> List[Dict[str, Any]]:
+        """Filings with no period of report, or amendments of unknown type."""
+        with self._get_connection() as conn:
+            return filing_rollup.query_filings_missing_metadata(conn, limit)
+
+    def get_entry_count_mismatches(self) -> List[Dict[str, Any]]:
+        """Filings whose stored row count differs from the cover page's entry total."""
+        with self._get_connection() as conn:
+            return filing_rollup.query_entry_count_mismatches(conn)
 
     def export_holdings_to_csv(self, output_path: Path) -> int:
         df = self.query_df(

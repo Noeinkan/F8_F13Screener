@@ -71,6 +71,49 @@ def test_errors_accumulate_until_a_cycle_succeeds():
     assert health.last_error is None
 
 
+def test_a_degraded_cycle_proves_life_but_is_not_a_heartbeat():
+    healthy_at = datetime(2026, 9, 12, 8, 0)
+    notification_state.record_cycle({"total": 10}, now=healthy_at)
+
+    degraded_at = healthy_at + timedelta(minutes=40)
+    notification_state.record_cycle_degraded(
+        {"total": 0, "fetch_failed": 58},
+        "SEC non raggiungibile: 58/58 fondi falliti, ultimo errore HTTP 403",
+        now=degraded_at,
+    )
+
+    health = notification_state.read_health()
+    assert health.last_cycle_at == healthy_at, "an outage must not refresh the healthy-cycle clock"
+    assert health.last_attempt_at == degraded_at
+    assert health.attempt_age_seconds(degraded_at) == 0
+    assert health.consecutive_errors == 1
+    assert "HTTP 403" in health.last_error
+
+    totals = health.totals_for("2026-09-12")
+    assert totals["cycles"] == 1
+    assert totals["degraded_cycles"] == 1
+    assert totals["fetch_failed"] == 58
+
+
+def test_a_healthy_cycle_after_an_outage_clears_the_error():
+    notification_state.record_cycle_degraded({}, "SEC non raggiungibile")
+    notification_state.record_cycle({"total": 1})
+
+    health = notification_state.read_health()
+    assert health.consecutive_errors == 0
+    assert health.last_error is None
+
+
+def test_health_written_before_last_attempt_existed_still_reads(isolated_state):
+    (isolated_state / "health.json").write_text(
+        '{"last_cycle_at": "2026-09-12T08:00:00", "consecutive_errors": 0}', encoding="utf-8"
+    )
+
+    health = notification_state.read_health()
+    assert health.last_attempt_at is None
+    assert health.attempt_age_seconds(datetime(2026, 9, 12, 8, 5)) == 300
+
+
 def test_startup_clears_a_stale_error_streak():
     notification_state.record_cycle_error("boom")
     notification_state.record_startup()

@@ -40,7 +40,7 @@ def _load_accession_multiplier_map(
             accession_number,
             shares,
             value_usd
-        FROM holdings
+        FROM holdings_effective
         WHERE accession_number IN ({placeholders})
           AND shares IS NOT NULL
           AND value_usd IS NOT NULL

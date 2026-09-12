@@ -49,7 +49,7 @@ def _search_holdings(query_text: str, limit: int) -> dict[str, object]:
             shares      AS "Shares",
             value_usd   AS "Value ($000s)",
             accession_number AS "Accession"
-        FROM holdings
+        FROM holdings_effective
         WHERE {where_sql}
         ORDER BY filing_date DESC, value_usd DESC NULLS LAST
         """,

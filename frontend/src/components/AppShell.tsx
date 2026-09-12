@@ -2,7 +2,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@mantine/core";
 import { useState } from "react";
-import { apiGet, apiPost } from "@/api/client";
+import { apiGet, apiPost, describeError } from "@/api/client";
 import { SidebarNav } from "@/components/SidebarNav";
 import { TopBar } from "@/components/TopBar";
 import { DemoBanner } from "@/demo/DemoBanner";
@@ -39,7 +39,18 @@ type RefreshStatus = {
 };
 
 const POLL_INTERVAL_MS = 2000;
+// After a failed status check, wait longer: an API restart takes seconds.
+const POLL_RETRY_INTERVAL_MS = 5000;
+// The refresh job keeps running on the server whatever happens to one status
+// request, so a blip must not end the polling. Six misses in a row (~30 s of
+// silence) is an outage, not a blip.
+const MAX_CONSECUTIVE_POLL_FAILURES = 6;
 const POLL_TIMEOUT_MS = 30 * 60 * 1000; // 30 min, the full pipeline can be long
+
+function errorSummary(err: unknown): string {
+  const { message, status, detail } = describeError(err);
+  return [message, status ? `HTTP ${status}` : null, detail].filter(Boolean).join(" · ");
+}
 
 export function AppShellLayout() {
   const location = useLocation();
@@ -66,10 +77,34 @@ export function AppShellLayout() {
       );
 
       const deadline = Date.now() + POLL_TIMEOUT_MS;
+      let consecutiveFailures = 0;
+      let outcome: "finished" | "lost-contact" | "timed-out" = "timed-out";
       while (Date.now() < deadline) {
-        await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
-        const status = await apiGet<RefreshStatus>("/api/cache/refresh/status");
+        await new Promise((r) =>
+          setTimeout(r, consecutiveFailures > 0 ? POLL_RETRY_INTERVAL_MS : POLL_INTERVAL_MS),
+        );
+        let status: RefreshStatus;
+        try {
+          status = await apiGet<RefreshStatus>("/api/cache/refresh/status");
+          consecutiveFailures = 0;
+        } catch (pollErr) {
+          consecutiveFailures += 1;
+          if (consecutiveFailures >= MAX_CONSECUTIVE_POLL_FAILURES) {
+            setRefreshMessage(
+              `Lost contact with the API: ${consecutiveFailures} status checks in a row failed ` +
+                `(${errorSummary(pollErr)}). The refresh may still be running on the server — ` +
+                "reload the page in a few minutes to see the new data.",
+            );
+            outcome = "lost-contact";
+            break;
+          }
+          setRefreshMessage(
+            `Refreshing… status check failed (${consecutiveFailures}/${MAX_CONSECUTIVE_POLL_FAILURES}), retrying.`,
+          );
+          continue;
+        }
         if (!status.running) {
+          outcome = "finished";
           const finished = status.current ?? status.history.at(-1) ?? null;
           if (finished && finished.exit_code === 0) {
             setRefreshMessage(
@@ -91,10 +126,19 @@ export function AppShellLayout() {
         );
       }
 
-      await queryClient.invalidateQueries();
+      if (outcome === "timed-out") {
+        setRefreshMessage(
+          `Stopped watching after ${POLL_TIMEOUT_MS / 60_000} minutes; the refresh is still running on the server. ` +
+            "Reload the page later to see the new data.",
+        );
+      }
+      // With the API unreachable, refetching every query would only turn each
+      // page into an error; the user reloads once the API is back.
+      if (outcome !== "lost-contact") {
+        await queryClient.invalidateQueries();
+      }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      setRefreshMessage(`Refresh request failed: ${msg}`);
+      setRefreshMessage(`Refresh request failed: ${errorSummary(err)}`);
     } finally {
       setRefreshing(false);
     }

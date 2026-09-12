@@ -79,7 +79,7 @@ def test_build_fund_instrument_history_adds_dashboard_columns():
 
     result = build_fund_instrument_history(rows)
 
-    assert result.loc[0, "Position Key"] == "037833100|COM|"
+    assert result.loc[0, "Position Key"] == "037833100|"
     assert result.loc[0, "Instrument Type"] == "Equity"
     assert result.loc[0, "Instrument Label"] == "Apple Inc | COM | Equity | 037833100"
     assert result.loc[0, "Label"] == "2024-02-14 (0001)"

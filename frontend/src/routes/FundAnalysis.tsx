@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useDebouncedValue } from "@mantine/hooks";
 import {
   Alert,
   Badge,
   Button,
   Group,
+  Loader,
   NumberInput,
   Paper,
   Radio,
@@ -18,6 +20,8 @@ import {
   TextInput,
 } from "@mantine/core";
 import { apiGet } from "@/api/client";
+import { keepPreviousWithin } from "@/api/placeholder";
+import { QueryError } from "@/components/QueryError";
 import {
   BarChart,
   GroupedBarChart,
@@ -77,18 +81,23 @@ type SnapshotPayload = {
   };
 };
 
+// GET /api/funds/{fund}/history — only the fields this page reads. Each
+// transition is counts and dates; the per-position lists are not used here
+// (Compare fetches them per pair), so they are deliberately not typed.
+type HistoryTransition = {
+  from_filing_date: string;
+  to_filing_date: string;
+  from_accession_number: string;
+  to_accession_number: string;
+  new_count: number;
+  closed_count: number;
+  increased_count: number;
+  decreased_count: number;
+};
+
 type HistoryPayload = {
   history?: Record<string, unknown>[];
-  transitions?: Array<{
-    from_filing_date: string;
-    to_filing_date: string;
-    from_accession_number: string;
-    to_accession_number: string;
-    new_count: number;
-    closed_count: number;
-    increased_count: number;
-    decreased_count: number;
-  }>;
+  transitions?: HistoryTransition[];
   transitions_chart?: {
     title: string;
     x: string[];
@@ -103,12 +112,10 @@ type HistoryPayload = {
     latest_value?: number | null;
     value_delta?: number | null;
     value_multiplier_summary?: string;
-    latest_accession?: string;
   };
   charts?: {
     positions?: { title: string; x: string[]; y: number[]; labels?: string[] };
     value?: { title: string; x: string[]; y: number[]; labels?: string[] } | null;
-    transitions?: Record<string, unknown>[];
   };
 };
 
@@ -128,7 +135,6 @@ type FormattedDiffSection = {
   rows: Record<string, unknown>[];
   count: number;
   value_multiplier?: number;
-  type_label?: string;
 };
 
 type FormattedDiff = {
@@ -138,10 +144,10 @@ type FormattedDiff = {
   has_any?: boolean;
 };
 
+// GET /api/funds/{fund}/compare — only the fields this page reads. The raw
+// `diff` key is not used: tables and highlights come from `formatted_diff`,
+// `top_movers` and `highlights`.
 type ComparePayload = {
-  fund: string;
-  old_accession: string;
-  new_accession: string;
   counts: { new: number; closed: number; increased: number; decreased: number };
   highlights?: CompareHighlight[];
   top_movers?: TopMovers;
@@ -350,7 +356,17 @@ function fmtSignedPct(value: unknown): string {
   return `${num >= 0 ? "+" : ""}${num.toFixed(1)}%`;
 }
 
-const DEFAULT_FUND_CANDIDATES = ["Situational Awareness LP (Leopold Aschenbrenner)"];
+const TYPING_DEBOUNCE_MS = 300;
+const FLOW_TOP_N_MIN = 5;
+const FLOW_TOP_N_MAX = 50;
+
+/** NumberInput lets "3" through while typing "35"; the API rejects < 5. */
+function clampFlowTopN(value: number): number {
+  if (!Number.isFinite(value)) return 20;
+  return Math.min(FLOW_TOP_N_MAX, Math.max(FLOW_TOP_N_MIN, Math.round(value)));
+}
+
+const DEFAULT_FUND_CANDIDATES =["Situational Awareness LP (Leopold Aschenbrenner)"];
 
 function getDefaultFund(funds: string[]): string {
   for (const candidate of DEFAULT_FUND_CANDIDATES) {
@@ -464,8 +480,12 @@ export function FundAnalysisPage() {
   // Snapshot tab state
   const [accession, setAccession] = useState("");
   const [view, setView] = useState<"normalized" | "raw">("normalized");
+  // Sliders: the draft follows the thumb, the committed value (in the query
+  // key) changes only on release, so dragging does not fire a request per step.
   const [topN, setTopN] = useState(10);
+  const [topNDraft, setTopNDraft] = useState(10);
   const [filter, setFilter] = useState("");
+  const [debouncedFilter] = useDebouncedValue(filter, TYPING_DEBOUNCE_MS);
 
   // Compare tab state
   // A deep link naming both filings (a Telegram alert) must not be overwritten
@@ -476,8 +496,13 @@ export function FundAnalysisPage() {
   const [oldAccession, setOldAccession] = useState(initialOldAcc);
   const [newAccession, setNewAccession] = useState(initialNewAcc);
   const [sankeyTopN, setSankeyTopN] = useState(20);
+  const [sankeyTopNDraft, setSankeyTopNDraft] = useState(20);
   const [sankeyTopNBuys, setSankeyTopNBuys] = useState(20);
   const [sankeyTopNSells, setSankeyTopNSells] = useState(20);
+  const [debouncedTopNBuys] = useDebouncedValue(sankeyTopNBuys, TYPING_DEBOUNCE_MS);
+  const [debouncedTopNSells] = useDebouncedValue(sankeyTopNSells, TYPING_DEBOUNCE_MS);
+  const flowTopNBuys = clampFlowTopN(debouncedTopNBuys);
+  const flowTopNSells = clampFlowTopN(debouncedTopNSells);
   const [sankeyIncludeOptions, setSankeyIncludeOptions] = useState(false);
   const [transitionIndex, setTransitionIndex] = useState(0);
 
@@ -519,26 +544,34 @@ export function FundAnalysisPage() {
     setInsightKey("");
   }, [accession]);
 
+  // Each query runs only while the tab that shows it is open. Keys never
+  // include the tab, so coming back to a tab reuses what is already cached.
   const snapshotQuery = useQuery({
-    queryKey: ["fund-snapshot", fund, accession, view, topN, filter],
+    queryKey: ["fund-snapshot", fund, accession, view, topN, debouncedFilter],
     queryFn: () =>
       apiGet<SnapshotPayload>(
         `/api/funds/${encodeURIComponent(fund)}/accessions/${encodeURIComponent(accession)}/holdings?view=${view}&top_n=${topN}&filter=${encodeURIComponent(
-          filter,
+          debouncedFilter,
         )}`,
       ),
-    enabled: Boolean(fund && accession),
+    enabled: tab === "snapshot" && Boolean(fund && accession),
+    // Same fund and quarter: keep the rows on screen while a filter, view or
+    // slider change loads. A different quarter shows the loading state.
+    placeholderData: keepPreviousWithin(["fund-snapshot", fund, accession]),
   });
 
   const historyQuery = useQuery({
     queryKey: ["fund-history", fund],
     queryFn: () =>
       apiGet<HistoryPayload>(`/api/funds/${encodeURIComponent(fund)}/history`),
-    enabled: Boolean(fund),
+    enabled: tab === "timeline" && Boolean(fund),
   });
 
   const compareEnabled =
     Boolean(fund) && Boolean(newAccession) && Boolean(oldAccession) && oldAccession !== newAccession;
+  // Timeline shows the compare tables as its drill-down, once there is a
+  // transition to drill into.
+  const timelineNeedsCompare = tab === "timeline" && (historyQuery.data?.transitions?.length ?? 0) > 0;
 
   const compareQuery = useQuery({
     queryKey: ["fund-compare", fund, oldAccession, newAccession],
@@ -548,8 +581,10 @@ export function FundAnalysisPage() {
           oldAccession,
         )}&new_accession=${encodeURIComponent(newAccession)}`,
       ),
-    enabled: compareEnabled,
+    enabled: compareEnabled && (tab === "compare" || timelineNeedsCompare),
   });
+
+  const flowChartsEnabled = compareEnabled && tab === "compare";
 
   const sankeyQuery = useQuery({
     queryKey: [
@@ -558,18 +593,15 @@ export function FundAnalysisPage() {
       oldAccession,
       newAccession,
       sankeyTopN,
-      sankeyTopNBuys,
-      sankeyTopNSells,
+      flowTopNBuys,
+      flowTopNSells,
       sankeyIncludeOptions,
     ],
     queryFn: () =>
       apiGet<{
         node?: { label: string[]; color?: string[] };
         link?: { source: number[]; target: number[]; value: number[]; color?: string[] };
-        movements?: Record<string, unknown>[];
         value_multiplier?: number;
-        scale_mode?: string;
-        min_visible_pct?: number;
         include_options?: boolean;
       }>(
         buildSankeyHref(
@@ -577,12 +609,13 @@ export function FundAnalysisPage() {
           oldAccession,
           newAccession,
           sankeyTopN,
-          sankeyTopNBuys,
-          sankeyTopNSells,
+          flowTopNBuys,
+          flowTopNSells,
           sankeyIncludeOptions,
         ),
       ),
-    enabled: compareEnabled,
+    enabled: flowChartsEnabled,
+    placeholderData: keepPreviousWithin(["fund-sankey", fund, oldAccession, newAccession]),
   });
 
   const lanesQuery = useQuery({
@@ -592,8 +625,8 @@ export function FundAnalysisPage() {
       oldAccession,
       newAccession,
       sankeyTopN,
-      sankeyTopNBuys,
-      sankeyTopNSells,
+      flowTopNBuys,
+      flowTopNSells,
       sankeyIncludeOptions,
     ],
     queryFn: () =>
@@ -603,15 +636,19 @@ export function FundAnalysisPage() {
           oldAccession,
           newAccession,
           sankeyTopN,
-          sankeyTopNBuys,
-          sankeyTopNSells,
+          flowTopNBuys,
+          flowTopNSells,
           sankeyIncludeOptions,
         ),
       ),
-    enabled: compareEnabled,
+    enabled: flowChartsEnabled,
+    placeholderData: keepPreviousWithin(["fund-lanes", fund, oldAccession, newAccession]),
   });
 
   const snapshot = snapshotQuery.data;
+  // Before the quarter list arrives the snapshot query cannot start; that is
+  // still loading, not "no rows".
+  const snapshotLoading = snapshotQuery.isLoading || (!accession && headerQuery.isLoading);
   const history = historyQuery.data;
   const compare = compareQuery.data;
 
@@ -734,7 +771,7 @@ export function FundAnalysisPage() {
             placeholder="Select a fund"
             style={{ minWidth: 280 }}
           />
-          {fund ? (
+          {fund && !headerQuery.isError ? (
             headerQuery.isLoading ? (
               <KpiLoading count={3} />
             ) : (
@@ -742,6 +779,26 @@ export function FundAnalysisPage() {
             )
           ) : null}
         </Group>
+        {fundsQuery.isError ? (
+          <QueryError
+            title="Could not load the fund list"
+            error={fundsQuery.error}
+            onRetry={() => fundsQuery.refetch()}
+            retrying={fundsQuery.isFetching}
+            mt="md"
+            mb={0}
+          />
+        ) : null}
+        {fund && headerQuery.isError ? (
+          <QueryError
+            title={`Could not load the filings of ${fund}`}
+            error={headerQuery.error}
+            onRetry={() => headerQuery.refetch()}
+            retrying={headerQuery.isFetching}
+            mt="md"
+            mb={0}
+          />
+        ) : null}
         {fund ? (
           <Text size="sm" c="dimmed" mt="sm">
             One fund workspace for filing inventory, quarter history, and position-level change analysis.
@@ -759,7 +816,7 @@ export function FundAnalysisPage() {
       {!fund ? (
         fundsQuery.isLoading ? (
           <Text c="dimmed">Loading fund list…</Text>
-        ) : (
+        ) : fundsQuery.isError ? null : (
           <Text>Select a fund to begin.</Text>
         )
       ) : null}
@@ -768,6 +825,9 @@ export function FundAnalysisPage() {
         <Tabs
           value={tab}
           onChange={(value) => value && updateTab(value as typeof tab)}
+          // Only the open tab is in the DOM: hidden panels would otherwise
+          // render their Plotly charts out of sight.
+          keepMounted={false}
           variant="pills"
           color="blue"
           classNames={{
@@ -811,15 +871,36 @@ export function FundAnalysisPage() {
                   <Text size="sm" fw={500} mb={8}>
                     Top holdings
                   </Text>
-                  <Slider value={topN} onChange={setTopN} min={5} max={25} step={5} />
+                  <Slider
+                    value={topNDraft}
+                    onChange={setTopNDraft}
+                    onChangeEnd={setTopN}
+                    min={5}
+                    max={25}
+                    step={5}
+                  />
                 </div>
               </SimpleGrid>
               <TextInput
                 label="Filter by ticker, name, or CUSIP"
                 value={filter}
                 onChange={(event) => setFilter(event.currentTarget.value)}
+                rightSection={snapshotQuery.isFetching ? <Loader size="xs" /> : null}
                 mb="md"
               />
+
+              {snapshotQuery.isError ? (
+                <QueryError
+                  title={
+                    snapshot
+                      ? "Could not update the holdings — showing the last loaded rows"
+                      : "Could not load the holdings for this quarter"
+                  }
+                  error={snapshotQuery.error}
+                  onRetry={() => snapshotQuery.refetch()}
+                  retrying={snapshotQuery.isFetching}
+                />
+              ) : null}
 
               {snapshot?.value_multiplier ? (
                 <Text size="sm" c="dimmed" mb="sm">
@@ -846,30 +927,34 @@ export function FundAnalysisPage() {
                     },
                   ]}
                 />
-              ) : snapshotQuery.isLoading ? (
+              ) : snapshotLoading ? (
                 <KpiLoading count={3} />
               ) : null}
 
-              <BarChart
-                chart={snapshot?.chart}
-                loading={snapshotQuery.isLoading && !snapshot?.chart?.x?.length}
-                onPointClick={goToHoldingsSearch}
-              />
-              <DataTable
-                columns={snapshotColumns}
-                rows={snapshotRows}
-                columnOrder={SNAPSHOT_COLUMN_ORDER}
-                cellLinks={HOLDINGS_SEARCH_CELL_LINKS}
-                maxHeight={420}
-                stickyHeader
-                loading={snapshotQuery.isLoading}
-              />
+              {snapshotQuery.isError && !snapshot ? null : (
+                <>
+                  <BarChart
+                    chart={snapshot?.chart}
+                    loading={snapshotLoading && !snapshot?.chart?.x?.length}
+                    onPointClick={goToHoldingsSearch}
+                  />
+                  <DataTable
+                    columns={snapshotColumns}
+                    rows={snapshotRows}
+                    columnOrder={SNAPSHOT_COLUMN_ORDER}
+                    cellLinks={HOLDINGS_SEARCH_CELL_LINKS}
+                    maxHeight={420}
+                    stickyHeader
+                    loading={snapshotLoading}
+                  />
+                </>
+              )}
 
               <Group justify="flex-end" mt="md">
                 <ExportLink
                   href={
                     accession
-                      ? buildSnapshotExportHref(fund, accession, view, topN, filter)
+                      ? buildSnapshotExportHref(fund, accession, view, topN, debouncedFilter)
                       : ""
                   }
                   label="Download holdings CSV"
@@ -945,6 +1030,21 @@ export function FundAnalysisPage() {
                 />
               </Group>
 
+              {historyQuery.isError ? (
+                <QueryError
+                  title={
+                    history
+                      ? "Could not refresh the timeline — showing the last loaded history"
+                      : `Could not load the quarter history of ${fund}`
+                  }
+                  error={historyQuery.error}
+                  onRetry={() => historyQuery.refetch()}
+                  retrying={historyQuery.isFetching}
+                />
+              ) : null}
+
+              {historyQuery.isError && !history ? null : (
+              <>
               {history?.summary ? (
                 <KpiGrid
                   items={[
@@ -1012,6 +1112,8 @@ export function FundAnalysisPage() {
                   </Alert>
                 )}
               </SimpleGrid>
+              </>
+              )}
             </Paper>
 
             {latestFirstTransitions.length > 0 ? (
@@ -1079,7 +1181,15 @@ export function FundAnalysisPage() {
                           selectedTransition.from_filing_date,
                         )} → ${formatDateValue(selectedTransition.to_filing_date)}.`}
                       />
-                      {compareQuery.isLoading && !compare?.formatted_diff ? (
+                      {compareQuery.isError && !compare ? (
+                        <QueryError
+                          title="Could not load the positions for this transition"
+                          error={compareQuery.error}
+                          onRetry={() => compareQuery.refetch()}
+                          retrying={compareQuery.isFetching}
+                          mb={0}
+                        />
+                      ) : compareQuery.isLoading && !compare?.formatted_diff ? (
                         <ChartLoading label="Loading transition details…" />
                       ) : compare?.formatted_diff ? (
                         <TransitionDrilldownTables
@@ -1099,7 +1209,15 @@ export function FundAnalysisPage() {
           </Tabs.Panel>
 
           <Tabs.Panel value="compare">
-            {accessions.length < 2 ? (
+            {headerQuery.isError && !headerQuery.data ? (
+              // The error itself is shown under the fund picker; do not claim
+              // the fund has too few quarters when the list never arrived.
+              <Text size="sm" c="dimmed">
+                Compare needs this fund&apos;s filing list, which did not load. Use Retry above.
+              </Text>
+            ) : headerQuery.isLoading ? (
+              <ChartLoading label="Loading the fund's quarters…" />
+            ) : accessions.length < 2 ? (
               <AlertBanner variant="warning" title="Not enough quarters to compare">
                 At least 2 quarters are required to compute the diff for this fund.
               </AlertBanner>
@@ -1180,6 +1298,19 @@ export function FundAnalysisPage() {
                   separate even when they share the same underlying CUSIP; positions without CUSIP use the
                   fallback issuer/class/put-call key.
                 </Text>
+
+                {compareQuery.isError ? (
+                  <QueryError
+                    title={
+                      compare
+                        ? "Could not refresh the comparison — showing the last loaded one"
+                        : "Could not compare these two quarters"
+                    }
+                    error={compareQuery.error}
+                    onRetry={() => compareQuery.refetch()}
+                    retrying={compareQuery.isFetching}
+                  />
+                ) : null}
 
                 {compare?.counts ? (
                   <KpiGrid
@@ -1280,8 +1411,9 @@ export function FundAnalysisPage() {
                         Position nodes shown
                       </Text>
                       <Slider
-                        value={sankeyTopN}
-                        onChange={setSankeyTopN}
+                        value={sankeyTopNDraft}
+                        onChange={setSankeyTopNDraft}
+                        onChangeEnd={setSankeyTopN}
                         min={5}
                         max={40}
                         step={5}
@@ -1303,6 +1435,14 @@ export function FundAnalysisPage() {
                       />
                     </div>
                   </SimpleGrid>
+                  {sankeyQuery.isPlaceholderData || lanesQuery.isPlaceholderData ? (
+                    <Group gap="xs" mb="sm">
+                      <Loader size="xs" />
+                      <Text size="xs" c="dimmed">
+                        Updating the charts for the new settings…
+                      </Text>
+                    </Group>
+                  ) : null}
                   {sankeyQuery.data ? (
                     <Text size="sm" c="dimmed" mb="sm">
                       Ribbon width is proportional to share delta (linear scale).
@@ -1312,24 +1452,44 @@ export function FundAnalysisPage() {
                       {sankeyQuery.data.value_multiplier ?? 1}).
                     </Text>
                   ) : null}
-                  <SankeyChart
-                    data={sankeyQuery.data}
-                    loading={sankeyQuery.isLoading}
-                    onPointClick={goToHoldingsSearch}
-                  />
+                  {sankeyQuery.isError && !sankeyQuery.data ? (
+                    <QueryError
+                      title="Could not load the flows chart"
+                      error={sankeyQuery.error}
+                      onRetry={() => sankeyQuery.refetch()}
+                      retrying={sankeyQuery.isFetching}
+                    />
+                  ) : (
+                    <SankeyChart
+                      data={sankeyQuery.data}
+                      loading={sankeyQuery.isLoading}
+                      onPointClick={goToHoldingsSearch}
+                    />
+                  )}
 
-                  <LanesChart
-                    chart={
-                      lanesQuery.data?.rows?.length
-                        ? {
-                            title: `Previous to new shares by position - ${fund}`,
-                            rows: lanesQuery.data.rows,
-                          }
-                        : null
-                    }
-                    loading={lanesQuery.isLoading}
-                    onPointClick={goToHoldingsSearch}
-                  />
+                  {lanesQuery.isError && !lanesQuery.data ? (
+                    <QueryError
+                      title="Could not load the lanes chart"
+                      error={lanesQuery.error}
+                      onRetry={() => lanesQuery.refetch()}
+                      retrying={lanesQuery.isFetching}
+                      mt="md"
+                      mb={0}
+                    />
+                  ) : (
+                    <LanesChart
+                      chart={
+                        lanesQuery.data?.rows?.length
+                          ? {
+                              title: `Previous to new shares by position - ${fund}`,
+                              rows: lanesQuery.data.rows,
+                            }
+                          : null
+                      }
+                      loading={lanesQuery.isLoading}
+                      onPointClick={goToHoldingsSearch}
+                    />
+                  )}
                 </Paper>
 
                 <Paper withBorder p="md" radius="md" bg="white" mt="lg">
@@ -1438,7 +1598,8 @@ export function FundAnalysisPage() {
                     </div>
                   ) : null}
 
-                  {!compare?.formatted_diff?.has_any ? (
+                  {/* Only an answer can say "no changes": not a load in progress, not a failure. */}
+                  {compare && !compare.formatted_diff?.has_any ? (
                     <AlertBanner variant="success" title="No changes between the two quarters">
                       The selected accession pair has no detected position-level changes.
                     </AlertBanner>

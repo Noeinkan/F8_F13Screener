@@ -132,7 +132,7 @@ def _build_from_holdings(source_mtime: int | None, read_db_path: Path) -> dict[s
         df = conn.execute(
             """
             SELECT cusip, issuer_name
-            FROM holdings
+            FROM holdings_effective
             WHERE cusip IS NOT NULL
               AND LENGTH(TRIM(cusip)) > 0
               AND issuer_name IS NOT NULL

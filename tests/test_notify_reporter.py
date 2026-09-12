@@ -185,6 +185,39 @@ def test_a_poller_that_never_ran_also_alarms(reporter, sent):
     assert "Screener mai partito" in sent[0]
 
 
+def test_sec_outage_says_sec_is_unreachable_not_that_the_poller_died(reporter, sent):
+    """The poller keeps cycling while SEC answers 403: restarting it fixes nothing."""
+    notification_state.record_cycle({"total": 74}, now=NOW - timedelta(hours=2))
+    notification_state.record_cycle_degraded(
+        {"fetch_failed": 57},
+        "SEC non raggiungibile: 57/58 fondi falliti, ultimo errore HTTP 403",
+        now=NOW - timedelta(minutes=3),
+    )
+
+    assert reporter.check_health(NOW) is True
+    assert "SEC non raggiungibile" in sent[0]
+    assert "57/58 fondi falliti, ultimo errore HTTP 403" in sent[0]
+    assert "Screener silenzioso" not in sent[0]
+    assert notification_state.was_sent("health-alarm-open") is True
+
+
+def test_a_short_sec_blip_does_not_alarm(reporter, sent):
+    notification_state.record_cycle({"total": 74}, now=NOW - timedelta(minutes=10))
+    notification_state.record_cycle_degraded({}, "SEC non raggiungibile", now=NOW - timedelta(minutes=2))
+
+    assert reporter.check_health(NOW) is False
+    assert sent == []
+
+
+def test_degraded_cycles_long_ago_still_read_as_a_silent_poller(reporter, sent):
+    """If even the degraded cycles stopped, the process itself is gone."""
+    notification_state.record_cycle({"total": 74}, now=NOW - timedelta(hours=3))
+    notification_state.record_cycle_degraded({}, "SEC non raggiungibile", now=NOW - timedelta(hours=2))
+
+    assert reporter.check_health(NOW) is True
+    assert "Screener silenzioso" in sent[0]
+
+
 def test_recovery_is_announced_and_closes_the_alarm(reporter, sent):
     notification_state.record_cycle({"total": 74}, now=NOW - timedelta(hours=2))
     reporter.check_health(NOW)

@@ -80,17 +80,31 @@ class Health:
     """What the reporter needs to judge whether the poller is alive and well."""
 
     started_at: Optional[datetime] = None
+    # Last *healthy* cycle: SEC answered for enough funds to trust "no filings".
     last_cycle_at: Optional[datetime] = None
     last_cycle_stats: Dict[str, int] = field(default_factory=dict)
     consecutive_errors: int = 0
     last_error: Optional[str] = None
     daily: Dict[str, Dict[str, int]] = field(default_factory=dict)
+    # Last cycle that reached the end, healthy or degraded. Newer than
+    # ``last_cycle_at`` means the poller is alive but SEC is not answering.
+    last_attempt_at: Optional[datetime] = None
 
     def age_seconds(self, now: Optional[datetime] = None) -> Optional[float]:
-        """Seconds since the last completed cycle, or ``None`` if it never ran."""
+        """Seconds since the last healthy cycle, or ``None`` if none ever completed."""
         if self.last_cycle_at is None:
             return None
         return ((now or datetime.now()) - self.last_cycle_at).total_seconds()
+
+    def attempt_age_seconds(self, now: Optional[datetime] = None) -> Optional[float]:
+        """Seconds since the poller last finished a cycle of any kind."""
+        latest = max(
+            (moment for moment in (self.last_attempt_at, self.last_cycle_at) if moment),
+            default=None,
+        )
+        if latest is None:
+            return None
+        return ((now or datetime.now()) - latest).total_seconds()
 
     def totals_for(self, day: str) -> Dict[str, int]:
         return self.daily.get(day, {})
@@ -116,6 +130,7 @@ def read_health() -> Health:
         consecutive_errors=int(raw.get('consecutive_errors') or 0),
         last_error=raw.get('last_error'),
         daily=raw.get('daily') or {},
+        last_attempt_at=_parse_dt(raw.get('last_attempt_at')),
     )
 
 
@@ -125,12 +140,32 @@ def _write_health(health: Health) -> None:
         {
             'started_at': health.started_at.isoformat() if health.started_at else None,
             'last_cycle_at': health.last_cycle_at.isoformat() if health.last_cycle_at else None,
+            'last_attempt_at': health.last_attempt_at.isoformat() if health.last_attempt_at else None,
             'last_cycle_stats': health.last_cycle_stats,
             'consecutive_errors': health.consecutive_errors,
             'last_error': health.last_error,
             'daily': health.daily,
         },
     )
+
+
+_DAILY_KEYS = ('total', 'matched', 'sent', 'filtered', 'failed', 'errors', 'fetch_failed')
+
+
+def _add_daily(health: Health, now: datetime, stats: Dict[str, int], counter: str) -> None:
+    day = now.date().isoformat()
+    totals = dict(health.daily.get(day, {}))
+    totals[counter] = totals.get(counter, 0) + 1
+    for key in _DAILY_KEYS:
+        if key in (stats or {}):
+            try:
+                totals[key] = totals.get(key, 0) + int(stats[key])
+            except (TypeError, ValueError):
+                continue
+    health.daily[day] = totals
+
+    for stale in sorted(health.daily)[:-_DAILY_RETENTION]:
+        health.daily.pop(stale, None)
 
 
 def record_startup(now: Optional[datetime] = None) -> None:
@@ -148,21 +183,11 @@ def record_cycle(stats: Dict[str, int], now: Optional[datetime] = None) -> None:
     now = now or datetime.now()
     health = read_health()
     health.last_cycle_at = now
+    health.last_attempt_at = now
     health.last_cycle_stats = dict(stats or {})
     health.consecutive_errors = 0
     health.last_error = None
-
-    day = now.date().isoformat()
-    totals = dict(health.daily.get(day, {}))
-    totals['cycles'] = totals.get('cycles', 0) + 1
-    for key in ('total', 'matched', 'sent', 'filtered', 'failed'):
-        if key in (stats or {}):
-            totals[key] = totals.get(key, 0) + int(stats[key])
-    health.daily[day] = totals
-
-    for stale in sorted(health.daily)[:-_DAILY_RETENTION]:
-        health.daily.pop(stale, None)
-
+    _add_daily(health, now, stats, 'cycles')
     _write_health(health)
 
 
@@ -172,6 +197,28 @@ def record_cycle_error(message: str, now: Optional[datetime] = None) -> None:
     health = read_health()
     health.consecutive_errors += 1
     health.last_error = f"{now.isoformat(timespec='seconds')} - {message}"[:500]
+    _write_health(health)
+
+
+def record_cycle_degraded(
+    stats: Dict[str, int],
+    reason: str,
+    now: Optional[datetime] = None,
+) -> None:
+    """Record a cycle that ran to the end but could not read SEC for most funds.
+
+    It is *not* a heartbeat: ``last_cycle_at`` stays where the last healthy
+    cycle left it, so a blocked or down SEC cannot pass for a quiet day. It
+    does prove the process is alive (``last_attempt_at``), which lets the
+    reporter say "SEC unreachable" instead of "poller dead".
+    """
+    now = now or datetime.now()
+    health = read_health()
+    health.last_attempt_at = now
+    health.last_cycle_stats = dict(stats or {})
+    health.consecutive_errors += 1
+    health.last_error = f"{now.isoformat(timespec='seconds')} - {reason}"[:500]
+    _add_daily(health, now, stats, 'degraded_cycles')
     _write_health(health)
 
 

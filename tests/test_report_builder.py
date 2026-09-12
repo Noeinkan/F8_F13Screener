@@ -324,6 +324,39 @@ def test_health_alarm_when_no_cycle_ever_ran():
     assert "silenzioso da" not in msg
 
 
+def test_degraded_alarm_names_the_cause_and_not_a_restart():
+    msg = report_builder.format_degraded_alarm(
+        unhealthy_for_seconds=2700,
+        last_cycle_at=datetime(2026, 9, 12, 8, 0),
+        last_attempt_at=datetime(2026, 9, 12, 8, 43),
+        reason="2026-09-12T08:43:00 - SEC non raggiungibile: 57/58 fondi falliti, ultimo errore HTTP 403",
+        failed_cycles=20,
+    )
+
+    assert "SEC non raggiungibile" in msg
+    assert "45m" in msg
+    assert "20 cicli" in msg
+    assert "57/58 fondi falliti" in msg
+    assert "systemctl status" not in msg
+
+
+def test_degraded_alarm_escapes_the_reason():
+    msg = report_builder.format_degraded_alarm(None, None, None, "HTTP <403>", 1)
+    assert "&lt;403&gt;" in msg
+
+
+def test_heartbeat_mentions_cycles_sec_did_not_answer():
+    msg = report_builder.format_heartbeat(
+        date(2026, 9, 12), {"cycles": 30, "degraded_cycles": 10, "total": 0}, None, None,
+    )
+    assert "10 cicli senza risposta da SEC" in msg
+
+
+def test_heartbeat_is_unchanged_on_a_clean_day():
+    msg = report_builder.format_heartbeat(date(2026, 9, 12), {"cycles": 30}, None, None)
+    assert "SEC" not in msg
+
+
 def test_duration_formats_by_magnitude():
     assert report_builder.fmt_duration(90) == "1m"
     assert report_builder.fmt_duration(3660) == "1h 1m"

@@ -166,12 +166,35 @@ class TestDetailedPortfolioDiff:
     def test_position_key_treats_nan_components_as_blank(self):
         key = build_position_key("037833100", "Apple Inc", math.nan, math.nan)
 
-        assert key == "037833100||"
+        assert key == "037833100|"
 
     def test_position_key_falls_back_when_cusip_is_nan(self):
         key = build_position_key(math.nan, "Apple Inc", "COM", math.nan)
 
-        assert key == "Apple Inc|COM"
+        assert key == "APPLE INC|COM"
+
+    def test_position_key_ignores_title_of_class_when_cusip_present(self):
+        """A class spelled "COM" one quarter and "COMMON STOCK" the next is one position."""
+        assert build_position_key("037833100", "Apple Inc", "COM", "") == build_position_key(
+            " 037833100 ", "APPLE INC", "COMMON STOCK", None
+        )
+        assert build_position_key("037833100", "Apple Inc", "COM", "Call") == "037833100|CALL"
+
+    def test_position_key_fallback_normalizes_case_and_whitespace(self):
+        assert build_position_key("", "Example  Corp", "COM     CL  A", "put") == build_position_key(
+            None, "EXAMPLE CORP", " com cl a ", "PUT"
+        )
+        assert build_position_key("", "Example\tCorp", "COM CL A", "") == "EXAMPLE CORP|COM CL A"
+        assert build_position_key(None, None, None, None) == "UNKNOWN_POSITION"
+
+    def test_class_respelling_is_not_a_closed_and_new_position(self):
+        old = {build_position_key("037833100", "Apple Inc", "COM", ""): make_holding("Apple", 100, 10)}
+        new = {build_position_key("037833100", "Apple Inc", "COMMON STOCK", ""): make_holding("Apple", 100, 10)}
+
+        diff = compute_detailed_portfolio_diff(old, new, min_change_pct=0)
+
+        assert diff["new_positions"] == []
+        assert diff["closed_positions"] == []
 
     def test_same_cusip_equity_and_call_remain_distinct_positions(self):
         equity_key = build_position_key("037833100", "Apple Inc", "COM", "")

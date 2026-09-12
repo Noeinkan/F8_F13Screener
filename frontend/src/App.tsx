@@ -1,10 +1,28 @@
+import { lazy, Suspense, type ReactNode } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AppShellLayout } from "@/components/AppShell";
+import { ChartLoading } from "@/components/LoadingState";
 import { DemoGate } from "@/demo/DemoGate";
-import { ConsensusTrendsPage } from "@/routes/ConsensusTrends";
-import { FundAnalysisPage } from "@/routes/FundAnalysis";
-import { HoldingsSearchPage } from "@/routes/HoldingsSearch";
-import { OverviewPage } from "@/routes/Overview";
+
+// Each page is its own chunk: opening Holdings Search does not download
+// Plotly, and the first paint does not wait for pages nobody opened.
+const OverviewPage = lazy(() =>
+  import("@/routes/Overview").then((module) => ({ default: module.OverviewPage })),
+);
+const FundAnalysisPage = lazy(() =>
+  import("@/routes/FundAnalysis").then((module) => ({ default: module.FundAnalysisPage })),
+);
+const ConsensusTrendsPage = lazy(() =>
+  import("@/routes/ConsensusTrends").then((module) => ({ default: module.ConsensusTrendsPage })),
+);
+const HoldingsSearchPage = lazy(() =>
+  import("@/routes/HoldingsSearch").then((module) => ({ default: module.HoldingsSearchPage })),
+);
+
+/** Suspense inside the shell, so the sidebar stays put while a page loads. */
+function Page({ children }: { children: ReactNode }) {
+  return <Suspense fallback={<ChartLoading label="Loading page…" />}>{children}</Suspense>;
+}
 
 export function App() {
   return (
@@ -12,10 +30,10 @@ export function App() {
       <BrowserRouter>
         <Routes>
           <Route element={<AppShellLayout />}>
-            <Route index element={<OverviewPage />} />
-            <Route path="fund-analysis" element={<FundAnalysisPage />} />
-            <Route path="consensus-trends" element={<ConsensusTrendsPage />} />
-            <Route path="holdings-search" element={<HoldingsSearchPage />} />
+            <Route index element={<Page><OverviewPage /></Page>} />
+            <Route path="fund-analysis" element={<Page><FundAnalysisPage /></Page>} />
+            <Route path="consensus-trends" element={<Page><ConsensusTrendsPage /></Page>} />
+            <Route path="holdings-search" element={<Page><HoldingsSearchPage /></Page>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>

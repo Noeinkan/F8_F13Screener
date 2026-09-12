@@ -1,11 +1,16 @@
 """
 Portfolio diff engine: compares two quarters of holdings for the same fund.
 """
+import re
 from typing import Any, Dict, List, Optional
 
 
 MIN_CHANGE_PCT = 10.0  # only report changes >= this threshold
 MAX_ITEMS_PER_SECTION = 5  # keep Telegram messages readable
+
+# Same character set as the SQL twin in src/web/sql_queries.py (RE2 has no
+# Unicode-wide \s, so both sides list the characters explicitly).
+_KEY_WHITESPACE_RE = re.compile('[\t\n\v\f\r  ]+')
 
 
 def _normalize_position_key_part(part: Any) -> str:
@@ -14,8 +19,8 @@ def _normalize_position_key_part(part: Any) -> str:
     if isinstance(part, float) and part != part:
         return ''
 
-    normalized = str(part).strip()
-    return '' if normalized.lower() == 'nan' else normalized
+    normalized = _KEY_WHITESPACE_RE.sub(' ', str(part).upper()).strip(' ')
+    return '' if normalized == 'NAN' else normalized
 
 
 def _compose_position_key(*parts: Optional[str]) -> str:
@@ -28,10 +33,19 @@ def build_position_key(
     share_class: Optional[str] = None,
     put_call: Optional[str] = None,
 ) -> str:
-    """Return a stable key for a normalized 13F position."""
+    """Return a stable key for a normalized 13F position.
+
+    With a CUSIP the key is ``CUSIP|PUT_CALL``: the CUSIP already names the
+    security, and the free-text title of class ("COM" one quarter, "COMMON
+    STOCK" the next) would otherwise read as one position closed and another
+    opened. Without a CUSIP it falls back to ``ISSUER|CLASS|PUT_CALL``. Every
+    part is upper-cased with runs of whitespace collapsed.
+
+    ``POSITION_KEY_SQL`` in ``src/web/sql_queries.py`` must build the same key.
+    """
     normalized_cusip = _normalize_position_key_part(cusip)
     if normalized_cusip:
-        return _compose_position_key(normalized_cusip, share_class, put_call)
+        return _compose_position_key(normalized_cusip, put_call)
 
     fallback_key = _compose_position_key(issuer_name, share_class, put_call).strip('|')
     return fallback_key or 'UNKNOWN_POSITION'

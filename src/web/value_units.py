@@ -1,40 +1,34 @@
-"""Shared value-unit inference and scaling helpers for dashboard views."""
+"""Value-unit helpers for dashboard views -- now pass-throughs.
+
+13F values were reported in thousands of dollars until January 2023 and in
+dollars afterwards, and some filers kept sending thousands. These helpers used
+to guess the unit at read time from the median implied price (value / shares)
+of whatever frame a view had at hand. That guess was wrong in ways a view could
+not fix: bonds (priced near $1 per unit of principal) and options made a
+bond-heavy fund's dollars look like thousands (Oaktree's $6.28B showed as
+$6.28T), and a diff mixed rows from both sides of a unit change into one guess.
+
+The unit is now decided once per filing at the storage layer
+(``filings.value_multiplier``, see ``src/core/filing_rollup.py``), and every
+analytics query reads ``holdings_effective``, whose ``value_usd`` is already in
+dollars. Guessing again here would re-scale correct dollars for funds whose
+typical holding trades below a few dollars, so the inference functions return
+1. Their signatures stay so the many callers keep working unchanged.
+"""
 
 from __future__ import annotations
 
-import math
 from typing import Iterable
 
 import pandas as pd
 
-CANDIDATE_VALUE_MULTIPLIERS = (1, 1000)
-FALLBACK_VALUE_MULTIPLIER = 1000
-
-
-def _score_price_scale(median_price: float, target_price: float = 100.0) -> float:
-    if median_price <= 0:
-        return float("inf")
-    return abs(math.log10(median_price) - math.log10(target_price))
+CANDIDATE_VALUE_MULTIPLIERS = (1,)
+FALLBACK_VALUE_MULTIPLIER = 1
 
 
 def infer_value_multiplier_from_prices(prices_dollars: pd.Series) -> int:
-    """
-    Infer whether stored values are likely dollars (x1) or thousands (x1000).
-
-    The chosen scale is the one whose median implied per-share price is closer to
-    a typical equity price anchor in log space.
-    """
-    valid = pd.to_numeric(prices_dollars, errors="coerce")
-    valid = valid[(valid > 0) & valid.notna()]
-    if valid.empty:
-        return FALLBACK_VALUE_MULTIPLIER
-
-    median_dollars = float(valid.median())
-    scored = {
-        multiplier: _score_price_scale(median_dollars * multiplier)
-        for multiplier in CANDIDATE_VALUE_MULTIPLIERS
-    }
-    return min(scored, key=scored.get)
+    """Values reaching views are already dollars; always 1."""
+    return 1
 
 
 def infer_value_multiplier_from_frame(
@@ -43,18 +37,8 @@ def infer_value_multiplier_from_frame(
     value_col: str,
     shares_col: str,
 ) -> int:
-    if frame.empty or value_col not in frame.columns or shares_col not in frame.columns:
-        return FALLBACK_VALUE_MULTIPLIER
-
-    values = pd.to_numeric(frame[value_col], errors="coerce")
-    shares = pd.to_numeric(frame[shares_col], errors="coerce")
-    valid = pd.DataFrame({"value": values, "shares": shares})
-    valid = valid[(valid["value"] > 0) & (valid["shares"] > 0)]
-    if valid.empty:
-        return FALLBACK_VALUE_MULTIPLIER
-
-    implied_prices = valid["value"] / valid["shares"]
-    return infer_value_multiplier_from_prices(implied_prices)
+    """Values reaching views are already dollars; always 1."""
+    return 1
 
 
 def infer_value_multiplier_by_group(
@@ -64,19 +48,11 @@ def infer_value_multiplier_by_group(
     value_col: str,
     shares_col: str,
 ) -> dict[str, int]:
+    """One entry of 1 per group, so callers that summarize groups still can."""
     if frame.empty or group_col not in frame.columns:
         return {}
-
-    multiplier_map: dict[str, int] = {}
-    grouped = frame.groupby(group_col, dropna=False, sort=False)
-    for group_key, group_df in grouped:
-        key = "" if pd.isna(group_key) else str(group_key)
-        multiplier_map[key] = infer_value_multiplier_from_frame(
-            group_df,
-            value_col=value_col,
-            shares_col=shares_col,
-        )
-    return multiplier_map
+    keys = frame[group_col].drop_duplicates()
+    return {("" if pd.isna(key) else str(key)): 1 for key in keys}
 
 
 def apply_value_multiplier(values: pd.Series, multiplier: int) -> pd.Series:

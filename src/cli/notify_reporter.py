@@ -160,12 +160,31 @@ class Reporter:
         if stale:
             if alarm_open:
                 return False
-            message = report_builder.format_health_alarm(
-                silent_for_seconds=age,
-                last_cycle_at=health.last_cycle_at,
-                last_error=health.last_error,
-                threshold_minutes=self.config.health_stale_minutes,
+            attempt_age = health.attempt_age_seconds(now)
+            # The process still finishes cycles, they just cannot read SEC (a
+            # 403 block, an outage). Saying "poller dead" here would send the
+            # reader to restart a service that is working fine.
+            poller_alive_but_degraded = (
+                health.consecutive_errors > 0
+                and health.last_attempt_at is not None
+                and attempt_age is not None
+                and attempt_age <= threshold
             )
+            if poller_alive_but_degraded:
+                message = report_builder.format_degraded_alarm(
+                    unhealthy_for_seconds=age,
+                    last_cycle_at=health.last_cycle_at,
+                    last_attempt_at=health.last_attempt_at,
+                    reason=health.last_error,
+                    failed_cycles=health.consecutive_errors,
+                )
+            else:
+                message = report_builder.format_health_alarm(
+                    silent_for_seconds=age,
+                    last_cycle_at=health.last_cycle_at,
+                    last_error=health.last_error,
+                    threshold_minutes=self.config.health_stale_minutes,
+                )
             if self._send(message, 'allarme salute'):
                 self._mark('health-alarm-open', now)
                 return True

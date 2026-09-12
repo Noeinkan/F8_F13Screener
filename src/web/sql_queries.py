@@ -1,4 +1,11 @@
-"""SQL query constants for the Streamlit dashboard."""
+"""SQL query constants for the dashboard (Streamlit pages and the API).
+
+Analytics read ``holdings_effective`` (see ``src/core/filing_rollup.py``): the
+raw rows of each fund's effective filings, grouped under the accession and
+filing date of the portfolio they belong to, with ``value_usd`` already in
+dollars. Some column aliases still say "$000s"; callers select by those names.
+Only the full export reads the raw ``holdings`` table.
+"""
 
 
 FULL_HOLDINGS_EXPORT_SQL = """
@@ -33,7 +40,7 @@ FULL_HOLDINGS_EXPORT_SQL = """
 LATEST_SNAPSHOT_EXPORT_SQL = """
     WITH latest_filing AS (
         SELECT fund_name, MAX(filing_date) AS filing_date
-        FROM holdings
+        FROM holdings_effective
         GROUP BY fund_name
     )
     SELECT
@@ -46,7 +53,7 @@ LATEST_SNAPSHOT_EXPORT_SQL = """
         h.value_usd AS "Value ($000s)",
         h.shares AS "Shares/Principal Amount",
         h.put_call AS "Put/Call"
-    FROM holdings h
+    FROM holdings_effective h
     INNER JOIN latest_filing lf
         ON h.fund_name = lf.fund_name
        AND h.filing_date = lf.filing_date
@@ -54,19 +61,36 @@ LATEST_SNAPSHOT_EXPORT_SQL = """
 """
 
 
-POSITION_KEY_SQL = """
+# Whitespace RE2 and Python's key builder both treat as a separator; the
+# non-breaking space comes from HTML-parsed Information Tables.
+_KEY_WHITESPACE_RE = r"[\t\n\v\f\r \x{00A0}]+"
+
+
+def _key_part_sql(column: str) -> str:
+    """SQL twin of ``src.core.diff._normalize_position_key_part``."""
+    return (
+        "COALESCE(NULLIF(TRIM(REGEXP_REPLACE(UPPER(COALESCE("
+        + column
+        + ", '')), '"
+        + _KEY_WHITESPACE_RE
+        + "', ' ', 'g')), 'NAN'), '')"
+    )
+
+
+# Must stay equivalent to ``src.core.diff.build_position_key``: a CUSIP names
+# the security, so the free-text title of class only joins the key when there
+# is no CUSIP (tests/test_web_sql_queries.py checks the two agree).
+POSITION_KEY_SQL = f"""
     CASE
-        WHEN TRIM(COALESCE(cusip, '')) <> '' THEN
-             TRIM(COALESCE(cusip, '')) || '|' ||
-             TRIM(COALESCE(share_class, '')) || '|' ||
-             TRIM(COALESCE(put_call, ''))
+        WHEN {_key_part_sql("cusip")} <> '' THEN
+             {_key_part_sql("cusip")} || '|' || {_key_part_sql("put_call")}
         ELSE COALESCE(
              NULLIF(
                  TRIM(
                      BOTH '|'
-                     FROM TRIM(COALESCE(issuer_name, '')) || '|' ||
-                          TRIM(COALESCE(share_class, '')) || '|' ||
-                          TRIM(COALESCE(put_call, ''))
+                     FROM {_key_part_sql("issuer_name")} || '|' ||
+                          {_key_part_sql("share_class")} || '|' ||
+                          {_key_part_sql("put_call")}
                  ),
                  ''
              ),
@@ -74,6 +98,11 @@ POSITION_KEY_SQL = """
         )
     END
 """
+
+# Displayed alongside grouped positions. Normalized like the key, so rows that
+# fall into one position show one spelling of each part the key is made of.
+_GROUPED_SHARE_CLASS_SQL = f"GROUP_CONCAT(DISTINCT NULLIF({_key_part_sql('share_class')}, ''))"
+_GROUPED_PUT_CALL_SQL = f"GROUP_CONCAT(DISTINCT NULLIF({_key_part_sql('put_call')}, ''))"
 
 
 RAW_ACCESSION_HOLDINGS_SQL = """
@@ -87,7 +116,7 @@ RAW_ACCESSION_HOLDINGS_SQL = """
         put_call AS "Put/Call",
         investment_discretion AS "Investment Discretion",
         other_manager AS "Other Manager"
-    FROM holdings
+    FROM holdings_effective
     WHERE fund_name = ? AND accession_number = ?
     ORDER BY value_usd DESC NULLS LAST, issuer_name
 """
@@ -98,14 +127,14 @@ NORMALIZED_ACCESSION_HOLDINGS_SQL = f"""
         MIN(filing_date) AS "Filing Date",
         MIN(issuer_name) AS "Issuer",
         MAX(TRIM(COALESCE(cusip, ''))) AS "CUSIP",
-        GROUP_CONCAT(DISTINCT NULLIF(TRIM(share_class), '')) AS "Class",
+        {_GROUPED_SHARE_CLASS_SQL} AS "Class",
         SUM(shares) AS "Shares",
         SUM(value_usd) AS "Value ($000s)",
-        GROUP_CONCAT(DISTINCT NULLIF(TRIM(put_call), '')) AS "Put/Call",
+        {_GROUPED_PUT_CALL_SQL} AS "Put/Call",
         GROUP_CONCAT(DISTINCT NULLIF(TRIM(investment_discretion), '')) AS "Investment Discretion",
         GROUP_CONCAT(DISTINCT NULLIF(TRIM(other_manager), '')) AS "Other Manager",
         COUNT(*) AS "Raw 13F Lines"
-    FROM holdings
+    FROM holdings_effective
     WHERE fund_name = ? AND accession_number = ?
     GROUP BY {POSITION_KEY_SQL}
     ORDER BY SUM(value_usd) DESC NULLS LAST, MIN(issuer_name)
@@ -116,11 +145,11 @@ NORMALIZED_DIFF_SQL = f"""
     SELECT
         MAX(TRIM(COALESCE(cusip, ''))) AS cusip,
         MIN(issuer_name) AS issuer_name,
-        GROUP_CONCAT(DISTINCT NULLIF(TRIM(share_class), '')) AS share_class,
-        GROUP_CONCAT(DISTINCT NULLIF(TRIM(put_call), '')) AS put_call,
+        {_GROUPED_SHARE_CLASS_SQL} AS share_class,
+        {_GROUPED_PUT_CALL_SQL} AS put_call,
         SUM(shares) AS shares,
         SUM(value_usd) AS value_usd
-    FROM holdings
+    FROM holdings_effective
     WHERE fund_name = ? AND accession_number = ?
     GROUP BY {POSITION_KEY_SQL}
     ORDER BY SUM(value_usd) DESC NULLS LAST, MIN(issuer_name)
@@ -133,12 +162,12 @@ FUND_HISTORY_POSITIONS_SQL = f"""
         filing_date AS filing_date,
         MAX(TRIM(COALESCE(cusip, ''))) AS cusip,
         MIN(issuer_name) AS issuer_name,
-        GROUP_CONCAT(DISTINCT NULLIF(TRIM(share_class), '')) AS share_class,
-        GROUP_CONCAT(DISTINCT NULLIF(TRIM(put_call), '')) AS put_call,
+        {_GROUPED_SHARE_CLASS_SQL} AS share_class,
+        {_GROUPED_PUT_CALL_SQL} AS put_call,
         SUM(shares) AS shares,
         SUM(value_usd) AS value_usd,
         COUNT(*) AS raw_lines
-    FROM holdings
+    FROM holdings_effective
     WHERE fund_name = ?
       AND TRIM(COALESCE(accession_number, '')) <> ''
     GROUP BY accession_number, filing_date, {POSITION_KEY_SQL}
@@ -154,12 +183,12 @@ CONSENSUS_NORMALIZED_POSITIONS_SQL = f"""
         {POSITION_KEY_SQL} AS position_key,
         MAX(TRIM(COALESCE(cusip, ''))) AS cusip,
         MIN(issuer_name) AS issuer_name,
-        GROUP_CONCAT(DISTINCT NULLIF(TRIM(share_class), '')) AS share_class,
-        GROUP_CONCAT(DISTINCT NULLIF(TRIM(put_call), '')) AS put_call,
+        {_GROUPED_SHARE_CLASS_SQL} AS share_class,
+        {_GROUPED_PUT_CALL_SQL} AS put_call,
         SUM(shares) AS shares,
         SUM(value_usd) AS value_usd,
         COUNT(*) AS raw_lines
-    FROM holdings
+    FROM holdings_effective
     WHERE TRIM(COALESCE(accession_number, '')) <> ''
     GROUP BY fund_name, accession_number, filing_date, {POSITION_KEY_SQL}
     ORDER BY filing_date DESC, fund_name, SUM(value_usd) DESC NULLS LAST, MIN(issuer_name)
@@ -173,19 +202,19 @@ OVERVIEW_SUMMARY_SQL = """
         COUNT(DISTINCT fund_name) AS funds,
         MAX(filing_date) AS latest_filing_date,
         SUM(CASE WHEN value_usd IS NOT NULL THEN 1 ELSE 0 END) AS value_rows
-    FROM holdings
+    FROM holdings_effective
 """
 
 
 OVERVIEW_RECENT_ACTIVITY_SQL = """
     WITH anchor AS (
         SELECT MAX(filing_date) AS latest_filing_date
-        FROM holdings
+        FROM holdings_effective
     )
     SELECT
         COUNT(DISTINCT accession_number) AS recent_filings,
         COUNT(DISTINCT fund_name) AS recent_funds
-    FROM holdings, anchor
+    FROM holdings_effective, anchor
     WHERE CAST(filing_date AS DATE) >= CAST(anchor.latest_filing_date AS DATE) - INTERVAL 120 DAY
 """
 
@@ -193,7 +222,7 @@ OVERVIEW_RECENT_ACTIVITY_SQL = """
 LATEST_FUND_OVERVIEW_SQL = f"""
     WITH latest_filing AS (
         SELECT fund_name, MAX(filing_date) AS filing_date
-        FROM holdings
+        FROM holdings_effective
         GROUP BY fund_name
     ),
     latest_accession AS (
@@ -201,7 +230,7 @@ LATEST_FUND_OVERVIEW_SQL = f"""
             h.fund_name,
             lf.filing_date,
             MAX(h.accession_number) AS accession_number
-        FROM holdings h
+        FROM holdings_effective h
         INNER JOIN latest_filing lf
             ON h.fund_name = lf.fund_name
            AND h.filing_date = lf.filing_date
@@ -211,7 +240,7 @@ LATEST_FUND_OVERVIEW_SQL = f"""
         SELECT
             fund_name,
             COUNT(DISTINCT accession_number) AS quarters_tracked
-        FROM holdings
+        FROM holdings_effective
         GROUP BY fund_name
     ),
     latest_stats AS (
@@ -223,7 +252,7 @@ LATEST_FUND_OVERVIEW_SQL = f"""
             COUNT(DISTINCT NULLIF(TRIM(cusip), '')) AS cusips,
             COUNT(DISTINCT {POSITION_KEY_SQL}) AS normalized_positions,
             SUM(value_usd) AS value_sum
-        FROM holdings h
+        FROM holdings_effective h
         INNER JOIN latest_accession la
             ON h.fund_name = la.fund_name
            AND h.accession_number = la.accession_number
@@ -254,7 +283,7 @@ RECENT_FILINGS_OVERVIEW_SQL = f"""
             COUNT(*) AS raw_lines,
             COUNT(DISTINCT NULLIF(TRIM(cusip), '')) AS cusips,
             COUNT(DISTINCT {POSITION_KEY_SQL}) AS normalized_positions
-        FROM holdings
+        FROM holdings_effective
         WHERE TRIM(COALESCE(accession_number, '')) <> ''
         GROUP BY accession_number, fund_name, filing_date
     )
@@ -276,7 +305,7 @@ FILINGS_TIMELINE_SQL = """
         substr(filing_date, 1, 7) AS "Month",
         COUNT(DISTINCT accession_number) AS "Filings",
         COUNT(DISTINCT fund_name) AS "Funds"
-    FROM holdings
+    FROM holdings_effective
     GROUP BY substr(filing_date, 1, 7)
     ORDER BY substr(filing_date, 1, 7)
 """
@@ -285,7 +314,7 @@ FILINGS_TIMELINE_SQL = """
 TOP_HELD_SECURITIES_SQL = f"""
     WITH latest_filing AS (
         SELECT fund_name, MAX(filing_date) AS filing_date
-        FROM holdings
+        FROM holdings_effective
         GROUP BY fund_name
     ),
     latest_accession AS (
@@ -293,7 +322,7 @@ TOP_HELD_SECURITIES_SQL = f"""
             h.fund_name,
             lf.filing_date,
             MAX(h.accession_number) AS accession_number
-        FROM holdings h
+        FROM holdings_effective h
         INNER JOIN latest_filing lf
             ON h.fund_name = lf.fund_name
            AND h.filing_date = lf.filing_date
@@ -305,8 +334,8 @@ TOP_HELD_SECURITIES_SQL = f"""
             {POSITION_KEY_SQL} AS position_key,
             MAX(TRIM(COALESCE(h.cusip, ''))) AS cusip,
             MIN(h.issuer_name) AS issuer_name,
-            GROUP_CONCAT(DISTINCT NULLIF(TRIM(h.put_call), '')) AS put_call
-        FROM holdings h
+            {_GROUPED_PUT_CALL_SQL} AS put_call
+        FROM holdings_effective h
         INNER JOIN latest_accession la
             ON h.fund_name = la.fund_name
            AND h.accession_number = la.accession_number

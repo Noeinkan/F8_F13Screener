@@ -9,6 +9,7 @@ import { ExportLink } from "@/components/ExportLink";
 import { KpiGrid } from "@/components/KpiCard";
 import { SectionHeader } from "@/components/SectionHeader";
 import { KpiLoading } from "@/components/LoadingState";
+import { QueryError } from "@/components/QueryError";
 import { formatDateValue } from "@/utils/dateFormat";
 
 type HoldingsSearchResponse = {
@@ -171,6 +172,14 @@ export function HoldingsSearchPage() {
             />
           </Paper>
         </>
+      ) : null}
+      {submitted && searchQuery.isError ? (
+        <QueryError
+          title={`Search for “${trimmedSubmitted}” failed`}
+          error={searchQuery.error}
+          onRetry={() => searchQuery.refetch()}
+          retrying={searchQuery.isFetching}
+        />
       ) : null}
       {data && Number(data.total_matches) === 0 ? (
         <Text>No results found for &ldquo;{trimmedSubmitted}&rdquo;.</Text>

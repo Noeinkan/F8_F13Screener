@@ -148,7 +148,7 @@ def render_holdings_search_page(query: Callable[[str, tuple], pd.DataFrame], top
             shares      AS "Shares",
             value_usd   AS "Value ($000s)",
             accession_number AS "Accession"
-        FROM holdings
+        FROM holdings_effective
         WHERE {where_sql}
         ORDER BY filing_date DESC, value_usd DESC NULLS LAST
     """, search_params)

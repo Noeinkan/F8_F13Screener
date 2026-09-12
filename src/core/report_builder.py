@@ -371,6 +371,11 @@ def format_heartbeat(
         f"🔄 {cycles} cicli · {checked:,} filing controllati · {matched} match".replace(',', '.'),
     ]
 
+    # Without this line a day SEC spent refusing the server reads as a quiet one.
+    degraded = totals.get('degraded_cycles', 0)
+    if degraded:
+        lines.append(f"⚠️ {degraded} cicli senza risposta da SEC")
+
     if next_period and days_until is not None:
         lines.append(
             f"📅 Prossima scadenza: <b>{_esc(next_period.label)}</b> "
@@ -406,6 +411,46 @@ def format_health_alarm(
 
     lines.append('')
     lines.append("Sul server: <code>systemctl status f8-screener</code>")
+
+    return '\n'.join(lines)
+
+
+def format_degraded_alarm(
+    unhealthy_for_seconds: Optional[float],
+    last_cycle_at: Optional[datetime],
+    last_attempt_at: Optional[datetime],
+    reason: Optional[str],
+    failed_cycles: int,
+) -> str:
+    """Sent when the poller is running but cannot read SEC.
+
+    Distinct from the dead-man's switch on purpose: the fix is not restarting
+    the service, it is finding out why SEC refuses or does not answer.
+    """
+    if last_cycle_at is None:
+        since = "Nessun ciclo è mai riuscito a leggere SEC."
+    else:
+        since = (
+            f"Nessun controllo riuscito da {fmt_duration(unhealthy_for_seconds)} "
+            f"(ultimo: {fmt_datetime(last_cycle_at.isoformat())})."
+        )
+
+    lines = [
+        "⚠️ <b>SEC non raggiungibile</b>",
+        since,
+        f"Il poller è attivo: {failed_cycles} cicli di fila falliti, "
+        f"l'ultimo {fmt_datetime(last_attempt_at.isoformat()) if last_attempt_at else 'n/d'}.",
+        "Finché dura, eventuali nuovi filing non vengono rilevati.",
+    ]
+    if reason:
+        lines.append(f"Motivo: <code>{_esc(reason)}</code>")
+
+    lines.append('')
+    lines.append(
+        "HTTP 403 = SEC blocca il server (User-Agent o troppe richieste); "
+        "HTTP 5xx o timeout = SEC giù."
+    )
+    lines.append("Sul server: <code>journalctl -u f8-screener -n 50</code>")
 
     return '\n'.join(lines)
 

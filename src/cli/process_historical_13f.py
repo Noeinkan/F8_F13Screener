@@ -40,7 +40,7 @@ from pathlib import Path
 # Add project root to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception
 from tqdm import tqdm
 from src.core.paths import (
     CATALOG_FILE,
@@ -52,7 +52,7 @@ from src.core.paths import (
     DASHBOARD_DB_FILE,
 )
 from src.core.parser import HoldingsParser
-from src.core.sec_client import SECClient
+from src.core.sec_client import SECClient, SECFetchError
 from src.core.dashboard_storage import DashboardStorage
 
 class TokenBucketRateLimiter:
@@ -484,10 +484,26 @@ def save_processing_metrics(metrics: Dict) -> None:
     except Exception as e:
         print(f"⚠️  Errore salvataggio metrics: {e}")
 
+def _is_retryable_fetch_error(exc: BaseException) -> bool:
+    """Same policy as the realtime SECClient: 429, 5xx, transport, bad body.
+
+    Any other 4xx (403 block, 404 unknown CIK) will not change in a few
+    seconds, so it fails at once instead of burning the retries.
+    """
+    if isinstance(exc, (requests.exceptions.ConnectionError, requests.exceptions.Timeout)):
+        return True
+    if isinstance(exc, requests.exceptions.HTTPError):
+        status = exc.response.status_code if exc.response is not None else None
+        return status is not None and (status == 429 or status >= 500)
+    return isinstance(exc, SECFetchError)
+
+
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=2, max=10),
-    retry=retry_if_exception_type((requests.exceptions.RequestException,))
+    retry=retry_if_exception(_is_retryable_fetch_error),
+    # Hand the caller the real error, not tenacity's RetryError wrapper.
+    reraise=True,
 )
 def _fetch_13f_filings_from_api(
     cik: str,
@@ -497,13 +513,16 @@ def _fetch_13f_filings_from_api(
 ) -> List[Dict]:
     """
     Recupera tutti i filing 13F-HR per un CIK dalla SEC API (senza cache).
+
+    Solleva un'eccezione se SEC non risponde: una lista vuota significa solo
+    "nessun filing", mai "SEC giù" - altrimenti quel vuoto finirebbe in cache.
     """
     cik_padded = cik.zfill(10)
     api_url = f"https://data.sec.gov/submissions/CIK{cik_padded}.json"
-    
+
     print(f"\n 📥 Scaricamento filing per: {fund_name}")
     print(f"   CIK: {cik} | API: {api_url}")
-    
+
     try:
         # Respect global rate limiter if present
         if 'rate_limiter' in globals() and rate_limiter is not None:
@@ -511,10 +530,19 @@ def _fetch_13f_filings_from_api(
 
         response = requests.get(api_url, headers=HEADERS, timeout=30)
         response.raise_for_status()
-        
-        data = response.json()
-        recent_filings = data.get('filings', {}).get('recent', {})
-        
+
+        content_type = str(response.headers.get('Content-Type', '') or '').lower()
+        if 'text/html' in content_type:
+            raise SECFetchError('pagina HTML al posto di JSON', api_url, status_code=response.status_code)
+        try:
+            data = response.json()
+        except ValueError as exc:
+            raise SECFetchError('JSON non valido', api_url, status_code=response.status_code) from exc
+        if not isinstance(data, dict):
+            raise SECFetchError('JSON non valido', api_url, status_code=response.status_code)
+
+        recent_filings = (data.get('filings') or {}).get('recent', {})
+
         if not recent_filings:
             print(f"     ⚠️  Nessun filing trovato")
             return []
@@ -566,7 +594,9 @@ def _fetch_13f_filings_from_api(
         
     except Exception as e:
         print(f"    ❌ Errore: {e}")
-        return []
+        # Re-raise: swallowing it here is what kept @retry from ever firing
+        # and let the caller cache an outage as "no filings" for 24 hours.
+        raise
 
 def get_13f_filings_for_cik(
     cik: str,
@@ -575,29 +605,55 @@ def get_13f_filings_for_cik(
     start_date: str = CUTOFF_DATE,
     end_date: Optional[str] = None,
     fresh_catalog: bool = False,
+    fetch_report: Optional[Dict[str, int]] = None,
 ) -> List[Dict]:
-    if cache_dir is None:
-        cache_dir = FILING_CACHE_DIR
     """
     Recupera tutti i filing 13F-HR per un CIK, con caching locale.
+
+    La cache si scrive solo dopo una risposta SEC riuscita. Se SEC fallisce si
+    ripiega sulla cache precedente, anche scaduta (e lo si dice); senza cache
+    l'eccezione arriva al chiamante. ``fetch_report``, se passato, conta in
+    ``stale_cache`` i fondi serviti da cache scaduta.
     """
+    if cache_dir is None:
+        cache_dir = FILING_CACHE_DIR
     os.makedirs(cache_dir, exist_ok=True)
     cache_file = os.path.join(cache_dir, f"{cik}.json")
 
-    # Prova a caricare dal cache (saltata su richiesta esplicita di refresh)
-    if os.path.exists(cache_file) and not fresh_catalog:
+    cached_data = None
+    if os.path.exists(cache_file):
         try:
             with open(cache_file, 'r', encoding='utf-8') as f:
-                cached_data = json.load(f)
-                if cached_data.get('last_updated', 0) > (time.time() - 24*3600):  # Cache valida per 24 ore
-                    print(f"    ✅ Caricato da cache: {cache_file}")
-                    return cached_data.get('filings', [])
+                loaded = json.load(f)
+            if isinstance(loaded, dict) and isinstance(loaded.get('filings'), list):
+                cached_data = loaded
         except Exception as e:
             print(f"    ⚠️ Errore caricamento cache: {e}")
-    
+
+    # Cache valida per 24 ore (saltata su richiesta esplicita di refresh)
+    if cached_data is not None and not fresh_catalog:
+        if cached_data.get('last_updated', 0) > (time.time() - 24*3600):
+            print(f"    ✅ Caricato da cache: {cache_file}")
+            return cached_data['filings']
+
     # Scarica da API
-    filings = _fetch_13f_filings_from_api(cik, fund_name, start_date, end_date)
-    if filings is not None:  # Anche se vuoto, salva per evitare retry
+    try:
+        filings = _fetch_13f_filings_from_api(cik, fund_name, start_date, end_date)
+    except Exception as e:
+        if cached_data is None:
+            raise
+        age_hours = (time.time() - float(cached_data.get('last_updated', 0) or 0)) / 3600
+        message = (
+            f"SEC non raggiungibile per {fund_name} (CIK {cik}): {e}. "
+            f"Uso la cache precedente, vecchia di {age_hours:.0f}h"
+        )
+        print(f"    ⚠️ {message}")
+        logging.getLogger(__name__).warning(message)
+        if fetch_report is not None:
+            fetch_report['stale_cache'] = fetch_report.get('stale_cache', 0) + 1
+        return cached_data['filings']
+
+    if filings is not None:  # Anche se vuoto: SEC ha risposto, il vuoto e' vero
         try:
             with open(cache_file, 'w', encoding='utf-8') as f:
                 json.dump({
@@ -654,13 +710,26 @@ def download_catalog(
     new_filings_count = 0
     skipped_filings_count = 0
     successful_funds = 0
-    
+    # Funds SEC could not be read for, with no cache to fall back on. Their
+    # filings already in the catalog are kept; they just were not refreshed.
+    failed_funds: List[str] = []
+    fetch_report: Dict[str, int] = {}
+
     for i, (cik, fund_name) in tqdm(enumerate(HEDGE_FUNDS_CIK.items(), 1), total=get_total_funds(), desc="Downloading catalog", disable=quiet):
         print(f"[{i}/{get_total_funds()}]", end=" ")
-        
-        filings = get_13f_filings_for_cik(
-            cik, fund_name, "cache", start_date, end_date, fresh_catalog=fresh_catalog
-        )
+
+        try:
+            filings = get_13f_filings_for_cik(
+                cik, fund_name, "cache", start_date, end_date,
+                fresh_catalog=fresh_catalog, fetch_report=fetch_report,
+            )
+        except Exception as e:
+            failed_funds.append(f"{fund_name} (CIK {cik}): {e}")
+            print(f"    ❌ SEC non raggiungibile per {fund_name}, fondo saltato: {e}")
+            logging.getLogger(__name__).error(
+                "Catalogo: SEC non raggiungibile per %s (CIK %s), nessuna cache: %s", fund_name, cik, e
+            )
+            continue
         
         if filings:
             # Filtra solo filing nuovi se in modalità incrementale
@@ -701,6 +770,14 @@ def download_catalog(
     print("📊 RIEPILOGO CATALOGO")
     print("="*80)
     print(f"✅ Fondi processati con successo: {successful_funds}/{get_total_funds()}")
+    if fetch_report.get('stale_cache'):
+        print(f"⚠️  Fondi serviti da cache scaduta (SEC non raggiungibile): {fetch_report['stale_cache']}")
+    if failed_funds:
+        print(f"❌ Fondi non letti da SEC (nessuna cache): {len(failed_funds)}/{get_total_funds()}")
+        for failure in failed_funds[:10]:
+            print(f"   - {failure}")
+        if len(failed_funds) > 10:
+            print(f"   ...e altri {len(failed_funds) - 10}")
     print(f"📄 Totale filing nel catalogo: {len(all_filings)}")
     
     if incremental:

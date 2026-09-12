@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns1:edgarSubmission xmlns:ns1="http://www.sec.gov/edgar/thirteenffiler" xmlns:ns2="http://www.sec.gov/edgar/common">
+  <ns1:headerData>
+    <ns1:submissionType>13F-HR/A</ns1:submissionType>
+    <ns1:filerInfo>
+      <ns1:liveTestFlag>LIVE</ns1:liveTestFlag>
+      <ns1:filer>
+        <ns1:credentials>
+          <ns1:cik>0001040273</ns1:cik>
+          <ns1:ccc>XXXXXXXX</ns1:ccc>
+        </ns1:credentials>
+      </ns1:filer>
+      <ns1:periodOfReport>09-30-2024</ns1:periodOfReport>
+    </ns1:filerInfo>
+  </ns1:headerData>
+  <ns1:formData>
+    <ns1:coverPage>
+      <ns1:reportCalendarOrQuarter>09-30-2024</ns1:reportCalendarOrQuarter>
+      <ns1:isAmendment>true</ns1:isAmendment>
+      <ns1:amendmentNo>2</ns1:amendmentNo>
+      <ns1:amendmentInfo>
+        <ns1:amendmentType>new  holdings</ns1:amendmentType>
+        <ns1:confDeniedExpired>true</ns1:confDeniedExpired>
+        <ns1:dateDeniedExpired>02-10-2025</ns1:dateDeniedExpired>
+        <ns1:dateReported>11-14-2024</ns1:dateReported>
+        <ns1:reasonForNonConfidentiality>Confidential treatment expired</ns1:reasonForNonConfidentiality>
+      </ns1:amendmentInfo>
+      <ns1:filingManager>
+        <ns1:name>Third Point LLC</ns1:name>
+        <ns1:address>
+          <ns2:street1>55 Hudson Yards</ns2:street1>
+          <ns2:city>New York</ns2:city>
+          <ns2:stateOrCountry>NY</ns2:stateOrCountry>
+          <ns2:zipCode>10001</ns2:zipCode>
+        </ns1:address>
+      </ns1:filingManager>
+      <ns1:reportType>13F HOLDINGS REPORT</ns1:reportType>
+      <ns1:form13FFileNumber>028-10093</ns1:form13FFileNumber>
+      <ns1:provideInfoForInstruction5>N</ns1:provideInfoForInstruction5>
+    </ns1:coverPage>
+    <ns1:summaryPage>
+      <ns1:otherIncludedManagersCount>0</ns1:otherIncludedManagersCount>
+      <ns1:tableEntryTotal>1</ns1:tableEntryTotal>
+      <ns1:tableValueTotal>84512000</ns1:tableValueTotal>
+      <ns1:isConfidentialOmitted>false</ns1:isConfidentialOmitted>
+    </ns1:summaryPage>
+  </ns1:formData>
+</ns1:edgarSubmission>

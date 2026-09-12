@@ -6,7 +6,17 @@ import pytest
 
 from src.core.diff import build_position_key
 from src.web.pages.holdings_search import build_holdings_search_filter
-from src.web.sql_queries import CONSENSUS_NORMALIZED_POSITIONS_SQL, POSITION_KEY_SQL, TOP_HELD_SECURITIES_SQL
+from src.web.sql_queries import (
+    CONSENSUS_NORMALIZED_POSITIONS_SQL,
+    FUND_HISTORY_POSITIONS_SQL,
+    POSITION_KEY_SQL,
+    TOP_HELD_SECURITIES_SQL,
+)
+
+
+def _effective_view(conn):
+    """Analytics queries read holdings_effective; over a bare test table it is a pass-through."""
+    conn.execute("CREATE VIEW holdings_effective AS SELECT * FROM holdings")
 
 
 @pytest.mark.parametrize(
@@ -16,6 +26,15 @@ from src.web.sql_queries import CONSENSUS_NORMALIZED_POSITIONS_SQL, POSITION_KEY
         ("", "Apple Inc", "COM", "CALL"),
         (None, " Apple Inc ", " COM ", ""),
         (None, None, None, None),
+        ("037833100", "Apple Inc", "COMMON STOCK", "Call"),
+        ("037833100", "Apple Inc", "COM     CL  A", " put "),
+        ("\t037833100\n", "Apple Inc", "COM", "call"),
+        ("", "Example\t\tCorp", "COM  CL A", "Put"),
+        ("   ", "  example   corp  ", "  com  cl a ", None),
+        (None, "|Pipe Corp|", "", ""),
+        (None, "nan", "NaN", "nan"),
+        ("nan", "Apple Inc", "COM", None),
+        (None, "", "COM", ""),
     ],
 )
 def test_position_key_sql_matches_python_builder(cusip, issuer_name, share_class, put_call):
@@ -183,6 +202,7 @@ def test_top_held_securities_preserves_put_call_exposure_type():
             ("Fund C", "2026-05-15", "0003", "037833100", "APPLE INC", "COM", None),
         ],
     )
+    _effective_view(conn)
 
     rows = conn.execute(TOP_HELD_SECURITIES_SQL).fetchdf()
 
@@ -214,6 +234,7 @@ def test_consensus_normalized_positions_sql_aggregates_position_keys():
             ("Fund B", "0002", "2026-03-31", "BBB222", "BBB Corp", "COM", None, 20, 2_000),
         ],
     )
+    _effective_view(conn)
 
     rows = conn.execute(CONSENSUS_NORMALIZED_POSITIONS_SQL).fetchdf()
 
@@ -222,3 +243,47 @@ def test_consensus_normalized_positions_sql_aggregates_position_keys():
     assert fund_a["shares"] == 25
     assert fund_a["value_usd"] == 2_500
     assert fund_a["raw_lines"] == 2
+
+
+def test_fund_history_keeps_one_position_across_class_spellings():
+    """"COM" vs "COMMON STOCK" under one CUSIP must group together, and the key
+    the Python side rebuilds from the grouped row must match across quarters."""
+    conn = duckdb.connect(":memory:")
+    conn.execute("""
+        CREATE TABLE holdings (
+            fund_name TEXT,
+            accession_number TEXT,
+            filing_date TEXT,
+            cusip TEXT,
+            issuer_name TEXT,
+            share_class TEXT,
+            put_call TEXT,
+            shares DOUBLE,
+            value_usd DOUBLE
+        )
+    """)
+    conn.executemany(
+        "INSERT INTO holdings VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+            ("Fund A", "Q4", "2026-02-14", "AAA111", "AAA Corp", "COM", None, 10, 1_000),
+            ("Fund A", "Q4", "2026-02-14", "AAA111", "AAA Corp", "COMMON STOCK", None, 5, 500),
+            ("Fund A", "Q4", "2026-02-14", "AAA111", "AAA Corp", "COM", "Call", 1, 10),
+            ("Fund A", "Q1", "2026-05-15", "AAA111", "AAA Corp", "COMMON STOCK", "", 20, 2_000),
+            ("Fund A", "Q1", "2026-05-15", "AAA111", "AAA Corp", "COM", "CALL", 2, 20),
+        ],
+    )
+    _effective_view(conn)
+
+    rows = conn.execute(FUND_HISTORY_POSITIONS_SQL, ["Fund A"]).fetchdf()
+    keys_by_quarter = {
+        accession: sorted(
+            build_position_key(row["cusip"], row["issuer_name"], row["share_class"], row["put_call"])
+            for _, row in group.iterrows()
+        )
+        for accession, group in rows.groupby("accession_number")
+    }
+
+    assert keys_by_quarter == {"Q1": ["AAA111|", "AAA111|CALL"], "Q4": ["AAA111|", "AAA111|CALL"]}
+    q4_equity = rows[(rows["accession_number"] == "Q4") & rows["put_call"].isna()].iloc[0]
+    assert q4_equity["shares"] == 15
+    assert q4_equity["raw_lines"] == 2

@@ -1,5 +1,6 @@
-import Plot, { type PlotParams } from "react-plotly.js";
+import type { PlotParams } from "react-plotly.js";
 import type { ReactNode } from "react";
+import { Plot } from "@/components/Plot";
 import { Skeleton, Stack, Text } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { formatChartDate } from "@/utils/dateFormat";
@@ -188,8 +189,10 @@ export function LineChart({
         plot_bgcolor: "white",
         margin: { l: 40, r: 20, t: 48, b: 60 },
         height: 360,
+        autosize: true,
       }}
-      config={{ displayModeBar: false }}
+      config={{ displayModeBar: false, responsive: true }}
+      useResizeHandler
       style={{ width: "100%" }}
     />
   );
@@ -318,8 +321,10 @@ export function HorizontalBarChart({
         plot_bgcolor: "white",
         margin: { l: 140, r: 20, t: 48, b: 40 },
         height: 360,
+        autosize: true,
       }}
-      config={{ displayModeBar: false }}
+      config={{ displayModeBar: false, responsive: true }}
+      useResizeHandler
       style={{ width: "100%" }}
       onClick={
         onPointClick

@@ -48,7 +48,8 @@ def test_shares_flow_sankey_maps_buys_and_sells_by_share_delta():
                 "old_shares": 100_000,
                 "new_shares": 150_000,
                 "share_change": 50_000,
-                "value_change": 250,
+                # Dollars: holdings_effective normalizes units per filing.
+                "value_change": 250_000,
             },
         ],
         "decreased": [

@@ -11,6 +11,7 @@ import { ExportLink } from "@/components/ExportLink";
 import { useIsDemo } from "@/demo/useDemoSession";
 import { AlertBanner } from "@/components/AlertBanner";
 import { ChartLoading, KpiLoading } from "@/components/LoadingState";
+import { QueryError } from "@/components/QueryError";
 import { formatDateValue } from "@/utils/dateFormat";
 import { FUND_CELL_LINK, TICKER_CELL_LINK } from "@/utils/cellLinks";
 
@@ -83,9 +84,11 @@ export function OverviewPage() {
   const isDemo = useIsDemo();
   const [filter, setFilter] = useState("");
 
+  // The fund filter runs on the client: the unfiltered response carries every
+  // tracked fund (~56 rows), so typing never refetches or swaps the page out.
   const fundsQuery = useQuery({
-    queryKey: ["overview-funds", filter],
-    queryFn: () => apiGet<OverviewFundsResponse>(`/api/overview/funds?filter=${encodeURIComponent(filter)}`),
+    queryKey: ["overview-funds"],
+    queryFn: () => apiGet<OverviewFundsResponse>("/api/overview/funds"),
   });
 
   const timelineQuery = useQuery({
@@ -114,6 +117,14 @@ export function OverviewPage() {
     if (!data?.funds?.length) return [];
     return Object.keys(data.funds[0]);
   }, [data?.funds]);
+
+  const trimmedFilter = filter.trim();
+  const filteredFunds = useMemo(() => {
+    const funds = data?.funds ?? [];
+    const needle = trimmedFilter.toLowerCase();
+    if (!needle) return funds;
+    return funds.filter((row) => String(row.Fund ?? "").toLowerCase().includes(needle));
+  }, [data?.funds, trimmedFilter]);
 
   const recentColumns = useMemo(() => {
     const rows = recentQuery.data?.rows ?? [];
@@ -147,7 +158,7 @@ export function OverviewPage() {
   const topHeldLoading = topHeldQuery.isLoading;
   const timelineLoading = timelineQuery.isLoading;
 
-  if (fundsLoading && !data) {
+  if (!data && !fundsQuery.isError) {
     return (
       <div>
         <Text size="xs" tt="uppercase" fw={700} c="dimmed" mb={6}>
@@ -201,7 +212,24 @@ export function OverviewPage() {
     );
   }
 
-  if (!data?.has_data) {
+  if (!data) {
+    // No data and in error: the request failed, retries included.
+    return (
+      <div>
+        <Text size="xs" tt="uppercase" fw={700} c="dimmed" mb={6}>
+          13F database status
+        </Text>
+        <QueryError
+          title="Could not load the overview"
+          error={fundsQuery.error}
+          onRetry={() => fundsQuery.refetch()}
+          retrying={fundsQuery.isFetching}
+        />
+      </div>
+    );
+  }
+
+  if (!data.has_data) {
     return <Text>No data in the database yet.</Text>;
   }
 
@@ -213,6 +241,16 @@ export function OverviewPage() {
       <Text size="xs" tt="uppercase" fw={700} c="dimmed" mb={6}>
         13F database status
       </Text>
+
+      {fundsQuery.isError ? (
+        // A background refetch failed; the figures below are the last good ones.
+        <QueryError
+          title="Could not refresh the overview — showing the last loaded figures"
+          error={fundsQuery.error}
+          onRetry={() => fundsQuery.refetch()}
+          retrying={fundsQuery.isFetching}
+        />
+      ) : null}
 
       <KpiGrid
         items={[
@@ -288,10 +326,11 @@ export function OverviewPage() {
         <DataTable
           columns={fundColumns}
           columnOrder={FUNDS_COLUMN_ORDER}
-          rows={data.funds}
+          rows={filteredFunds}
           maxHeight={420}
           stickyHeader
           loading={fundsLoading}
+          emptyMessage={trimmedFilter ? `No fund matches “${trimmedFilter}”.` : undefined}
           cellLinks={FUND_CELL_LINK}
           onRowClick={(row) => {
             const fund = String(row.Fund ?? "");
@@ -312,32 +351,62 @@ export function OverviewPage() {
           />
         </Paper>
         <Paper withBorder p="md" radius="md" bg="white">
-          <LineChart chart={timelineChart} loading={timelineLoading && !timelineChart.x.length} />
+          {timelineQuery.isError && !timelineQuery.data ? (
+            <QueryError
+              title="Could not load filings per month"
+              error={timelineQuery.error}
+              onRetry={() => timelineQuery.refetch()}
+              retrying={timelineQuery.isFetching}
+              mb={0}
+            />
+          ) : (
+            <LineChart chart={timelineChart} loading={timelineLoading && !timelineChart.x.length} />
+          )}
         </Paper>
       </SimpleGrid>
 
       <SimpleGrid cols={{ base: 1, md: 2 }}>
           <Paper withBorder p="md" radius="md" bg="white">
             <SectionHeader title="Most recent filings" />
-            <DataTable
-              columns={recentColumns}
-              columnOrder={RECENT_FILINGS_COLUMN_ORDER}
-              rows={recentQuery.data?.rows ?? []}
-              maxHeight={360}
-              loading={recentLoading}
-              cellLinks={FUND_CELL_LINK}
-            />
+            {recentQuery.isError && !recentQuery.data ? (
+              <QueryError
+                title="Could not load recent filings"
+                error={recentQuery.error}
+                onRetry={() => recentQuery.refetch()}
+                retrying={recentQuery.isFetching}
+                mb={0}
+              />
+            ) : (
+              <DataTable
+                columns={recentColumns}
+                columnOrder={RECENT_FILINGS_COLUMN_ORDER}
+                rows={recentQuery.data?.rows ?? []}
+                maxHeight={360}
+                loading={recentLoading}
+                cellLinks={FUND_CELL_LINK}
+              />
+            )}
           </Paper>
           <Paper withBorder p="md" radius="md" bg="white">
             <SectionHeader title="Most common holdings today" />
-            <DataTable
-              columns={topHeldColumns}
-              columnOrder={TOP_HELD_COLUMN_ORDER}
-              rows={topHeldQuery.data?.rows ?? []}
-              maxHeight={360}
-              loading={topHeldLoading}
-              cellLinks={TICKER_CELL_LINK}
-            />
+            {topHeldQuery.isError && !topHeldQuery.data ? (
+              <QueryError
+                title="Could not load the most common holdings"
+                error={topHeldQuery.error}
+                onRetry={() => topHeldQuery.refetch()}
+                retrying={topHeldQuery.isFetching}
+                mb={0}
+              />
+            ) : (
+              <DataTable
+                columns={topHeldColumns}
+                columnOrder={TOP_HELD_COLUMN_ORDER}
+                rows={topHeldQuery.data?.rows ?? []}
+                maxHeight={360}
+                loading={topHeldLoading}
+                cellLinks={TICKER_CELL_LINK}
+              />
+            )}
           </Paper>
       </SimpleGrid>
     </div>

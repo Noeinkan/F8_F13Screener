@@ -117,7 +117,7 @@ def query(sql: str, params: tuple = ()) -> pd.DataFrame:
 
 
 def get_fund_options() -> list[str]:
-    db_funds = query("SELECT DISTINCT fund_name FROM holdings ORDER BY fund_name")
+    db_funds = query("SELECT DISTINCT fund_name FROM holdings_effective ORDER BY fund_name")
     db_names: list[str] = []
     if not db_funds.empty and "fund_name" in db_funds.columns:
         db_names = [str(name) for name in db_funds["fund_name"].dropna().tolist()]
@@ -162,7 +162,7 @@ def fund_has_db_holdings(fund: str) -> bool:
     return not query(
         """
             SELECT 1
-            FROM holdings
+            FROM holdings_effective
             WHERE fund_name = ?
             LIMIT 1
         """,
@@ -188,7 +188,7 @@ def load_accessions_for_fund(fund: str) -> pd.DataFrame:
     accessions = query(
         """
             SELECT DISTINCT accession_number, filing_date
-            FROM holdings
+            FROM holdings_effective
             WHERE fund_name = ?
               AND TRIM(COALESCE(accession_number, '')) <> ''
             ORDER BY filing_date DESC, accession_number DESC

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { MultiSelect, Paper, Select, SimpleGrid, Text } from "@mantine/core";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { Group, Loader, MultiSelect, Paper, Select, SimpleGrid, Text } from "@mantine/core";
 import { apiGet } from "@/api/client";
 import { HorizontalBarChart } from "@/components/Charts";
 import { DataTable } from "@/components/DataTable";
@@ -9,6 +9,7 @@ import { ExportLink } from "@/components/ExportLink";
 import { KpiGrid } from "@/components/KpiCard";
 import { SectionHeader } from "@/components/SectionHeader";
 import { KpiLoading, ChartLoading } from "@/components/LoadingState";
+import { QueryError } from "@/components/QueryError";
 import { TICKER_CELL_LINK } from "@/utils/cellLinks";
 
 type Leaderboard = {
@@ -203,6 +204,9 @@ export function ConsensusTrendsPage() {
       if (selectedFunds.length) params.set("funds", selectedFunds.join(","));
       return apiGet<ConsensusResponse>(`/api/consensus/trends?${params.toString()}`);
     },
+    // Every key part is a filter on the same page: keep the current boards on
+    // screen while the new selection loads instead of blanking them.
+    placeholderData: keepPreviousData,
   });
 
   const data = trendsQuery.data;
@@ -250,7 +254,33 @@ export function ConsensusTrendsPage() {
             searchable
           />
         </SimpleGrid>
+        {trendsQuery.isPlaceholderData ? (
+          <Group gap="xs" mt="sm">
+            <Loader size="xs" />
+            <Text size="xs" c="dimmed">
+              Updating for the new filters…
+            </Text>
+          </Group>
+        ) : null}
       </Paper>
+
+      {fundsQuery.isError && !trendsQuery.isError ? (
+        <QueryError
+          title="Could not load the fund list for “Fund subset”"
+          error={fundsQuery.error}
+          onRetry={() => fundsQuery.refetch()}
+          retrying={fundsQuery.isFetching}
+        />
+      ) : null}
+
+      {trendsQuery.isError ? (
+        <QueryError
+          title={data ? "Could not update the leaderboards — showing the previous results" : "Could not load consensus trends"}
+          error={trendsQuery.error}
+          onRetry={() => trendsQuery.refetch()}
+          retrying={trendsQuery.isFetching}
+        />
+      ) : null}
 
       {trendsQuery.isLoading && !data ? (
         <>

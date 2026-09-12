@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,11 +18,37 @@ from src.core.dashboard_snapshot import prune_orphan_snapshots
 logger = logging.getLogger(__name__)
 
 
+@asynccontextmanager
+async def _lifespan(_app: FastAPI):
+    _ensure_live_dashboard_schema()
+    yield
+
+
+def _ensure_live_dashboard_schema() -> None:
+    """Migrate the live DuckDB before the first read-only copy is taken.
+
+    Every request reads a copy of the database, and the analytics queries need
+    the ``filings`` table and ``holdings_effective`` view the migration adds.
+    The demo serves a frozen fixture that already carries them.
+    """
+    if demo.is_enabled():
+        return
+    try:
+        from src.api.repository import DB_PATH
+        from src.core.dashboard_storage import ensure_dashboard_schema
+
+        if DB_PATH.exists():
+            ensure_dashboard_schema(DB_PATH)
+    except Exception as exc:  # the API must still start and report DB errors per request
+        logger.warning("Dashboard schema migration skipped at startup: %s", exc)
+
+
 def create_app() -> FastAPI:
     app = FastAPI(
         title="F8 13F Screener API",
         version="0.1.0",
         description="JSON analytics API backing the F8 13F dashboard.",
+        lifespan=_lifespan,
     )
     app.add_middleware(
         CORSMiddleware,

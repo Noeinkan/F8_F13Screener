@@ -2,8 +2,10 @@ import logging
 from unittest.mock import MagicMock
 
 import feedparser
+import pytest
 
 from src.cli.main import FilingProcessor
+from src.core.sec_client import SECFetchError
 
 
 def _make_processor():
@@ -236,3 +238,160 @@ def test_cik_variants_leaves_non_numeric_alone():
 def test_seen_candidates_without_accession_use_the_fallback():
     candidates = FilingProcessor._build_seen_candidates("feed", "909661", "N/A", "raw-entry-id")
     assert candidates == {"raw-entry-id", "feed:raw-entry-id"}
+
+
+# ---------------------------------------------------------------------------
+# SEC failures must not look like a quiet, healthy cycle
+# ---------------------------------------------------------------------------
+
+def _funds(n):
+    return {f"{i:010d}": f"Fund {i}" for i in range(1, n + 1)}
+
+
+def _cycle_processor(funds, monkeypatch, bootstrapped=True):
+    processor, storage, dashboard_storage = _make_processor()
+    processor.config = MagicMock(
+        hedge_funds_cik=funds,
+        submissions_recent_limit=10,
+        submissions_request_delay_seconds=0,
+        enable_atom_fallback=False,
+    )
+    processor.runtime_state = {"submissions_bootstrapped": bootstrapped}
+    processor._save_runtime_state = MagicMock()
+    storage.any_filing_seen.return_value = False
+    dashboard_storage.has_holdings_for_accession.return_value = True
+
+    recorded = {}
+    monkeypatch.setattr("src.cli.main.notification_state.record_cycle",
+                        lambda totals: recorded.update(healthy=totals))
+    monkeypatch.setattr("src.cli.main.notification_state.record_cycle_degraded",
+                        lambda totals, reason: recorded.update(degraded=totals, reason=reason))
+    monkeypatch.setattr("src.cli.main.notification_state.record_cycle_error",
+                        lambda message: recorded.update(error=message))
+    return processor, storage, recorded
+
+
+def _forbidden():
+    return SECFetchError("HTTP 403", "https://data.sec.gov/x", status_code=403)
+
+
+def test_empty_answers_from_sec_are_a_healthy_quiet_cycle(monkeypatch):
+    processor, _, recorded = _cycle_processor(_funds(4), monkeypatch)
+    processor.sec_client.fetch_recent_13f_for_cik.return_value = []
+
+    processor.process_filings_cycle()
+
+    assert "healthy" in recorded and "degraded" not in recorded
+
+
+def test_sec_blocking_the_server_is_recorded_as_degraded_with_the_reason(monkeypatch):
+    processor, _, recorded = _cycle_processor(_funds(4), monkeypatch)
+    processor.sec_client.fetch_recent_13f_for_cik.side_effect = _forbidden()
+
+    processor.process_filings_cycle()
+
+    assert "healthy" not in recorded
+    assert recorded["reason"] == "SEC non raggiungibile: 4/4 fondi falliti, ultimo errore HTTP 403"
+    assert recorded["degraded"]["fetch_failed"] == 4
+
+
+def test_a_few_failing_funds_do_not_mark_the_cycle_unhealthy(monkeypatch):
+    processor, _, recorded = _cycle_processor(_funds(4), monkeypatch)
+    processor.sec_client.fetch_recent_13f_for_cik.side_effect = [_forbidden(), [], [], []]
+
+    processor.process_filings_cycle()
+
+    assert "healthy" in recorded
+    assert recorded["healthy"]["fetch_failed"] == 1
+
+
+def test_half_the_funds_failing_is_degraded(monkeypatch):
+    processor, _, recorded = _cycle_processor(_funds(4), monkeypatch)
+    processor.sec_client.fetch_recent_13f_for_cik.side_effect = [_forbidden(), [], _forbidden(), []]
+
+    processor.process_filings_cycle()
+
+    assert "degraded" in recorded
+
+
+def test_circuit_breaker_stops_the_cycle_after_consecutive_failures(monkeypatch):
+    processor, _, recorded = _cycle_processor(_funds(58), monkeypatch)
+    processor.sec_client.fetch_recent_13f_for_cik.side_effect = _forbidden()
+
+    stats = processor.process_submissions()
+
+    threshold = FilingProcessor.SEC_CIRCUIT_BREAKER_THRESHOLD
+    assert processor.sec_client.fetch_recent_13f_for_cik.call_count == threshold
+    assert stats["fetch_failed"] == threshold
+    assert stats["funds_skipped"] == 58 - threshold
+    reason = FilingProcessor._sec_outage_reason(stats)
+    assert "58/58 fondi non controllati" in reason
+    assert "HTTP 403" in reason
+
+
+def test_a_success_resets_the_consecutive_failure_count(monkeypatch):
+    processor, _, _ = _cycle_processor(_funds(10), monkeypatch)
+    threshold = FilingProcessor.SEC_CIRCUIT_BREAKER_THRESHOLD
+    pattern = ([_forbidden()] * (threshold - 1) + [[]]) * 2
+    processor.sec_client.fetch_recent_13f_for_cik.side_effect = pattern
+
+    stats = processor.process_submissions()
+
+    assert processor.sec_client.fetch_recent_13f_for_cik.call_count == 10
+    assert stats["funds_skipped"] == 0
+
+
+def test_one_failing_filing_does_not_abort_the_other_funds(monkeypatch, caplog):
+    processor, storage, recorded = _cycle_processor(_funds(3), monkeypatch)
+    processor.sec_client.fetch_recent_13f_for_cik.side_effect = lambda cik, max_entries: [
+        {"accession_number": f"ACC-{cik}", "filing_date": "2026-09-11", "filing_url": "u"}
+    ]
+    calls = []
+
+    def _seen(candidates):
+        calls.append(candidates)
+        if len(calls) == 1:
+            raise RuntimeError("database is locked")
+        return True
+
+    storage.any_filing_seen.side_effect = _seen
+
+    with caplog.at_level(logging.ERROR):
+        processor.process_filings_cycle()
+
+    assert len(calls) == 3, "the remaining funds must still be checked"
+    assert recorded["healthy"]["errors"] == 1
+    assert "ACC-0000000001" in caplog.text and "Fund 1" in caplog.text
+
+
+def test_bootstrap_is_not_completed_when_sec_did_not_answer(monkeypatch):
+    processor, _, _ = _cycle_processor(_funds(4), monkeypatch, bootstrapped=False)
+    processor.sec_client.fetch_recent_13f_for_cik.side_effect = _forbidden()
+
+    processor.process_submissions()
+
+    assert processor.runtime_state.get("submissions_bootstrapped") is False
+    processor._save_runtime_state.assert_not_called()
+
+
+def test_bootstrap_completes_on_a_healthy_cycle(monkeypatch):
+    processor, _, _ = _cycle_processor(_funds(2), monkeypatch, bootstrapped=False)
+    processor.sec_client.fetch_recent_13f_for_cik.return_value = []
+
+    processor.process_submissions()
+
+    assert processor.runtime_state["submissions_bootstrapped"] is True
+
+
+def test_feed_outage_is_logged_not_raised():
+    processor, storage, _ = _make_processor()
+    processor.config = MagicMock(rss_url="https://sec.gov/rss")
+    processor.sec_client.fetch_13f_feed.side_effect = SECFetchError("HTTP 503")
+
+    assert processor.process_feed_fallback() is None
+    storage.any_filing_seen.assert_not_called()
+
+
+@pytest.mark.parametrize("stats", [None, {}, {"funds_total": 0, "fetch_failed": 0}])
+def test_outage_reason_is_none_without_failures(stats):
+    assert FilingProcessor._sec_outage_reason(stats) is None
