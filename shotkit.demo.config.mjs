@@ -15,9 +15,22 @@
 //
 //   API_SERVER_PORT=9004 DEMO_MODE=true DEMO_SESSION_SECRET=… \
 //     DEMO_PUBLIC_URL=http://localhost:5180 \
-//     F8_DASHBOARD_DB=demo/fixtures/13f_demo.duckdb \
+//     F8_DASHBOARD_DB=<copy of demo/fixtures>/13f_demo.duckdb \
 //     python <scratchpad>/run_demo_local.py
-//   F8_API_PROXY_TARGET=http://127.0.0.1:9004 npx vite --port 5180 --strictPort
+//   npm --prefix frontend run build
+//   cd frontend && F8_API_PROXY_TARGET=http://127.0.0.1:9004 npx vite preview --port 5180 --strictPort
+//
+// Two traps from the 2026-09-14 re-shoot:
+//  * Serve the BUILT bundle (`vite preview`), not `vite` dev: under the dev
+//    server plotly.js throws `global is not defined` and every chart page
+//    renders React's error boundary. Production serves the build anyway.
+//  * Point F8_DASHBOARD_DB at a COPY of demo/fixtures/. The API rewrites
+//    holdings_ticker_index.json on boot, which dirties the tree otherwise. The
+//    fixture frozen on 2026-09-12 also predates the `filings` table and the
+//    `holdings_effective` view every query now reads, so every page 503s until
+//    `ensure_dashboard_schema(<copy>)` from src/core/dashboard_storage.py has
+//    run on the copy (counts are unchanged: 223,501 rows, 239 filings). The
+//    real fix is re-freezing the fixture; until then the demo at HEAD is broken.
 //
 // The snapshot is a fifth of the live database, so aggregations that took tens
 // of seconds on the live DB settle in a few here. The waits below are still
