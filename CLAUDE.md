@@ -159,7 +159,14 @@ how to refresh the snapshot: [docs/DEMO.md](docs/DEMO.md). Deployed with
 
 ## Config
 
-- Secrets live in `config_secret.py` using `config_secret.template.py` as reference.
+- Secrets come from the environment first, then `config_secret.py` — per variable, so a
+  systemd `Environment=` line always beats a stale file. Use `config_secret.template.py`
+  as the reference for the file.
+- **`config_secret.py` is gitignored and must never be tracked.** A live
+  `TELEGRAM_BOT_TOKEN` sat in this repo's *public* history from 2026-05-31 to 2026-09-15
+  (and inside a committed `__pycache__/13f_alert.cpython-313.pyc` alongside it), which is
+  how the bot's name, description and photo got changed by a stranger.
+  `tests/test_no_committed_secrets.py` now fails the suite if either comes back.
 - Required fields: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `SEC_USER_AGENT`.
 - `SEC_USER_AGENT` must be a real email to satisfy SEC requirements.
 

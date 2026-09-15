@@ -109,7 +109,12 @@ python -m src.cli.view_cached_filings
 
 ## Configuration
 
-Create local secrets in `config_secret.py` using `config_secret.template.py` as reference.
+Set the three values below as environment variables, or put them in `config_secret.py`
+using `config_secret.template.py` as reference. The environment wins per variable.
+
+`config_secret.py` is gitignored. Never commit it, and never commit `__pycache__/` —
+a compiled `.pyc` carries the same token in plain text. `tests/test_no_committed_secrets.py`
+enforces both.
 
 Required values:
 
