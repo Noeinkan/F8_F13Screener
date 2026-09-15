@@ -26,6 +26,10 @@ venv/
 env/
 ENV/
 
+# Secrets: never tracked. A live TELEGRAM_BOT_TOKEN sat in this public
+# repo's history from 2026-05-31 because this line was missing.
+config_secret.py
+
 # Data files (large files - don't commit to git)
 data/realtime/*.csv
 data/exports/*.csv
