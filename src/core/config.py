@@ -82,23 +82,34 @@ class Config:
     def from_env(cls) -> 'Config':
         """Load configuration from environment or config_secret.py"""
 
-        # Try loading from config_secret.py first
+        # Environment first, config_secret.py second, decided per variable.
+        #
+        # config_secret.py is gitignored and must stay that way: a copy holding
+        # a live bot token sat in this repo's public history from 2026-05-31.
+        # The environment is the deployable path (systemd Environment= or
+        # EnvironmentFile=), so it wins, and a stale or half-filled file can no
+        # longer mask a variable that is actually set.
         try:
-            from config_secret import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, SEC_USER_AGENT
-            bot_token = TELEGRAM_BOT_TOKEN
-            chat_id = TELEGRAM_CHAT_ID
-            user_agent = SEC_USER_AGENT
+            import config_secret as _secret  # type: ignore[import-not-found]
         except ImportError:
-            # Fallback to environment variables
-            bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
-            chat_id = os.getenv('TELEGRAM_CHAT_ID')
-            user_agent = os.getenv('SEC_USER_AGENT')
+            _secret = None
+
+        def _credential(name: str) -> Optional[str]:
+            for candidate in (os.getenv(name), getattr(_secret, name, None)):
+                if isinstance(candidate, str) and candidate.strip():
+                    return candidate.strip()
+            return None
+
+        bot_token = _credential('TELEGRAM_BOT_TOKEN')
+        chat_id = _credential('TELEGRAM_CHAT_ID')
+        user_agent = _credential('SEC_USER_AGENT')
 
         if not bot_token or not chat_id:
             raise ValueError(
                 "ERRORE: Credenziali mancanti!\n"
-                "Crea il file config_secret.py (vedi config_secret.template.py)\n"
-                "oppure imposta le variabili d'ambiente TELEGRAM_BOT_TOKEN e TELEGRAM_CHAT_ID"
+                "Imposta le variabili d'ambiente TELEGRAM_BOT_TOKEN e TELEGRAM_CHAT_ID,\n"
+                "oppure crea il file config_secret.py (vedi config_secret.template.py).\n"
+                "config_secret.py e' in .gitignore: non deve mai finire in un commit."
             )
 
         # Load hedge funds configuration
@@ -160,9 +171,19 @@ class Config:
         """Get Telegram API URL"""
         return f'https://api.telegram.org/bot{self.telegram_bot_token}/sendMessage'
 
+    # The template ships YOUR_BOT_TOKEN_HERE / YOUR_CHAT_ID_HERE, which the
+    # previous equality check against YOUR_BOT_TOKEN / YOUR_CHAT_ID never
+    # matched: a copied-but-unedited config_secret.py validated clean and only
+    # failed later, at the first Telegram call.
+    PLACEHOLDER_CREDENTIALS = frozenset({
+        'YOUR_BOT_TOKEN', 'YOUR_BOT_TOKEN_HERE',
+        'YOUR_CHAT_ID', 'YOUR_CHAT_ID_HERE',
+    })
+
     def validate(self) -> None:
         """Validate configuration"""
-        if self.telegram_bot_token == 'YOUR_BOT_TOKEN' or self.telegram_chat_id == 'YOUR_CHAT_ID':
+        if (self.telegram_bot_token in self.PLACEHOLDER_CREDENTIALS
+                or self.telegram_chat_id in self.PLACEHOLDER_CREDENTIALS):
             raise ValueError("ERRORE: Configura BOT_TOKEN e CHAT_ID!")
 
         if self.sec_user_agent == 'YourName yourname@email.com':

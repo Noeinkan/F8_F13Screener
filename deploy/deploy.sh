@@ -183,7 +183,20 @@ cd "$APP_DIR"
 git remote set-url origin "$REPO_URL"
 git fetch --prune origin "$DEPLOY_BRANCH"
 git cat-file -e "$LOCAL_COMMIT^{commit}"
+# config_secret.py used to be tracked. The commit that untracks it turns the
+# reset below into a delete of the server's only copy of the credentials, and
+# the poller then fails to start. Carry it across the reset; once the server is
+# past that commit the file is merely gitignored and the save/restore no-ops.
+SECRET_BACKUP=""
+if [ -f "$APP_DIR/config_secret.py" ]; then
+    SECRET_BACKUP="$(mktemp)"
+    cp -a "$APP_DIR/config_secret.py" "$SECRET_BACKUP"
+fi
 git reset --hard "$LOCAL_COMMIT"
+if [ -n "$SECRET_BACKUP" ]; then
+    [ -f "$APP_DIR/config_secret.py" ] || cp -a "$SECRET_BACKUP" "$APP_DIR/config_secret.py"
+    rm -f "$SECRET_BACKUP"
+fi
 SERVER_COMMIT="$(git rev-parse HEAD)"
 if [ "$SERVER_COMMIT" != "$LOCAL_COMMIT" ]; then
     echo "Errore: commit server $SERVER_COMMIT diverso da commit deploy $LOCAL_COMMIT"

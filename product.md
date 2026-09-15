@@ -45,7 +45,8 @@ F8 F13 Screener is a self-hosted Python application that monitors SEC EDGAR for 
 
 ## Inputs
 
-- Required secrets in `config_secret.py` (template at `config_secret.template.py`):
+- Required secrets, read from the environment first and from gitignored `config_secret.py`
+  second (template at `config_secret.template.py`):
   - `TELEGRAM_BOT_TOKEN` — Telegram bot token from @BotFather.
   - `TELEGRAM_CHAT_ID` — the single authorized chat ID.
   - `SEC_USER_AGENT` — SEC requires a real contact email per `README.md` and `Config.validate()`.
@@ -93,7 +94,8 @@ F8 F13 Screener is a self-hosted Python application that monitors SEC EDGAR for 
 ## Typical Workflow
 
 - Install: `rtk pip install -r requirements.txt` from the repo root; `npm --prefix frontend install` (run automatically by `dev.ps1` if missing).
-- Configure: `cp config_secret.template.py config_secret.py` and set the three required values; adjust `src/core/hedge_funds_config.py` to add or remove CIKs.
+- Configure: export the three required values, or `cp config_secret.template.py config_secret.py`
+  and set them there (the file is gitignored — keep it that way); adjust `src/core/hedge_funds_config.py` to add or remove CIKs.
 - Refresh data once: `python -m src.cli.process_historical_13f full --yes` (writes catalog JSON, parses all filings since 2020-01-01 into DuckDB; default `--save-db` is on, `--save-csv` is opt-in).
 - Launch dashboard (canonical): `python -m src.main dashboard` or `dashboard.bat` / `dev.ps1`. This frees ports, starts FastAPI on `http://127.0.0.1:9001`, and starts Vite on `http://127.0.0.1:5173` (proxying `/api`).
 - Run the realtime poller: `python -m src.cli.main` (entry point referenced as `python -m src.main alerts` in the docs). It iterates the CIK list, calls `process_submissions` and `process_feed_fallback` in `src/cli/main.py`, marks each filing as seen, parses and saves holdings, then sends a Telegram alert with the diff.
@@ -112,7 +114,7 @@ F8 F13 Screener is a self-hosted Python application that monitors SEC EDGAR for 
   - SQLite tables `seen_filings (entry_id PK, filer_name, cik, filing_date, acceptance_datetime, processed_at, matched)`, `holdings (id PK, filing_date, fund_name, fund_cik, accession_number, filing_url, acceptance_datetime, issuer_name, share_class, cusip, figi, value_x1000, value_usd, shares_raw, shares, sh_prn, put_call, investment_discretion, other_manager, other_managers_raw, all_columns_raw, voting_authority_sole/shared/none, created_at)`, and `statistics (id=1, total_checked, matched, filtered, last_match_date, last_update)` (`src/core/storage.py`).
   - DuckDB single `holdings` table mirroring the SQLite schema in `src/core/dashboard_storage.py` with indexes on `accession_number`, `(fund_name, filing_date)`, and `cusip`.
 - Path/data location single source of truth: `src/core/paths.py` (`DASHBOARD_DB_FILE = data/13f_dashboard.duckdb`, `HOLDINGS_DB_FILE = data/13f_holdings.db`, `LAST_CHECK_FILE`, `CATALOG_FILE`, `HISTORICAL_HOLDINGS_CSV`, `PROCESSED_TRACKING_FILE`, `MESSAGE_LOG_FILE`, etc.). `paths.py` creates each directory at import time.
-- Configuration: `src/core/config.py:Config` dataclass with `Config.from_env()` reading either `config_secret.py` or env vars, `Config.validate()` rejecting placeholder values. Runtime overrides flow through `F13F_*` env vars; API settings flow through `src/api/settings.py`.
+- Configuration: `src/core/config.py:Config` dataclass with `Config.from_env()` reading each credential from the environment first and gitignored `config_secret.py` second, `Config.validate()` rejecting the template's placeholder values. Runtime overrides flow through `F13F_*` env vars; API settings flow through `src/api/settings.py`.
 - HTTP API composition: `src/api/app.py:create_app()` registers CORS middleware and includes routers from `src.api.routers.{meta, overview, exports, holdings, funds, consensus}`. Dashboard storage is reached through `src/api/repository.py` which wraps DuckDB with an `lru_cache(maxsize=4)` keyed on `(db_path, snapshot_version)` plus a snapshot-resolution cache guarded by a threading lock.
 - Telegram control channel: `src/core/telegram_commands.py:TelegramCommandHandler` runs in a daemon thread, polls `getUpdates` with a 30s long-poll, calls `deleteWebhook` on startup, treats HTTP 401 as fatal (disables commands for the process), treats HTTP 409 as transient (waits 60s, logs once), and only dispatches commands whose `chat.id` equals the configured `chat_id`.
 - Logging: `RotatingFileHandler` (10 MB × 5) for the realtime poller; rotating, timestamped log files for refresh jobs in `logs/`; `StreamHandler` to console; `disable_web_page_preview=True` on Telegram messages.
