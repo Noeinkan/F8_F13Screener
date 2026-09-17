@@ -11,7 +11,7 @@
 #   bash deploy/edge-install.sh --set-password   (re)set the login first; asks for it
 #
 # Environment:
-#   F8_DASHBOARD_USER       login name (default: beta)
+#   F8_DASHBOARD_USER       login name (default: andrea.aita@noeinsolutions.com)
 #   F8_DASHBOARD_PASSWORD   password, instead of the prompt (for scripted runs)
 #
 # The password never leaves this machine in clear: it is hashed here (apr1,
@@ -22,7 +22,7 @@ VPS="root@77.42.70.26"
 DOMAIN="13f.noeinsolutions.com"
 SERVER_IP="77.42.70.26"
 SET_PASSWORD=false
-LOGIN="${F8_DASHBOARD_USER:-beta}"
+LOGIN="${F8_DASHBOARD_USER:-andrea.aita@noeinsolutions.com}"
 
 while [ $# -gt 0 ]; do
     case "$1" in

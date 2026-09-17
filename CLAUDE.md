@@ -88,7 +88,7 @@ On `77.42.70.26` the dashboard runs as two systemd services that do **not**
 answer from the internet: `f8-api` on `127.0.0.1:9002` and `f8-web` (Vite) on
 the Docker bridge `172.17.0.1:5173`. The only way in is the shared nginx edge:
 
-- Dashboard: `https://13f.noeinsolutions.com/` — password protected (login `beta`)
+- Dashboard: `https://13f.noeinsolutions.com/` — password protected (login `andrea.aita@noeinsolutions.com`)
 
 The vhost and its password live in `deploy/edge/` and are installed with
 `bash deploy/edge-install.sh` (`--set-password` to change the login). Run it
