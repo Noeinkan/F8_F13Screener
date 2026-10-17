@@ -33,8 +33,21 @@ const VENDOR_CHUNKS: Array<[name: string, pattern: RegExp]> = [
   ["plotly", /[\\/]node_modules[\\/](plotly\.js|react-plotly\.js)[\\/]/],
 ];
 
+/**
+ * Plot.ts imports plotly.js from source, not from its prebuilt bundle, and some
+ * of its dependencies (has-hover, is-mobile...) read Node's `global`. Browsers
+ * only have `globalThis`: without this alias every chart page crashes with
+ * "global is not defined". The dev server pre-bundles deps with esbuild, which
+ * does not see `define`, so it is set in both places.
+ */
+const NODE_GLOBAL = { global: "globalThis" };
+
 export default defineConfig({
   plugins: [react(), dropUnusedPlotlyCss()],
+  define: NODE_GLOBAL,
+  optimizeDeps: {
+    esbuildOptions: { define: NODE_GLOBAL },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
