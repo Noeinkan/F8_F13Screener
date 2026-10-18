@@ -284,6 +284,12 @@ export function ConsensusTrendsPage() {
 
       {trendsQuery.isLoading && !data ? (
         <>
+          {/* The first build after a data refresh compares every fund's last
+              quarters (~1M rows); later visits come from the server cache. */}
+          <Text size="sm" c="dimmed" mb="sm">
+            Comparing every fund&apos;s recent quarters — the first load after a data refresh takes
+            about 20 seconds.
+          </Text>
           <KpiLoading count={4} />
           {LEADERBOARD_CONFIGS.map((config) => (
             <Paper key={config.key} withBorder p="md" radius="md" bg="white" mb="lg">

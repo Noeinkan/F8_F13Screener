@@ -24,7 +24,9 @@ def instrument_type_label(put_call: str | None) -> str:
 def instrument_display_type_label(put_call: str | None) -> str:
     normalized = normalize_text_cell(put_call).upper()
     if not normalized:
-        return "Purchase"
+        # A plain share line is a long position. Not "Purchase": these rows
+        # describe what is held, not a trade.
+        return "Long"
     if normalized == "PUT":
         return "Put"
     if normalized == "CALL":

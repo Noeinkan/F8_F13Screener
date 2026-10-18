@@ -32,7 +32,9 @@ type KpiGridProps = {
 export function KpiGrid({ items }: KpiGridProps) {
   return (
     <SimpleGrid
-      cols={{ base: 1, sm: 2, md: 3, lg: Math.min(items.length, 4) }}
+      // Two per row on a phone (the tiles are short), all on one row on a
+      // wide screen so five tiles never leave one orphan below.
+      cols={{ base: Math.min(items.length, 2), md: Math.min(items.length, 3), lg: Math.min(items.length, 5) }}
       spacing="md"
       mb="lg"
     >

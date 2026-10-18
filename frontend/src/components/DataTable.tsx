@@ -22,13 +22,35 @@ type DataTableProps = {
   cellLinks?: Record<string, CellLinkBuilder>;
 };
 
+// "Long" is what a fund holds; "Buy"/"Sell" is what it did between filings.
 const TYPE_BADGE_COLORS: Record<string, string> = {
+  long: "rgba(139, 148, 158, 0.22)",
+  buy: "rgba(46, 160, 67, 0.28)",
+  // Labels from before the Long/Buy split, e.g. an older cached response.
   purchase: "rgba(46, 160, 67, 0.28)",
   sell: "rgba(248, 81, 73, 0.28)",
   put: "rgba(248, 81, 73, 0.28)",
   call: "rgba(31, 111, 235, 0.28)",
   mixed: "rgba(139, 148, 158, 0.22)",
 };
+
+// pandas NaN/None that reached the JSON as text.
+const MISSING_TEXT = new Set(["nan", "none", "null", "nat", ""]);
+
+const NUMBER_FORMAT = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
+
+function formatPlainValue(value: unknown): string {
+  if (value === null || value === undefined) return "-";
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? NUMBER_FORMAT.format(value) : "-";
+  }
+  const text = String(value);
+  if (MISSING_TEXT.has(text.trim().toLowerCase())) return "-";
+  // A float that arrived as text ("28.317451464633912"). Only decimals are
+  // touched: digit-only strings may be CUSIPs or accession parts.
+  if (/^-?\d+\.\d{3,}$/.test(text)) return NUMBER_FORMAT.format(Number(text));
+  return text;
+}
 
 const DEFAULT_BADGE_COLOR = "rgba(139, 148, 158, 0.22)";
 
@@ -62,7 +84,7 @@ function renderCell(column: string, row: Record<string, unknown>) {
     const label = raw === null || raw === undefined ? "" : String(raw);
     return label;
   }
-  return String(row[column] ?? "-");
+  return formatPlainValue(row[column]);
 }
 
 function resolveColumns(columns: string[], columnOrder?: string[]): string[] {
@@ -75,13 +97,9 @@ function resolveColumns(columns: string[], columnOrder?: string[]): string[] {
   return columns;
 }
 
-function resolveBaseRowStyle(column: string, row: Record<string, unknown>): CSSProperties | undefined {
-  if (isTypeColumn(column)) {
-    const raw = row[column];
-    const label = raw === null || raw === undefined ? "" : String(raw);
-    const { color } = resolveTypeBadgeStyle(label);
-    return { backgroundColor: color, fontWeight: 700 };
-  }
+function resolveBaseRowStyle(column: string): CSSProperties | undefined {
+  // The badge carries the colour; tinting the whole cell too drowned the row.
+  if (isTypeColumn(column)) return { whiteSpace: "nowrap" };
   return undefined;
 }
 
@@ -215,7 +233,7 @@ export function DataTable({
                 }}
               >
                 {orderedColumns.map((column) => {
-                  const baseStyle = resolveBaseRowStyle(column, row);
+                  const baseStyle = resolveBaseRowStyle(column);
                   const directionStyle = resolveIncreaseDecreaseStyle(column, row);
                   const cellStyle = baseStyle ?? directionStyle;
                   const linkHref = cellLinks?.[column]?.(row);
@@ -233,8 +251,10 @@ export function DataTable({
                               backgroundColor: color,
                               color: "#1a1f2e",
                               textTransform: "none",
-                              fontWeight: 700,
+                              fontWeight: 600,
+                              overflow: "visible",
                             },
+                            label: { overflow: "visible" },
                           }}
                         >
                           {label || "-"}

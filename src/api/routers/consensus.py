@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import threading
+from collections import OrderedDict
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
@@ -10,7 +12,7 @@ from fastapi.responses import PlainTextResponse
 from src.api._consensus_analytics import build_consensus_trend_tables
 from src.api.deps import raise_db_error
 from src.api.exceptions import DashboardDbError
-from src.api.repository import query
+from src.api.repository import get_dashboard_db_state, query
 from src.api.serialize import dataframe_to_csv_text, records_from_dataframe
 from src.web.formatting import fmt_quantity, fmt_signed_quantity, fmt_signed_value_dollars, fmt_value_dollars
 from src.web.sql_queries import CONSENSUS_NORMALIZED_POSITIONS_SQL
@@ -157,18 +159,40 @@ def _build_section_payload(section_key: str, source_df, *, min_funds: int, top_n
     }
 
 
+# The trend tables read every holding row (~1M) and take seconds to build, but
+# they only change when the database does. Keep the last few results keyed by
+# the database version, so a page revisit, a slider change on min_funds/top_n
+# (applied after the build) or the CSV export reuses them.
+_TABLES_CACHE_SIZE = 4
+_tables_cache: OrderedDict[tuple[Any, ...], dict[str, Any]] = OrderedDict()
+_tables_lock = threading.Lock()
+
+
 def _load_trend_tables(
     *,
     lookback_quarters: int,
     funds: str,
 ) -> dict[str, Any]:
-    rows = query(CONSENSUS_NORMALIZED_POSITIONS_SQL)
     selected_funds = [item.strip() for item in funds.split(",") if item.strip()] or None
-    return build_consensus_trend_tables(
+    db_path, db_version, _ = get_dashboard_db_state()
+    cache_key = (db_path, db_version, lookback_quarters, tuple(selected_funds or ()))
+    with _tables_lock:
+        cached = _tables_cache.get(cache_key)
+        if cached is not None:
+            _tables_cache.move_to_end(cache_key)
+            return cached
+
+    rows = query(CONSENSUS_NORMALIZED_POSITIONS_SQL)
+    tables = build_consensus_trend_tables(
         rows,
         lookback_quarters=lookback_quarters,
         selected_funds=selected_funds,
     )
+    with _tables_lock:
+        _tables_cache[cache_key] = tables
+        while len(_tables_cache) > _TABLES_CACHE_SIZE:
+            _tables_cache.popitem(last=False)
+    return tables
 
 
 @router.get("/trends")

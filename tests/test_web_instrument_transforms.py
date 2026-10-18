@@ -25,8 +25,8 @@ def test_build_instrument_label_separates_equity_and_options():
 
 
 def test_instrument_display_type_labels_purchase_put_and_call():
-    assert instrument_display_type_label(None) == "Purchase"
-    assert instrument_display_type_label("") == "Purchase"
+    assert instrument_display_type_label(None) == "Long"
+    assert instrument_display_type_label("") == "Long"
     assert instrument_display_type_label(" put ") == "Put"
     assert instrument_display_type_label("CALL") == "Call"
     assert instrument_display_type_label("PUT,CALL") == "Mixed"
@@ -41,11 +41,11 @@ def test_add_instrument_type_column_inserts_after_ticker_and_is_idempotent():
 
     result = add_instrument_type_column(rows)
     assert result.columns.tolist() == ["Ticker", "Type", "Issuer", "Put/Call"]
-    assert result["Type"].tolist() == ["Purchase", "Call", "Put"]
+    assert result["Type"].tolist() == ["Long", "Call", "Put"]
 
     result = add_instrument_type_column(result.assign(**{"Put/Call": ["PUT", None, "CALL"]}))
     assert result.columns.tolist() == ["Ticker", "Type", "Issuer", "Put/Call"]
-    assert result["Type"].tolist() == ["Put", "Purchase", "Call"]
+    assert result["Type"].tolist() == ["Put", "Long", "Call"]
 
 
 def test_instrument_type_cell_styles_only_type_column():

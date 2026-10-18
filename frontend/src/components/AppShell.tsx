@@ -1,7 +1,8 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@mantine/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDisclosure } from "@mantine/hooks";
 import { apiGet, apiPost, describeError } from "@/api/client";
 import { SidebarNav } from "@/components/SidebarNav";
 import { TopBar } from "@/components/TopBar";
@@ -59,6 +60,12 @@ export function AppShellLayout() {
   const pageTitle = PAGE_TITLES[location.pathname] ?? "Dashboard";
   const [refreshMessage, setRefreshMessage] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [navOpened, { toggle: toggleNav, close: closeNav }] = useDisclosure(false);
+
+  // A page change on a phone should land on the page, not on the open drawer.
+  useEffect(() => {
+    closeNav();
+  }, [location.pathname, location.search, closeNav]);
 
   const dbState = useQuery({
     queryKey: ["db-state"],
@@ -146,19 +153,29 @@ export function AppShellLayout() {
 
   return (
     <AppShell
-      navbar={{ width: 260, breakpoint: "sm" }}
+      // Below "sm" the navbar is a drawer: closed by default, opened from the
+      // burger in the TopBar, closed again by any navigation.
+      // The TopBar is the fixed header so the burger stays above the open
+      // drawer, and the bar stays reachable on long pages.
+      header={{ height: 52 }}
+      navbar={{ width: 260, breakpoint: "sm", collapsed: { mobile: !navOpened } }}
       padding={0}
       styles={{
         main: {
           background: "transparent",
           minHeight: "100vh",
+          minWidth: 0,
         },
         navbar: {
           background: "var(--f8-bg)",
           borderRight: "1px solid var(--f8-border)",
+          overflowY: "auto",
         },
       }}
     >
+      <AppShell.Header withBorder={false}>
+        <TopBar pageTitle={pageTitle} navOpened={navOpened} onToggleNav={toggleNav} />
+      </AppShell.Header>
       <AppShell.Navbar p={0}>
         <SidebarNav
           dbLive={isDemo ? undefined : dbState.data?.db_live}
@@ -171,8 +188,7 @@ export function AppShellLayout() {
       </AppShell.Navbar>
       <AppShell.Main>
         <DemoBanner />
-        <TopBar pageTitle={pageTitle} />
-        <div style={{ padding: "1rem 1.25rem 2rem" }}>
+        <div className="f8-page">
           <Outlet />
         </div>
       </AppShell.Main>

@@ -81,12 +81,19 @@ def _largest_by_abs(items: list[dict], key: str) -> dict | None:
     return max(items, key=lambda item: abs(_numeric_or_zero(item.get(key))))
 
 
+def _text(value: Any) -> str:
+    """Cell text with pandas' missing values (NaN, None) as empty, not "nan"."""
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        return ""
+    return str(value).strip()
+
+
 def _position_label(position: dict | None) -> str:
     if not position:
         return "-"
-    issuer = str(position.get("issuer_name") or "").strip()
-    put_call = str(position.get("put_call") or "").strip().upper()
-    share_class = str(position.get("share_class") or "").strip()
+    issuer = _text(position.get("issuer_name"))
+    put_call = _text(position.get("put_call")).upper()
+    share_class = _text(position.get("share_class"))
     suffix = " ".join(part for part in [share_class, put_call] if part)
     if issuer and suffix:
         return f"{issuer} ({suffix})"
@@ -138,7 +145,7 @@ def build_top_movers(diff: dict, *, limit: int = 12) -> dict[str, Any]:
         shares = _numeric_or_zero(position.get("shares"))
         rows.append({
             "Ticker": position.get("cusip"),
-            "Type": "Purchase",
+            "Type": "Buy",
             "Movement": "New",
             "Issuer": position.get("issuer_name"),
             "Delta Shares": fmt_signed_quantity(shares),
@@ -178,7 +185,7 @@ def build_top_movers(diff: dict, *, limit: int = 12) -> dict[str, Any]:
             share_change = _numeric_or_zero(position.get("share_change"))
             rows.append({
                 "Ticker": position.get("cusip"),
-                "Type": "Purchase" if share_change > 0 else "Sell",
+                "Type": "Buy" if share_change > 0 else "Sell",
                 "Movement": movement,
                 "Issuer": position.get("issuer_name"),
                 "Delta Shares": fmt_signed_quantity(share_change),
@@ -214,7 +221,7 @@ def build_top_movers(diff: dict, *, limit: int = 12) -> dict[str, Any]:
 def build_new_positions_section(diff: dict) -> dict[str, Any]:
     new_positions = diff.get("new_positions", []) or []
     if not new_positions:
-        return {"rows": [], "count": 0, "value_multiplier": 1, "type_label": "Purchase"}
+        return {"rows": [], "count": 0, "value_multiplier": 1, "type_label": "Buy"}
 
     new_df = pd.DataFrame(new_positions).sort_values(
         ["value_usd", "issuer_name"],
@@ -234,12 +241,12 @@ def build_new_positions_section(diff: dict) -> dict[str, Any]:
             "Value": new_df["Value"],
         }))
     )
-    display_df["Type"] = "Purchase"
+    display_df["Type"] = "Buy"
     return {
         "rows": records_from_dataframe(display_df),
         "count": len(new_positions),
         "value_multiplier": multiplier,
-        "type_label": "Purchase",
+        "type_label": "Buy",
     }
 
 
@@ -312,7 +319,7 @@ def build_share_changes_section(diff: dict) -> dict[str, Any]:
         "Put/Call": changes_df["put_call"],
     })
     display_df = add_instrument_type_column(add_ticker_column(display_df))
-    display_df["Type"] = display_df["Direction"].map({"Increase": "Purchase", "Decrease": "Sell"})
+    display_df["Type"] = display_df["Direction"].map({"Increase": "Buy", "Decrease": "Sell"})
     return {
         "rows": records_from_dataframe(display_df),
         "count": len(changes),

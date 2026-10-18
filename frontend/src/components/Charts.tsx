@@ -73,6 +73,12 @@ function maybeFormatXTicks(x: Array<string | number>): Array<string | number> {
   return x.map((value) => formatChartDate(String(value)));
 }
 
+// Month ("2024-05") or date ("2024-05-15") categories read left to right in
+// time; anything else is a list of names, which reads better as rows.
+function isTimeAxis(x: Array<string | number>): boolean {
+  return x.length > 0 && x.every((value) => typeof value === "string" && /^\d{4}-\d{2}/.test(value));
+}
+
 export function BarChart({
   chart,
   loading = false,
@@ -88,55 +94,47 @@ export function BarChart({
     return <ChartLoadingPlaceholder height={placeholderHeight} />;
   }
   if (!chart || chart.x.length === 0) return null;
-  const formattedX = maybeFormatXTicks(chart.x);
-  const categoryCount = formattedX.length;
-
-  // Thin x-axis ticks so labels never overlap, scaling targets by viewport.
-  const targetLabels = viewport === "compact" ? 6 : viewport === "wide" ? 14 : 10;
-  const tickInterval = Math.max(1, Math.ceil(categoryCount / targetLabels));
-
-  const tickAngle = viewport === "compact" ? -55 : -35;
-  const tickFontSize = viewport === "compact" ? 10 : 11;
   const titleFontSize = viewport === "compact" ? 13 : 15;
-  const bottomMargin = viewport === "compact" ? 150 : 120;
+  const clickHandler = (axis: "x" | "y") =>
+    onPointClick
+      ? (((event: Readonly<Plotly.PlotMouseEvent>) => {
+          const point = event?.points?.[0];
+          const label = point ? String(point[axis] ?? "") : "";
+          if (label) onPointClick(label);
+        }) as PlotParams["onClick"])
+      : undefined;
 
-  // Grow chart height with category count so bars stay legible instead of
-  // becoming hairlines, but cap it so a 25-row snapshot doesn't dominate.
-  const baseHeight = viewport === "compact" ? 360 : viewport === "wide" ? 440 : 400;
-  const perCategory = viewport === "compact" ? 5 : 7;
-  const maxHeight = viewport === "compact" ? 560 : 760;
-  const chartHeight = Math.min(
-    maxHeight,
-    Math.max(baseHeight, baseHeight + (categoryCount - 8) * perCategory),
-  );
-
-  // On narrow screens, give the plot a minimum width and let the frame scroll
-  // horizontally instead of crushing bars into illegibility.
-  const minWidth = viewport === "compact" ? 480 : undefined;
-
-  return (
-    <ChartFrame minWidth={minWidth}>
+  if (!isTimeAxis(chart.x)) {
+    // Names as horizontal bars: full labels, no diagonal text eating a third
+    // of the height. Largest at the top.
+    const labels = [...chart.x].map(String).reverse();
+    const values = [...chart.y].reverse();
+    const rowHeight = viewport === "compact" ? 24 : 28;
+    const chartHeight = Math.max(260, 90 + labels.length * rowHeight);
+    return (
       <Plot
         data={[
           {
             type: "bar",
-            x: formattedX,
-            y: chart.y,
-            hovertemplate: "%{x}<br>%{y}<extra></extra>",
+            orientation: "h",
+            x: values,
+            y: labels,
+            marker: { color: "#1e3a8a" },
+            hovertemplate: "%{y}<br>%{x:,.4s}<extra></extra>",
           },
         ]}
         layout={{
           title: { text: chart.title, font: { size: titleFontSize } },
           paper_bgcolor: "white",
           plot_bgcolor: "white",
-          margin: { l: 48, r: 20, t: 48, b: bottomMargin },
-          xaxis: {
-            tickangle: tickAngle,
-            tickfont: { size: tickFontSize },
-            dtick: tickInterval,
+          margin: { l: 8, r: 20, t: 48, b: 40 },
+          xaxis: { title: { text: chart.y_label ?? "" }, automargin: true, tickformat: "~s" },
+          yaxis: {
             automargin: true,
+            tickfont: { size: viewport === "compact" ? 10 : 11 },
+            // Long fund and issuer names: cap the label column, the hover has the rest.
+            ticklabeloverflow: "hide past domain",
           },
-          yaxis: { title: chart.y_label ?? "", automargin: true },
           height: chartHeight,
           font: { size: viewport === "compact" ? 10 : 12 },
           autosize: true,
@@ -144,51 +142,95 @@ export function BarChart({
         config={{ displayModeBar: false, responsive: true }}
         useResizeHandler
         style={{ width: "100%" }}
-        onClick={
-          onPointClick
-            ? ((event: Readonly<Plotly.PlotMouseEvent>) => {
-                const point = event?.points?.[0];
-                const label = point ? String(point.x ?? "") : "";
-                if (label) onPointClick(label);
-              }) as PlotParams["onClick"]
-            : undefined
-        }
+        onClick={clickHandler("y")}
       />
-    </ChartFrame>
+    );
+  }
+
+  const formattedX = maybeFormatXTicks(chart.x);
+  const categoryCount = formattedX.length;
+  const targetLabels = viewport === "compact" ? 6 : viewport === "wide" ? 14 : 10;
+  const tickInterval = Math.max(1, Math.ceil(categoryCount / targetLabels));
+  const chartHeight = viewport === "compact" ? 300 : 360;
+
+  return (
+    <Plot
+      data={[
+        {
+          type: "bar",
+          x: formattedX,
+          y: chart.y,
+          marker: { color: "#1e3a8a" },
+          hovertemplate: "%{x}<br>%{y}<extra></extra>",
+        },
+      ]}
+      layout={{
+        title: { text: chart.title, font: { size: titleFontSize } },
+        paper_bgcolor: "white",
+        plot_bgcolor: "white",
+        margin: { l: 48, r: 20, t: 48, b: 60 },
+        xaxis: {
+          type: "category",
+          tickangle: 0,
+          tickfont: { size: viewport === "compact" ? 10 : 11 },
+          dtick: tickInterval,
+          automargin: true,
+        },
+        yaxis: { title: { text: chart.y_label ?? "" }, automargin: true },
+        height: chartHeight,
+        font: { size: viewport === "compact" ? 10 : 12 },
+        autosize: true,
+      }}
+      config={{ displayModeBar: false, responsive: true }}
+      useResizeHandler
+      style={{ width: "100%" }}
+      onClick={clickHandler("x")}
+    />
   );
 }
 
 export function LineChart({
   chart,
   loading = false,
+  yLabel,
+  valueFormat,
 }: {
   chart: { title: string; x: string[]; y: number[]; labels?: string[] } | null | undefined;
   loading?: boolean;
+  yLabel?: string;
+  /** d3 format for the y axis and hover, e.g. "$~s" for dollars. */
+  valueFormat?: string;
 }) {
   if (loading) {
     return <ChartLoadingPlaceholder />;
   }
   if (!chart || chart.x.length === 0) return null;
-  const formattedX = chart.x.map((value) => formatChartDate(value));
+  // ISO dates on a real date axis: filings are irregular, so spacing them by
+  // time (not as evenly spaced labels) shows the gaps honestly.
   const hovertext = chart.labels ?? chart.x.map((value) => formatChartDate(value));
+  const yFormat = valueFormat ?? ",~s";
   return (
     <Plot
       data={[
         {
           type: "scatter",
           mode: "lines+markers",
-          x: formattedX,
+          x: chart.x,
           y: chart.y,
+          line: { color: "#1e3a8a", width: 2 },
+          marker: { size: 5 },
           hovertext,
-          hoverinfo: "y+text",
+          hovertemplate: `%{hovertext}<br>%{y:${yFormat}}<extra></extra>`,
         },
       ]}
       layout={{
-        title: chart.title,
+        title: { text: chart.title, font: { size: 14 } },
         paper_bgcolor: "white",
         plot_bgcolor: "white",
-        margin: { l: 40, r: 20, t: 48, b: 60 },
-        height: 360,
+        margin: { l: 56, r: 20, t: 48, b: 40 },
+        xaxis: { type: "date", tickformat: "%b %Y", automargin: true },
+        yaxis: { title: { text: yLabel ?? "" }, tickformat: yFormat, rangemode: "tozero", automargin: true },
+        height: 320,
         autosize: true,
       }}
       config={{ displayModeBar: false, responsive: true }}
@@ -312,15 +354,19 @@ export function HorizontalBarChart({
           orientation: "h",
           x: chart.x,
           y: chart.y,
+          marker: { color: "#1e3a8a" },
           hovertemplate: "%{y}<br>%{x}<extra></extra>",
         },
       ]}
       layout={{
-        title: chart.title,
+        title: { text: chart.title, font: { size: 14 } },
         paper_bgcolor: "white",
         plot_bgcolor: "white",
-        margin: { l: 140, r: 20, t: 48, b: 40 },
-        height: 360,
+        margin: { l: 8, r: 20, t: 48, b: 40 },
+        // One row per bar, tall enough that Plotly labels every bar instead
+        // of every other one.
+        height: Math.max(260, 90 + chart.y.length * 22),
+        yaxis: { automargin: true, tickmode: "linear", dtick: 1, tickfont: { size: 11 } },
         autosize: true,
       }}
       config={{ displayModeBar: false, responsive: true }}

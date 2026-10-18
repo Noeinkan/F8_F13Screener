@@ -44,8 +44,9 @@ a {
 /* Fund Analysis — sticky, high-contrast tab bar */
 .f8-sticky-tab-bar {
   position: sticky;
-  top: 0;
-  z-index: 200;
+  /* Stick below the fixed TopBar header, not under it. */
+  top: calc(var(--app-shell-header-offset, 0px) + 0.5rem);
+  z-index: 150;
   display: flex;
   gap: 0.4rem;
   padding: 0.45rem;
@@ -68,8 +69,8 @@ a {
 /* Fund Analysis — sticky row that keeps the fund name visible above the tabs */
 .f8-sticky-fund-row {
   position: sticky;
-  top: 0;
-  z-index: 200;
+  top: calc(var(--app-shell-header-offset, 0px) + 0.5rem);
+  z-index: 150;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -133,6 +134,7 @@ a {
 /* TopBar — brand, page title and the two action pills on the navy bar */
 .f8-topbar {
   height: 52px;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -240,6 +242,44 @@ a {
 
   .f8-topbar-pill {
     padding: 0.35rem 0.55rem;
+  }
+}
+
+/* On the narrowest phones the pills keep their icon and drop the word; the
+   aria-label still names them. */
+@media (max-width: 400px) {
+  .f8-topbar-pill-label {
+    display: none;
+  }
+}
+
+/* On a phone the fund name is already in the picker above: the sticky row
+   keeps only the three tabs, side by side. */
+@media (max-width: 600px) {
+  .f8-sticky-fund-name {
+    display: none;
+  }
+
+  .f8-sticky-fund-row {
+    padding: 0.35rem;
+  }
+
+  .f8-sticky-tab {
+    padding: 0.5rem 0.4rem !important;
+    min-height: 2.4rem;
+    font-size: 0.85rem !important;
+  }
+}
+
+/* Page gutter: tighter on phones so tables get the width. */
+.f8-page {
+  padding: 1rem 1.25rem 2rem;
+  min-width: 0;
+}
+
+@media (max-width: 600px) {
+  .f8-page {
+    padding: 0.75rem 0.6rem 1.5rem;
   }
 }
 

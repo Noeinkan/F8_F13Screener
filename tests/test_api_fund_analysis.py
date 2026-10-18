@@ -113,7 +113,7 @@ def test_formatted_diff_sections_have_counts():
     assert sections["new_positions"]["count"] == 1
     assert sections["closed_positions"]["count"] == 1
     assert sections["share_changes"]["count"] == 2
-    assert sections["new_positions"]["type_label"] == "Purchase"
+    assert sections["new_positions"]["type_label"] == "Buy"
     assert sections["closed_positions"]["type_label"] == "Sell"
 
 

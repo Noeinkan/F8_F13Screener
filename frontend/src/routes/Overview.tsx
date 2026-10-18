@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Group, Paper, SimpleGrid, Text, TextInput } from "@mantine/core";
 import { apiGet } from "@/api/client";
-import { BarChart, LineChart } from "@/components/Charts";
+import { BarChart } from "@/components/Charts";
 import { DataTable } from "@/components/DataTable";
 import { KpiGrid } from "@/components/KpiCard";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -140,7 +140,9 @@ export function OverviewPage() {
     const rows = timelineQuery.data?.rows ?? [];
     return {
       title: "Filings stored per month",
-      x: rows.map((row) => String(row.Month)),
+      // "2026-05": filings bunch on quarterly deadlines, so these are bars,
+      // not a line that zig-zags through the empty months.
+      x: rows.map((row) => String(row.Month).slice(0, 7)),
       y: rows.map((row) => Number(row.Filings ?? 0)),
     };
   }, [timelineQuery.data]);
@@ -268,11 +270,9 @@ export function OverviewPage() {
         </Text>
       ) : null}
 
-      {data.has_portfolio_values ? (
-        <AlertBanner variant="success" title="Portfolio values available">
-          Fund rankings and charts now use the latest valued filing.
-        </AlertBanner>
-      ) : (
+      {/* Only the problem case earns a banner; "values available" is the
+          normal state and said nothing new on every visit. */}
+      {data.has_portfolio_values ? null : (
         <AlertBanner variant="warning" title="Portfolio values not available">
           <code>value_usd</code> / <code>value_x1000</code> are empty for the current database. This overview
           therefore shows useful signals based on filings, coverage, and normalized positions, which are the
@@ -360,7 +360,7 @@ export function OverviewPage() {
               mb={0}
             />
           ) : (
-            <LineChart chart={timelineChart} loading={timelineLoading && !timelineChart.x.length} />
+            <BarChart chart={timelineChart} loading={timelineLoading && !timelineChart.x.length} />
           )}
         </Paper>
       </SimpleGrid>
