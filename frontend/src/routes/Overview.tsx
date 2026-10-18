@@ -270,9 +270,11 @@ export function OverviewPage() {
         </Text>
       ) : null}
 
-      {/* Only the problem case earns a banner; "values available" is the
-          normal state and said nothing new on every visit. */}
-      {data.has_portfolio_values ? null : (
+      {data.has_portfolio_values ? (
+        <AlertBanner variant="success" title="Portfolio values available">
+          Fund rankings and charts now use the latest valued filing.
+        </AlertBanner>
+      ) : (
         <AlertBanner variant="warning" title="Portfolio values not available">
           <code>value_usd</code> / <code>value_x1000</code> are empty for the current database. This overview
           therefore shows useful signals based on filings, coverage, and normalized positions, which are the

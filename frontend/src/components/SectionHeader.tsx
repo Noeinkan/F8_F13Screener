@@ -1,22 +1,22 @@
 import { ReactNode } from "react";
 import { Group } from "@mantine/core";
-import { InfoTip } from "@/components/InfoTip";
 
 type SectionHeaderProps = {
   title: string;
-  /** Method notes: shown behind an ⓘ next to the title, not as a paragraph. */
   caption?: ReactNode;
   right?: ReactNode;
 };
 
 export function SectionHeader({ title, caption, right }: SectionHeaderProps) {
   return (
-    <div style={{ marginBottom: "0.75rem" }}>
-      <Group justify="space-between" align="center" wrap="wrap" gap="sm">
-        <Group gap={6} wrap="nowrap" align="center">
+    <div style={{ marginBottom: "0.5rem" }}>
+      {/* wrap: on a phone the export links drop below the title instead of
+          pushing the page wider than the screen. */}
+      <Group justify="space-between" align="flex-start" wrap="wrap" gap="md">
+        <div>
           <h2 className="f8-section-title">{title}</h2>
-          {caption ? <InfoTip>{caption}</InfoTip> : null}
-        </Group>
+          {caption ? <p className="f8-section-caption">{caption}</p> : null}
+        </div>
         {right ? <div style={{ flexShrink: 0 }}>{right}</div> : null}
       </Group>
     </div>

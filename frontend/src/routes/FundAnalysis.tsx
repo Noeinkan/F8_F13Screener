@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useDebouncedValue } from "@mantine/hooks";
 import {
-  Accordion,
   Alert,
   Badge,
   Button,
@@ -36,10 +35,11 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { ExportLink } from "@/components/ExportLink";
 import { AlertBanner } from "@/components/AlertBanner";
 import { ChartLoading, KpiLoading } from "@/components/LoadingState";
-import { ChangeTables, type FormattedDiff } from "@/components/ChangeTables";
-import { InfoTip } from "@/components/InfoTip";
 import { formatDateValue, formatAccessionLabel } from "@/utils/dateFormat";
-import { HOLDINGS_SEARCH_CELL_LINKS } from "@/utils/cellLinks";
+import {
+  HOLDINGS_SEARCH_CELL_LINKS,
+  ISSUER_CELL_LINK,
+} from "@/utils/cellLinks";
 
 type AccessionLabel = {
   accession_number: string;
@@ -131,6 +131,19 @@ type TopMovers = {
   value_multiplier?: number;
 };
 
+type FormattedDiffSection = {
+  rows: Record<string, unknown>[];
+  count: number;
+  value_multiplier?: number;
+};
+
+type FormattedDiff = {
+  new_positions?: FormattedDiffSection;
+  closed_positions?: FormattedDiffSection;
+  share_changes?: FormattedDiffSection;
+  has_any?: boolean;
+};
+
 // GET /api/funds/{fund}/compare — only the fields this page reads. The raw
 // `diff` key is not used: tables and highlights come from `formatted_diff`,
 // `top_movers` and `highlights`.
@@ -158,6 +171,43 @@ const HISTORY_COLUMN_ORDER = [
   "Normalized Positions",
   "Raw 13F Lines",
   "Portfolio Value",
+];
+
+const NEW_POSITIONS_COLUMN_ORDER = [
+  "Issuer",
+  "CUSIP",
+  "Class",
+  "Put/Call",
+  "Shares",
+  "Value",
+  "Type",
+];
+
+const CLOSED_POSITIONS_COLUMN_ORDER = [
+  "Issuer",
+  "CUSIP",
+  "Class",
+  "Put/Call",
+  "Previous Shares",
+  "Previous Value",
+  "Type",
+];
+
+const CHANGES_COLUMN_ORDER = [
+  "Issuer",
+  "Direction",
+  "Delta %",
+  "Delta Shares",
+  "Delta Value %",
+  "Delta Value",
+  "Shares Before",
+  "Shares After",
+  "Value Before",
+  "Value After",
+  "CUSIP",
+  "Class",
+  "Put/Call",
+  "Type",
 ];
 
 const TOP_MOVERS_COLUMN_ORDER = [
@@ -325,6 +375,97 @@ function getDefaultFund(funds: string[]): string {
   return funds[0] ?? "";
 }
 
+type TransitionDrilldownProps = {
+  formattedDiff: FormattedDiff | undefined;
+  loading: boolean;
+  caption?: string;
+};
+
+function TransitionDrilldownTables({ formattedDiff, loading, caption }: TransitionDrilldownProps) {
+  const newSection = formattedDiff?.new_positions;
+  const closedSection = formattedDiff?.closed_positions;
+  const changesSection = formattedDiff?.share_changes;
+  const hasNew = Boolean(newSection?.count);
+  const hasClosed = Boolean(closedSection?.count);
+  const hasChanges = Boolean(changesSection?.count);
+
+  const defaultTab = hasNew ? "new" : hasClosed ? "closed" : hasChanges ? "changes" : null;
+
+  return (
+    <div>
+      {caption ? (
+        <Text size="sm" c="dimmed" mb="sm">
+          {caption}
+        </Text>
+      ) : null}
+      {!hasNew && !hasClosed && !hasChanges ? (
+        <Alert variant="light" color="green" radius="md">
+          No position-level changes for this transition.
+        </Alert>
+      ) : (
+        <Tabs defaultValue={defaultTab ?? undefined} variant="pills">
+          <Tabs.List>
+            <Tabs.Tab value="new" disabled={!hasNew}>
+              New ({newSection?.count ?? 0})
+            </Tabs.Tab>
+            <Tabs.Tab value="closed" disabled={!hasClosed}>
+              Closed ({closedSection?.count ?? 0})
+            </Tabs.Tab>
+            <Tabs.Tab value="changes" disabled={!hasChanges}>
+              Share changes ({changesSection?.count ?? 0})
+            </Tabs.Tab>
+          </Tabs.List>
+
+          <Tabs.Panel value="new" pt="md">
+            {hasNew && newSection ? (
+              <DataTable
+                columns={newSection.rows[0] ? Object.keys(newSection.rows[0]) : []}
+                rows={newSection.rows}
+                columnOrder={NEW_POSITIONS_COLUMN_ORDER}
+                cellLinks={ISSUER_CELL_LINK}
+                maxHeight={360}
+                stickyHeader
+                loading={loading}
+                loadingColumns={NEW_POSITIONS_COLUMN_ORDER.length}
+              />
+            ) : null}
+          </Tabs.Panel>
+
+          <Tabs.Panel value="closed" pt="md">
+            {hasClosed && closedSection ? (
+              <DataTable
+                columns={closedSection.rows[0] ? Object.keys(closedSection.rows[0]) : []}
+                rows={closedSection.rows}
+                columnOrder={CLOSED_POSITIONS_COLUMN_ORDER}
+                cellLinks={ISSUER_CELL_LINK}
+                maxHeight={360}
+                stickyHeader
+                loading={loading}
+                loadingColumns={CLOSED_POSITIONS_COLUMN_ORDER.length}
+              />
+            ) : null}
+          </Tabs.Panel>
+
+          <Tabs.Panel value="changes" pt="md">
+            {hasChanges && changesSection ? (
+              <DataTable
+                columns={changesSection.rows[0] ? Object.keys(changesSection.rows[0]) : []}
+                rows={changesSection.rows}
+                columnOrder={CHANGES_COLUMN_ORDER}
+                cellLinks={ISSUER_CELL_LINK}
+                maxHeight={360}
+                stickyHeader
+                loading={loading}
+                loadingColumns={CHANGES_COLUMN_ORDER.length}
+              />
+            ) : null}
+          </Tabs.Panel>
+        </Tabs>
+      )}
+    </div>
+  );
+}
+
 export function FundAnalysisPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -428,6 +569,9 @@ export function FundAnalysisPage() {
 
   const compareEnabled =
     Boolean(fund) && Boolean(newAccession) && Boolean(oldAccession) && oldAccession !== newAccession;
+  // Timeline shows the compare tables as its drill-down, once there is a
+  // transition to drill into.
+  const timelineNeedsCompare = tab === "timeline" && (historyQuery.data?.transitions?.length ?? 0) > 0;
 
   const compareQuery = useQuery({
     queryKey: ["fund-compare", fund, oldAccession, newAccession],
@@ -437,11 +581,10 @@ export function FundAnalysisPage() {
           oldAccession,
         )}&new_accession=${encodeURIComponent(newAccession)}`,
       ),
-    enabled: compareEnabled && tab === "compare",
+    enabled: compareEnabled && (tab === "compare" || timelineNeedsCompare),
   });
 
-  const [chartsOpen, setChartsOpen] = useState<string | null>(null);
-  const flowChartsEnabled = compareEnabled && tab === "compare" && chartsOpen === "charts";
+  const flowChartsEnabled = compareEnabled && tab === "compare";
 
   const sankeyQuery = useQuery({
     queryKey: [
@@ -658,6 +801,11 @@ export function FundAnalysisPage() {
             mb={0}
           />
         ) : null}
+        {fund ? (
+          <Text size="sm" c="dimmed" mt="sm">
+            One fund workspace for filing inventory, quarter history, and position-level change analysis.
+          </Text>
+        ) : null}
       </Paper>
 
       {headerQuery.data && headerQuery.data.has_db_holdings === false ? (
@@ -756,10 +904,11 @@ export function FundAnalysisPage() {
                 />
               ) : null}
 
-              {snapshot?.value_multiplier && snapshot.value_multiplier !== 1 ? (
+              {snapshot?.value_multiplier ? (
                 <Text size="sm" c="dimmed" mb="sm">
-                  This filing reported values in thousands; they are shown here in dollars
-                  (x{snapshot.value_multiplier}).
+                  Value scale for this filing is auto-normalized using implied per-share prices
+                  (multiplier x{snapshot.value_multiplier}). Normalized aggregates rows with the same CUSIP
+                  and is best for portfolio analysis.
                 </Text>
               ) : null}
 
@@ -774,10 +923,14 @@ export function FundAnalysisPage() {
                       label: "Normalized positions",
                       value: Number(snapshot.metrics.normalized_positions ?? 0).toLocaleString(),
                     },
+                    {
+                      label: "Compression",
+                      value: `${(((snapshot.metrics.compression ?? 0) as number) * 100).toFixed(1)}%`,
+                    },
                   ]}
                 />
               ) : snapshotLoading ? (
-                <KpiLoading count={2} />
+                <KpiLoading count={3} />
               ) : null}
 
               {snapshotQuery.isError && !snapshot ? null : (
@@ -864,15 +1017,14 @@ export function FundAnalysisPage() {
           <Tabs.Panel value="timeline">
             <Paper withBorder p="md" radius="md" bg="white" mb="lg">
               <Group justify="space-between" align="flex-start" mb="md">
-                <Group gap={6} align="center">
+                <div>
                   <Text size="xs" tt="uppercase" fw={700} c="dimmed">
                     Quarter timeline
                   </Text>
-                  <InfoTip>
-                    One row per filing, newest first. Portfolio values are normalized per filing
-                    (multipliers: {history?.summary?.value_multiplier_summary ?? "x1"}).
-                  </InfoTip>
-                </Group>
+                  <Text size="sm" c="dimmed">
+                    Quarter-over-quarter history with portfolio trajectory and QoQ activity counts.
+                  </Text>
+                </div>
                 <ExportLink
                   href={buildHistoryExportHref(fund)}
                   label="Download fund timeline CSV"
@@ -928,6 +1080,13 @@ export function FundAnalysisPage() {
                 <KpiLoading count={4} />
               ) : null}
 
+              {history?.summary?.value_multiplier_summary ? (
+                <Text size="sm" c="dimmed" mb="sm">
+                  Historical portfolio values are normalized by filing (multipliers:{" "}
+                  {history.summary.value_multiplier_summary}).
+                </Text>
+              ) : null}
+
               <DataTable
                 columns={
                   history?.history && history.history[0] ? Object.keys(history.history[0]) : []
@@ -945,9 +1104,9 @@ export function FundAnalysisPage() {
                   // Short titles: the fund name is already on screen, and the
                   // long server title is cut off at half width.
                   chart={positionsChart ? { ...positionsChart, title: "Positions per filing" } : undefined}
-                  loading={historyQuery.isLoading && !positionsChart?.x?.length}
                   yLabel="Positions"
                   valueFormat=",d"
+                  loading={historyQuery.isLoading && !positionsChart?.x?.length}
                 />
                 {valueChart ? (
                   <LineChart
@@ -1017,9 +1176,42 @@ export function FundAnalysisPage() {
                         }}
                         variant="light"
                       >
-                        Open this change in Compare
+                        Inspect in Compare
                       </Button>
                     </Group>
+                    <Text size="sm" c="dimmed" mt="xs">
+                      Detailed new, closed, and share-change tables are consolidated in Compare so each
+                      transition is inspected in one place.
+                    </Text>
+
+                    <Paper withBorder p="md" radius="md" bg="white" mt="md">
+                      <SectionHeader
+                        title="Position drill-down"
+                        caption={`New, closed, increased, and decreased positions for ${formatDateValue(
+                          selectedTransition.from_filing_date,
+                        )} → ${formatDateValue(selectedTransition.to_filing_date)}.`}
+                      />
+                      {compareQuery.isError && !compare ? (
+                        <QueryError
+                          title="Could not load the positions for this transition"
+                          error={compareQuery.error}
+                          onRetry={() => compareQuery.refetch()}
+                          retrying={compareQuery.isFetching}
+                          mb={0}
+                        />
+                      ) : compareQuery.isLoading && !compare?.formatted_diff ? (
+                        <ChartLoading label="Loading transition details…" />
+                      ) : compare?.formatted_diff ? (
+                        <TransitionDrilldownTables
+                          formattedDiff={compare.formatted_diff}
+                          loading={compareQuery.isLoading}
+                        />
+                      ) : (
+                        <Text size="sm" c="dimmed">
+                          No detailed rows available for this transition.
+                        </Text>
+                      )}
+                    </Paper>
                   </>
                 ) : null}
               </Paper>
@@ -1111,15 +1303,11 @@ export function FundAnalysisPage() {
                   </AlertBanner>
                 ) : null}
 
-                <Group gap={6} mb="md">
-                  <Text size="sm" c="dimmed">
-                    How positions are matched
-                  </Text>
-                  <InfoTip label="How positions are matched">
-                    Common shares, CALLs and PUTs stay separate even when they share the same CUSIP;
-                    positions without a CUSIP are matched on issuer, class and put/call.
-                  </InfoTip>
-                </Group>
+                <Text size="sm" c="dimmed" mb="md">
+                  Compare is the position-level change workspace. Common shares, CALLs, and PUTs remain
+                  separate even when they share the same underlying CUSIP; positions without CUSIP use the
+                  fallback issuer/class/put-call key.
+                </Text>
 
                 {compareQuery.isError ? (
                   <QueryError
@@ -1174,7 +1362,9 @@ export function FundAnalysisPage() {
                   <Paper withBorder p="md" radius="md" bg="white" mt="lg">
                     <SectionHeader
                       title="Top movers"
-                      caption="Largest position changes by absolute share delta, across new, closed, increased and decreased positions."
+                      caption={`Largest position changes by absolute share delta across new, closed, increased, and decreased positions (value multiplier x${
+                        compare?.top_movers?.value_multiplier ?? 1
+                      }).`}
                       right={
                         <ExportLink
                           href={buildSectionExportHref(fund, "top_movers", oldAccession, newAccession)}
@@ -1202,46 +1392,9 @@ export function FundAnalysisPage() {
 
                 <Paper withBorder p="md" radius="md" bg="white" mt="lg">
                   <SectionHeader
-                    title="All changes"
-                    caption="Every new, closed and resized position between the two filings, sorted by size of the move."
+                    title="Visual movement summary"
+                    caption="Delta Shares = NEW quarter shares - PREVIOUS quarter shares. Ribbon width is proportional to share quantity (linear scale). PUT/CALL options are excluded by default."
                   />
-                  <ChangeTables
-                    formattedDiff={compare?.formatted_diff}
-                    loading={compareQuery.isLoading}
-                    exports={{
-                      new_positions: {
-                        href: buildSectionExportHref(fund, "new_positions", oldAccession, newAccession),
-                        fileName: `f8_13f_${safeFileToken(fund)}_new_positions.csv`,
-                      },
-                      closed_positions: {
-                        href: buildSectionExportHref(fund, "closed_positions", oldAccession, newAccession),
-                        fileName: `f8_13f_${safeFileToken(fund)}_closed_positions.csv`,
-                      },
-                      share_changes: {
-                        href: buildSectionExportHref(fund, "share_changes", oldAccession, newAccession),
-                        fileName: `f8_13f_${safeFileToken(fund)}_share_changes.csv`,
-                      },
-                    }}
-                  />
-                </Paper>
-
-                {/* Collapsed by default: the flow charts restate the tables above,
-                    and they only load once opened. */}
-                <Accordion
-                  value={chartsOpen}
-                  onChange={setChartsOpen}
-                  variant="separated"
-                  radius="md"
-                  mt="lg"
-                >
-                  <Accordion.Item value="charts" bg="white">
-                    <Accordion.Control>
-                      <Text fw={700}>Flow charts</Text>
-                      <Text size="xs" c="dimmed">
-                        Shares bought and sold, position by position
-                      </Text>
-                    </Accordion.Control>
-                    <Accordion.Panel>
                   <SimpleGrid cols={{ base: 1, md: 2, lg: 4 }} mb="md">
                     <NumberInput
                       label="Top N buy flows"
@@ -1300,6 +1453,15 @@ export function FundAnalysisPage() {
                       </Text>
                     </Group>
                   ) : null}
+                  {sankeyQuery.data ? (
+                    <Text size="sm" c="dimmed" mb="sm">
+                      Ribbon width is proportional to share delta (linear scale).
+                      {" "}PUT/CALL options are{" "}
+                      {sankeyQuery.data.include_options ? "included" : "excluded"}. Hover labels
+                      show raw share deltas and auto-normalized delta values (value multiplier x
+                      {sankeyQuery.data.value_multiplier ?? 1}).
+                    </Text>
+                  ) : null}
                   {sankeyQuery.isError && !sankeyQuery.data ? (
                     <QueryError
                       title="Could not load the flows chart"
@@ -1338,9 +1500,121 @@ export function FundAnalysisPage() {
                       onPointClick={goToHoldingsSearch}
                     />
                   )}
-                    </Accordion.Panel>
-                  </Accordion.Item>
-                </Accordion>
+                </Paper>
+
+                <Paper withBorder p="md" radius="md" bg="white" mt="lg">
+                  <SectionHeader
+                    title="Detailed change tables"
+                    caption="Formatted positions and share-change rows, sorted by absolute magnitude."
+                  />
+
+                  {compare?.formatted_diff?.new_positions?.count ? (
+                    <div style={{ marginTop: "0.75rem" }}>
+                      <Group justify="space-between" align="flex-end" mb="xs">
+                        <div>
+                          <Text fw={700}>New positions ({compare.formatted_diff.new_positions.count})</Text>
+                          <Text size="sm" c="dimmed">
+                            Displayed values are auto-scaled from stored units using implied per-share
+                            prices (multiplier x{compare.formatted_diff.new_positions.value_multiplier ?? 1}).
+                          </Text>
+                        </div>
+                        <ExportLink
+                          href={buildSectionExportHref(fund, "new_positions", oldAccession, newAccession)}
+                          label="Download new positions CSV"
+                          fileName={`f8_13f_${safeFileToken(fund)}_new_positions.csv`}
+                        />
+                      </Group>
+                      <DataTable
+                        columns={
+                          compare.formatted_diff.new_positions.rows[0]
+                            ? Object.keys(compare.formatted_diff.new_positions.rows[0])
+                            : []
+                        }
+                        rows={compare.formatted_diff.new_positions.rows}
+                        columnOrder={NEW_POSITIONS_COLUMN_ORDER}
+                        cellLinks={ISSUER_CELL_LINK}
+                        maxHeight={320}
+                        stickyHeader
+                        loading={compareQuery.isLoading}
+                        loadingColumns={NEW_POSITIONS_COLUMN_ORDER.length}
+                      />
+                    </div>
+                  ) : null}
+
+                  {compare?.formatted_diff?.closed_positions?.count ? (
+                    <div style={{ marginTop: "1rem" }}>
+                      <Group justify="space-between" align="flex-end" mb="xs">
+                        <div>
+                          <Text fw={700}>Closed positions ({compare.formatted_diff.closed_positions.count})</Text>
+                          <Text size="sm" c="dimmed">
+                            Displayed values are auto-scaled from stored units using implied per-share
+                            prices (multiplier x{compare.formatted_diff.closed_positions.value_multiplier ?? 1}).
+                          </Text>
+                        </div>
+                        <ExportLink
+                          href={buildSectionExportHref(fund, "closed_positions", oldAccession, newAccession)}
+                          label="Download closed positions CSV"
+                          fileName={`f8_13f_${safeFileToken(fund)}_closed_positions.csv`}
+                        />
+                      </Group>
+                      <DataTable
+                        columns={
+                          compare.formatted_diff.closed_positions.rows[0]
+                            ? Object.keys(compare.formatted_diff.closed_positions.rows[0])
+                            : []
+                        }
+                        rows={compare.formatted_diff.closed_positions.rows}
+                        columnOrder={CLOSED_POSITIONS_COLUMN_ORDER}
+                        cellLinks={ISSUER_CELL_LINK}
+                        maxHeight={320}
+                        stickyHeader
+                        loading={compareQuery.isLoading}
+                        loadingColumns={CLOSED_POSITIONS_COLUMN_ORDER.length}
+                      />
+                    </div>
+                  ) : null}
+
+                  {compare?.formatted_diff?.share_changes?.count ? (
+                    <div style={{ marginTop: "1rem" }}>
+                      <Group justify="space-between" align="flex-end" mb="xs">
+                        <div>
+                          <Text fw={700}>All share changes ({compare.formatted_diff.share_changes.count})</Text>
+                          <Text size="sm" c="dimmed">
+                            Sorted by absolute percentage move. Green rows are increases; red rows are
+                            decreases. Value columns are auto-scaled from stored units (multiplier x
+                            {compare.formatted_diff.share_changes.value_multiplier ?? 1}).
+                          </Text>
+                        </div>
+                        <ExportLink
+                          href={buildSectionExportHref(fund, "share_changes", oldAccession, newAccession)}
+                          label="Download share changes CSV"
+                          fileName={`f8_13f_${safeFileToken(fund)}_share_changes.csv`}
+                        />
+                      </Group>
+                      <DataTable
+                        columns={
+                          compare.formatted_diff.share_changes.rows[0]
+                            ? Object.keys(compare.formatted_diff.share_changes.rows[0])
+                            : []
+                        }
+                        rows={compare.formatted_diff.share_changes.rows}
+                        columnOrder={CHANGES_COLUMN_ORDER}
+                        cellLinks={ISSUER_CELL_LINK}
+                        maxHeight={420}
+                        stickyHeader
+                        loading={compareQuery.isLoading}
+                        loadingColumns={CHANGES_COLUMN_ORDER.length}
+                      />
+                    </div>
+                  ) : null}
+
+                  {/* Only an answer can say "no changes": not a load in progress, not a failure. */}
+                  {compare && !compare.formatted_diff?.has_any ? (
+                    <AlertBanner variant="success" title="No changes between the two quarters">
+                      The selected accession pair has no detected position-level changes.
+                    </AlertBanner>
+                  ) : null}
+                </Paper>
               </Paper>
             )}
           </Tabs.Panel>
