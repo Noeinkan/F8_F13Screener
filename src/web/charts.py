@@ -171,7 +171,7 @@ def build_shares_flow_sankey_data(
             "new_shares": entry.get("new_shares"),
             "value_change": entry.get("value_change"),
             "side": "buy",
-            "link_color": "rgba(44, 160, 44, 0.45)",
+            "link_color": MOVEMENT_STYLE["Increased"]["line_color"],
         })
 
     for entry in diff.get("decreased", []):
@@ -194,7 +194,7 @@ def build_shares_flow_sankey_data(
             "new_shares": entry.get("new_shares"),
             "value_change": entry.get("value_change"),
             "side": "sell",
-            "link_color": "rgba(214, 39, 40, 0.45)",
+            "link_color": MOVEMENT_STYLE["Decreased"]["line_color"],
         })
 
     for entry in diff.get("new_positions", []):
@@ -216,7 +216,7 @@ def build_shares_flow_sankey_data(
             "new_shares": shares,
             "value_change": entry.get("value_usd"),
             "side": "buy",
-            "link_color": "rgba(44, 160, 44, 0.38)",
+            "link_color": MOVEMENT_STYLE["New position"]["line_color"],
         })
 
     for entry in diff.get("closed_positions", []):
@@ -238,7 +238,7 @@ def build_shares_flow_sankey_data(
             "new_shares": 0,
             "value_change": -_numeric_or_zero(entry.get("value_usd")) if entry.get("value_usd") is not None else None,
             "side": "sell",
-            "link_color": "rgba(214, 39, 40, 0.38)",
+            "link_color": MOVEMENT_STYLE["Closed position"]["line_color"],
         })
 
     movements = _limit_movements_by_side(
@@ -286,8 +286,8 @@ def build_shares_flow_sankey_data(
         ])
 
     node_colors = [
-        "rgba(44, 160, 44, 0.85)" if label == BUY_NODE else
-        "rgba(214, 39, 40, 0.85)" if label == SELL_NODE else
+        "rgba(34, 197, 94, 0.85)" if label == BUY_NODE else
+        "rgba(239, 68, 68, 0.85)" if label == SELL_NODE else
         "rgba(120, 130, 145, 0.55)"
         for label in node_labels
     ]

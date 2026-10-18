@@ -1130,7 +1130,7 @@ export function FundAnalysisPage() {
               <Paper withBorder p="md" radius="md" bg="white" mb="lg">
                 <SectionHeader
                   title="Quarter-over-quarter activity"
-                  caption="Bars show per-transition counts of new / closed / increased / decreased positions. Click a bar cluster to drill into that transition below."
+                  caption="One column per filing. Above the line: positions the fund opened or added to. Below: positions it closed or trimmed. Click a column to drill into that transition below."
                 />
                 <GroupedBarChart
                   chart={transitionsChart}
